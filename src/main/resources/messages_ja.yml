@@ -1,0 +1,42 @@
+# ${project.name} v${project.version}
+# @author     ucchy
+# @license    LGPLv3
+# @copyright  Copyright ucchy 2015
+
+PermissionDeniedCommand: '&cパーミッションが無いため、実行できません。'
+
+ErrorRequireArgument: '&cコマンドのパラメータに %param を指定してください。'
+ErrorInvalidIndex: '&c指定されたメール番号 %index が正しくありません。'
+ErrorNoneReadPermission: '&c指定されたメールはあなた宛ではないので表示できません。'
+ErrorNotFoundDestination: '&c宛先 %dest が見つかりません。'
+ErrorCannotSendSelf: '&c自分自身にメールを送信することはできません。'
+
+InformationReload: '&aデータを再読み込みしました。'
+InformationYouGotMail: '&7%from &aさんから新しいメールが届きました!'
+InformationYouSentMail: '&7メールを送信しました。'
+
+MailDetailFirstLine: '&7========== メール(#%number) =========='
+MailDetailFromLine: '&7# &c送信者: &f%from'
+MailDetailToLine: '&7# &c宛先: &f%to'
+MailDetailDateLine: '&7# &c送信日時: &f%date'
+MailDetailMessageLine: '&7# &cメッセージ:'
+MailDetailAttachmentsLine: '&7# &c添付アイテム:'
+MailDetailLinePre: '&7# '
+MailDetailLastLine: '&7================================'
+
+InboxFirstLine: '&7---------- 受信箱(%page/%max) 未読 %unread通 ----------'
+InboxLinePre: '&7| '
+
+OutboxFirstLine: '&7---------- 送信箱(%page/%max) ----------'
+OutboxLinePre: '&7| '
+
+PrevPage: '[＜前のページ]'
+NextPage: '[次のページ＞]'
+PagerParts: '&7-----'
+
+DateFormat: 'yyyy/MM/dd(E) hh:mm:ss'
+
+Editmode: '編集中'
+
+EditmodeBoxTitle: '編集中メールの添付ボックス'
+AttachmentBoxTitle: '添付ボックス(#%number)'

@@ -1,0 +1,42 @@
+# ${project.name} v${project.version}
+# @author     ucchy
+# @license    LGPLv3
+# @copyright  Copyright ucchy 2015
+
+PermissionDeniedCommand: '&cYou don''t have a permission.'
+
+ErrorRequireArgument: '&cPlease specify the parameters %param to the command.'
+ErrorInvalidIndex: '&cThe specified mail index %index is invalid.'
+ErrorNoneReadPermission: '&cCannot read this mail.'
+ErrorNotFoundDestination: '&cThe specified destination %dest is not found.'
+ErrorCannotSendSelf: '&cCannot send mail to yourself.'
+
+InformationReload: '&aAll data were reloaded.'
+InformationYouGotMail: '&aYou got new mail from &7%from&a!'
+InformationYouSentMail: '&7Your mail has been sent.'
+
+MailDetailFirstLine: '&7---------- Mail (#%number) ----------'
+MailDetailFromLine: '&7| &cSender: &f%from'
+MailDetailToLine: '&7| &cRecipient: &f%to'
+MailDetailDateLine: '&7| &cDate: &f%date'
+MailDetailMessageLine: '&7| &cMessage:'
+MailDetailAttachmentsLine: '&7| &cAttached Items:'
+MailDetailLinePre: '&7| '
+MailDetailLastLine: '&7-------------------------------------'
+
+InboxFirstLine: '&7---------- Inbox(%page/%max) Unread %unread ----------'
+InboxLinePre: '&7| '
+
+OutboxFirstLine: '&7---------- Outbox(%page/%max) ----------'
+OutboxLinePre: '&7| '
+
+PrevPage: '[< PrevPage]'
+NextPage: '[NextPage >]'
+PagerParts: '&7-----'
+
+DateFormat: 'MM/dd/yyyy(EEE) hh:mm:ss'
+
+Editmode: 'EditMode'
+
+EditmodeBoxTitle: 'AttachmentBox (EditMode)'
+AttachmentBoxTitle: 'AttachmentBox (#%number)'

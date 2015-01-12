@@ -1,0 +1,92 @@
+name: ${project.name}
+version: ${project.version}
+main: org.bitbucket.ucchy.mc.MailCraft
+Description: Mail Plugin
+author: ucchy
+
+commands:
+  mailcraft:
+    description: Commands of MailCraft
+    aliases: [m,mail]
+    usage: |
+           /<command> inbox [page] - Check your unread mails.
+           /<command> outbox [page] - Check your sent mails.
+           /<command> read <index> - Opens the specified mail.
+           /<command> text <to> <message> - Send simple text mail.
+           /<command> write <to> [message] - Start to create new mail.
+           /<command> to <to> - Change the destination of mail.
+           /<command> message <line num> <message> - Change the message of mail.
+           /<command> attach [index] - Open attachment box of mail.
+           /<command> send - Send mail.
+           /<command> reload - Reload all of data.
+    permission: mailcraft.command
+    permission-message: 'You don''t have a permission "<permission>".'
+
+permissions:
+  mailcraft.command:
+    description: Permission of command.
+    default: true
+  mailcraft.command.inbox:
+    description: Permission of inbox command.
+    default: true
+  mailcraft.command.outbox:
+    description: Permission of outbox command.
+    default: true
+  mailcraft.command.read:
+    description: Permission of read command.
+    default: true
+  mailcraft.command.read-all:
+    description: Permission of read other's mail.
+    default: op
+  mailcraft.command.text:
+    description: Permission of text command.
+    default: true
+  mailcraft.command.write:
+    description: Permission of write command.
+    default: true
+  mailcraft.command.to:
+    description: Permission of to command.
+    default: true
+  mailcraft.command.message:
+    description: Permission of message command.
+    default: true
+  mailcraft.command.attach:
+    description: Permission of attach command.
+    default: true
+  mailcraft.command.send:
+    description: Permission of send command.
+    default: true
+  mailcraft.command.send-all:
+    description: Permission of send all command.
+    default: op
+  mailcraft.command.reload:
+    description: Permission of reload command.
+    default: op
+  'mailcraft.command.*':
+    description: Permissions of all commands.
+    children:
+      mailcraft.command: true
+      mailcraft.command.inbox: true
+      mailcraft.command.outbox: true
+      mailcraft.command.read: true
+      mailcraft.command.read-all: true
+      mailcraft.command.text: true
+      mailcraft.command.write: true
+      mailcraft.command.to: true
+      mailcraft.command.message: true
+      mailcraft.command.attach: true
+      mailcraft.command.send: true
+      mailcraft.command.send-all: true
+      mailcraft.command.reload: true
+
+  mailcraft.multi-attach:
+    description: Permission of sending multi attachment mail.
+    default: op
+
+  'mailcraft.*':
+    description: All Permissions of MailCraft.
+    children:
+      'mailcraft.command.*': true
+      mailcraft.multi-attach: true
+
+
