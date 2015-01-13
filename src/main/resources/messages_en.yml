@@ -30,9 +30,11 @@ InboxLinePre: '&7| '
 OutboxFirstLine: '&7---------- Outbox(%page/%max) ----------'
 OutboxLinePre: '&7| '
 
-PrevPage: '[< PrevPage]'
-NextPage: '[NextPage >]'
-PagerParts: '&7-----'
+FirstPage: '[<<First]'
+PrevPage: '[<Prev]'
+NextPage: '[Next>]'
+LastPage: '[Last>>]'
+PagerParts: '&7---'
 
 DateFormat: 'MM/dd/yyyy(EEE) hh:mm:ss'
 

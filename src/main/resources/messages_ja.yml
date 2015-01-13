@@ -24,15 +24,17 @@ MailDetailAttachmentsLine: '&7# &c添付アイテム:'
 MailDetailLinePre: '&7# '
 MailDetailLastLine: '&7================================'
 
-InboxFirstLine: '&7---------- 受信箱(%page/%max) 未読 %unread通 ----------'
+InboxFirstLine: '&7---------- 受信箱 (未読 %unread通) ----------'
 InboxLinePre: '&7| '
 
-OutboxFirstLine: '&7---------- 送信箱(%page/%max) ----------'
+OutboxFirstLine: '&7---------- 送信箱 ----------'
 OutboxLinePre: '&7| '
 
-PrevPage: '[＜前のページ]'
-NextPage: '[次のページ＞]'
-PagerParts: '&7-----'
+FirstPage: '[<<]'
+PrevPage: '[<前]'
+NextPage: '[次>]'
+LastPage: '[>>]'
+PagerParts: '&7---'
 
 DateFormat: 'yyyy/MM/dd(E) hh:mm:ss'
 

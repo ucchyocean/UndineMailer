@@ -14,7 +14,9 @@ import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 
-import org.bukkit.Bukkit;
+import org.bitbucket.ucchy.mc.tellraw.ClickEventType;
+import org.bitbucket.ucchy.mc.tellraw.MessageComponent;
+import org.bitbucket.ucchy.mc.tellraw.MessageParts;
 import org.bukkit.ChatColor;
 import org.bukkit.OfflinePlayer;
 import org.bukkit.command.CommandSender;
@@ -26,6 +28,7 @@ import org.bukkit.entity.Player;
  */
 public class MailManager {
 
+    private static final String COMMAND = "/mailcraft";
     private static final int PAGE_SIZE = 10;
 
     private ArrayList<MailData> mails;
@@ -323,7 +326,7 @@ public class MailManager {
             ChatColor color = mail.isRead(sender.getName()) ? ChatColor.GRAY : ChatColor.GOLD;
 
             if ( player == null ) {
-                String msg = String.format("%s %s[%d] %s",
+                String msg = String.format("%s %s[%d]%s",
                         pre, color.toString(), index, mail.getInboxSummary());
                 sender.sendMessage(msg);
             } else {
@@ -333,17 +336,7 @@ public class MailManager {
 
         // 対象者がプレイヤーなら、ページャーを表示する
         if ( player != null ) {
-            String parts = Messages.get("PagerParts");
-
-            String prevCommand = null;
-            if ( page > 1 ) {
-                prevCommand = "/mailcraft inbox " + (page - 1);
-            }
-            String nextCommand = null;
-            if ( max > page ) {
-                nextCommand = "/mailcraft inbox " + (page + 1);
-            }
-            sendPagerTellraw(player, parts, prevCommand, nextCommand);
+            sendPagerTellraw(player, COMMAND + " inbox", page, max);
         }
     }
 
@@ -376,7 +369,7 @@ public class MailManager {
             ChatColor color = ChatColor.GRAY;
 
             if ( player == null ) {
-                String msg = String.format("%s %s[%d] %s",
+                String msg = String.format("%s %s[%d]%s",
                         pre, color.toString(), index, mail.getOutboxSummary());
                 sender.sendMessage(msg);
             } else {
@@ -386,17 +379,7 @@ public class MailManager {
 
         // 対象者がプレイヤーなら、ページャーを表示する
         if ( player != null ) {
-            String parts = Messages.get("PagerParts");
-
-            String prevCommand = null;
-            if ( page > 1 ) {
-                prevCommand = "/mailcraft outbox " + (page - 1);
-            }
-            String nextCommand = null;
-            if ( max > page ) {
-                nextCommand = "/mailcraft outbox " + (page + 1);
-            }
-            sendPagerTellraw(player, parts, prevCommand, nextCommand);
+            sendPagerTellraw(player, COMMAND + " outbox", page, max);
         }
     }
 
@@ -410,59 +393,79 @@ public class MailManager {
     private void sendMailLineTellraw(
             Player player, String pre, String summary, MailData mail) {
 
-        StringBuffer buffer = new StringBuffer();
-        buffer.append("tellraw ");
-        buffer.append(player.getName() + " ");
-        buffer.append("{\"text\":\"\",\"extra\":[");
-        buffer.append("{\"text\":\"" + pre + "\"},");
-        buffer.append("{\"text\":\"[" + mail.getIndex() + "]\","
-                + "\"color\":\"blue\",\"underlined\":\"true\","
-                + "\"clickEvent\":{\"action\":\"run_command\",\"value\":\""
-                + "/mailcraft read " + mail.getIndex() + "\"}},");
-        buffer.append("{\"text\":\"" + summary + "\"}");
-        buffer.append("]}");
+        MessageComponent msg = new MessageComponent();
 
-        Bukkit.dispatchCommand(Bukkit.getConsoleSender(), buffer.toString());
+        msg.addText(pre);
+
+        MessageParts button = new MessageParts(
+                "[" + mail.getIndex() + "]", ChatColor.BLUE, ChatColor.UNDERLINE);
+        button.setClickEvent(
+                ClickEventType.RUN_COMMAND, COMMAND + " read " + mail.getIndex());
+        msg.addParts(button);
+
+        msg.addText(summary);
+
+        msg.sendCommand(player);
     }
 
     /**
      * tellrawを利用したページャーを、対象プレイヤーに表示する
      * @param player プレイヤー
-     * @param parts パーツ
-     * @param prevCommand 前のページボタンに割り当てるコマンド
-     * @param nextCommand 次のページボタンに割り当てるコマンド
+     * @param commandPre コマンドのプレフィックス
+     * @param page 現在のページ
+     * @param max 最終ページ
      */
-    private void sendPagerTellraw(
-            Player player, String parts, String prevCommand, String nextCommand) {
+    private void sendPagerTellraw(Player player, String commandPre, int page, int max) {
 
-        String labelPrev = Messages.get("PrevPage");
-        String labelNext = Messages.get("NextPage");
+        String firstLabel = Messages.get("FirstPage");
+        String prevLabel = Messages.get("PrevPage");
+        String nextLabel = Messages.get("NextPage");
+        String lastLabel = Messages.get("LastPage");
+        String parts = Messages.get("PagerParts");
 
-        StringBuffer buffer = new StringBuffer();
-        buffer.append("tellraw ");
-        buffer.append(player.getName() + " ");
-        buffer.append("{\"text\":\"\",\"extra\":[");
-        buffer.append("{\"text\":\"" + parts + "\"},");
-        if ( prevCommand != null ) {
-            buffer.append("{\"text\":\"" + labelPrev + "\","
-                    + "\"color\":\"blue\",\"underlined\":\"true\","
-                    + "\"clickEvent\":{\"action\":\"run_command\",\"value\":\""
-                    + prevCommand + "\"}},");
+        MessageComponent msg = new MessageComponent();
+
+        msg.addText(parts + " ");
+
+        if ( page > 1 ) {
+            MessageParts firstButton = new MessageParts(
+                    firstLabel, ChatColor.BLUE, ChatColor.UNDERLINE);
+            firstButton.setClickEvent(ClickEventType.RUN_COMMAND, commandPre + " 1");
+            msg.addParts(firstButton);
+
+            msg.addText(" ");
+
+            MessageParts prevButton = new MessageParts(
+                    prevLabel, ChatColor.BLUE, ChatColor.UNDERLINE);
+            prevButton.setClickEvent(ClickEventType.RUN_COMMAND, commandPre + " " + (page - 1));
+            msg.addParts(prevButton);
+
         } else {
-            buffer.append("{\"text\":\"" + labelPrev + "\"},");
-        }
-        buffer.append("{\"text\":\"" + parts + "\"},");
-        if ( nextCommand != null ) {
-            buffer.append("{\"text\":\"" + labelNext + "\","
-                    + "\"color\":\"blue\",\"underlined\":\"true\","
-                    + "\"clickEvent\":{\"action\":\"run_command\",\"value\":\""
-                    + nextCommand + "\"}},");
-        } else {
-            buffer.append("{\"text\":\"" + labelNext + "\"},");
-        }
-        buffer.append("{\"text\":\"" + parts + "\"}");
-        buffer.append("]}");
+            msg.addText(firstLabel + " " + prevLabel, ChatColor.WHITE);
 
-        Bukkit.dispatchCommand(Bukkit.getConsoleSender(), buffer.toString());
+        }
+
+        msg.addText(" (" + page + "/" + max + ") ");
+
+        if ( page < max ) {
+            MessageParts nextButton = new MessageParts(
+                    nextLabel, ChatColor.BLUE, ChatColor.UNDERLINE);
+            nextButton.setClickEvent(ClickEventType.RUN_COMMAND, commandPre + " " + (page + 1));
+            msg.addParts(nextButton);
+
+            msg.addText(" ");
+
+            MessageParts lastButton = new MessageParts(
+                    lastLabel, ChatColor.BLUE, ChatColor.UNDERLINE);
+            lastButton.setClickEvent(ClickEventType.RUN_COMMAND, commandPre + " " + max);
+            msg.addParts(lastButton);
+
+        } else {
+            msg.addText(nextLabel + " " + lastLabel, ChatColor.WHITE);
+        }
+
+        msg.addText(" " + parts);
+
+        msg.sendCommand(player);
     }
 }
