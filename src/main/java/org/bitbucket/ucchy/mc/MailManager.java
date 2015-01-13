@@ -421,6 +421,10 @@ public class MailManager {
         String prevLabel = Messages.get("PrevPage");
         String nextLabel = Messages.get("NextPage");
         String lastLabel = Messages.get("LastPage");
+        String firstToolTip = Messages.get("FirstPageToolTip");
+        String prevToolTip = Messages.get("PrevPageToolTip");
+        String nextToolTip = Messages.get("NextPageToolTip");
+        String lastToolTip = Messages.get("LastPageToolTip");
         String parts = Messages.get("PagerParts");
 
         MessageComponent msg = new MessageComponent();
@@ -431,6 +435,7 @@ public class MailManager {
             MessageParts firstButton = new MessageParts(
                     firstLabel, ChatColor.BLUE, ChatColor.UNDERLINE);
             firstButton.setClickEvent(ClickEventType.RUN_COMMAND, commandPre + " 1");
+            firstButton.setHoverText(firstToolTip);
             msg.addParts(firstButton);
 
             msg.addText(" ");
@@ -438,6 +443,7 @@ public class MailManager {
             MessageParts prevButton = new MessageParts(
                     prevLabel, ChatColor.BLUE, ChatColor.UNDERLINE);
             prevButton.setClickEvent(ClickEventType.RUN_COMMAND, commandPre + " " + (page - 1));
+            prevButton.setHoverText(prevToolTip);
             msg.addParts(prevButton);
 
         } else {
@@ -451,6 +457,7 @@ public class MailManager {
             MessageParts nextButton = new MessageParts(
                     nextLabel, ChatColor.BLUE, ChatColor.UNDERLINE);
             nextButton.setClickEvent(ClickEventType.RUN_COMMAND, commandPre + " " + (page + 1));
+            nextButton.setHoverText(nextToolTip);
             msg.addParts(nextButton);
 
             msg.addText(" ");
@@ -458,6 +465,7 @@ public class MailManager {
             MessageParts lastButton = new MessageParts(
                     lastLabel, ChatColor.BLUE, ChatColor.UNDERLINE);
             lastButton.setClickEvent(ClickEventType.RUN_COMMAND, commandPre + " " + max);
+            lastButton.setHoverText(lastToolTip);
             msg.addParts(lastButton);
 
         } else {

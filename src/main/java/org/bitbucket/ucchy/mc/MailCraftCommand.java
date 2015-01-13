@@ -12,6 +12,7 @@ import org.bukkit.OfflinePlayer;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandSender;
 import org.bukkit.command.TabExecutor;
+import org.bukkit.entity.Player;
 
 /**
  * MailCraftコマンドクラス
@@ -211,6 +212,20 @@ public class MailCraftCommand implements TabExecutor {
             return true;
         }
 
+        // ゲーム外からの実行ならエラーを表示して終了する。
+        if ( !(sender instanceof Player) ) {
+            sender.sendMessage(Messages.get("ErrorInGameCommand"));
+            return true;
+        }
+
+        Player player = (Player)sender;
+
+        // TODO /mailcraft write cancel のときの処理をここに入れる
+
+        // 編集メールを取得して、編集画面を表示する。
+        MailData mail = manager.getEditmodeMail(player);
+        mail.displayEditmode(player, config);
+
         return true;
     }
 
@@ -221,6 +236,41 @@ public class MailCraftCommand implements TabExecutor {
             sender.sendMessage(Messages.get("PermissionDeniedCommand"));
             return true;
         }
+
+        // ゲーム外からの実行ならエラーを表示して終了する。
+        if ( !(sender instanceof Player) ) {
+            sender.sendMessage(Messages.get("ErrorInGameCommand"));
+            return true;
+        }
+
+        Player player = (Player)sender;
+        MailData mail = manager.getEditmodeMail(player);
+
+        // パラメータが足りない場合はエラーを表示して終了
+        if ( args.length < 2 ) {
+            sender.sendMessage(Messages.get("ErrorRequireArgument", "%param", "Index Number"));
+            return true;
+        }
+
+        if ( args.length < 3 ) {
+            sender.sendMessage(Messages.get("ErrorRequireArgument", "%param", "Destination"));
+            return true;
+        }
+
+        if ( args[1].matches("[0-9]{1,2}") ) {
+            // 2番めの引数に数値が来た場合は、追加/再設定
+            int line = Integer.parseInt(args[1]) - 1;
+            mail.setTo(line, args[2]);
+
+        } else if ( args[1].equalsIgnoreCase("delete") && args[2].matches("[0-9]{1,2}") ) {
+            // 2番めの引数にdeleteが来た場合は、削除
+            int line = Integer.parseInt(args[2]) - 1;
+            mail.deleteTo(line);
+
+        }
+
+        // 編集画面を表示する。
+        mail.displayEditmode(player, config);
 
         return true;
     }

@@ -16,9 +16,13 @@ import java.util.Map;
 
 import org.bitbucket.ucchy.mc.item.ItemConfigParseException;
 import org.bitbucket.ucchy.mc.item.ItemConfigParser;
+import org.bitbucket.ucchy.mc.tellraw.ClickEventType;
+import org.bitbucket.ucchy.mc.tellraw.MessageComponent;
+import org.bitbucket.ucchy.mc.tellraw.MessageParts;
 import org.bukkit.ChatColor;
 import org.bukkit.configuration.ConfigurationSection;
 import org.bukkit.configuration.file.YamlConfiguration;
+import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
 
 /**
@@ -27,7 +31,11 @@ import org.bukkit.inventory.ItemStack;
  */
 public class MailData {
 
+    private static final String COMMAND = "/mailcraft";
     private static final int SUMMARY_MAX_SIZE = 40;
+    private static final int TO_MAX_SIZE = 10;
+    private static final int MESSAGE_MAX_SIZE = 15;
+    private static final int MESSAGE_ADD_SIZE = 3;
 
     private List<String> to;
     private String from;
@@ -269,6 +277,28 @@ public class MailData {
     }
 
     /**
+     * このメールの宛先を設定します。
+     * @param line 宛先番号（0から始まることに注意）
+     * @param to 宛先
+     */
+    public void setTo(int line, String to) {
+        while ( this.to.size() <= line ) {
+            this.to.add(to);
+        }
+        this.to.set(line, to);
+    }
+
+    /**
+     * このメールの指定された宛先を削除します。
+     * @param line 宛先番号（0から始まることに注意）
+     */
+    public void deleteTo(int line) {
+        if ( this.to.size() > line ) {
+            this.to.remove(line);
+        }
+    }
+
+    /**
      * このメールの発信元を取得します。
      * @return 発信元
      */
@@ -418,6 +448,15 @@ public class MailData {
     }
 
     /**
+     * 指定された名前のプレイヤーは、このメールの関係者かどうかを返す。
+     * @param name プレイヤー
+     * @return 指定された名前がtoまたはfromに含まれるかどうか
+     */
+    public boolean isRelatedWith(String name) {
+        return to.contains(name) || from.equals(name);
+    }
+
+    /**
      * メールの詳細情報を返す
      * @return 詳細情報
      */
@@ -430,8 +469,9 @@ public class MailData {
         String pre = Messages.get("MailDetailLinePre");
 
         desc.add(Messages.get("MailDetailFirstLine", "%number", num));
-        desc.add(Messages.get("MailDetailFromLine", "%from", from));
-        desc.add(Messages.get("MailDetailToLine", "%to", join(to, ",")));
+        desc.add(Messages.get("MailDetailFromToLine",
+                new String[]{"%from", "%to"},
+                new String[]{from, join(to, ",")}));
         desc.add(Messages.get("MailDetailDateLine", "%date", fdate));
         desc.add(Messages.get("MailDetailMessageLine"));
         for ( String m : message ) {
@@ -456,6 +496,124 @@ public class MailData {
         desc.add(Messages.get("MailDetailLastLine"));
 
         return desc;
+    }
+
+    /**
+     * このメールの編集画面を表示する
+     * @param player 表示するプレイヤー
+     * @param config MailCraftのコンフィグ
+     */
+    protected void displayEditmode(Player player, MailCraftConfig config) {
+
+        // メッセージが3行に満たない場合は、この時点で空行を足しておく
+        while ( message.size() < MESSAGE_ADD_SIZE ) {
+            message.add("");
+        }
+
+        String pre = Messages.get("EditmodeLinePre");
+
+        player.sendMessage(Messages.get("EditmodeFirstLine"));
+
+        for ( int i=0; i<to.size(); i++ ) {
+            MessageComponent msg = new MessageComponent();
+            msg.addText(pre);
+            MessageParts buttonDelete = new MessageParts(
+                    Messages.get("EditmodeToDelete"), ChatColor.BLUE, ChatColor.UNDERLINE);
+            buttonDelete.setClickEvent(
+                    ClickEventType.RUN_COMMAND,
+                    COMMAND + " to delete " + (i+1));
+            buttonDelete.setHoverText(Messages.get("EditmodeToDeleteToolTip"));
+            msg.addParts(buttonDelete);
+            msg.addText(" ");
+            MessageParts button = new MessageParts(
+                    Messages.get("EditmodeTo"), ChatColor.BLUE, ChatColor.UNDERLINE);
+            button.setClickEvent(
+                    ClickEventType.SUGGEST_COMMAND,
+                    COMMAND + " to " + (i+1) + " " + to.get(i));
+            button.setHoverText(Messages.get("EditmodeToToolTip"));
+            msg.addParts(button);
+            msg.addText(to.get(i), ChatColor.WHITE);
+            msg.sendCommand(player);
+        }
+
+        if ( to.size() < TO_MAX_SIZE ) {
+            MessageComponent msg = new MessageComponent();
+            msg.addText(pre);
+            MessageParts button = new MessageParts(
+                    Messages.get("EditmodeToAdd"), ChatColor.BLUE, ChatColor.UNDERLINE);
+            button.setClickEvent(
+                    ClickEventType.SUGGEST_COMMAND,
+                    COMMAND + " to " + (to.size()+1) + " ");
+            msg.addParts(button);
+            msg.sendCommand(player);
+        }
+
+        for ( int i=0; i<message.size(); i++ ) {
+            MessageComponent msg = new MessageComponent();
+            msg.addText(pre);
+            MessageParts buttonDelete = new MessageParts(
+                    Messages.get("EditmodeLineDelete"), ChatColor.BLUE, ChatColor.UNDERLINE);
+            buttonDelete.setClickEvent(
+                    ClickEventType.RUN_COMMAND,
+                    COMMAND + " message delete " + (i+1));
+            buttonDelete.setHoverText(Messages.get("EditmodeLineDeleteToolTip"));
+            msg.addParts(buttonDelete);
+            msg.addText(" ");
+            MessageParts buttonEdit = new MessageParts(
+                    "[" + (i+1) + ":]", ChatColor.BLUE, ChatColor.UNDERLINE);
+            buttonEdit.setClickEvent(
+                    ClickEventType.SUGGEST_COMMAND,
+                    COMMAND + " message " + (i+1) + " " + message.get(i));
+            buttonEdit.setHoverText(Messages.get("EditmodeLineEditToolTip"));
+            msg.addParts(buttonEdit);
+            msg.addText(to.get(i), ChatColor.WHITE);
+            msg.sendCommand(player);
+        }
+
+        if ( message.size() < MESSAGE_MAX_SIZE ) {
+            int num = message.size() + MESSAGE_ADD_SIZE;
+            if ( num > MESSAGE_MAX_SIZE ) {
+                num = MESSAGE_MAX_SIZE;
+            }
+            MessageComponent msg = new MessageComponent();
+            msg.addText(pre);
+            MessageParts button = new MessageParts(
+                    Messages.get("EditmodeLineAdd"), ChatColor.BLUE, ChatColor.UNDERLINE);
+            button.setClickEvent(
+                    ClickEventType.RUN_COMMAND,
+                    COMMAND + " message " + num);
+            msg.addParts(button);
+            msg.sendCommand(player);
+        }
+
+        if ( config.isEnableAttachment() ) {
+            MessageComponent msg = new MessageComponent();
+            msg.addText(pre);
+            MessageParts button = new MessageParts(
+                    Messages.get("EditmodeAttach"), ChatColor.BLUE, ChatColor.UNDERLINE);
+            button.setClickEvent(
+                    ClickEventType.RUN_COMMAND,
+                    COMMAND + " attach");
+            msg.addParts(button);
+            msg.addText(" "
+                    + Messages.get("EditmodeAttachNum", "%num", attachments.size() + ""));
+            msg.sendCommand(player);
+        }
+
+        String lineParts = Messages.get("EditmodeLastLineParts");
+        MessageComponent last = new MessageComponent();
+        last.addText(lineParts);
+        MessageParts sendButton = new MessageParts(
+                Messages.get("EditmodeSend"), ChatColor.BLUE, ChatColor.UNDERLINE);
+        sendButton.setClickEvent(ClickEventType.RUN_COMMAND, COMMAND + " send");
+        last.addParts(sendButton);
+        last.addText(lineParts);
+        MessageParts cancelButton = new MessageParts(
+                Messages.get("EditmodeCancel"), ChatColor.BLUE, ChatColor.UNDERLINE);
+        cancelButton.setClickEvent(ClickEventType.RUN_COMMAND, COMMAND + " write cancel");
+        last.addParts(cancelButton);
+        last.addText(lineParts);
+        last.sendCommand(player);
     }
 
     /**
@@ -520,15 +678,6 @@ public class MailData {
     private String getItemDesc(ItemStack item) {
         if ( item.getAmount() == 1 ) return item.getType().toString();
         return item.getType().toString() + ":" + item.getAmount();
-    }
-
-    /**
-     * 指定された名前のプレイヤーは、このメールの関係者かどうかを返す。
-     * @param name プレイヤー
-     * @return 指定された名前がtoまたはfromに含まれるかどうか
-     */
-    public boolean isRelatedWith(String name) {
-        return to.contains(name) || from.equals(name);
     }
 
     /**

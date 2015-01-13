@@ -21,6 +21,7 @@ public class MessageParts {
     private ClickEventType ctype;
     private String cvalue;
     private HashSet<String> flags;
+    private String hover;
 
     public MessageParts(String text) {
         this.text = text;
@@ -59,6 +60,10 @@ public class MessageParts {
         cvalue = value;
     }
 
+    public void setHoverText(String text) {
+        hover = text;
+    }
+
     public String toString() {
 
         ArrayList<String> items = new ArrayList<String>();
@@ -73,6 +78,11 @@ public class MessageParts {
             items.add("\"clickEvent\":"
                     + "{\"action\":\"" + ctype.toString() + "\","
                             + "\"value\":\"" + cvalue + "\"}");
+        }
+        if ( hover != null ) {
+            items.add("\"hoverEvent\":"
+                    + "{\"action\":\"show_text\","
+                            + "\"value\":\"" + hover + "\"}");
         }
 
         return "{" + join(items) + "}";

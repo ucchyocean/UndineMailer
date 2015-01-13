@@ -19,6 +19,9 @@ public class MailCraftConfig {
     /** メッセージ言語 */
     private String lang;
 
+    /** メールにアイテムの添付を可能にするかどうか */
+    private boolean enableAttachment;
+
     /** 送信に料金を必要とするか */
     private boolean enableSendFee;
 
@@ -65,6 +68,7 @@ public class MailCraftConfig {
 
         // 読み込み
         lang = conf.getString("lang", "ja");
+        enableAttachment = conf.getBoolean("enableAttachment", true);
         enableSendFee = conf.getBoolean("enableSendFee", false);
         sendFee = conf.getInt("sendFee", 10);
         enableSendSelf = conf.getBoolean("enableSendSelf", false);
@@ -90,6 +94,13 @@ public class MailCraftConfig {
      */
     public String getLang() {
         return lang;
+    }
+
+    /**
+     * @return enableAttachment
+     */
+    public boolean isEnableAttachment() {
+        return enableAttachment;
     }
 
     /**

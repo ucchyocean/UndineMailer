@@ -13,9 +13,12 @@ commands:
            /<command> outbox [page] - Check your sent mails.
            /<command> read <index> - Opens the specified mail.
            /<command> text <to> <message> - Send simple text mail.
-           /<command> write <to> [message] - Start to create new mail.
-           /<command> to <to> - Change the destination of mail.
+           /<command> write - Enter to mail creation mode.
+           /<command> write cancel - Cancel to mail creation mode.
+           /<command> to <line num> <to> - Change the destination of mail.
+           /<command> to delete <line num> - Delete the destination of mail.
            /<command> message <line num> <message> - Change the message of mail.
+           /<command> message delete <line num> - Delete the message of mail.
            /<command> attach [index] - Open attachment box of mail.
            /<command> send - Send mail.
            /<command> reload - Reload all of data.
