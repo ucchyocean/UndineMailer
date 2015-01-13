@@ -20,8 +20,6 @@ public class MailCraft extends JavaPlugin {
 
     private static final String MAIL_FOLDER = "mail";
 
-    private static MailCraft instance;
-
     private MailManager mailManager;
     private AttachmentBoxManager boxManager;
     private MailCraftConfig config;
@@ -33,8 +31,6 @@ public class MailCraft extends JavaPlugin {
      */
     @Override
     public void onEnable() {
-
-        instance = this;
 
         // マネージャを生成し、データをロードする
         mailManager = new MailManager(this);
@@ -75,7 +71,7 @@ public class MailCraft extends JavaPlugin {
      */
     public File getMailFolder() {
 
-        File folder = new File(instance.getDataFolder(), MAIL_FOLDER);
+        File folder = new File(getDataFolder(), MAIL_FOLDER);
         if ( !folder.exists() ) {
             folder.mkdirs();
         }

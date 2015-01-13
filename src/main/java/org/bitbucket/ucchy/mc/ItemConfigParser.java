@@ -450,7 +450,7 @@ public class ItemConfigParser {
 
         // バナーの詳細設定
         if ( isCB18orLater() ) {
-            section = ItemConfigParserV18.addBannerInfoToSection(section, item);
+            ItemConfigParserV18.addBannerInfoToSection(section, item);
         }
     }
 

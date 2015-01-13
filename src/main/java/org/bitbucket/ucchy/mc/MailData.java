@@ -27,8 +27,6 @@ public class MailData {
 
     private static final int SUMMARY_MAX_SIZE = 40;
 
-    private static SimpleDateFormat dateformat;
-
     private List<String> to;
     private String from;
     private List<String> message;
@@ -423,14 +421,10 @@ public class MailData {
      */
     protected ArrayList<String> getDescription() {
 
-        if ( dateformat == null ) {
-            dateformat = new SimpleDateFormat(Messages.get("DateFormat"));
-        }
-
         ArrayList<String> desc = new ArrayList<String>();
 
         String num = (index == 0) ? Messages.get("Editmode") : index + "";
-        String fdate = dateformat.format(date);
+        String fdate = getFormattedDate(date);
         String pre = Messages.get("MailDetailLinePre");
 
         desc.add(Messages.get("MailDetailFirstLine", "%number", num));
@@ -468,11 +462,7 @@ public class MailData {
      */
     protected String getInboxSummary() {
 
-        if ( dateformat == null ) {
-            dateformat = new SimpleDateFormat(Messages.get("DateFormat"));
-        }
-
-        String fdate = dateformat.format(date);
+        String fdate = getFormattedDate(date);
         String summary = String.format("%s (%s) %s",
                 from, fdate, message.get(0));
 
@@ -490,11 +480,7 @@ public class MailData {
      */
     protected String getOutboxSummary() {
 
-        if ( dateformat == null ) {
-            dateformat = new SimpleDateFormat(Messages.get("DateFormat"));
-        }
-
-        String fdate = dateformat.format(date);
+        String fdate = getFormattedDate(date);
         String summary = String.format("%s (%s) %s",
                 join(to, ","), fdate, message.get(0));
 
@@ -541,5 +527,14 @@ public class MailData {
      */
     public boolean isRelatedWith(String name) {
         return to.contains(name) || from.equals(name);
+    }
+
+    /**
+     * 言語リソース設定に従ってフォーマットされた日時の文字列を取得します。
+     * @param date フォーマットする日時
+     * @return フォーマットされた文字列
+     */
+    private String getFormattedDate(Date date) {
+        return new SimpleDateFormat(Messages.get("DateFormat")).format(date);
     }
 }
