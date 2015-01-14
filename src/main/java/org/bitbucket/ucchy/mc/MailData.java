@@ -503,7 +503,7 @@ public class MailData {
      * @param player 表示するプレイヤー
      * @param config MailCraftのコンフィグ
      */
-    protected void displayEditmode(Player player, MailCraftConfig config) {
+    protected void displayEditmode(Player player, MagicMailConfig config) {
 
         // メッセージが3行に満たない場合は、この時点で空行を足しておく
         while ( message.size() < MESSAGE_ADD_SIZE ) {

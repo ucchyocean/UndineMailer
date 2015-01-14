@@ -12,7 +12,7 @@
   <includeBaseDirectory>false</includeBaseDirectory>
   <files>
     <file>
-      <source>target/MailCraft.jar</source>
+      <source>target/MagicMail.jar</source>
     </file>
   </files>
 

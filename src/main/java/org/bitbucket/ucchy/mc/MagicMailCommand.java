@@ -15,18 +15,18 @@ import org.bukkit.command.TabExecutor;
 import org.bukkit.entity.Player;
 
 /**
- * MailCraftコマンドクラス
+ * MagicMailコマンドクラス
  * @author ucchy
  */
-public class MailCraftCommand implements TabExecutor {
+public class MagicMailCommand implements TabExecutor {
 
     private static final String PERMISSION = "mailcraft.command";
 
-    private MailCraft parent;
+    private MagicMail parent;
     private MailManager manager;
-    private MailCraftConfig config;
+    private MagicMailConfig config;
 
-    public MailCraftCommand(MailCraft parent) {
+    public MagicMailCommand(MagicMail parent) {
         this.parent = parent;
         manager = parent.getMailManager();
         config = parent.getMailCraftConfig();

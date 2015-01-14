@@ -1,95 +1,99 @@
 name: ${project.name}
 version: ${project.version}
-main: org.bitbucket.ucchy.mc.MailCraft
+main: org.bitbucket.ucchy.mm.MagicMail
 Description: Mail Plugin
 author: ucchy
 
 commands:
-  mailcraft:
-    description: Commands of MailCraft
-    aliases: [m,mail]
+  magicmail:
+    description: Commands of MagicMail
+    aliases: [mm,mail]
     usage: |
            /<command> inbox [page] - Check your unread mails.
            /<command> outbox [page] - Check your sent mails.
            /<command> read <index> - Opens the specified mail.
            /<command> text <to> <message> - Send simple text mail.
            /<command> write - Enter to mail creation mode.
-           /<command> write cancel - Cancel to mail creation mode.
            /<command> to <line num> <to> - Change the destination of mail.
            /<command> to delete <line num> - Delete the destination of mail.
            /<command> message <line num> <message> - Change the message of mail.
            /<command> message delete <line num> - Delete the message of mail.
            /<command> attach [index] - Open attachment box of mail.
            /<command> send - Send mail.
+           /<command> cancel - Cancel to mail creation mode.
            /<command> reload - Reload all of data.
-    permission: mailcraft.command
+    permission: magicmail.command
     permission-message: 'You don''t have a permission "<permission>".'
 
 permissions:
-  mailcraft.command:
+  magicmail.command:
     description: Permission of command.
     default: true
-  mailcraft.command.inbox:
+  magicmail.command.inbox:
     description: Permission of inbox command.
     default: true
-  mailcraft.command.outbox:
+  magicmail.command.outbox:
     description: Permission of outbox command.
     default: true
-  mailcraft.command.read:
+  magicmail.command.read:
     description: Permission of read command.
     default: true
-  mailcraft.command.read-all:
+  magicmail.command.read-all:
     description: Permission of read other's mail.
     default: op
-  mailcraft.command.text:
+  magicmail.command.text:
     description: Permission of text command.
     default: true
-  mailcraft.command.write:
+  magicmail.command.write:
     description: Permission of write command.
     default: true
-  mailcraft.command.to:
+  magicmail.command.to:
     description: Permission of to command.
     default: true
-  mailcraft.command.message:
+  magicmail.command.message:
     description: Permission of message command.
     default: true
-  mailcraft.command.attach:
+  magicmail.command.attach:
     description: Permission of attach command.
     default: true
-  mailcraft.command.send:
+  magicmail.command.send:
     description: Permission of send command.
     default: true
-  mailcraft.command.send-all:
+  magicmail.command.send-all:
     description: Permission of send all command.
     default: op
-  mailcraft.command.reload:
+  magicmail.command.cancel:
+    description: Permission of send command.
+    default: true
+  magicmail.command.reload:
     description: Permission of reload command.
     default: op
-  'mailcraft.command.*':
+  'magicmail.command.*':
     description: Permissions of all commands.
     children:
-      mailcraft.command: true
-      mailcraft.command.inbox: true
-      mailcraft.command.outbox: true
-      mailcraft.command.read: true
-      mailcraft.command.read-all: true
-      mailcraft.command.text: true
-      mailcraft.command.write: true
-      mailcraft.command.to: true
-      mailcraft.command.message: true
-      mailcraft.command.attach: true
-      mailcraft.command.send: true
-      mailcraft.command.send-all: true
-      mailcraft.command.reload: true
+      magicmail.command: true
+      magicmail.command.inbox: true
+      magicmail.command.outbox: true
+      magicmail.command.read: true
+      magicmail.command.read-all: true
+      magicmail.command.text: true
+      magicmail.command.write: true
+      magicmail.command.to: true
+      magicmail.command.message: true
+      magicmail.command.attach: true
+      magicmail.command.send: true
+      magicmail.command.send-all: true
+      magicmail.command.cancel: true
+      magicmail.command.reload: true
 
-  mailcraft.multi-attach:
+  magicmail.multi-attach:
     description: Permission of sending multi attachment mail.
     default: op
 
-  'mailcraft.*':
-    description: All Permissions of MailCraft.
+  'magicmail.*':
+    description: All Permissions of MagicMail.
     children:
-      'mailcraft.command.*': true
-      mailcraft.multi-attach: true
+      'magicmail.command.*': true
+      magicmail.multi-attach: true
 
 

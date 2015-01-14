@@ -11,10 +11,10 @@ import java.util.List;
 import org.bukkit.configuration.file.FileConfiguration;
 
 /**
- * MailCraftコンフィグ管理クラス
+ * MagicMailコンフィグ管理クラス
  * @author ucchy
  */
-public class MailCraftConfig {
+public class MagicMailConfig {
 
     /** メッセージ言語 */
     private String lang;
@@ -37,13 +37,13 @@ public class MailCraftConfig {
     /** 添付ボックスのサイズ */
     private int attachBoxSize;
 
-    private MailCraft parent;
+    private MagicMail parent;
 
     /**
      * コンストラクタ
      * @param parent プラグイン
      */
-    public MailCraftConfig(MailCraft parent) {
+    public MagicMailConfig(MagicMail parent) {
         this.parent = parent;
         reloadConfig();
     }

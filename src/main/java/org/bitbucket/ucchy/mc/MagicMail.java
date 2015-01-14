@@ -13,17 +13,17 @@ import org.bukkit.command.CommandSender;
 import org.bukkit.plugin.java.JavaPlugin;
 
 /**
- * MailCraftプラグイン
+ * MagicMailプラグイン
  * @author ucchy
  */
-public class MailCraft extends JavaPlugin {
+public class MagicMail extends JavaPlugin {
 
     private static final String MAIL_FOLDER = "mail";
 
     private MailManager mailManager;
     private AttachmentBoxManager boxManager;
-    private MailCraftConfig config;
-    private MailCraftCommand command;
+    private MagicMailConfig config;
+    private MagicMailCommand command;
 
     /**
      * プラグインが有効化されたときに呼び出されるメソッド
@@ -37,14 +37,17 @@ public class MailCraft extends JavaPlugin {
         boxManager = new AttachmentBoxManager(this);
 
         // コンフィグをロードする
-        config = new MailCraftConfig(this);
+        config = new MagicMailConfig(this);
 
         // メッセージをロードする
         Messages.initialize(getFile(), getDataFolder());
         Messages.reload(config.getLang());
 
         // コマンドクラスを作成する
-        command = new MailCraftCommand(this);
+        command = new MagicMailCommand(this);
+
+        // リスナーの登録
+        getServer().getPluginManager().registerEvents(new MagicMailListener(), this);
     }
 
     /**
@@ -98,7 +101,7 @@ public class MailCraft extends JavaPlugin {
      * コンフィグを取得する
      * @return コンフィグ
      */
-    public MailCraftConfig getMailCraftConfig() {
+    public MagicMailConfig getMailCraftConfig() {
         return config;
     }
 

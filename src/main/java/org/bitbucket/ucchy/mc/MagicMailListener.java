@@ -12,10 +12,10 @@ import org.bukkit.event.inventory.InventoryCloseEvent;
 import org.bukkit.event.player.PlayerQuitEvent;
 
 /**
- * MailCraftのリスナークラス
+ * MagicMailのリスナークラス
  * @author ucchy
  */
-public class MailCraftListener implements Listener {
+public class MagicMailListener implements Listener {
 
     @EventHandler
     public void onInventoryClose(InventoryCloseEvent event) {

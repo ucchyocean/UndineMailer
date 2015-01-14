@@ -35,12 +35,12 @@ public class MailManager {
     private HashMap<Player, MailData> editmodeMails;
     private int nextIndex;
 
-    private MailCraft parent;
+    private MagicMail parent;
 
     /**
      * コンストラクタ
      */
-    public MailManager(MailCraft parent) {
+    public MailManager(MagicMail parent) {
         this.parent = parent;
         this.editmodeMails = new HashMap<Player, MailData>();
         reload();

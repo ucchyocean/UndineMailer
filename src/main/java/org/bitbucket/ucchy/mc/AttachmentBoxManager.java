@@ -19,7 +19,7 @@ import org.bukkit.inventory.ItemStack;
  */
 public class AttachmentBoxManager {
 
-    private MailCraft parent;
+    private MagicMail parent;
 
     private HashMap<Player, Inventory> editmodeBoxes;
     private HashMap<Integer, Inventory> attachmentBoxes;
@@ -28,7 +28,7 @@ public class AttachmentBoxManager {
      * コンストラクタ
      * @param parent プラグイン
      */
-    public AttachmentBoxManager(MailCraft parent) {
+    public AttachmentBoxManager(MagicMail parent) {
         this.parent = parent;
         editmodeBoxes = new HashMap<Player, Inventory>();
         attachmentBoxes = new HashMap<Integer, Inventory>();
