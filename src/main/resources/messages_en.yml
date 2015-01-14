@@ -11,6 +11,7 @@ ErrorNoneReadPermission: '&cCannot read this mail.'
 ErrorNotFoundDestination: '&cThe specified destination %dest is not found.'
 ErrorCannotSendSelf: '&cCannot send mail to yourself.'
 ErrorInGameCommand: '&cYou cannot run this command from console.'
+ErrorNotInEditmode: '&cBecause you are not in mail edit mode, you cannot use this command.'
 
 InformationReload: '&aAll data were reloaded.'
 InformationYouGotMail: '&aYou got new mail from &7%from&a!'

@@ -31,10 +31,10 @@ import org.bukkit.inventory.ItemStack;
  */
 public class MailData {
 
-    private static final String COMMAND = "/mailcraft";
+    private static final String COMMAND = "/magicmail";
     private static final int SUMMARY_MAX_SIZE = 40;
-    private static final int TO_MAX_SIZE = 10;
-    private static final int MESSAGE_MAX_SIZE = 15;
+    protected static final int TO_MAX_SIZE = 10;
+    protected static final int MESSAGE_MAX_SIZE = 15;
     private static final int MESSAGE_ADD_SIZE = 3;
 
     private List<String> to;
@@ -610,7 +610,7 @@ public class MailData {
         last.addText(lineParts);
         MessageParts cancelButton = new MessageParts(
                 Messages.get("EditmodeCancel"), ChatColor.BLUE, ChatColor.UNDERLINE);
-        cancelButton.setClickEvent(ClickEventType.RUN_COMMAND, COMMAND + " write cancel");
+        cancelButton.setClickEvent(ClickEventType.RUN_COMMAND, COMMAND + " cancel");
         last.addParts(cancelButton);
         last.addText(lineParts);
         last.sendCommand(player);

@@ -28,11 +28,11 @@ import org.bukkit.entity.Player;
  */
 public class MailManager {
 
-    private static final String COMMAND = "/mailcraft";
+    private static final String COMMAND = "/magicmail";
     private static final int PAGE_SIZE = 10;
 
     private ArrayList<MailData> mails;
-    private HashMap<Player, MailData> editmodeMails;
+    private HashMap<CommandSender, MailData> editmodeMails;
     private int nextIndex;
 
     private MagicMail parent;
@@ -42,12 +42,12 @@ public class MailManager {
      */
     public MailManager(MagicMail parent) {
         this.parent = parent;
-        this.editmodeMails = new HashMap<Player, MailData>();
+        this.editmodeMails = new HashMap<CommandSender, MailData>();
         reload();
     }
 
     /**
-     * 全てのデータを再読込する
+     * メールデータを再読込する
      */
     public void reload() {
 
@@ -240,7 +240,7 @@ public class MailManager {
     }
 
     /**
-     * 指定されたメールデータを保存する
+     * 指定されたメールデータをMagicMailに保存する
      * @param mail メールデータ
      */
     public void saveMail(MailData mail) {
@@ -257,18 +257,30 @@ public class MailManager {
     }
 
     /**
-     * 編集中メールを取得する
-     * @param player 取得対象のプレイヤー
-     * @return 編集中メール
+     * 編集中メールを作成して返す
+     * @param sender 取得対象のsender
+     * @return 編集中メール（編集中でないならnull）
      */
-    public MailData getEditmodeMail(Player player) {
-        if ( editmodeMails.containsKey(player) ) {
-            return editmodeMails.get(player);
+    public MailData makeEditmodeMail(CommandSender sender) {
+        if ( editmodeMails.containsKey(sender) ) {
+            return editmodeMails.get(sender);
         }
         MailData mail = new MailData();
-        mail.setFrom(player.getName());
-        editmodeMails.put(player, mail);
+        mail.setFrom(sender.getName());
+        editmodeMails.put(sender, mail);
         return mail;
+    }
+
+    /**
+     * 編集中メールを取得する
+     * @param sender 取得対象のsender
+     * @return 編集中メール（編集中でないならnull）
+     */
+    public MailData getEditmodeMail(CommandSender sender) {
+        if ( editmodeMails.containsKey(sender) ) {
+            return editmodeMails.get(sender);
+        }
+        return null;
     }
 
     /**

@@ -11,6 +11,7 @@ ErrorNoneReadPermission: '&c指定されたメールはあなた宛ではない�
 ErrorNotFoundDestination: '&c宛先 %dest が見つかりません。'
 ErrorCannotSendSelf: '&c自分自身にメールを送信することはできません。'
 ErrorInGameCommand: '&cこのコマンドはゲーム内から実行してください。'
+ErrorNotInEditmode: '&cあなたはメール編集中でないため、このコマンドを実行することができません。'
 
 InformationReload: '&aデータを再読み込みしました。'
 InformationYouGotMail: '&7%from &aさんから新しいメールが届きました!'

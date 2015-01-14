@@ -63,6 +63,8 @@ public class MagicMailCommand implements TabExecutor {
             return doAttachCommand(sender, command, label, args);
         } else if ( args[0].equalsIgnoreCase("send") ) {
             return doSendCommand(sender, command, label, args);
+        } else if ( args[0].equalsIgnoreCase("cancel") ) {
+            return doCancelCommand(sender, command, label, args);
         } else if ( args[0].equalsIgnoreCase("reload") ) {
             return doReloadCommand(sender, command, label, args);
         }
@@ -220,10 +222,8 @@ public class MagicMailCommand implements TabExecutor {
 
         Player player = (Player)sender;
 
-        // TODO /mailcraft write cancel のときの処理をここに入れる
-
         // 編集メールを取得して、編集画面を表示する。
-        MailData mail = manager.getEditmodeMail(player);
+        MailData mail = manager.makeEditmodeMail(player);
         mail.displayEditmode(player, config);
 
         return true;
@@ -246,6 +246,12 @@ public class MagicMailCommand implements TabExecutor {
         Player player = (Player)sender;
         MailData mail = manager.getEditmodeMail(player);
 
+        // 編集中でないならエラーを表示して終了
+        if ( mail == null ) {
+            sender.sendMessage(Messages.get("ErrorNotInEditmode"));
+            return true;
+        }
+
         // パラメータが足りない場合はエラーを表示して終了
         if ( args.length < 2 ) {
             sender.sendMessage(Messages.get("ErrorRequireArgument", "%param", "Index Number"));
@@ -260,11 +266,21 @@ public class MagicMailCommand implements TabExecutor {
         if ( args[1].matches("[0-9]{1,2}") ) {
             // 2番めの引数に数値が来た場合は、追加/再設定
             int line = Integer.parseInt(args[1]) - 1;
+            if ( line < 0 ) {
+                line = 0;
+            } else if ( line >= MailData.TO_MAX_SIZE ) {
+                line = MailData.TO_MAX_SIZE - 1;
+            }
             mail.setTo(line, args[2]);
 
         } else if ( args[1].equalsIgnoreCase("delete") && args[2].matches("[0-9]{1,2}") ) {
             // 2番めの引数にdeleteが来た場合は、削除
             int line = Integer.parseInt(args[2]) - 1;
+            if ( line < 0 ) {
+                line = 0;
+            } else if ( line >= mail.getTo().size() ) {
+                line = mail.getTo().size() - 1;
+            }
             mail.deleteTo(line);
 
         }
@@ -283,6 +299,57 @@ public class MagicMailCommand implements TabExecutor {
             return true;
         }
 
+        // ゲーム外からの実行ならエラーを表示して終了する。
+        if ( !(sender instanceof Player) ) {
+            sender.sendMessage(Messages.get("ErrorInGameCommand"));
+            return true;
+        }
+
+        Player player = (Player)sender;
+        MailData mail = manager.getEditmodeMail(player);
+
+        // 編集中でないならエラーを表示して終了
+        if ( mail == null ) {
+            sender.sendMessage(Messages.get("ErrorNotInEditmode"));
+            return true;
+        }
+
+        // パラメータが足りない場合はエラーを表示して終了
+        if ( args.length < 2 ) {
+            sender.sendMessage(Messages.get("ErrorRequireArgument", "%param", "Index Number"));
+            return true;
+        }
+
+        if ( args.length < 3 ) {
+            sender.sendMessage(Messages.get("ErrorRequireArgument", "%param", "Message"));
+            return true;
+        }
+
+        if ( args[1].matches("[0-9]{1,2}") ) {
+            // 2番めの引数に数値が来た場合は、追加/再設定
+            int line = Integer.parseInt(args[1]) - 1;
+            if ( line < 0 ) {
+                line = 0;
+            } else if ( line >= MailData.MESSAGE_MAX_SIZE ) {
+                line = MailData.MESSAGE_MAX_SIZE - 1;
+            }
+            mail.setTo(line, args[2]);
+
+        } else if ( args[1].equalsIgnoreCase("delete") && args[2].matches("[0-9]{1,2}") ) {
+            // 2番めの引数にdeleteが来た場合は、削除
+            int line = Integer.parseInt(args[2]) - 1;
+            if ( line < 0 ) {
+                line = 0;
+            } else if ( line >= mail.getMessage().size() ) {
+                line = mail.getMessage().size() - 1;
+            }
+            mail.deleteTo(line);
+
+        }
+
+        // 編集画面を表示する。
+        mail.displayEditmode(player, config);
+
         return true;
     }
 
@@ -294,6 +361,21 @@ public class MagicMailCommand implements TabExecutor {
             return true;
         }
 
+        // ゲーム外からの実行ならエラーを表示して終了する。
+        if ( !(sender instanceof Player) ) {
+            sender.sendMessage(Messages.get("ErrorInGameCommand"));
+            return true;
+        }
+
+        Player player = (Player)sender;
+        MailData mail = manager.getEditmodeMail(player);
+
+        // 編集中でないならエラーを表示して終了
+        if ( mail == null ) {
+            sender.sendMessage(Messages.get("ErrorNotInEditmode"));
+            return true;
+        }
+
         return true;
     }
 
@@ -302,6 +384,47 @@ public class MagicMailCommand implements TabExecutor {
         // パーミッション確認
         if  ( !sender.hasPermission(PERMISSION + ".send") ) {
             sender.sendMessage(Messages.get("PermissionDeniedCommand"));
+            return true;
+        }
+
+        // ゲーム外からの実行ならエラーを表示して終了する。
+        if ( !(sender instanceof Player) ) {
+            sender.sendMessage(Messages.get("ErrorInGameCommand"));
+            return true;
+        }
+
+        Player player = (Player)sender;
+        MailData mail = manager.getEditmodeMail(player);
+
+        // 編集中でないならエラーを表示して終了
+        if ( mail == null ) {
+            sender.sendMessage(Messages.get("ErrorNotInEditmode"));
+            return true;
+        }
+
+        return true;
+    }
+
+    private boolean doCancelCommand(CommandSender sender, Command command, String label, String[] args) {
+
+        // パーミッション確認
+        if  ( !sender.hasPermission(PERMISSION + ".cancel") ) {
+            sender.sendMessage(Messages.get("PermissionDeniedCommand"));
+            return true;
+        }
+
+        // ゲーム外からの実行ならエラーを表示して終了する。
+        if ( !(sender instanceof Player) ) {
+            sender.sendMessage(Messages.get("ErrorInGameCommand"));
+            return true;
+        }
+
+        Player player = (Player)sender;
+        MailData mail = manager.getEditmodeMail(player);
+
+        // 編集中でないならエラーを表示して終了
+        if ( mail == null ) {
+            sender.sendMessage(Messages.get("ErrorNotInEditmode"));
             return true;
         }
 
