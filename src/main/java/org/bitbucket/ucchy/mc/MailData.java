@@ -13,19 +13,17 @@ import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.UUID;
 
 import org.bitbucket.ucchy.mc.item.ItemConfigParseException;
 import org.bitbucket.ucchy.mc.item.ItemConfigParser;
+import org.bitbucket.ucchy.mc.sender.MailSender;
 import org.bitbucket.ucchy.mc.tellraw.ClickEventType;
 import org.bitbucket.ucchy.mc.tellraw.MessageComponent;
 import org.bitbucket.ucchy.mc.tellraw.MessageParts;
-import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
-import org.bukkit.OfflinePlayer;
+import org.bukkit.command.CommandSender;
 import org.bukkit.configuration.ConfigurationSection;
 import org.bukkit.configuration.file.YamlConfiguration;
-import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
 
 /**
@@ -40,15 +38,15 @@ public class MailData {
     protected static final int MESSAGE_MAX_SIZE = 15;
     private static final int MESSAGE_ADD_SIZE = 3;
 
-    private List<OfflinePlayer> to;
-    private OfflinePlayer from;
+    private List<MailSender> to;
+    private MailSender from;
     private List<String> message;
     private List<ItemStack> attachments;
     private int feeMoney;
     private ItemStack feeItem;
 
     private int index;
-    private Map<OfflinePlayer, Boolean> readFlags;
+    private Map<MailSender, Boolean> readFlags;
     private List<ItemStack> attachmentsOriginal;
     private Date date;
 
@@ -57,10 +55,10 @@ public class MailData {
      */
     public MailData() {
         this.index = 0;
-        this.to = new ArrayList<OfflinePlayer>();
+        this.to = new ArrayList<MailSender>();
         this.message = new ArrayList<String>();
         this.attachments = new ArrayList<ItemStack>();
-        this.readFlags = new HashMap<OfflinePlayer, Boolean>();
+        this.readFlags = new HashMap<MailSender, Boolean>();
     }
 
     /**
@@ -69,13 +67,13 @@ public class MailData {
      * @param from 送り主
      * @param message メッセージ
      */
-    public MailData(List<OfflinePlayer> to, OfflinePlayer from, List<String> message) {
+    public MailData(List<MailSender> to, MailSender from, List<String> message) {
         this.index = 0;
         this.to = to;
         this.from = from;
         this.message = message;
         this.attachments = new ArrayList<ItemStack>();
-        this.readFlags = new HashMap<OfflinePlayer, Boolean>();
+        this.readFlags = new HashMap<MailSender, Boolean>();
     }
 
     /**
@@ -85,14 +83,14 @@ public class MailData {
      * @param message メッセージ
      * @param attachments 添付アイテム
      */
-    public MailData(List<OfflinePlayer> to, OfflinePlayer from, List<String> message,
+    public MailData(List<MailSender> to, MailSender from, List<String> message,
             List<ItemStack> attachments) {
         this.index = 0;
         this.to = to;
         this.from = from;
         this.message = message;
         this.attachments = attachments;
-        this.readFlags = new HashMap<OfflinePlayer, Boolean>();
+        this.readFlags = new HashMap<MailSender, Boolean>();
     }
 
     /**
@@ -104,7 +102,7 @@ public class MailData {
      * @param feeMoney 受け取りにかかる金額
      * @param feeItem 受け取りにかかる取引アイテム
      */
-    public MailData(List<OfflinePlayer> to, OfflinePlayer from, List<String> message,
+    public MailData(List<MailSender> to, MailSender from, List<String> message,
             List<ItemStack> attachments, int feeMoney, ItemStack feeItem) {
         this.index = 0;
         this.to = to;
@@ -113,7 +111,7 @@ public class MailData {
         this.attachments = attachments;
         this.feeMoney = feeMoney;
         this.feeItem = feeItem;
-        this.readFlags = new HashMap<OfflinePlayer, Boolean>();
+        this.readFlags = new HashMap<MailSender, Boolean>();
     }
 
     /**
@@ -125,11 +123,11 @@ public class MailData {
         YamlConfiguration config = new YamlConfiguration();
 
         ArrayList<String> toList = new ArrayList<String>();
-        for ( OfflinePlayer t : to ) {
-            toList.add(getNameOrUuid(t));
+        for ( MailSender t : to ) {
+            toList.add(t.toString());
         }
         config.set("to", toList);
-        config.set("from", getNameOrUuid(from));
+        config.set("from", from.toString());
         config.set("message", message);
 
         if ( attachments != null ) {
@@ -151,8 +149,8 @@ public class MailData {
         config.set("index", index);
 
         ConfigurationSection rsec = config.createSection("readFlags");
-        for ( OfflinePlayer player : readFlags.keySet() ) {
-            rsec.set(getNameOrUuid(player), readFlags.get(player));
+        for ( MailSender player : readFlags.keySet() ) {
+            rsec.set(player.toString(), readFlags.get(player));
         }
 
         if ( attachmentsOriginal != null ) {
@@ -185,14 +183,14 @@ public class MailData {
         MailData data = new MailData();
         YamlConfiguration config = YamlConfiguration.loadConfiguration(file);
 
-        data.to = new ArrayList<OfflinePlayer>();
+        data.to = new ArrayList<MailSender>();
         for ( String t : config.getStringList("to") ) {
-            OfflinePlayer player = getOfflinePlayer(t);
-            if ( player != null ) {
-                data.to.add(player);
+            MailSender sender = MailSender.getMailSenderFromString(t);
+            if ( sender != null ) {
+                data.to.add(sender);
             }
         }
-        data.from = getOfflinePlayer(config.getString("from"));
+        data.from = MailSender.getMailSenderFromString(config.getString("from"));
         data.message = config.getStringList("message");
 
         if ( config.contains("attachments") ) {
@@ -222,9 +220,9 @@ public class MailData {
         data.index = config.getInt("index");
 
         for ( String nameOrUuid : config.getConfigurationSection("readFlags").getKeys(false) ) {
-            OfflinePlayer player = getOfflinePlayer(nameOrUuid);
-            if ( player != null ) {
-                data.readFlags.put(player, config.getBoolean("readFlags." + nameOrUuid, false));
+            MailSender sender = MailSender.getMailSenderFromString(nameOrUuid);
+            if ( sender != null ) {
+                data.readFlags.put(sender, config.getBoolean("readFlags." + nameOrUuid, false));
             }
         }
 
@@ -257,7 +255,7 @@ public class MailData {
      */
     protected MailData clone() {
         return new MailData(
-                new ArrayList<OfflinePlayer>(to), from, message,
+                new ArrayList<MailSender>(to), from, message,
                 new ArrayList<ItemStack>(attachments), feeMoney, feeItem);
     }
 
@@ -281,7 +279,7 @@ public class MailData {
      * このメールの宛先を取得します。
      * @return 宛先
      */
-    public List<OfflinePlayer> getTo() {
+    public List<MailSender> getTo() {
         return to;
     }
 
@@ -289,7 +287,7 @@ public class MailData {
      * このメールの宛先を設定します。
      * @param to 宛先
      */
-    public void setTo(List<OfflinePlayer> to) {
+    public void setTo(List<MailSender> to) {
         this.to = to;
     }
 
@@ -298,7 +296,7 @@ public class MailData {
      * @param line 宛先番号（0から始まることに注意）
      * @param to 宛先
      */
-    public void setTo(int line, OfflinePlayer to) {
+    public void setTo(int line, MailSender to) {
         while ( this.to.size() <= line ) {
             this.to.add(to);
         }
@@ -319,7 +317,7 @@ public class MailData {
      * このメールの発信元を取得します。
      * @return 発信元
      */
-    public OfflinePlayer getFrom() {
+    public MailSender getFrom() {
         return from;
     }
 
@@ -327,7 +325,7 @@ public class MailData {
      * このメールの発信元を設定します。
      * @param from 発信元
      */
-    public void setFrom(OfflinePlayer from) {
+    public void setFrom(MailSender from) {
         this.from = from;
     }
 
@@ -379,7 +377,7 @@ public class MailData {
      * このメールが既読かどうかを取得します。
      * @return 既読かどうか
      */
-    public Map<OfflinePlayer, Boolean> getReadFlags() {
+    public Map<MailSender, Boolean> getReadFlags() {
         return readFlags;
     }
 
@@ -452,7 +450,7 @@ public class MailData {
      * @param player プレイヤー
      * @return 読んだかどうか
      */
-    public boolean isRead(OfflinePlayer player) {
+    public boolean isRead(MailSender player) {
         return (readFlags.containsKey(player) ? readFlags.get(player) : false);
     }
 
@@ -460,7 +458,7 @@ public class MailData {
      * 指定した名前のプレイヤーの既読マークを付ける
      * @param player プレイヤー
      */
-    public void setReadFlag(OfflinePlayer player) {
+    public void setReadFlag(MailSender player) {
         readFlags.put(player, true);
     }
 
@@ -517,10 +515,12 @@ public class MailData {
 
     /**
      * このメールの編集画面を表示する
-     * @param player 表示するプレイヤー
+     * @param sender 表示するsender
      * @param config MailCraftのコンフィグ
      */
-    protected void displayEditmode(Player player, MagicMailConfig config) {
+    protected void displayEditmode(CommandSender sender, MagicMailConfig config) {
+
+        MailSender ms = MailSender.getMailSender(sender);
 
         // メッセージが3行に満たない場合は、この時点で空行を足しておく
         while ( message.size() < MESSAGE_ADD_SIZE ) {
@@ -529,7 +529,7 @@ public class MailData {
 
         String pre = Messages.get("EditmodeLinePre");
 
-        player.sendMessage(Messages.get("EditmodeFirstLine"));
+        ms.sendMessage(Messages.get("EditmodeFirstLine"));
 
         for ( int i=0; i<to.size(); i++ ) {
             MessageComponent msg = new MessageComponent();
@@ -550,7 +550,7 @@ public class MailData {
             button.setHoverText(Messages.get("EditmodeToToolTip"));
             msg.addParts(button);
             msg.addText(to.get(i).getName(), ChatColor.WHITE);
-            msg.sendCommand(player);
+            msg.send(ms);
         }
 
         if ( to.size() < TO_MAX_SIZE ) {
@@ -562,7 +562,7 @@ public class MailData {
                     ClickEventType.SUGGEST_COMMAND,
                     COMMAND + " to " + (to.size()+1) + " ");
             msg.addParts(button);
-            msg.sendCommand(player);
+            msg.send(ms);
         }
 
         for ( int i=0; i<message.size(); i++ ) {
@@ -584,7 +584,7 @@ public class MailData {
             buttonEdit.setHoverText(Messages.get("EditmodeLineEditToolTip"));
             msg.addParts(buttonEdit);
             msg.addText(message.get(i), ChatColor.WHITE);
-            msg.sendCommand(player);
+            msg.send(ms);
         }
 
         if ( message.size() < MESSAGE_MAX_SIZE ) {
@@ -600,7 +600,7 @@ public class MailData {
                     ClickEventType.RUN_COMMAND,
                     COMMAND + " message " + num);
             msg.addParts(button);
-            msg.sendCommand(player);
+            msg.send(ms);
         }
 
         if ( config.isEnableAttachment() ) {
@@ -614,7 +614,7 @@ public class MailData {
             msg.addParts(button);
             msg.addText(" "
                     + Messages.get("EditmodeAttachNum", "%num", attachments.size() + ""));
-            msg.sendCommand(player);
+            msg.send(ms);
         }
 
         String lineParts = Messages.get("EditmodeLastLineParts");
@@ -630,7 +630,7 @@ public class MailData {
         cancelButton.setClickEvent(ClickEventType.RUN_COMMAND, COMMAND + " cancel");
         last.addParts(cancelButton);
         last.addText(lineParts);
-        last.sendCommand(player);
+        last.send(ms);
     }
 
     /**
@@ -670,14 +670,14 @@ public class MailData {
     }
 
     /**
-     * OfflinePlayerのリストを、コンマを使ってつなげる
-     * @param list OfflinePlayerのリスト
+     * MailSenderのリストを、コンマを使ってつなげる
+     * @param list MailSenderのリスト
      * @return 繋がった文字列
      */
-    private String join(List<OfflinePlayer> list) {
+    private String join(List<MailSender> list) {
 
         StringBuffer buffer = new StringBuffer();
-        for ( OfflinePlayer item : list ) {
+        for ( MailSender item : list ) {
             if ( buffer.length() > 0 ) {
                 buffer.append(",");
             }
@@ -703,51 +703,5 @@ public class MailData {
      */
     private String getFormattedDate(Date date) {
         return new SimpleDateFormat(Messages.get("DateFormat")).format(date);
-    }
-
-    /**
-     * プレイヤー名またはUUIDからOfflinePlayerを取得して返します。
-     * UUIDを指定する場合は、頭に "$" をつけてください。
-     * @param nameOrUuid プレイヤー名またはUUID
-     * @return OfflinePlayer
-     */
-    private static OfflinePlayer getOfflinePlayer(String nameOrUuid) {
-
-        if ( nameOrUuid == null ) return null;
-
-        // UUIDからの取得
-        if ( nameOrUuid.startsWith("$") && Utility.isCB178orLater() ) {
-            String id = nameOrUuid.substring(1);
-            return Bukkit.getOfflinePlayer(UUID.fromString(id));
-        }
-
-        // プレイヤー名からの取得
-        String name = nameOrUuid;
-        @SuppressWarnings("deprecation")
-        OfflinePlayer player = Bukkit.getPlayerExact(name);
-        if ( player != null ) {
-            return player;
-        }
-        @SuppressWarnings("deprecation")
-        OfflinePlayer offline = Bukkit.getOfflinePlayer(name);
-        if ( offline != null && offline.hasPlayedBefore() ) {
-            return offline;
-        }
-
-        return null;
-    }
-
-    /**
-     * プレイヤーから、プレイヤー名またはUUIDを返します。
-     * UUIDは、頭に "$" をつけて返します。
-     * @param player プレイヤー
-     * @return プレイヤー名またはUUID
-     */
-    private static String getNameOrUuid(OfflinePlayer player) {
-        if ( player == null ) return null;
-        if ( Utility.isCB178orLater() ) {
-            return "$" + player.getUniqueId().toString();
-        }
-        return player.getName();
     }
 }

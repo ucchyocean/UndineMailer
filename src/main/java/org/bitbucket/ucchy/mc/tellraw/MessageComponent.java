@@ -7,6 +7,8 @@ package org.bitbucket.ucchy.mc.tellraw;
 
 import java.util.ArrayList;
 
+import org.bitbucket.ucchy.mc.sender.MailSender;
+import org.bitbucket.ucchy.mc.sender.MailSenderPlayer;
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.entity.Player;
@@ -39,7 +41,14 @@ public class MessageComponent {
         this.parts.add(parts);
     }
 
-    public boolean sendCommand(Player player) {
+    public void send(MailSender sender) {
+        if ( sender instanceof MailSenderPlayer && sender.isOnline() ) {
+            sendCommand(sender.getPlayer());
+        }
+        sender.sendMessage(buildPlain());
+    }
+
+    private boolean sendCommand(Player player) {
         String commandLine = build(player.getName());
         return Bukkit.dispatchCommand(Bukkit.getConsoleSender(), commandLine);
     }
@@ -48,17 +57,25 @@ public class MessageComponent {
         return "tellraw "
                 + name
                 + " {\"text\":\"\",\"extra\":["
-                + join(parts)
+                + buildJoin(parts)
                 + "]}";
     }
 
-    private static String join(ArrayList<MessageParts> arr) {
+    private String buildPlain() {
+        StringBuffer buffer = new StringBuffer();
+        for ( MessageParts part : parts ) {
+            buffer.append(part.buildPlain());
+        }
+        return buffer.toString();
+    }
+
+    private static String buildJoin(ArrayList<MessageParts> arr) {
         StringBuffer buffer = new StringBuffer();
         for ( MessageParts s : arr ) {
             if ( buffer.length() > 0 ) {
                 buffer.append(",");
             }
-            buffer.append(s);
+            buffer.append(s.build());
         }
         return buffer.toString();
     }

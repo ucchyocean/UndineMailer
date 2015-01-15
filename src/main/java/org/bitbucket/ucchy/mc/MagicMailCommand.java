@@ -8,7 +8,8 @@ package org.bitbucket.ucchy.mc;
 import java.util.ArrayList;
 import java.util.List;
 
-import org.bukkit.Bukkit;
+import org.bitbucket.ucchy.mc.sender.MailSender;
+import org.bitbucket.ucchy.mc.sender.MailSenderPlayer;
 import org.bukkit.OfflinePlayer;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandSender;
@@ -181,7 +182,7 @@ public class MagicMailCommand implements TabExecutor {
         }
 
         String[] dests = args[1].split(",");
-        ArrayList<String> targets = new ArrayList<String>();
+        ArrayList<MailSender> targets = new ArrayList<MailSender>();
 
         // 宛先が全て見つからない場合はエラーを表示
         for ( String d : dests ) {
@@ -189,7 +190,7 @@ public class MagicMailCommand implements TabExecutor {
             if ( player == null || !player.hasPlayedBefore() ) {
                 sender.sendMessage(Messages.get("ErrorNotFoundDestination", "%dest", d));
             } else {
-                targets.add(d);
+                targets.add(new MailSenderPlayer(player));
             }
         }
 
@@ -202,7 +203,7 @@ public class MagicMailCommand implements TabExecutor {
         }
 
         // メールを送信する
-        manager.sendNewMail(sender.getName(), targets, args[2]);
+        manager.sendNewMail(sender, targets, args[2]);
 
         return true;
     }
@@ -221,11 +222,9 @@ public class MagicMailCommand implements TabExecutor {
             return true;
         }
 
-        Player player = (Player)sender;
-
         // 編集メールを取得して、編集画面を表示する。
-        MailData mail = manager.makeEditmodeMail(player);
-        mail.displayEditmode(player, config);
+        MailData mail = manager.makeEditmodeMail(sender);
+        mail.displayEditmode(sender, config);
 
         return true;
     }
@@ -238,14 +237,7 @@ public class MagicMailCommand implements TabExecutor {
             return true;
         }
 
-        // ゲーム外からの実行ならエラーを表示して終了する。
-        if ( !(sender instanceof Player) ) {
-            sender.sendMessage(Messages.get("ErrorInGameCommand"));
-            return true;
-        }
-
-        Player player = (Player)sender;
-        MailData mail = manager.getEditmodeMail(player);
+        MailData mail = manager.getEditmodeMail(sender);
 
         // 編集中でないならエラーを表示して終了
         if ( mail == null ) {
@@ -272,7 +264,7 @@ public class MagicMailCommand implements TabExecutor {
             } else if ( line >= MailData.TO_MAX_SIZE ) {
                 line = MailData.TO_MAX_SIZE - 1;
             }
-            mail.setTo(line, getOfflinePlayer(args[2]));
+            mail.setTo(line, MailSender.getMailSenderFromString(args[2]));
 
         } else if ( args[1].equalsIgnoreCase("delete") && args[2].matches("[0-9]{1,2}") ) {
             // 2番めの引数にdeleteが来た場合は、削除
@@ -287,7 +279,7 @@ public class MagicMailCommand implements TabExecutor {
         }
 
         // 編集画面を表示する。
-        mail.displayEditmode(player, config);
+        mail.displayEditmode(sender, config);
 
         return true;
     }
@@ -300,14 +292,7 @@ public class MagicMailCommand implements TabExecutor {
             return true;
         }
 
-        // ゲーム外からの実行ならエラーを表示して終了する。
-        if ( !(sender instanceof Player) ) {
-            sender.sendMessage(Messages.get("ErrorInGameCommand"));
-            return true;
-        }
-
-        Player player = (Player)sender;
-        MailData mail = manager.getEditmodeMail(player);
+        MailData mail = manager.getEditmodeMail(sender);
 
         // 編集中でないならエラーを表示して終了
         if ( mail == null ) {
@@ -334,7 +319,7 @@ public class MagicMailCommand implements TabExecutor {
             } else if ( line >= MailData.MESSAGE_MAX_SIZE ) {
                 line = MailData.MESSAGE_MAX_SIZE - 1;
             }
-            mail.setTo(line, getOfflinePlayer(args[2]));
+            mail.setTo(line, MailSender.getMailSenderFromString(args[2]));
 
         } else if ( args[1].equalsIgnoreCase("delete") && args[2].matches("[0-9]{1,2}") ) {
             // 2番めの引数にdeleteが来た場合は、削除
@@ -349,7 +334,7 @@ public class MagicMailCommand implements TabExecutor {
         }
 
         // 編集画面を表示する。
-        mail.displayEditmode(player, config);
+        mail.displayEditmode(sender, config);
 
         return true;
     }
@@ -362,20 +347,23 @@ public class MagicMailCommand implements TabExecutor {
             return true;
         }
 
-        // ゲーム外からの実行ならエラーを表示して終了する。
+        // このコマンドは、ゲーム内からの実行でない場合はエラーを表示して終了する
         if ( !(sender instanceof Player) ) {
             sender.sendMessage(Messages.get("ErrorInGameCommand"));
             return true;
         }
 
         Player player = (Player)sender;
-        MailData mail = manager.getEditmodeMail(player);
+        MailData mail = manager.getEditmodeMail(sender);
 
         // 編集中でないならエラーを表示して終了
         if ( mail == null ) {
             sender.sendMessage(Messages.get("ErrorNotInEditmode"));
             return true;
         }
+
+        // 添付ボックスを表示する
+        manager.displayAttachBox(player, mail);
 
         return true;
     }
@@ -388,20 +376,17 @@ public class MagicMailCommand implements TabExecutor {
             return true;
         }
 
-        // ゲーム外からの実行ならエラーを表示して終了する。
-        if ( !(sender instanceof Player) ) {
-            sender.sendMessage(Messages.get("ErrorInGameCommand"));
-            return true;
-        }
-
-        Player player = (Player)sender;
-        MailData mail = manager.getEditmodeMail(player);
+        MailData mail = manager.getEditmodeMail(sender);
 
         // 編集中でないならエラーを表示して終了
         if ( mail == null ) {
             sender.sendMessage(Messages.get("ErrorNotInEditmode"));
             return true;
         }
+
+        // 送信
+        manager.sendNewMail(mail);
+        manager.clearEditmodeMail(sender);
 
         return true;
     }
@@ -414,20 +399,17 @@ public class MagicMailCommand implements TabExecutor {
             return true;
         }
 
-        // ゲーム外からの実行ならエラーを表示して終了する。
-        if ( !(sender instanceof Player) ) {
-            sender.sendMessage(Messages.get("ErrorInGameCommand"));
-            return true;
-        }
-
-        Player player = (Player)sender;
-        MailData mail = manager.getEditmodeMail(player);
+        MailData mail = manager.getEditmodeMail(sender);
 
         // 編集中でないならエラーを表示して終了
         if ( mail == null ) {
             sender.sendMessage(Messages.get("ErrorNotInEditmode"));
             return true;
         }
+
+        // キャンセル
+        manager.clearEditmodeMail(sender);
+        // TODO 何かメッセージ表示？
 
         return true;
     }
@@ -446,10 +428,5 @@ public class MagicMailCommand implements TabExecutor {
         Messages.reload(config.getLang());
         sender.sendMessage(Messages.get("InformationReload"));
         return true;
-    }
-
-    @SuppressWarnings("deprecation")
-    private static OfflinePlayer getOfflinePlayer(String name) {
-        return Bukkit.getOfflinePlayer(name);
     }
 }

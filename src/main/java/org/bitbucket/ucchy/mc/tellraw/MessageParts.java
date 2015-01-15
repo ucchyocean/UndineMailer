@@ -64,7 +64,7 @@ public class MessageParts {
         hover = text;
     }
 
-    public String toString() {
+    public String build() {
 
         ArrayList<String> items = new ArrayList<String>();
         items.add("\"text\":\"" + text + "\"");
@@ -86,6 +86,11 @@ public class MessageParts {
         }
 
         return "{" + join(items) + "}";
+    }
+
+    public String buildPlain() {
+        if ( color != null ) return color + text;
+        return text;
     }
 
     private static String join(ArrayList<String> arr) {

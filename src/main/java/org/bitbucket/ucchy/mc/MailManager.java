@@ -14,11 +14,11 @@ import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 
+import org.bitbucket.ucchy.mc.sender.MailSender;
 import org.bitbucket.ucchy.mc.tellraw.ClickEventType;
 import org.bitbucket.ucchy.mc.tellraw.MessageComponent;
 import org.bitbucket.ucchy.mc.tellraw.MessageParts;
 import org.bukkit.ChatColor;
-import org.bukkit.OfflinePlayer;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 
@@ -32,7 +32,7 @@ public class MailManager {
     private static final int PAGE_SIZE = 10;
 
     private ArrayList<MailData> mails;
-    private HashMap<CommandSender, MailData> editmodeMails;
+    private HashMap<MailSender, MailData> editmodeMails;
     private int nextIndex;
 
     private MagicMail parent;
@@ -42,7 +42,7 @@ public class MailManager {
      */
     public MailManager(MagicMail parent) {
         this.parent = parent;
-        this.editmodeMails = new HashMap<CommandSender, MailData>();
+        this.editmodeMails = new HashMap<MailSender, MailData>();
         reload();
     }
 
@@ -92,13 +92,13 @@ public class MailManager {
      * @param to 宛先
      * @param message メッセージ
      */
-    public void sendNewMail(OfflinePlayer from, OfflinePlayer to, String message) {
+    public void sendNewMail(CommandSender from, MailSender to, String message) {
 
-        ArrayList<OfflinePlayer> toList = new ArrayList<OfflinePlayer>();
+        ArrayList<MailSender> toList = new ArrayList<MailSender>();
         toList.add(to);
         ArrayList<String> messageList = new ArrayList<String>();
         messageList.add(message);
-        MailData mail = new MailData(toList, from, messageList);
+        MailData mail = new MailData(toList, MailSender.getMailSender(from), messageList);
         sendNewMail(mail);
     }
 
@@ -108,11 +108,23 @@ public class MailManager {
      * @param to 宛先
      * @param message メッセージ
      */
-    public void sendNewMail(OfflinePlayer from, List<OfflinePlayer> to, String message) {
+    public void sendNewMail(CommandSender from, List<MailSender> to, String message) {
 
         ArrayList<String> messageList = new ArrayList<String>();
         messageList.add(message);
-        MailData mail = new MailData(to, from, messageList);
+        MailData mail = new MailData(to, MailSender.getMailSender(from), messageList);
+        sendNewMail(mail);
+    }
+
+    /**
+     * 新しいテキストメールを送信する
+     * @param from 送り元
+     * @param to 宛先
+     * @param message メッセージ
+     */
+    public void sendNewMail(CommandSender from, List<MailSender> to, List<String> message) {
+
+        MailData mail = new MailData(to, MailSender.getMailSender(from), message);
         sendNewMail(mail);
     }
 
@@ -123,8 +135,8 @@ public class MailManager {
     public void sendNewMail(MailData mail) {
 
         // 宛先の重複を削除して再設定する
-        ArrayList<OfflinePlayer> to_copy = new ArrayList<OfflinePlayer>();
-        for ( OfflinePlayer t : mail.getTo() ) {
+        ArrayList<MailSender> to_copy = new ArrayList<MailSender>();
+        for ( MailSender t : mail.getTo() ) {
             if ( !to_copy.contains(t) ) {
                 to_copy.add(t);
             }
@@ -144,8 +156,9 @@ public class MailManager {
         saveMail(mail);
 
         // 宛先の人がログイン中なら知らせる
-        String msg = Messages.get("InformationYouGotMail", "%from", mail.getFrom().getName());
-        for ( OfflinePlayer to : mail.getTo() ) {
+        String msg = Messages.get("InformationYouGotMail",
+                "%from", mail.getFrom().getName());
+        for ( MailSender to : mail.getTo() ) {
             if ( to.isOnline() ) {
                 to.getPlayer().sendMessage(msg);
             }
@@ -160,14 +173,15 @@ public class MailManager {
 
     /**
      * 受信したメールのリストを取得する
-     * @param name 取得するプレイヤー名
+     * @param sender 取得する対象
      * @return メールのリスト
      */
-    public ArrayList<MailData> getInboxMails(OfflinePlayer player) {
+    public ArrayList<MailData> getInboxMails(CommandSender sender) {
 
+        MailSender ms = MailSender.getMailSender(sender);
         ArrayList<MailData> box = new ArrayList<MailData>();
         for ( MailData mail : mails ) {
-            if ( mail.getTo().contains(player) ) {
+            if ( mail.getTo().contains(ms) ) {
                 box.add(mail);
             }
         }
@@ -177,14 +191,15 @@ public class MailManager {
 
     /**
      * 受信したメールで未読のリストを取得する
-     * @param player 取得するプレイヤー
+     * @param sender 取得する対象
      * @return メールのリスト
      */
-    public ArrayList<MailData> getUnreadMails(OfflinePlayer player) {
+    public ArrayList<MailData> getUnreadMails(CommandSender sender) {
 
+        MailSender ms = MailSender.getMailSender(sender);
         ArrayList<MailData> box = new ArrayList<MailData>();
         for ( MailData mail : mails ) {
-            if ( mail.getTo().contains(player) && !mail.isRead(player) ) {
+            if ( mail.getTo().contains(ms) && !mail.isRead(ms) ) {
                 box.add(mail);
             }
         }
@@ -194,14 +209,15 @@ public class MailManager {
 
     /**
      * 送信したメールのリストを取得する
-     * @param name 取得するプレイヤー名
+     * @param sender 取得する対象
      * @return メールのリスト
      */
-    public ArrayList<MailData> getOutboxMails(OfflinePlayer player) {
+    public ArrayList<MailData> getOutboxMails(CommandSender sender) {
 
+        MailSender ms = MailSender.getMailSender(sender);
         ArrayList<MailData> box = new ArrayList<MailData>();
         for ( MailData mail : mails ) {
-            if ( mail.getFrom().equals(player) ) {
+            if ( mail.getFrom().equals(ms) ) {
                 box.add(mail);
             }
         }
@@ -211,21 +227,19 @@ public class MailManager {
 
     /**
      * 指定されたメールを開いて確認する
-     * @param player 確認する人
+     * @param sender 確認する対象
      * @param mail メール
      */
-    public void displayMail(OfflinePlayer player, MailData mail) {
+    public void displayMail(CommandSender sender, MailData mail) {
 
         // 指定されたsenderの画面にメールを表示する
         for ( String line : mail.getDescription() ) {
-            player.getPlayer().sendMessage(line);
+            sender.sendMessage(line);
         }
 
-        // 宛先に該当する人なら、既読を付ける
-        if ( mail.getTo().contains(player) ) {
-            mail.setReadFlag(player);
-            saveMail(mail);
-        }
+        // 既読を付ける
+        mail.setReadFlag(MailSender.getMailSender(sender));
+        saveMail(mail);
     }
 
     /**
@@ -260,12 +274,13 @@ public class MailManager {
      * @return 編集中メール（編集中でないならnull）
      */
     public MailData makeEditmodeMail(CommandSender sender) {
-        if ( editmodeMails.containsKey(sender) ) {
-            return editmodeMails.get(sender);
+        MailSender ms = MailSender.getMailSender(sender);
+        if ( editmodeMails.containsKey(ms) ) {
+            return editmodeMails.get(ms);
         }
         MailData mail = new MailData();
-        mail.setFrom(sender.getName());
-        editmodeMails.put(sender, mail);
+        mail.setFrom(ms);
+        editmodeMails.put(ms, mail);
         return mail;
     }
 
@@ -275,55 +290,43 @@ public class MailManager {
      * @return 編集中メール（編集中でないならnull）
      */
     public MailData getEditmodeMail(CommandSender sender) {
-        if ( editmodeMails.containsKey(sender) ) {
-            return editmodeMails.get(sender);
+        MailSender ms = MailSender.getMailSender(sender);
+        if ( editmodeMails.containsKey(ms) ) {
+            return editmodeMails.get(ms);
         }
         return null;
     }
 
     /**
      * 編集中メールを削除する
-     * @param player 削除対象のプレイヤー
+     * @param sender 削除対象のsender
      */
-    public void clearEditmodeMail(Player player) {
-        editmodeMails.remove(player);
-    }
-
-    /**
-     * メールデータのリストを、新しいメール順に並び替えする
-     * @param list リスト
-     */
-    private void sortNewer(List<MailData> list) {
-        Collections.sort(list, new Comparator<MailData>() {
-            public int compare(MailData o1, MailData o2) {
-                return o2.getDate().compareTo(o1.getDate());
-            }
-        });
+    public void clearEditmodeMail(CommandSender sender) {
+        editmodeMails.remove(MailSender.getMailSender(sender));
     }
 
     /**
      * 指定されたsenderに、Inboxリストを表示する。
-     * @param sender 表示対象
+     * @param sender 表示対象のsender
      * @param page 表示するページ
      */
     protected void displayInboxList(CommandSender sender, int page) {
 
-        String pre = Messages.get("InboxLinePre");
-        Player player = (sender instanceof Player) ? (Player)sender : null;
+        MailSender ms = MailSender.getMailSender(sender);
 
-        ArrayList<MailData> mails = getInboxMails(sender.getName());
+        String pre = Messages.get("InboxLinePre");
+
+        ArrayList<MailData> mails = getInboxMails(sender);
         int max = (int)((mails.size() - 1) / PAGE_SIZE) + 1;
         int unread = 0;
         for ( MailData m : mails ) {
-            if ( !m.isRead(sender.getName()) ) {
+            if ( !m.isRead(ms) ) {
                 unread++;
             }
         }
 
-        String fline = Messages.get("InboxFirstLine",
-                new String[]{"%page", "%max", "%unread"},
-                new String[]{page + "", max + "", unread + ""});
-        sender.sendMessage(fline);
+        String fline = Messages.get("InboxFirstLine", "%unread", unread + "");
+        ms.sendMessage(fline);
 
         for ( int i=0; i<10; i++ ) {
 
@@ -333,40 +336,32 @@ public class MailManager {
             }
 
             MailData mail = mails.get(index);
-            ChatColor color = mail.isRead(sender.getName()) ? ChatColor.GRAY : ChatColor.GOLD;
+            ChatColor color = mail.isRead(ms) ? ChatColor.GRAY : ChatColor.GOLD;
 
-            if ( player == null ) {
-                String msg = String.format("%s %s[%d]%s",
-                        pre, color.toString(), index, mail.getInboxSummary());
-                sender.sendMessage(msg);
-            } else {
-                sendMailLineTellraw(player, pre, color + mail.getInboxSummary(), mail);
-            }
+            sendMailLine(ms, pre, color + mail.getInboxSummary(), mail);
         }
 
-        // 対象者がプレイヤーなら、ページャーを表示する
-        if ( player != null ) {
-            sendPagerTellraw(player, COMMAND + " inbox", page, max);
-        }
+        sendPager(ms, COMMAND + " inbox", page, max);
     }
 
     /**
      * 指定されたsenderに、Outboxリストを表示する。
-     * @param sender 表示対象
+     * @param sender 表示対象のsender
      * @param page 表示するページ
      */
     protected void displayOutboxList(CommandSender sender, int page) {
 
-        String pre = Messages.get("OutboxLinePre");
-        Player player = (sender instanceof Player) ? (Player)sender : null;
+        MailSender ms = MailSender.getMailSender(sender);
 
-        ArrayList<MailData> mails = getOutboxMails(sender.getName());
+        String pre = Messages.get("OutboxLinePre");
+
+        ArrayList<MailData> mails = getOutboxMails(sender);
         int max = (int)((mails.size() - 1) / PAGE_SIZE) + 1;
 
         String fline = Messages.get("OutboxFirstLine",
                 new String[]{"%page", "%max"},
                 new String[]{page + "", max + ""});
-        sender.sendMessage(fline);
+        ms.sendMessage(fline);
 
         for ( int i=0; i<10; i++ ) {
 
@@ -378,30 +373,33 @@ public class MailManager {
             MailData mail = mails.get(index);
             ChatColor color = ChatColor.GRAY;
 
-            if ( player == null ) {
-                String msg = String.format("%s %s[%d]%s",
-                        pre, color.toString(), index, mail.getOutboxSummary());
-                sender.sendMessage(msg);
-            } else {
-                sendMailLineTellraw(player, pre, color + mail.getOutboxSummary(), mail);
-            }
+            sendMailLine(ms, pre, color + mail.getOutboxSummary(), mail);
         }
 
-        // 対象者がプレイヤーなら、ページャーを表示する
-        if ( player != null ) {
-            sendPagerTellraw(player, COMMAND + " outbox", page, max);
-        }
+        sendPager(ms, COMMAND + " outbox", page, max);
     }
 
     /**
-     * tellrawを利用したメールサマリー表示を、対象プレイヤーに表示する
-     * @param player プレイヤー
+     * メールデータのリストを、新しいメール順に並び替えする
+     * @param list リスト
+     */
+    private static void sortNewer(List<MailData> list) {
+        Collections.sort(list, new Comparator<MailData>() {
+            public int compare(MailData o1, MailData o2) {
+                return o2.getDate().compareTo(o1.getDate());
+            }
+        });
+    }
+
+    /**
+     * メールサマリー表示を対象プレイヤーに表示する
+     * @param sender 表示対象
      * @param pre プレフィックス
      * @param summary サマリーの文字列
      * @param mail メールデータ
      */
-    private void sendMailLineTellraw(
-            Player player, String pre, String summary, MailData mail) {
+    private void sendMailLine(
+            MailSender sender, String pre, String summary, MailData mail) {
 
         MessageComponent msg = new MessageComponent();
 
@@ -415,17 +413,17 @@ public class MailManager {
 
         msg.addText(summary);
 
-        msg.sendCommand(player);
+        msg.send(sender);
     }
 
     /**
-     * tellrawを利用したページャーを、対象プレイヤーに表示する
-     * @param player プレイヤー
+     * ページャーを対象プレイヤーに表示する
+     * @param sender 表示対象
      * @param commandPre コマンドのプレフィックス
      * @param page 現在のページ
      * @param max 最終ページ
      */
-    private void sendPagerTellraw(Player player, String commandPre, int page, int max) {
+    private void sendPager(MailSender sender, String commandPre, int page, int max) {
 
         String firstLabel = Messages.get("FirstPage");
         String prevLabel = Messages.get("PrevPage");
@@ -484,6 +482,6 @@ public class MailManager {
 
         msg.addText(" " + parts);
 
-        msg.sendCommand(player);
+        msg.send(sender);
     }
 }
