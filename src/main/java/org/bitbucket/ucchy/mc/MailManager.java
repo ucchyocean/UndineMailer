@@ -92,9 +92,9 @@ public class MailManager {
      * @param to 宛先
      * @param message メッセージ
      */
-    public void sendNewMail(String from, String to, String message) {
+    public void sendNewMail(OfflinePlayer from, OfflinePlayer to, String message) {
 
-        ArrayList<String> toList = new ArrayList<String>();
+        ArrayList<OfflinePlayer> toList = new ArrayList<OfflinePlayer>();
         toList.add(to);
         ArrayList<String> messageList = new ArrayList<String>();
         messageList.add(message);
@@ -108,7 +108,7 @@ public class MailManager {
      * @param to 宛先
      * @param message メッセージ
      */
-    public void sendNewMail(String from, List<String> to, String message) {
+    public void sendNewMail(OfflinePlayer from, List<OfflinePlayer> to, String message) {
 
         ArrayList<String> messageList = new ArrayList<String>();
         messageList.add(message);
@@ -123,8 +123,8 @@ public class MailManager {
     public void sendNewMail(MailData mail) {
 
         // 宛先の重複を削除して再設定する
-        ArrayList<String> to_copy = new ArrayList<String>();
-        for ( String t : mail.getTo() ) {
+        ArrayList<OfflinePlayer> to_copy = new ArrayList<OfflinePlayer>();
+        for ( OfflinePlayer t : mail.getTo() ) {
             if ( !to_copy.contains(t) ) {
                 to_copy.add(t);
             }
@@ -144,19 +144,17 @@ public class MailManager {
         saveMail(mail);
 
         // 宛先の人がログイン中なら知らせる
-        String msg = Messages.get("InformationYouGotMail", "%from", mail.getFrom());
-        for ( String name : mail.getTo() ) {
-            OfflinePlayer player = Utility.getOfflinePlayer(name);
-            if ( player != null && player.isOnline() ) {
-                player.getPlayer().sendMessage(msg);
+        String msg = Messages.get("InformationYouGotMail", "%from", mail.getFrom().getName());
+        for ( OfflinePlayer to : mail.getTo() ) {
+            if ( to.isOnline() ) {
+                to.getPlayer().sendMessage(msg);
             }
         }
 
         // 送信したことを送信元に知らせる
-        OfflinePlayer player = Utility.getOfflinePlayer(mail.getFrom());
-        if ( player != null && player.isOnline() ) {
+        if ( mail.getFrom() != null && mail.getFrom().isOnline() ) {
             msg = Messages.get("InformationYouSentMail");
-            player.getPlayer().sendMessage(msg);
+            mail.getFrom().getPlayer().sendMessage(msg);
         }
     }
 
@@ -165,11 +163,11 @@ public class MailManager {
      * @param name 取得するプレイヤー名
      * @return メールのリスト
      */
-    public ArrayList<MailData> getInboxMails(String name) {
+    public ArrayList<MailData> getInboxMails(OfflinePlayer player) {
 
         ArrayList<MailData> box = new ArrayList<MailData>();
         for ( MailData mail : mails ) {
-            if ( mail.getTo().contains(name) ) {
+            if ( mail.getTo().contains(player) ) {
                 box.add(mail);
             }
         }
@@ -178,15 +176,15 @@ public class MailManager {
     }
 
     /**
-     * 受信したメールで未読のメールのリストを取得する
-     * @param name 取得するプレイヤー名
+     * 受信したメールで未読のリストを取得する
+     * @param player 取得するプレイヤー
      * @return メールのリスト
      */
-    public ArrayList<MailData> getUnreadMails(String name) {
+    public ArrayList<MailData> getUnreadMails(OfflinePlayer player) {
 
         ArrayList<MailData> box = new ArrayList<MailData>();
         for ( MailData mail : mails ) {
-            if ( mail.getTo().contains(name) && !mail.isRead(name) ) {
+            if ( mail.getTo().contains(player) && !mail.isRead(player) ) {
                 box.add(mail);
             }
         }
@@ -199,11 +197,11 @@ public class MailManager {
      * @param name 取得するプレイヤー名
      * @return メールのリスト
      */
-    public ArrayList<MailData> getOutboxMails(String name) {
+    public ArrayList<MailData> getOutboxMails(OfflinePlayer player) {
 
         ArrayList<MailData> box = new ArrayList<MailData>();
         for ( MailData mail : mails ) {
-            if ( mail.getFrom().equals(name) ) {
+            if ( mail.getFrom().equals(player) ) {
                 box.add(mail);
             }
         }
@@ -213,19 +211,19 @@ public class MailManager {
 
     /**
      * 指定されたメールを開いて確認する
-     * @param sender 確認する人
+     * @param player 確認する人
      * @param mail メール
      */
-    public void displayMail(CommandSender sender, MailData mail) {
+    public void displayMail(OfflinePlayer player, MailData mail) {
 
         // 指定されたsenderの画面にメールを表示する
         for ( String line : mail.getDescription() ) {
-            sender.sendMessage(line);
+            player.getPlayer().sendMessage(line);
         }
 
         // 宛先に該当する人なら、既読を付ける
-        if ( mail.getTo().contains(sender.getName()) ) {
-            mail.setReadFlag(sender.getName());
+        if ( mail.getTo().contains(player) ) {
+            mail.setReadFlag(player);
             saveMail(mail);
         }
     }

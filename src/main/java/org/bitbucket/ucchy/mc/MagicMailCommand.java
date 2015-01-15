@@ -8,6 +8,7 @@ package org.bitbucket.ucchy.mc;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.bukkit.Bukkit;
 import org.bukkit.OfflinePlayer;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandSender;
@@ -271,7 +272,7 @@ public class MagicMailCommand implements TabExecutor {
             } else if ( line >= MailData.TO_MAX_SIZE ) {
                 line = MailData.TO_MAX_SIZE - 1;
             }
-            mail.setTo(line, args[2]);
+            mail.setTo(line, getOfflinePlayer(args[2]));
 
         } else if ( args[1].equalsIgnoreCase("delete") && args[2].matches("[0-9]{1,2}") ) {
             // 2番めの引数にdeleteが来た場合は、削除
@@ -333,7 +334,7 @@ public class MagicMailCommand implements TabExecutor {
             } else if ( line >= MailData.MESSAGE_MAX_SIZE ) {
                 line = MailData.MESSAGE_MAX_SIZE - 1;
             }
-            mail.setTo(line, args[2]);
+            mail.setTo(line, getOfflinePlayer(args[2]));
 
         } else if ( args[1].equalsIgnoreCase("delete") && args[2].matches("[0-9]{1,2}") ) {
             // 2番めの引数にdeleteが来た場合は、削除
@@ -445,5 +446,10 @@ public class MagicMailCommand implements TabExecutor {
         Messages.reload(config.getLang());
         sender.sendMessage(Messages.get("InformationReload"));
         return true;
+    }
+
+    @SuppressWarnings("deprecation")
+    private static OfflinePlayer getOfflinePlayer(String name) {
+        return Bukkit.getOfflinePlayer(name);
     }
 }

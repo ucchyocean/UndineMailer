@@ -18,6 +18,7 @@ import java.util.jar.JarFile;
 import java.util.zip.ZipEntry;
 
 import org.bukkit.Bukkit;
+import org.bukkit.ChatColor;
 import org.bukkit.OfflinePlayer;
 import org.bukkit.entity.Player;
 
@@ -26,6 +27,8 @@ import org.bukkit.entity.Player;
  * @author ucchy
  */
 public class Utility {
+
+    private static Boolean isCB178orLaterCache;
 
     /**
      * jarファイルの中に格納されているファイルを、jarファイルの外にコピーするメソッド
@@ -115,24 +118,154 @@ public class Utility {
     }
 
     /**
-     * クリックするとコマンドを実行するメッセージを表示する
-     * @param player 表示対象のプレイヤー
-     * @param text メッセージ
-     * @param command 埋め込むコマンド
+     * 文字列内のカラーコード候補（&a）を、カラーコード（§a）に置き換えする
+     * @param source 置き換え元の文字列
+     * @return 置き換え後の文字列
      */
-    public static void sendCommandLinkMessage(Player player, String text, String command) {
-        String com = String.format(
-                "tellraw %s "
-                + "{\"text\":\"%s\",\"underlined\":\"true\",\"clickEvent\":{"
-                    + "\"action\":\"run_command\",\"value\":\"%s\"}}",
-                player.getName(), text, command);
-        Bukkit.dispatchCommand(Bukkit.getConsoleSender(), com);
+    public static String replaceColorCode(String source) {
+        if ( source == null ) return null;
+        return ChatColor.translateAlternateColorCodes('&', source);
+    }
+
+    /**
+     * 文字列に含まれているカラーコード（§a）を除去して返す
+     * @param source 置き換え元の文字列
+     * @return 置き換え後の文字列
+     */
+    public static String stripColor(String source) {
+        if ( source == null ) return null;
+        return ChatColor.stripColor(source);
+    }
+
+    /**
+     * 指定された文字数のアスタリスクの文字列を返す
+     * @param length アスタリスクの個数
+     * @return 指定された文字数のアスタリスク
+     */
+    public static String getAstariskString(int length) {
+        StringBuilder buf = new StringBuilder();
+        for ( int i=0; i<length; i++ ) {
+            buf.append("*");
+        }
+        return buf.toString();
+    }
+
+    /**
+     * カラー表記の文字列を、ChatColorクラスに変換する
+     * @param color カラー表記の文字列
+     * @return ChatColorクラス
+     */
+    public static ChatColor changeToChatColor(String color) {
+
+        if ( isValidColor(color) ) {
+            return ChatColor.valueOf(color.toUpperCase());
+        }
+        return ChatColor.WHITE;
+    }
+
+    /**
+     * カラー表記の文字列を、カラーコードに変換する
+     * @param color カラー表記の文字列
+     * @return カラーコード
+     */
+    public static String changeToColorCode(String color) {
+
+        return "&" + changeToChatColor(color).getChar();
+    }
+
+    /**
+     * ChatColorで指定可能な色かどうかを判断する
+     * @param color カラー表記の文字列
+     * @return 指定可能かどうか
+     */
+    public static boolean isValidColor(String color) {
+
+        for ( ChatColor c : ChatColor.values() ) {
+            if ( c.name().equals(color.toUpperCase()) ) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    /**
+     * カラーコードかどうかを判断する
+     * @param color カラー表記の文字列
+     * @return 指定可能かどうか
+     */
+    public static boolean isValidColorCode(String code) {
+
+        if ( code == null ) {
+            return false;
+        }
+        return code.matches("&[0-9a-f]");
+    }
+
+    /**
+     * 現在動作中のCraftBukkitが、v1.7.8 以上かどうかを確認する
+     * @return v1.7.8以上ならtrue、そうでないならfalse
+     */
+    public static boolean isCB178orLater() {
+
+        if ( isCB178orLaterCache != null ) {
+            return isCB178orLaterCache;
+        }
+
+        int[] borderNumbers = {1, 7, 8};
+
+        String version = Bukkit.getBukkitVersion();
+        int hyphen = version.indexOf("-");
+        if ( hyphen > 0 ) {
+            version = version.substring(0, hyphen);
+        }
+
+        String[] versionArray = version.split("\\.");
+        int[] versionNumbers = new int[versionArray.length];
+        for ( int i=0; i<versionArray.length; i++ ) {
+            if ( !versionArray[i].matches("[0-9]+") ) {
+                isCB178orLaterCache = false;
+                return false;
+            }
+            versionNumbers[i] = Integer.parseInt(versionArray[i]);
+        }
+
+        int index = 0;
+        while ( (versionNumbers.length > index) && (borderNumbers.length > index) ) {
+            if ( versionNumbers[index] > borderNumbers[index] ) {
+                isCB178orLaterCache = true;
+                return true;
+            } else if ( versionNumbers[index] < borderNumbers[index] ) {
+                isCB178orLaterCache = false;
+                return false;
+            }
+            index++;
+        }
+        if ( borderNumbers.length == index ) {
+            isCB178orLaterCache = true;
+            return true;
+        } else {
+            isCB178orLaterCache = false;
+            return false;
+        }
+    }
+
+    /**
+     * 現在のサーバー接続人数を返します。
+     * @return サーバー接続人数
+     */
+    public static int getOnlinePlayersCount() {
+        int count = 0;
+        for ( @SuppressWarnings("unused")
+                Player player : Bukkit.getOnlinePlayers() ) {
+            count++;
+        }
+        return count;
     }
 
     /**
      * 指定された名前のオフラインプレイヤーを取得する
      * @param name プレイヤー名
-     * @return プレイヤー
+     * @return オフラインプレイヤー
      */
     @SuppressWarnings("deprecation")
     public static OfflinePlayer getOfflinePlayer(String name) {
