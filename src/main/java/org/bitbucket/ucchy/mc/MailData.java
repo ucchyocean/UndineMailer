@@ -455,20 +455,20 @@ public class MailData {
     }
 
     /**
-     * 指定した名前のプレイヤーの既読マークを付ける
-     * @param player プレイヤー
+     * 指定した名前のsenderの既読マークを付ける
+     * @param sender sender
      */
-    public void setReadFlag(MailSender player) {
-        readFlags.put(player, true);
+    public void setReadFlag(MailSender sender) {
+        readFlags.put(sender, true);
     }
 
     /**
      * 指定された名前のプレイヤーは、このメールの関係者かどうかを返す。
-     * @param name プレイヤー
+     * @param sender sender
      * @return 指定された名前がtoまたはfromに含まれるかどうか
      */
-    public boolean isRelatedWith(String name) {
-        return to.contains(name) || from.equals(name);
+    public boolean isRelatedWith(MailSender sender) {
+        return to.contains(sender) || from.equals(sender);
     }
 
     /**

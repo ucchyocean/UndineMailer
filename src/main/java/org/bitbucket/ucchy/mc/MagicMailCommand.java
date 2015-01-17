@@ -150,7 +150,7 @@ public class MagicMailCommand implements TabExecutor {
         }
 
         // 他人のメールだった場合はエラーを表示して終了
-        if ( !mail.isRelatedWith(sender.getName()) &&
+        if ( !mail.isRelatedWith(MailSender.getMailSender(sender)) &&
                 !sender.hasPermission(PERMISSION + ".read-all") ) {
             sender.sendMessage(Messages.get("ErrorNoneReadPermission"));
             return true;
