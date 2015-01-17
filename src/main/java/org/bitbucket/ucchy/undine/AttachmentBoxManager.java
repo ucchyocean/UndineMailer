@@ -22,7 +22,7 @@ import org.bukkit.metadata.FixedMetadataValue;
  */
 public class AttachmentBoxManager {
 
-    protected static final String BOX_INV_META_NAME = "undine_boxinv";
+    private static final String BOX_INV_META_NAME = "undine_boxinv";
 
     private Undine parent;
 
@@ -109,7 +109,7 @@ public class AttachmentBoxManager {
         }
 
         // 添付ボックスの作成
-        int size = (int)((mail.getAttachments().size() - 1) / 9) * 9;
+        int size = (int)((mail.getAttachments().size() - 1) / 9 + 1) * 9;
         String title = Messages.get("AttachmentBoxTitle", "%number", mail.getIndex());
 
         // インベントリタイトルに32文字以上は設定できないので、必要に応じて削る
@@ -125,9 +125,6 @@ public class AttachmentBoxManager {
         }
 
         attachmentBoxes.put(mail.getIndex(), box);
-
-        // 元のメールの添付ボックスはからにする
-        mail.setAttachments(new ArrayList<ItemStack>());
 
         // 指定されたplayerの画面に添付ボックスを表示する
         player.openInventory(box);
@@ -157,15 +154,35 @@ public class AttachmentBoxManager {
     }
 
     /**
+     * 指定したプレイヤーが、添付ボックスを開いている状態かどうかを返す
+     * @param player プレイヤー
+     * @return 添付ボックスを開いているかどうか
+     * （編集メールのボックスを含まない）
+     */
+    protected boolean isOpeningAttachBox(Player player) {
+        return player.hasMetadata(BOX_INV_META_NAME)
+                && indexCache.containsKey(player)
+                && indexCache.get(player) > 0;
+    }
+
+    /**
      * 指定されたプレイヤーが開いていた添付ボックスを、メールと同期する
      * @param player プレイヤー
      */
     protected void syncAttachBox(Player player) {
 
+        // メタデータが無いプレイヤーなら何もしない
+        if ( !player.hasMetadata(BOX_INV_META_NAME) ) return;
+
+        // 開いていたボックスのインデクスが記録されていないなら、何もしない
         if ( !indexCache.containsKey(player) ) return;
 
+        // メタデータ、インデクスを削除する
+        player.removeMetadata(AttachmentBoxManager.BOX_INV_META_NAME, parent);
         int index = indexCache.get(player);
+        indexCache.remove(player);
 
+        // 同期するボックスとメールを取得する
         MailData mail;
         Inventory inv;
         if ( index == 0 ) {
@@ -176,6 +193,7 @@ public class AttachmentBoxManager {
             inv = attachmentBoxes.get(index);
         }
 
+        // 同期して保存する
         ArrayList<ItemStack> array = new ArrayList<ItemStack>();
         for ( ItemStack item : inv.getContents() ) {
             if ( item != null && item.getType() != Material.AIR ) {

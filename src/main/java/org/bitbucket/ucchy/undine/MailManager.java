@@ -158,14 +158,14 @@ public class MailManager {
                 "%from", mail.getFrom().getName());
         for ( MailSender to : mail.getTo() ) {
             if ( to.isOnline() ) {
-                to.getPlayer().sendMessage(msg);
+                to.sendMessage(msg);
             }
         }
 
         // 送信したことを送信元に知らせる
         if ( mail.getFrom() != null && mail.getFrom().isOnline() ) {
             msg = Messages.get("InformationYouSentMail");
-            mail.getFrom().getPlayer().sendMessage(msg);
+            mail.getFrom().sendMessage(msg);
         }
     }
 
@@ -228,9 +228,7 @@ public class MailManager {
     public void displayMail(MailSender sender, MailData mail) {
 
         // 指定されたsenderの画面にメールを表示する
-        for ( String line : mail.getDescription() ) {
-            sender.sendMessage(line);
-        }
+        mail.displayDescription(sender);
 
         // 既読を付ける
         mail.setReadFlag(sender);
@@ -359,6 +357,33 @@ public class MailManager {
         }
 
         sendPager(sender, COMMAND + " outbox", page, max);
+    }
+
+    /**
+     * 指定されたsenderに、サーバー参加時の未読メール一覧を表示する。
+     * @param sender 表示対象
+     */
+    protected void displayUnreadOnJoin(MailSender sender) {
+
+        List<MailData> unread = getUnreadMails(sender);
+
+        if ( unread.size() == 0 ) {
+            return;
+        }
+
+        // 未読のメールを表示する
+        sender.sendMessage(Messages.get(
+                "InformationPlayerJoin", "%unread", unread.size()));
+
+        // 最大5件まで、メールのサマリーを表示する
+        String pre = Messages.get("InboxLinePre");
+        for ( int i=0; i<5; i++ ) {
+            if ( i >= unread.size() ) {
+                break;
+            }
+            MailData mail = unread.get(i);
+            sendMailLine(sender, pre, ChatColor.GOLD + mail.getInboxSummary(), mail);
+        }
     }
 
     /**

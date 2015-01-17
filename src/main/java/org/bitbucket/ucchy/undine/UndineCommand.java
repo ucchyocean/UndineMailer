@@ -186,20 +186,21 @@ public class UndineCommand implements TabExecutor {
         String[] dests = args[1].split(",");
         ArrayList<MailSender> targets = new ArrayList<MailSender>();
 
-        // 宛先が全て見つからない場合はエラーを表示
+
         for ( String d : dests ) {
             OfflinePlayer player = Utility.getOfflinePlayer(d);
             if ( player == null || !player.hasPlayedBefore() ) {
+                // 宛先が見つからない場合はエラーを表示
                 sender.sendMessage(Messages.get("ErrorNotFoundDestination", "%dest", d));
+            } else if ( !config.isEnableSendSelf() && player.getName().equals(sender.getName()) ) {
+                // 自分自身が指定不可の設定の場合は、自分自身が指定されたらエラーを表示
+                sender.sendMessage(Messages.get("ErrorCannotSendSelf"));
             } else {
                 targets.add(new MailSenderPlayer(player));
             }
         }
 
-        // 自分自身が指定不可の設定の場合は、自分自身が指定されたらエラーを表示
-        // TODO
-
-        // 結果として、宛先が一つもないなら、そのまま終了
+        // 結果として宛先が一つもないなら、メールを送信せずにそのまま終了
         if ( targets.size() == 0 ) {
             return true;
         }
@@ -361,16 +362,34 @@ public class UndineCommand implements TabExecutor {
         }
 
         Player player = (Player)sender;
-        MailData mail = manager.getEditmodeMail(MailSender.getMailSender(sender));
 
-        // 編集中でないならエラーを表示して終了
-        if ( mail == null ) {
-            sender.sendMessage(Messages.get("ErrorNotInEditmode"));
-            return true;
+        if ( args.length == 1 ) {
+            MailData mail = manager.getEditmodeMail(MailSender.getMailSender(sender));
+
+            // 編集中でないならエラーを表示して終了
+            if ( mail == null ) {
+                sender.sendMessage(Messages.get("ErrorNotInEditmode"));
+                return true;
+            }
+
+            // 添付ボックスを表示する
+            parent.getBoxManager().displayAttachBox(player, mail);
+
+        } else if (args[1].matches("[0-9]{1,9}") ) {
+            int index = Integer.parseInt(args[1]);
+            MailData mail = manager.getMail(index);
+
+            // 他人のメールだった場合はエラーを表示して終了
+            if ( !mail.getTo().contains(MailSender.getMailSender(sender) ) &&
+                    !sender.hasPermission(PERMISSION + ".read-all") ) {
+                sender.sendMessage(Messages.get("ErrorNoneReadPermission"));
+                return true;
+            }
+
+            // 添付ボックスを表示する
+            parent.getBoxManager().displayAttachBox(player, mail);
+
         }
-
-        // 添付ボックスを表示する
-        parent.getBoxManager().displayAttachBox(player, mail);
 
         return true;
     }

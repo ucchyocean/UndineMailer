@@ -15,6 +15,7 @@ import java.util.List;
 import org.bitbucket.ucchy.undine.item.ItemConfigParseException;
 import org.bitbucket.ucchy.undine.item.ItemConfigParser;
 import org.bitbucket.ucchy.undine.sender.MailSender;
+import org.bitbucket.ucchy.undine.sender.MailSenderPlayer;
 import org.bitbucket.ucchy.undine.tellraw.ClickEventType;
 import org.bitbucket.ucchy.undine.tellraw.MessageComponent;
 import org.bitbucket.ucchy.undine.tellraw.MessageParts;
@@ -491,45 +492,46 @@ public class MailData {
     }
 
     /**
-     * メールの詳細情報を返す
-     * @return 詳細情報
+     * メールの詳細情報を表示する
+     * @param sender 表示するsender
      */
-    protected ArrayList<String> getDescription() {
-
-        ArrayList<String> desc = new ArrayList<String>();
+    protected void displayDescription(MailSender sender) {
 
         String num = (index == 0) ? Messages.get("Editmode") : index + "";
         String fdate = getFormattedDate(date);
         String pre = Messages.get("MailDetailLinePre");
 
-        desc.add(Messages.get("MailDetailFirstLine", "%number", num));
-        desc.add(Messages.get("MailDetailFromToLine",
+        sender.sendMessage(Messages.get("MailDetailFirstLine", "%number", num));
+        sender.sendMessage(Messages.get("MailDetailFromToLine",
                 new String[]{"%from", "%to"},
                 new String[]{from.getName(), join(to)}));
-        desc.add(Messages.get("MailDetailDateLine", "%date", fdate));
-        desc.add(Messages.get("MailDetailMessageLine"));
+        sender.sendMessage(Messages.get("MailDetailDateLine", "%date", fdate));
+        sender.sendMessage(Messages.get("MailDetailMessageLine"));
         for ( String m : message ) {
-            desc.add(pre + "  " + ChatColor.WHITE + m);
+            sender.sendMessage(pre + "  " + ChatColor.WHITE + m);
         }
 
-        if ( attachments.size() > 0 ||
-                (attachmentsOriginal != null && attachmentsOriginal.size() > 0) ) {
+        if ( attachmentsOriginal != null && attachmentsOriginal.size() > 0 ) {
 
-            desc.add(Messages.get("MailDetailAttachmentsLine"));
-            if ( attachmentsOriginal != null ) {
-                for ( ItemStack i : attachmentsOriginal ) {
-                    desc.add(pre + "  " + ChatColor.WHITE + getItemDesc(i));
-                }
+            if ( !(sender instanceof MailSenderPlayer) ) {
+                sender.sendMessage(Messages.get("MailDetailAttachmentsLine"));
             } else {
-                for ( ItemStack i : attachments ) {
-                    desc.add(pre + "  " + ChatColor.WHITE + getItemDesc(i));
-                }
+                MessageComponent msg = new MessageComponent();
+                msg.addText(Messages.get("MailDetailAttachmentsLine"));
+                msg.addText(" ");
+                MessageParts button = new MessageParts(
+                        Messages.get("MailDetailAttachmentBox"), ChatColor.AQUA);
+                button.setClickEvent(ClickEventType.RUN_COMMAND,
+                        COMMAND + " attach " + index);
+                msg.addParts(button);
+                msg.send(sender);
+            }
+            for ( ItemStack i : attachmentsOriginal ) {
+                sender.sendMessage(pre + "  " + ChatColor.WHITE + getItemDesc(i));
             }
         }
 
-        desc.add(Messages.get("MailDetailLastLine"));
-
-        return desc;
+        sender.sendMessage(Messages.get("MailDetailLastLine"));
     }
 
     /**
