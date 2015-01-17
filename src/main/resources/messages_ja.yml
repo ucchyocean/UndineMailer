@@ -12,10 +12,12 @@ ErrorNotFoundDestination: '&c宛先 %dest が見つかりません。'
 ErrorCannotSendSelf: '&c自分自身にメールを送信することはできません。'
 ErrorInGameCommand: '&cこのコマンドはゲーム内から実行してください。'
 ErrorNotInEditmode: '&cあなたはメール編集中でないため、このコマンドを実行することができません。'
+ErrorTooManyDestination: '&c一つのメールに設定できる宛先は、%numまでです。'
 
 InformationReload: '&aデータを再読み込みしました。'
 InformationYouGotMail: '&7%from &aさんから新しいメールが届きました!'
 InformationYouSentMail: '&7メールを送信しました。'
+InformationEditCancelled: '&7メールの編集をキャンセルしました。'
 
 MailDetailFirstLine: '&7========== メール(#%number) =========='
 MailDetailFromToLine: '&7# &c送信者: &f%from  &c宛先: &f%to'
@@ -60,7 +62,7 @@ NextPageToolTip: '次のページへ'
 LastPageToolTip: '最後のページヘ'
 PagerParts: '&7-----'
 
-DateFormat: 'yyyy/MM/dd(E) hh:mm:ss'
+DateFormat: 'yyyy/MM/dd(E) HH:mm:ss'
 
 EditmodeBoxTitle: '編集中メールの添付ボックス'
 AttachmentBoxTitle: '添付ボックス(#%number)'

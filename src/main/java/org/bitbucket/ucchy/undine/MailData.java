@@ -10,9 +10,7 @@ import java.io.IOException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 
 import org.bitbucket.ucchy.undine.item.ItemConfigParseException;
 import org.bitbucket.ucchy.undine.item.ItemConfigParser;
@@ -21,7 +19,6 @@ import org.bitbucket.ucchy.undine.tellraw.ClickEventType;
 import org.bitbucket.ucchy.undine.tellraw.MessageComponent;
 import org.bitbucket.ucchy.undine.tellraw.MessageParts;
 import org.bukkit.ChatColor;
-import org.bukkit.command.CommandSender;
 import org.bukkit.configuration.ConfigurationSection;
 import org.bukkit.configuration.file.YamlConfiguration;
 import org.bukkit.inventory.ItemStack;
@@ -32,7 +29,7 @@ import org.bukkit.inventory.ItemStack;
  */
 public class MailData {
 
-    private static final String COMMAND = "/undine";
+    private static final String COMMAND = "/umail";
     private static final int SUMMARY_MAX_SIZE = 40;
     protected static final int TO_MAX_SIZE = 10;
     protected static final int MESSAGE_MAX_SIZE = 15;
@@ -46,7 +43,7 @@ public class MailData {
     private ItemStack feeItem;
 
     private int index;
-    private Map<MailSender, Boolean> readFlags;
+    private List<MailSender> readFlags;
     private List<ItemStack> attachmentsOriginal;
     private Date date;
 
@@ -58,7 +55,7 @@ public class MailData {
         this.to = new ArrayList<MailSender>();
         this.message = new ArrayList<String>();
         this.attachments = new ArrayList<ItemStack>();
-        this.readFlags = new HashMap<MailSender, Boolean>();
+        this.readFlags = new ArrayList<MailSender>();
     }
 
     /**
@@ -73,7 +70,7 @@ public class MailData {
         this.from = from;
         this.message = message;
         this.attachments = new ArrayList<ItemStack>();
-        this.readFlags = new HashMap<MailSender, Boolean>();
+        this.readFlags = new ArrayList<MailSender>();
     }
 
     /**
@@ -90,7 +87,7 @@ public class MailData {
         this.from = from;
         this.message = message;
         this.attachments = attachments;
-        this.readFlags = new HashMap<MailSender, Boolean>();
+        this.readFlags = new ArrayList<MailSender>();
     }
 
     /**
@@ -111,7 +108,7 @@ public class MailData {
         this.attachments = attachments;
         this.feeMoney = feeMoney;
         this.feeItem = feeItem;
-        this.readFlags = new HashMap<MailSender, Boolean>();
+        this.readFlags = new ArrayList<MailSender>();
     }
 
     /**
@@ -148,10 +145,11 @@ public class MailData {
 
         config.set("index", index);
 
-        ConfigurationSection rsec = config.createSection("readFlags");
-        for ( MailSender player : readFlags.keySet() ) {
-            rsec.set(player.toString(), readFlags.get(player));
+        ArrayList<String> flagList = new ArrayList<String>();
+        for ( MailSender t : readFlags ) {
+            flagList.add(t.toString());
         }
+        config.set("readFlags", flagList);
 
         if ( attachmentsOriginal != null ) {
             ConfigurationSection section = config.createSection("attachmentsOriginal");
@@ -219,10 +217,11 @@ public class MailData {
 
         data.index = config.getInt("index");
 
-        for ( String nameOrUuid : config.getConfigurationSection("readFlags").getKeys(false) ) {
-            MailSender sender = MailSender.getMailSenderFromString(nameOrUuid);
+        data.readFlags = new ArrayList<MailSender>();
+        for ( String t : config.getStringList("readFlags") ) {
+            MailSender sender = MailSender.getMailSenderFromString(t);
             if ( sender != null ) {
-                data.readFlags.put(sender, config.getBoolean("readFlags." + nameOrUuid, false));
+                data.readFlags.add(sender);
             }
         }
 
@@ -358,6 +357,16 @@ public class MailData {
     }
 
     /**
+     * このメールのメッセージの、指定された行番号を削除します。
+     * @param line 宛先番号（0から始まることに注意）
+     */
+    public void deleteMessage(int line) {
+        if ( this.message.size() > line ) {
+            this.message.remove(line);
+        }
+    }
+
+    /**
      * このメールに添付されたアイテムを取得します。
      * @return 添付アイテム
      */
@@ -374,10 +383,10 @@ public class MailData {
     }
 
     /**
-     * このメールが既読かどうかを取得します。
-     * @return 既読かどうか
+     * このメールを読んだ人のリストを取得します。
+     * @return 読んだ人のリスト
      */
-    public Map<MailSender, Boolean> getReadFlags() {
+    public List<MailSender> getReadFlags() {
         return readFlags;
     }
 
@@ -451,7 +460,7 @@ public class MailData {
      * @return 読んだかどうか
      */
     public boolean isRead(MailSender player) {
-        return (readFlags.containsKey(player) ? readFlags.get(player) : false);
+        return readFlags.contains(player);
     }
 
     /**
@@ -459,7 +468,9 @@ public class MailData {
      * @param sender sender
      */
     public void setReadFlag(MailSender sender) {
-        readFlags.put(sender, true);
+        if ( !readFlags.contains(sender) ) {
+            readFlags.add(sender);
+        }
     }
 
     /**
@@ -518,9 +529,7 @@ public class MailData {
      * @param sender 表示するsender
      * @param config Undineのコンフィグ
      */
-    protected void displayEditmode(CommandSender sender, UndineConfig config) {
-
-        MailSender ms = MailSender.getMailSender(sender);
+    protected void displayEditmode(MailSender sender, UndineConfig config) {
 
         // メッセージが3行に満たない場合は、この時点で空行を足しておく
         while ( message.size() < MESSAGE_ADD_SIZE ) {
@@ -529,13 +538,13 @@ public class MailData {
 
         String pre = Messages.get("EditmodeLinePre");
 
-        ms.sendMessage(Messages.get("EditmodeFirstLine"));
+        sender.sendMessage(Messages.get("EditmodeFirstLine"));
 
         for ( int i=0; i<to.size(); i++ ) {
             MessageComponent msg = new MessageComponent();
             msg.addText(pre);
             MessageParts buttonDelete = new MessageParts(
-                    Messages.get("EditmodeToDelete"), ChatColor.BLUE, ChatColor.UNDERLINE);
+                    Messages.get("EditmodeToDelete"), ChatColor.AQUA);
             buttonDelete.setClickEvent(
                     ClickEventType.RUN_COMMAND,
                     COMMAND + " to delete " + (i+1));
@@ -543,33 +552,34 @@ public class MailData {
             msg.addParts(buttonDelete);
             msg.addText(" ");
             MessageParts button = new MessageParts(
-                    Messages.get("EditmodeTo"), ChatColor.BLUE, ChatColor.UNDERLINE);
+                    Messages.get("EditmodeTo"), ChatColor.AQUA);
             button.setClickEvent(
                     ClickEventType.SUGGEST_COMMAND,
                     COMMAND + " to " + (i+1) + " " + to.get(i).getName());
             button.setHoverText(Messages.get("EditmodeToToolTip"));
             msg.addParts(button);
+            msg.addText(" ");
             msg.addText(to.get(i).getName(), ChatColor.WHITE);
-            msg.send(ms);
+            msg.send(sender);
         }
 
         if ( to.size() < TO_MAX_SIZE ) {
             MessageComponent msg = new MessageComponent();
             msg.addText(pre);
             MessageParts button = new MessageParts(
-                    Messages.get("EditmodeToAdd"), ChatColor.BLUE, ChatColor.UNDERLINE);
+                    Messages.get("EditmodeToAdd"), ChatColor.AQUA);
             button.setClickEvent(
                     ClickEventType.SUGGEST_COMMAND,
                     COMMAND + " to " + (to.size()+1) + " ");
             msg.addParts(button);
-            msg.send(ms);
+            msg.send(sender);
         }
 
         for ( int i=0; i<message.size(); i++ ) {
             MessageComponent msg = new MessageComponent();
             msg.addText(pre);
             MessageParts buttonDelete = new MessageParts(
-                    Messages.get("EditmodeLineDelete"), ChatColor.BLUE, ChatColor.UNDERLINE);
+                    Messages.get("EditmodeLineDelete"), ChatColor.AQUA);
             buttonDelete.setClickEvent(
                     ClickEventType.RUN_COMMAND,
                     COMMAND + " message delete " + (i+1));
@@ -577,14 +587,15 @@ public class MailData {
             msg.addParts(buttonDelete);
             msg.addText(" ");
             MessageParts buttonEdit = new MessageParts(
-                    "[" + (i+1) + ":]", ChatColor.BLUE, ChatColor.UNDERLINE);
+                    "[" + (i+1) + ":]", ChatColor.AQUA);
             buttonEdit.setClickEvent(
                     ClickEventType.SUGGEST_COMMAND,
                     COMMAND + " message " + (i+1) + " " + message.get(i));
             buttonEdit.setHoverText(Messages.get("EditmodeLineEditToolTip"));
             msg.addParts(buttonEdit);
+            msg.addText(" ");
             msg.addText(message.get(i), ChatColor.WHITE);
-            msg.send(ms);
+            msg.send(sender);
         }
 
         if ( message.size() < MESSAGE_MAX_SIZE ) {
@@ -595,42 +606,42 @@ public class MailData {
             MessageComponent msg = new MessageComponent();
             msg.addText(pre);
             MessageParts button = new MessageParts(
-                    Messages.get("EditmodeLineAdd"), ChatColor.BLUE, ChatColor.UNDERLINE);
+                    Messages.get("EditmodeLineAdd"), ChatColor.AQUA);
             button.setClickEvent(
                     ClickEventType.RUN_COMMAND,
                     COMMAND + " message " + num);
             msg.addParts(button);
-            msg.send(ms);
+            msg.send(sender);
         }
 
         if ( config.isEnableAttachment() ) {
             MessageComponent msg = new MessageComponent();
             msg.addText(pre);
             MessageParts button = new MessageParts(
-                    Messages.get("EditmodeAttach"), ChatColor.BLUE, ChatColor.UNDERLINE);
+                    Messages.get("EditmodeAttach"), ChatColor.AQUA);
             button.setClickEvent(
                     ClickEventType.RUN_COMMAND,
                     COMMAND + " attach");
             msg.addParts(button);
             msg.addText(" "
                     + Messages.get("EditmodeAttachNum", "%num", attachments.size() + ""));
-            msg.send(ms);
+            msg.send(sender);
         }
 
         String lineParts = Messages.get("EditmodeLastLineParts");
         MessageComponent last = new MessageComponent();
         last.addText(lineParts);
         MessageParts sendButton = new MessageParts(
-                Messages.get("EditmodeSend"), ChatColor.BLUE, ChatColor.UNDERLINE);
+                Messages.get("EditmodeSend"), ChatColor.AQUA);
         sendButton.setClickEvent(ClickEventType.RUN_COMMAND, COMMAND + " send");
         last.addParts(sendButton);
         last.addText(lineParts);
         MessageParts cancelButton = new MessageParts(
-                Messages.get("EditmodeCancel"), ChatColor.BLUE, ChatColor.UNDERLINE);
+                Messages.get("EditmodeCancel"), ChatColor.AQUA);
         cancelButton.setClickEvent(ClickEventType.RUN_COMMAND, COMMAND + " cancel");
         last.addParts(cancelButton);
         last.addText(lineParts);
-        last.send(ms);
+        last.send(sender);
     }
 
     /**

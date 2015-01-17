@@ -87,7 +87,7 @@ public abstract class MailSender implements Comparable<MailSender> {
         if ( !(other instanceof MailSender) ) {
             return false;
         }
-        return this.toString().equals(other.toString());
+        return this.toString().equals(((MailSender)other).toString());
     }
 
     /**

@@ -27,11 +27,11 @@ import org.bukkit.entity.Player;
  */
 public class MailManager {
 
-    private static final String COMMAND = "/undine";
+    private static final String COMMAND = "/umail";
     private static final int PAGE_SIZE = 10;
 
     private ArrayList<MailData> mails;
-    private HashMap<MailSender, MailData> editmodeMails;
+    private HashMap<String, MailData> editmodeMails;
     private int nextIndex;
 
     private Undine parent;
@@ -41,7 +41,7 @@ public class MailManager {
      */
     public MailManager(Undine parent) {
         this.parent = parent;
-        this.editmodeMails = new HashMap<MailSender, MailData>();
+        this.editmodeMails = new HashMap<String, MailData>();
         reload();
     }
 
@@ -270,12 +270,13 @@ public class MailManager {
      * @return 編集中メール
      */
     public MailData makeEditmodeMail(MailSender sender) {
-        if ( editmodeMails.containsKey(sender) ) {
-            return editmodeMails.get(sender);
+        String id = sender.toString();
+        if ( editmodeMails.containsKey(id) ) {
+            return editmodeMails.get(id);
         }
         MailData mail = new MailData();
         mail.setFrom(sender);
-        editmodeMails.put(sender, mail);
+        editmodeMails.put(id, mail);
         return mail;
     }
 
@@ -285,8 +286,9 @@ public class MailManager {
      * @return 編集中メール（編集中でないならnull）
      */
     public MailData getEditmodeMail(MailSender sender) {
-        if ( editmodeMails.containsKey(sender) ) {
-            return editmodeMails.get(sender);
+        String id = sender.toString();
+        if ( editmodeMails.containsKey(id) ) {
+            return editmodeMails.get(id);
         }
         return null;
     }
@@ -296,7 +298,7 @@ public class MailManager {
      * @param sender 削除対象のsender
      */
     public void clearEditmodeMail(MailSender sender) {
-        editmodeMails.remove(sender);
+        editmodeMails.remove(sender.toString());
     }
 
     /**
@@ -396,7 +398,7 @@ public class MailManager {
         msg.addText(pre);
 
         MessageParts button = new MessageParts(
-                "[" + mail.getIndex() + "]", ChatColor.BLUE, ChatColor.UNDERLINE);
+                "[" + mail.getIndex() + "]", ChatColor.AQUA);
         button.setClickEvent(
                 ClickEventType.RUN_COMMAND, COMMAND + " read " + mail.getIndex());
         msg.addParts(button);
@@ -431,7 +433,7 @@ public class MailManager {
 
         if ( page > 1 ) {
             MessageParts firstButton = new MessageParts(
-                    firstLabel, ChatColor.BLUE, ChatColor.UNDERLINE);
+                    firstLabel, ChatColor.AQUA);
             firstButton.setClickEvent(ClickEventType.RUN_COMMAND, commandPre + " 1");
             firstButton.setHoverText(firstToolTip);
             msg.addParts(firstButton);
@@ -439,7 +441,7 @@ public class MailManager {
             msg.addText(" ");
 
             MessageParts prevButton = new MessageParts(
-                    prevLabel, ChatColor.BLUE, ChatColor.UNDERLINE);
+                    prevLabel, ChatColor.AQUA);
             prevButton.setClickEvent(ClickEventType.RUN_COMMAND, commandPre + " " + (page - 1));
             prevButton.setHoverText(prevToolTip);
             msg.addParts(prevButton);
@@ -453,7 +455,7 @@ public class MailManager {
 
         if ( page < max ) {
             MessageParts nextButton = new MessageParts(
-                    nextLabel, ChatColor.BLUE, ChatColor.UNDERLINE);
+                    nextLabel, ChatColor.AQUA);
             nextButton.setClickEvent(ClickEventType.RUN_COMMAND, commandPre + " " + (page + 1));
             nextButton.setHoverText(nextToolTip);
             msg.addParts(nextButton);
@@ -461,7 +463,7 @@ public class MailManager {
             msg.addText(" ");
 
             MessageParts lastButton = new MessageParts(
-                    lastLabel, ChatColor.BLUE, ChatColor.UNDERLINE);
+                    lastLabel, ChatColor.AQUA);
             lastButton.setClickEvent(ClickEventType.RUN_COMMAND, commandPre + " " + max);
             lastButton.setHoverText(lastToolTip);
             msg.addParts(lastButton);

@@ -78,6 +78,18 @@ public class Messages {
     /**
      * リソースを、キーワード置き換えつつ取得する
      * @param key リソースキー
+     * @param keyword キーワード
+     * @param value キーワードの置き換え値
+     * @return リソース
+     */
+    public static String get(String key, String keyword, int value) {
+        String message = get(key).replace(keyword, value + "");
+        return message;
+    }
+
+    /**
+     * リソースを、キーワード置き換えつつ取得する
+     * @param key リソースキー
      * @param keys キーワード
      * @param values キーワードの置き換え値
      * @return リソース

@@ -7,7 +7,7 @@ author: ucchy
 commands:
   undine:
     description: Commands of Undine
-    aliases: [u,mail]
+    aliases: [mail,umail]
     usage: |
            /<command> inbox [page] - Check your unread mails.
            /<command> outbox [page] - Check your sent mails.

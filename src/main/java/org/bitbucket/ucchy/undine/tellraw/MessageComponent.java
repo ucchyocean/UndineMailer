@@ -52,8 +52,9 @@ public class MessageComponent {
     public void send(MailSender sender) {
         if ( sender instanceof MailSenderPlayer && sender.isOnline() ) {
             sendCommand(sender.getPlayer());
+        } else {
+            sender.sendMessage(buildPlain());
         }
-        sender.sendMessage(buildPlain());
     }
 
     private boolean sendCommand(Player player) {
