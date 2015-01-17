@@ -19,7 +19,6 @@ import org.bitbucket.ucchy.undine.tellraw.ClickEventType;
 import org.bitbucket.ucchy.undine.tellraw.MessageComponent;
 import org.bitbucket.ucchy.undine.tellraw.MessageParts;
 import org.bukkit.ChatColor;
-import org.bukkit.entity.Player;
 
 /**
  * メールデータマネージャ
@@ -236,15 +235,6 @@ public class MailManager {
         // 既読を付ける
         mail.setReadFlag(sender);
         saveMail(mail);
-    }
-
-    /**
-     * 指定されたメールの添付ボックスを開いて確認する
-     * @param player 確認する人
-     * @param mail メール
-     */
-    public void displayAttachBox(Player player, MailData mail) {
-        parent.getBoxManager().displayAttachmentBox(player, mail);
     }
 
     /**

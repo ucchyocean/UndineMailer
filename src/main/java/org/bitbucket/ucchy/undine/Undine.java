@@ -47,7 +47,7 @@ public class Undine extends JavaPlugin {
         command = new UndineCommand(this);
 
         // リスナーの登録
-        getServer().getPluginManager().registerEvents(new UndineListener(), this);
+        getServer().getPluginManager().registerEvents(new UndineListener(this), this);
     }
 
     /**

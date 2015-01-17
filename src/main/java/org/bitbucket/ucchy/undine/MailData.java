@@ -483,6 +483,14 @@ public class MailData {
     }
 
     /**
+     * このメールは編集中モードなのかどうかを返す
+     * @return 編集中かどうか
+     */
+    public boolean isEditmode() {
+        return (index == 0);
+    }
+
+    /**
      * メールの詳細情報を返す
      * @return 詳細情報
      */
@@ -623,8 +631,8 @@ public class MailData {
                     ClickEventType.RUN_COMMAND,
                     COMMAND + " attach");
             msg.addParts(button);
-            msg.addText(" "
-                    + Messages.get("EditmodeAttachNum", "%num", attachments.size() + ""));
+            msg.addText(" ");
+            msg.addText(Messages.get("EditmodeAttachNum", "%num", attachments.size()));
             msg.send(sender);
         }
 

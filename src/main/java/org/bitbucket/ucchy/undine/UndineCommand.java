@@ -370,7 +370,7 @@ public class UndineCommand implements TabExecutor {
         }
 
         // 添付ボックスを表示する
-        manager.displayAttachBox(player, mail);
+        parent.getBoxManager().displayAttachBox(player, mail);
 
         return true;
     }
