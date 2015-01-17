@@ -3,7 +3,7 @@
  * @license    LGPLv3
  * @copyright  Copyright ucchy 2015
  */
-package org.bitbucket.ucchy.mc;
+package org.bitbucket.ucchy.undine;
 
 import java.io.File;
 import java.io.FilenameFilter;
@@ -14,10 +14,10 @@ import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 
-import org.bitbucket.ucchy.mc.sender.MailSender;
-import org.bitbucket.ucchy.mc.tellraw.ClickEventType;
-import org.bitbucket.ucchy.mc.tellraw.MessageComponent;
-import org.bitbucket.ucchy.mc.tellraw.MessageParts;
+import org.bitbucket.ucchy.undine.sender.MailSender;
+import org.bitbucket.ucchy.undine.tellraw.ClickEventType;
+import org.bitbucket.ucchy.undine.tellraw.MessageComponent;
+import org.bitbucket.ucchy.undine.tellraw.MessageParts;
 import org.bukkit.ChatColor;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
@@ -28,19 +28,19 @@ import org.bukkit.entity.Player;
  */
 public class MailManager {
 
-    private static final String COMMAND = "/magicmail";
+    private static final String COMMAND = "/undine";
     private static final int PAGE_SIZE = 10;
 
     private ArrayList<MailData> mails;
     private HashMap<MailSender, MailData> editmodeMails;
     private int nextIndex;
 
-    private MagicMail parent;
+    private Undine parent;
 
     /**
      * コンストラクタ
      */
-    public MailManager(MagicMail parent) {
+    public MailManager(Undine parent) {
         this.parent = parent;
         this.editmodeMails = new HashMap<MailSender, MailData>();
         reload();
@@ -252,7 +252,7 @@ public class MailManager {
     }
 
     /**
-     * 指定されたメールデータをMagicMailに保存する
+     * 指定されたメールデータをUndineに保存する
      * @param mail メールデータ
      */
     public void saveMail(MailData mail) {

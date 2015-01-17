@@ -3,25 +3,25 @@
  * @license    LGPLv3
  * @copyright  Copyright ucchy 2014
  */
-package org.bitbucket.ucchy.mc.sender;
+package org.bitbucket.ucchy.undine.sender;
 
-import org.bukkit.command.BlockCommandSender;
 import org.bukkit.command.CommandSender;
+import org.bukkit.command.ConsoleCommandSender;
 import org.bukkit.entity.Player;
 
 /**
- * コマンドブロック
+ * コンソール
  * @author ucchy
  */
-public class MailSenderBlock extends MailSender {
+public class MailSenderConsole extends MailSender {
 
-    BlockCommandSender sender;
+    ConsoleCommandSender sender;
 
     /**
      * コンストラクタ
-     * @param sender コマンドブロック
+     * @param sender コンソール
      */
-    public MailSenderBlock(BlockCommandSender sender) {
+    public MailSenderConsole(ConsoleCommandSender sender) {
         this.sender = sender;
     }
 
@@ -56,13 +56,13 @@ public class MailSenderBlock extends MailSender {
     }
 
     /**
-     * メッセージを送る、実際は何もせずにメッセージを捨てる
-     * @param message
+     * メッセージを送る
+     * @param message 送信するメッセージ
      * @see com.MailSender.ucchyocean.lc.channel.ChannelPlayer#sendMessage(java.lang.String)
      */
     @Override
     public void sendMessage(String message) {
-        // do nothing.
+        sender.sendMessage(message);
     }
 
     /**
@@ -77,12 +77,12 @@ public class MailSenderBlock extends MailSender {
 
     /**
      * 発言者が今いるワールドのワールド名を取得する
-     * @return コマンドブロックが配置されているワールド名が返される。
+     * @return 常に "-" が返される。
      * @see com.MailSender.ucchyocean.lc.channel.ChannelPlayer#getWorldName()
      */
     @Override
     public String getWorldName() {
-        return sender.getBlock().getWorld().getName();
+        return "-";
     }
 
     /**

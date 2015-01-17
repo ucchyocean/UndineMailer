@@ -3,12 +3,12 @@
  * @license    LGPLv3
  * @copyright  Copyright ucchy 2015
  */
-package org.bitbucket.ucchy.mc.tellraw;
+package org.bitbucket.ucchy.undine.tellraw;
 
 import java.util.ArrayList;
 
-import org.bitbucket.ucchy.mc.sender.MailSender;
-import org.bitbucket.ucchy.mc.sender.MailSenderPlayer;
+import org.bitbucket.ucchy.undine.sender.MailSender;
+import org.bitbucket.ucchy.undine.sender.MailSenderPlayer;
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.entity.Player;

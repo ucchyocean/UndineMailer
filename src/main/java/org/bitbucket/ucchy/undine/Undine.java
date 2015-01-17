@@ -3,7 +3,7 @@
  * @license    LGPLv3
  * @copyright  Copyright ucchy 2015
  */
-package org.bitbucket.ucchy.mc;
+package org.bitbucket.ucchy.undine;
 
 import java.io.File;
 import java.util.List;
@@ -13,17 +13,17 @@ import org.bukkit.command.CommandSender;
 import org.bukkit.plugin.java.JavaPlugin;
 
 /**
- * MagicMailプラグイン
+ * Undine メール送受信システムプラグイン
  * @author ucchy
  */
-public class MagicMail extends JavaPlugin {
+public class Undine extends JavaPlugin {
 
     private static final String MAIL_FOLDER = "mail";
 
     private MailManager mailManager;
     private AttachmentBoxManager boxManager;
-    private MagicMailConfig config;
-    private MagicMailCommand command;
+    private UndineConfig config;
+    private UndineCommand command;
 
     /**
      * プラグインが有効化されたときに呼び出されるメソッド
@@ -37,17 +37,17 @@ public class MagicMail extends JavaPlugin {
         boxManager = new AttachmentBoxManager(this);
 
         // コンフィグをロードする
-        config = new MagicMailConfig(this);
+        config = new UndineConfig(this);
 
         // メッセージをロードする
         Messages.initialize(getFile(), getDataFolder());
         Messages.reload(config.getLang());
 
         // コマンドクラスを作成する
-        command = new MagicMailCommand(this);
+        command = new UndineCommand(this);
 
         // リスナーの登録
-        getServer().getPluginManager().registerEvents(new MagicMailListener(), this);
+        getServer().getPluginManager().registerEvents(new UndineListener(), this);
     }
 
     /**
@@ -101,7 +101,7 @@ public class MagicMail extends JavaPlugin {
      * コンフィグを取得する
      * @return コンフィグ
      */
-    public MagicMailConfig getMailCraftConfig() {
+    public UndineConfig getUndineConfig() {
         return config;
     }
 

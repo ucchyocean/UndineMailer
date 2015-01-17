@@ -3,7 +3,7 @@
  * @license    LGPLv3
  * @copyright  Copyright ucchy 2015
  */
-package org.bitbucket.ucchy.mc;
+package org.bitbucket.ucchy.undine;
 
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
@@ -12,10 +12,10 @@ import org.bukkit.event.inventory.InventoryCloseEvent;
 import org.bukkit.event.player.PlayerQuitEvent;
 
 /**
- * MagicMailのリスナークラス
+ * Undineのリスナークラス
  * @author ucchy
  */
-public class MagicMailListener implements Listener {
+public class UndineListener implements Listener {
 
     @EventHandler
     public void onInventoryClose(InventoryCloseEvent event) {

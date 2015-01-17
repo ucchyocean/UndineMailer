@@ -3,7 +3,7 @@
  * @license    LGPLv3
  * @copyright  Copyright ucchy 2015
  */
-package org.bitbucket.ucchy.mc;
+package org.bitbucket.ucchy.undine;
 
 import java.io.File;
 import java.io.IOException;
@@ -14,12 +14,12 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import org.bitbucket.ucchy.mc.item.ItemConfigParseException;
-import org.bitbucket.ucchy.mc.item.ItemConfigParser;
-import org.bitbucket.ucchy.mc.sender.MailSender;
-import org.bitbucket.ucchy.mc.tellraw.ClickEventType;
-import org.bitbucket.ucchy.mc.tellraw.MessageComponent;
-import org.bitbucket.ucchy.mc.tellraw.MessageParts;
+import org.bitbucket.ucchy.undine.item.ItemConfigParseException;
+import org.bitbucket.ucchy.undine.item.ItemConfigParser;
+import org.bitbucket.ucchy.undine.sender.MailSender;
+import org.bitbucket.ucchy.undine.tellraw.ClickEventType;
+import org.bitbucket.ucchy.undine.tellraw.MessageComponent;
+import org.bitbucket.ucchy.undine.tellraw.MessageParts;
 import org.bukkit.ChatColor;
 import org.bukkit.command.CommandSender;
 import org.bukkit.configuration.ConfigurationSection;
@@ -32,7 +32,7 @@ import org.bukkit.inventory.ItemStack;
  */
 public class MailData {
 
-    private static final String COMMAND = "/magicmail";
+    private static final String COMMAND = "/undine";
     private static final int SUMMARY_MAX_SIZE = 40;
     protected static final int TO_MAX_SIZE = 10;
     protected static final int MESSAGE_MAX_SIZE = 15;
@@ -516,9 +516,9 @@ public class MailData {
     /**
      * このメールの編集画面を表示する
      * @param sender 表示するsender
-     * @param config MailCraftのコンフィグ
+     * @param config Undineのコンフィグ
      */
-    protected void displayEditmode(CommandSender sender, MagicMailConfig config) {
+    protected void displayEditmode(CommandSender sender, UndineConfig config) {
 
         MailSender ms = MailSender.getMailSender(sender);
 

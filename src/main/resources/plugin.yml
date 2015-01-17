@@ -1,13 +1,13 @@
 name: ${project.name}
 version: ${project.version}
-main: org.bitbucket.ucchy.mm.MagicMail
-Description: Mail Plugin
+main: org.bitbucket.ucchy.undine.Undine
+Description: Undine Mail Plugin
 author: ucchy
 
 commands:
-  magicmail:
-    description: Commands of MagicMail
-    aliases: [mm,mail]
+  undine:
+    description: Commands of Undine
+    aliases: [u,mail]
     usage: |
            /<command> inbox [page] - Check your unread mails.
            /<command> outbox [page] - Check your sent mails.
@@ -22,78 +22,78 @@ commands:
            /<command> send - Send mail.
            /<command> cancel - Cancel to mail creation mode.
            /<command> reload - Reload all of data.
-    permission: magicmail.command
+    permission: undine.command
     permission-message: 'You don''t have a permission "<permission>".'
 
 permissions:
-  magicmail.command:
+  undine.command:
     description: Permission of command.
     default: true
-  magicmail.command.inbox:
+  undine.command.inbox:
     description: Permission of inbox command.
     default: true
-  magicmail.command.outbox:
+  undine.command.outbox:
     description: Permission of outbox command.
     default: true
-  magicmail.command.read:
+  undine.command.read:
     description: Permission of read command.
     default: true
-  magicmail.command.read-all:
+  undine.command.read-all:
     description: Permission of read other's mail.
     default: op
-  magicmail.command.text:
+  undine.command.text:
     description: Permission of text command.
     default: true
-  magicmail.command.write:
+  undine.command.write:
     description: Permission of write command.
     default: true
-  magicmail.command.to:
+  undine.command.to:
     description: Permission of to command.
     default: true
-  magicmail.command.message:
+  undine.command.message:
     description: Permission of message command.
     default: true
-  magicmail.command.attach:
+  undine.command.attach:
     description: Permission of attach command.
     default: true
-  magicmail.command.send:
+  undine.command.send:
     description: Permission of send command.
     default: true
-  magicmail.command.send-all:
+  undine.command.send-all:
     description: Permission of send all command.
     default: op
-  magicmail.command.cancel:
+  undine.command.cancel:
     description: Permission of send command.
     default: true
-  magicmail.command.reload:
+  undine.command.reload:
     description: Permission of reload command.
     default: op
-  'magicmail.command.*':
+  'undine.command.*':
     description: Permissions of all commands.
     children:
-      magicmail.command: true
-      magicmail.command.inbox: true
-      magicmail.command.outbox: true
-      magicmail.command.read: true
-      magicmail.command.read-all: true
-      magicmail.command.text: true
-      magicmail.command.write: true
-      magicmail.command.to: true
-      magicmail.command.message: true
-      magicmail.command.attach: true
-      magicmail.command.send: true
-      magicmail.command.send-all: true
-      magicmail.command.cancel: true
-      magicmail.command.reload: true
+      undine.command: true
+      undine.command.inbox: true
+      undine.command.outbox: true
+      undine.command.read: true
+      undine.command.read-all: true
+      undine.command.text: true
+      undine.command.write: true
+      undine.command.to: true
+      undine.command.message: true
+      undine.command.attach: true
+      undine.command.send: true
+      undine.command.send-all: true
+      undine.command.cancel: true
+      undine.command.reload: true
 
-  magicmail.multi-attach:
+  undine.multi-attach:
     description: Permission of sending multi attachment mail.
     default: op
 
-  'magicmail.*':
-    description: All Permissions of MagicMail.
+  'undine.*':
+    undine: All Permissions of Undine.
     children:
-      'magicmail.command.*': true
-      magicmail.multi-attach: true
+      'undine.command.*': true
+      undine.multi-attach: true
 
 

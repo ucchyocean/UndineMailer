@@ -3,13 +3,13 @@
  * @license    LGPLv3
  * @copyright  Copyright ucchy 2015
  */
-package org.bitbucket.ucchy.mc;
+package org.bitbucket.ucchy.undine;
 
 import java.util.ArrayList;
 import java.util.List;
 
-import org.bitbucket.ucchy.mc.sender.MailSender;
-import org.bitbucket.ucchy.mc.sender.MailSenderPlayer;
+import org.bitbucket.ucchy.undine.sender.MailSender;
+import org.bitbucket.ucchy.undine.sender.MailSenderPlayer;
 import org.bukkit.OfflinePlayer;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandSender;
@@ -17,21 +17,21 @@ import org.bukkit.command.TabExecutor;
 import org.bukkit.entity.Player;
 
 /**
- * MagicMailコマンドクラス
+ * Undineコマンドクラス
  * @author ucchy
  */
-public class MagicMailCommand implements TabExecutor {
+public class UndineCommand implements TabExecutor {
 
-    private static final String PERMISSION = "mailcraft.command";
+    private static final String PERMISSION = "undine.command";
 
-    private MagicMail parent;
+    private Undine parent;
     private MailManager manager;
-    private MagicMailConfig config;
+    private UndineConfig config;
 
-    public MagicMailCommand(MagicMail parent) {
+    public UndineCommand(Undine parent) {
         this.parent = parent;
         manager = parent.getMailManager();
-        config = parent.getMailCraftConfig();
+        config = parent.getUndineConfig();
     }
 
     /**

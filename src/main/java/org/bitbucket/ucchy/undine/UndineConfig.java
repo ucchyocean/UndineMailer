@@ -3,7 +3,7 @@
  * @license    LGPLv3
  * @copyright  Copyright ucchy 2015
  */
-package org.bitbucket.ucchy.mc;
+package org.bitbucket.ucchy.undine;
 
 import java.io.File;
 import java.util.List;
@@ -11,10 +11,10 @@ import java.util.List;
 import org.bukkit.configuration.file.FileConfiguration;
 
 /**
- * MagicMailコンフィグ管理クラス
+ * Undineコンフィグ管理クラス
  * @author ucchy
  */
-public class MagicMailConfig {
+public class UndineConfig {
 
     /** メッセージ言語 */
     private String lang;
@@ -37,13 +37,13 @@ public class MagicMailConfig {
     /** 添付ボックスのサイズ */
     private int attachBoxSize;
 
-    private MagicMail parent;
+    private Undine parent;
 
     /**
      * コンストラクタ
      * @param parent プラグイン
      */
-    public MagicMailConfig(MagicMail parent) {
+    public UndineConfig(Undine parent) {
         this.parent = parent;
         reloadConfig();
     }

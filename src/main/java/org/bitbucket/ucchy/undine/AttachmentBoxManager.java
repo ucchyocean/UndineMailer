@@ -3,7 +3,7 @@
  * @license    LGPLv3
  * @copyright  Copyright ucchy 2015
  */
-package org.bitbucket.ucchy.mc;
+package org.bitbucket.ucchy.undine;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -19,7 +19,7 @@ import org.bukkit.inventory.ItemStack;
  */
 public class AttachmentBoxManager {
 
-    private MagicMail parent;
+    private Undine parent;
 
     private HashMap<Player, Inventory> editmodeBoxes;
     private HashMap<Integer, Inventory> attachmentBoxes;
@@ -28,7 +28,7 @@ public class AttachmentBoxManager {
      * コンストラクタ
      * @param parent プラグイン
      */
-    public AttachmentBoxManager(MagicMail parent) {
+    public AttachmentBoxManager(Undine parent) {
         this.parent = parent;
         editmodeBoxes = new HashMap<Player, Inventory>();
         attachmentBoxes = new HashMap<Integer, Inventory>();
@@ -47,7 +47,7 @@ public class AttachmentBoxManager {
         }
 
         // 添付ボックスの作成
-        int size = parent.getMailCraftConfig().getAttachBoxSize() * 9;
+        int size = parent.getUndineConfig().getAttachBoxSize() * 9;
         String title = Messages.get("EditmodeBoxTitle");
         // TODO: タイトルが32文字を超えたときの対応を入れるべきかどうか検討する
         Inventory box = Bukkit.createInventory(player, size, title);

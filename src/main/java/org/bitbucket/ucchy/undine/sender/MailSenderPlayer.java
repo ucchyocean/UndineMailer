@@ -3,36 +3,37 @@
  * @license    LGPLv3
  * @copyright  Copyright ucchy 2014
  */
-package org.bitbucket.ucchy.mc.sender;
+package org.bitbucket.ucchy.undine.sender;
 
+import org.bitbucket.ucchy.undine.Utility;
+import org.bukkit.Bukkit;
+import org.bukkit.OfflinePlayer;
 import org.bukkit.command.CommandSender;
-import org.bukkit.command.ConsoleCommandSender;
 import org.bukkit.entity.Player;
 
 /**
- * コンソール
+ * プレイヤー
  * @author ucchy
  */
-public class MailSenderConsole extends MailSender {
+public class MailSenderPlayer extends MailSender {
 
-    ConsoleCommandSender sender;
+    private OfflinePlayer sender;
 
     /**
      * コンストラクタ
-     * @param sender コンソール
+     * @param player プレイヤー
      */
-    public MailSenderConsole(ConsoleCommandSender sender) {
+    public MailSenderPlayer(OfflinePlayer sender) {
         this.sender = sender;
     }
 
     /**
      * オンラインかどうか
-     * @return 常にtrue
-     * @see com.MailSender.ucchyocean.lc.channel.ChannelPlayer#isOnline()
+     * @return オンラインかどうか
      */
     @Override
     public boolean isOnline() {
-        return true;
+        return sender.isOnline();
     }
 
     /**
@@ -52,36 +53,47 @@ public class MailSenderConsole extends MailSender {
      */
     @Override
     public String getDisplayName() {
-        return sender.getName();
+        Player player = getPlayer();
+        if ( player != null ) {
+            return player.getDisplayName();
+        }
+        return getName();
     }
 
     /**
      * メッセージを送る
-     * @param message 送信するメッセージ
+     * @param message 送るメッセージ
      * @see com.MailSender.ucchyocean.lc.channel.ChannelPlayer#sendMessage(java.lang.String)
      */
     @Override
     public void sendMessage(String message) {
-        sender.sendMessage(message);
+        Player player = getPlayer();
+        if ( player != null ) {
+            player.sendMessage(message);
+        }
     }
 
     /**
      * BukkitのPlayerを取得する
-     * @return 常にnullが返される
+     * @return Player
      * @see com.MailSender.ucchyocean.lc.channel.ChannelPlayer#getPlayer()
      */
     @Override
     public Player getPlayer() {
-        return null;
+        return sender.getPlayer();
     }
 
     /**
      * 発言者が今いるワールドのワールド名を取得する
-     * @return 常に "-" が返される。
+     * @return ワールド名
      * @see com.MailSender.ucchyocean.lc.channel.ChannelPlayer#getWorldName()
      */
     @Override
     public String getWorldName() {
+        Player player = getPlayer();
+        if ( player != null ) {
+            return player.getWorld().getName();
+        }
         return "-";
     }
 
@@ -93,7 +105,12 @@ public class MailSenderConsole extends MailSender {
      */
     @Override
     public boolean hasPermission(String node) {
-        return sender.hasPermission(node);
+        Player player = getPlayer();
+        if ( player == null ) {
+            return false;
+        } else {
+            return player.hasPermission(node);
+        }
     }
 
     /**
@@ -104,16 +121,41 @@ public class MailSenderConsole extends MailSender {
      */
     @Override
     public boolean equals(CommandSender sender) {
-        return this.sender.equals(sender);
+        if ( sender == null || !(sender instanceof OfflinePlayer) ) {
+            return false;
+        }
+        return this.sender.getName().equals(sender.getName());
     }
 
     /**
      * IDを返す
-     * @return 名前をそのまま返す
+     * @return CB178移行なら "$" + UUID を返す、CB175以前ならIDを返す
      * @see com.MailSender.ucchyocean.lc.channel.ChannelPlayer#getID()
      */
     @Override
     public String toString() {
-        return getName();
+        if ( Utility.isCB178orLater() ) {
+            return "$" + sender.getUniqueId().toString();
+        }
+        return sender.getName();
+    }
+
+    /**
+     * 名前からSenderを生成して返す
+     * @param name 名前
+     * @return Sender
+     */
+    public static MailSenderPlayer fromName(String name) {
+        @SuppressWarnings("deprecation")
+        OfflinePlayer player = Bukkit.getPlayerExact(name);
+        if ( player != null ) {
+            return new MailSenderPlayer(player);
+        }
+        @SuppressWarnings("deprecation")
+        OfflinePlayer offline = Bukkit.getOfflinePlayer(name);
+        if ( offline != null ) {
+            return new MailSenderPlayer(offline);
+        }
+        return null;
     }
 }

@@ -3,7 +3,7 @@
  * @license    LGPLv3
  * @copyright  Copyright ucchy 2015
  */
-package org.bitbucket.ucchy.mc.item;
+package org.bitbucket.ucchy.undine.item;
 
 /**
  * ItemConfigParserでのパース処理の例外クラス
