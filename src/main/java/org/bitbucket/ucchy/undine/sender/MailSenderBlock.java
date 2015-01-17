@@ -28,7 +28,7 @@ public class MailSenderBlock extends MailSender {
     /**
      * オンラインかどうか
      * @return 常にtrue
-     * @see com.MailSender.ucchyocean.lc.channel.ChannelPlayer#isOnline()
+     * @see org.bitbucket.ucchy.undine.sender.MailSender#isOnline()
      */
     @Override
     public boolean isOnline() {
@@ -38,7 +38,7 @@ public class MailSenderBlock extends MailSender {
     /**
      * プレイヤー名を返す
      * @return プレイヤー名
-     * @see com.MailSender.ucchyocean.lc.channel.ChannelPlayer#getName()
+     * @see org.bitbucket.ucchy.undine.sender.MailSender#getName()
      */
     @Override
     public String getName() {
@@ -48,7 +48,7 @@ public class MailSenderBlock extends MailSender {
     /**
      * プレイヤー表示名を返す
      * @return プレイヤー表示名
-     * @see com.MailSender.ucchyocean.lc.channel.ChannelPlayer#getDisplayName()
+     * @see org.bitbucket.ucchy.undine.sender.MailSender#getDisplayName()
      */
     @Override
     public String getDisplayName() {
@@ -57,8 +57,8 @@ public class MailSenderBlock extends MailSender {
 
     /**
      * メッセージを送る、実際は何もせずにメッセージを捨てる
-     * @param message
-     * @see com.MailSender.ucchyocean.lc.channel.ChannelPlayer#sendMessage(java.lang.String)
+     * @param message メッセージ
+     * @see org.bitbucket.ucchy.undine.sender.MailSender#sendMessage(java.lang.String)
      */
     @Override
     public void sendMessage(String message) {
@@ -68,7 +68,7 @@ public class MailSenderBlock extends MailSender {
     /**
      * BukkitのPlayerを取得する
      * @return 常にnullが返される
-     * @see com.MailSender.ucchyocean.lc.channel.ChannelPlayer#getPlayer()
+     * @see org.bitbucket.ucchy.undine.sender.MailSender#getPlayer()
      */
     @Override
     public Player getPlayer() {
@@ -78,7 +78,7 @@ public class MailSenderBlock extends MailSender {
     /**
      * 発言者が今いるワールドのワールド名を取得する
      * @return コマンドブロックが配置されているワールド名が返される。
-     * @see com.MailSender.ucchyocean.lc.channel.ChannelPlayer#getWorldName()
+     * @see org.bitbucket.ucchy.undine.sender.MailSender#getWorldName()
      */
     @Override
     public String getWorldName() {
@@ -89,7 +89,7 @@ public class MailSenderBlock extends MailSender {
      * 指定されたパーミッションノードの権限を持っているかどうかを取得する
      * @param node パーミッションノード
      * @return 権限を持っているかどうか
-     * @see com.MailSender.ucchyocean.lc.channel.ChannelPlayer#hasPermission(java.lang.String)
+     * @see org.bitbucket.ucchy.undine.sender.MailSender#hasPermission(java.lang.String)
      */
     @Override
     public boolean hasPermission(String node) {
@@ -100,7 +100,7 @@ public class MailSenderBlock extends MailSender {
      * 指定されたCommandSenderと同一かどうかを返す
      * @param sender
      * @return 同一かどうか
-     * @see com.MailSender.ucchyocean.lc.channel.ChannelPlayer#equals(org.bukkit.entity.Player)
+     * @see org.bitbucket.ucchy.undine.sender.MailSender#equals(org.bukkit.entity.Player)
      */
     @Override
     public boolean equals(CommandSender sender) {
@@ -110,7 +110,7 @@ public class MailSenderBlock extends MailSender {
     /**
      * IDを返す
      * @return 名前をそのまま返す
-     * @see com.MailSender.ucchyocean.lc.channel.ChannelPlayer#getID()
+     * @see org.bitbucket.ucchy.undine.sender.MailSender#getID()
      */
     @Override
     public String toString() {

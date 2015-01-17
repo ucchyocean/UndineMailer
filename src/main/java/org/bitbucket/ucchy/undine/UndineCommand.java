@@ -97,7 +97,8 @@ public class UndineCommand implements TabExecutor {
             page = Integer.parseInt(args[1]);
         }
 
-        parent.getMailManager().displayInboxList(sender, page);
+        parent.getMailManager().displayInboxList(
+                MailSender.getMailSender(sender), page);
 
         return true;
     }
@@ -115,7 +116,8 @@ public class UndineCommand implements TabExecutor {
             page = Integer.parseInt(args[1]);
         }
 
-        parent.getMailManager().displayOutboxList(sender, page);
+        parent.getMailManager().displayOutboxList(
+                MailSender.getMailSender(sender), page);
 
         return true;
     }
@@ -157,7 +159,7 @@ public class UndineCommand implements TabExecutor {
         }
 
         // 該当のメールを表示
-        manager.displayMail(sender, mail);
+        manager.displayMail(MailSender.getMailSender(sender), mail);
 
         return true;
     }
@@ -203,7 +205,7 @@ public class UndineCommand implements TabExecutor {
         }
 
         // メールを送信する
-        manager.sendNewMail(sender, targets, args[2]);
+        manager.sendNewMail(MailSender.getMailSender(sender), targets, args[2]);
 
         return true;
     }
@@ -223,7 +225,7 @@ public class UndineCommand implements TabExecutor {
         }
 
         // 編集メールを取得して、編集画面を表示する。
-        MailData mail = manager.makeEditmodeMail(sender);
+        MailData mail = manager.makeEditmodeMail(MailSender.getMailSender(sender));
         mail.displayEditmode(sender, config);
 
         return true;
@@ -237,7 +239,7 @@ public class UndineCommand implements TabExecutor {
             return true;
         }
 
-        MailData mail = manager.getEditmodeMail(sender);
+        MailData mail = manager.getEditmodeMail(MailSender.getMailSender(sender));
 
         // 編集中でないならエラーを表示して終了
         if ( mail == null ) {
@@ -292,7 +294,7 @@ public class UndineCommand implements TabExecutor {
             return true;
         }
 
-        MailData mail = manager.getEditmodeMail(sender);
+        MailData mail = manager.getEditmodeMail(MailSender.getMailSender(sender));
 
         // 編集中でないならエラーを表示して終了
         if ( mail == null ) {
@@ -354,7 +356,7 @@ public class UndineCommand implements TabExecutor {
         }
 
         Player player = (Player)sender;
-        MailData mail = manager.getEditmodeMail(sender);
+        MailData mail = manager.getEditmodeMail(MailSender.getMailSender(sender));
 
         // 編集中でないならエラーを表示して終了
         if ( mail == null ) {
@@ -376,7 +378,7 @@ public class UndineCommand implements TabExecutor {
             return true;
         }
 
-        MailData mail = manager.getEditmodeMail(sender);
+        MailData mail = manager.getEditmodeMail(MailSender.getMailSender(sender));
 
         // 編集中でないならエラーを表示して終了
         if ( mail == null ) {
@@ -386,7 +388,7 @@ public class UndineCommand implements TabExecutor {
 
         // 送信
         manager.sendNewMail(mail);
-        manager.clearEditmodeMail(sender);
+        manager.clearEditmodeMail(MailSender.getMailSender(sender));
 
         return true;
     }
@@ -399,7 +401,7 @@ public class UndineCommand implements TabExecutor {
             return true;
         }
 
-        MailData mail = manager.getEditmodeMail(sender);
+        MailData mail = manager.getEditmodeMail(MailSender.getMailSender(sender));
 
         // 編集中でないならエラーを表示して終了
         if ( mail == null ) {
@@ -408,7 +410,7 @@ public class UndineCommand implements TabExecutor {
         }
 
         // キャンセル
-        manager.clearEditmodeMail(sender);
+        manager.clearEditmodeMail(MailSender.getMailSender(sender));
         // TODO 何かメッセージ表示？
 
         return true;

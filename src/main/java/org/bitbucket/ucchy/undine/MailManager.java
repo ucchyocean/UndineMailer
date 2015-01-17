@@ -19,7 +19,6 @@ import org.bitbucket.ucchy.undine.tellraw.ClickEventType;
 import org.bitbucket.ucchy.undine.tellraw.MessageComponent;
 import org.bitbucket.ucchy.undine.tellraw.MessageParts;
 import org.bukkit.ChatColor;
-import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 
 /**
@@ -92,13 +91,13 @@ public class MailManager {
      * @param to 宛先
      * @param message メッセージ
      */
-    public void sendNewMail(CommandSender from, MailSender to, String message) {
+    public void sendNewMail(MailSender from, MailSender to, String message) {
 
         ArrayList<MailSender> toList = new ArrayList<MailSender>();
         toList.add(to);
         ArrayList<String> messageList = new ArrayList<String>();
         messageList.add(message);
-        MailData mail = new MailData(toList, MailSender.getMailSender(from), messageList);
+        MailData mail = new MailData(toList, from, messageList);
         sendNewMail(mail);
     }
 
@@ -108,11 +107,11 @@ public class MailManager {
      * @param to 宛先
      * @param message メッセージ
      */
-    public void sendNewMail(CommandSender from, List<MailSender> to, String message) {
+    public void sendNewMail(MailSender from, List<MailSender> to, String message) {
 
         ArrayList<String> messageList = new ArrayList<String>();
         messageList.add(message);
-        MailData mail = new MailData(to, MailSender.getMailSender(from), messageList);
+        MailData mail = new MailData(to, from, messageList);
         sendNewMail(mail);
     }
 
@@ -122,9 +121,9 @@ public class MailManager {
      * @param to 宛先
      * @param message メッセージ
      */
-    public void sendNewMail(CommandSender from, List<MailSender> to, List<String> message) {
+    public void sendNewMail(MailSender from, List<MailSender> to, List<String> message) {
 
-        MailData mail = new MailData(to, MailSender.getMailSender(from), message);
+        MailData mail = new MailData(to, from, message);
         sendNewMail(mail);
     }
 
@@ -176,12 +175,11 @@ public class MailManager {
      * @param sender 取得する対象
      * @return メールのリスト
      */
-    public ArrayList<MailData> getInboxMails(CommandSender sender) {
+    public ArrayList<MailData> getInboxMails(MailSender sender) {
 
-        MailSender ms = MailSender.getMailSender(sender);
         ArrayList<MailData> box = new ArrayList<MailData>();
         for ( MailData mail : mails ) {
-            if ( mail.getTo().contains(ms) ) {
+            if ( mail.getTo().contains(sender) ) {
                 box.add(mail);
             }
         }
@@ -194,12 +192,11 @@ public class MailManager {
      * @param sender 取得する対象
      * @return メールのリスト
      */
-    public ArrayList<MailData> getUnreadMails(CommandSender sender) {
+    public ArrayList<MailData> getUnreadMails(MailSender sender) {
 
-        MailSender ms = MailSender.getMailSender(sender);
         ArrayList<MailData> box = new ArrayList<MailData>();
         for ( MailData mail : mails ) {
-            if ( mail.getTo().contains(ms) && !mail.isRead(ms) ) {
+            if ( mail.getTo().contains(sender) && !mail.isRead(sender) ) {
                 box.add(mail);
             }
         }
@@ -212,12 +209,11 @@ public class MailManager {
      * @param sender 取得する対象
      * @return メールのリスト
      */
-    public ArrayList<MailData> getOutboxMails(CommandSender sender) {
+    public ArrayList<MailData> getOutboxMails(MailSender sender) {
 
-        MailSender ms = MailSender.getMailSender(sender);
         ArrayList<MailData> box = new ArrayList<MailData>();
         for ( MailData mail : mails ) {
-            if ( mail.getFrom().equals(ms) ) {
+            if ( mail.getFrom().equals(sender) ) {
                 box.add(mail);
             }
         }
@@ -230,7 +226,7 @@ public class MailManager {
      * @param sender 確認する対象
      * @param mail メール
      */
-    public void displayMail(CommandSender sender, MailData mail) {
+    public void displayMail(MailSender sender, MailData mail) {
 
         // 指定されたsenderの画面にメールを表示する
         for ( String line : mail.getDescription() ) {
@@ -238,7 +234,7 @@ public class MailManager {
         }
 
         // 既読を付ける
-        mail.setReadFlag(MailSender.getMailSender(sender));
+        mail.setReadFlag(sender);
         saveMail(mail);
     }
 
@@ -271,16 +267,15 @@ public class MailManager {
     /**
      * 編集中メールを作成して返す
      * @param sender 取得対象のsender
-     * @return 編集中メール（編集中でないならnull）
+     * @return 編集中メール
      */
-    public MailData makeEditmodeMail(CommandSender sender) {
-        MailSender ms = MailSender.getMailSender(sender);
-        if ( editmodeMails.containsKey(ms) ) {
-            return editmodeMails.get(ms);
+    public MailData makeEditmodeMail(MailSender sender) {
+        if ( editmodeMails.containsKey(sender) ) {
+            return editmodeMails.get(sender);
         }
         MailData mail = new MailData();
-        mail.setFrom(ms);
-        editmodeMails.put(ms, mail);
+        mail.setFrom(sender);
+        editmodeMails.put(sender, mail);
         return mail;
     }
 
@@ -289,10 +284,9 @@ public class MailManager {
      * @param sender 取得対象のsender
      * @return 編集中メール（編集中でないならnull）
      */
-    public MailData getEditmodeMail(CommandSender sender) {
-        MailSender ms = MailSender.getMailSender(sender);
-        if ( editmodeMails.containsKey(ms) ) {
-            return editmodeMails.get(ms);
+    public MailData getEditmodeMail(MailSender sender) {
+        if ( editmodeMails.containsKey(sender) ) {
+            return editmodeMails.get(sender);
         }
         return null;
     }
@@ -301,8 +295,8 @@ public class MailManager {
      * 編集中メールを削除する
      * @param sender 削除対象のsender
      */
-    public void clearEditmodeMail(CommandSender sender) {
-        editmodeMails.remove(MailSender.getMailSender(sender));
+    public void clearEditmodeMail(MailSender sender) {
+        editmodeMails.remove(sender);
     }
 
     /**
@@ -310,9 +304,7 @@ public class MailManager {
      * @param sender 表示対象のsender
      * @param page 表示するページ
      */
-    protected void displayInboxList(CommandSender sender, int page) {
-
-        MailSender ms = MailSender.getMailSender(sender);
+    protected void displayInboxList(MailSender sender, int page) {
 
         String pre = Messages.get("InboxLinePre");
 
@@ -320,13 +312,13 @@ public class MailManager {
         int max = (int)((mails.size() - 1) / PAGE_SIZE) + 1;
         int unread = 0;
         for ( MailData m : mails ) {
-            if ( !m.isRead(ms) ) {
+            if ( !m.isRead(sender) ) {
                 unread++;
             }
         }
 
         String fline = Messages.get("InboxFirstLine", "%unread", unread + "");
-        ms.sendMessage(fline);
+        sender.sendMessage(fline);
 
         for ( int i=0; i<10; i++ ) {
 
@@ -336,12 +328,12 @@ public class MailManager {
             }
 
             MailData mail = mails.get(index);
-            ChatColor color = mail.isRead(ms) ? ChatColor.GRAY : ChatColor.GOLD;
+            ChatColor color = mail.isRead(sender) ? ChatColor.GRAY : ChatColor.GOLD;
 
-            sendMailLine(ms, pre, color + mail.getInboxSummary(), mail);
+            sendMailLine(sender, pre, color + mail.getInboxSummary(), mail);
         }
 
-        sendPager(ms, COMMAND + " inbox", page, max);
+        sendPager(sender, COMMAND + " inbox", page, max);
     }
 
     /**
@@ -349,9 +341,7 @@ public class MailManager {
      * @param sender 表示対象のsender
      * @param page 表示するページ
      */
-    protected void displayOutboxList(CommandSender sender, int page) {
-
-        MailSender ms = MailSender.getMailSender(sender);
+    protected void displayOutboxList(MailSender sender, int page) {
 
         String pre = Messages.get("OutboxLinePre");
 
@@ -361,7 +351,7 @@ public class MailManager {
         String fline = Messages.get("OutboxFirstLine",
                 new String[]{"%page", "%max"},
                 new String[]{page + "", max + ""});
-        ms.sendMessage(fline);
+        sender.sendMessage(fline);
 
         for ( int i=0; i<10; i++ ) {
 
@@ -373,10 +363,10 @@ public class MailManager {
             MailData mail = mails.get(index);
             ChatColor color = ChatColor.GRAY;
 
-            sendMailLine(ms, pre, color + mail.getOutboxSummary(), mail);
+            sendMailLine(sender, pre, color + mail.getOutboxSummary(), mail);
         }
 
-        sendPager(ms, COMMAND + " outbox", page, max);
+        sendPager(sender, COMMAND + " outbox", page, max);
     }
 
     /**

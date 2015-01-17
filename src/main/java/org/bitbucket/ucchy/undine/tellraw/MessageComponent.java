@@ -41,6 +41,14 @@ public class MessageComponent {
         this.parts.add(parts);
     }
 
+    private String build(String name) {
+        return "tellraw "
+                + name
+                + " {\"text\":\"\",\"extra\":["
+                + buildJoin(parts)
+                + "]}";
+    }
+
     public void send(MailSender sender) {
         if ( sender instanceof MailSenderPlayer && sender.isOnline() ) {
             sendCommand(sender.getPlayer());
@@ -51,14 +59,6 @@ public class MessageComponent {
     private boolean sendCommand(Player player) {
         String commandLine = build(player.getName());
         return Bukkit.dispatchCommand(Bukkit.getConsoleSender(), commandLine);
-    }
-
-    private String build(String name) {
-        return "tellraw "
-                + name
-                + " {\"text\":\"\",\"extra\":["
-                + buildJoin(parts)
-                + "]}";
     }
 
     private String buildPlain() {

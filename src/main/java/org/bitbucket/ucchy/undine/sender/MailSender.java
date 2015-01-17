@@ -40,7 +40,7 @@ public abstract class MailSender implements Comparable<MailSender> {
 
     /**
      * メッセージを送る
-     * @param message 送るメッセージ
+     * @param message メッセージ
      */
     public abstract void sendMessage(String message);
 
