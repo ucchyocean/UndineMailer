@@ -37,6 +37,15 @@ public class MailSenderPlayer extends MailSender {
     }
 
     /**
+     * 宛先として有効かどうか
+     * @return 宛先として有効かどうか
+     */
+    @Override
+    public boolean isValidDestination() {
+        return sender.hasPlayedBefore() || sender.isOnline();
+    }
+
+    /**
      * プレイヤー名を返す
      * @return プレイヤー名
      * @see org.bitbucket.ucchy.undine.sender.MailSender#getName()

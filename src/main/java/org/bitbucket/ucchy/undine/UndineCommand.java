@@ -9,8 +9,6 @@ import java.util.ArrayList;
 import java.util.List;
 
 import org.bitbucket.ucchy.undine.sender.MailSender;
-import org.bitbucket.ucchy.undine.sender.MailSenderPlayer;
-import org.bukkit.OfflinePlayer;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandSender;
 import org.bukkit.command.TabExecutor;
@@ -186,17 +184,16 @@ public class UndineCommand implements TabExecutor {
         String[] dests = args[1].split(",");
         ArrayList<MailSender> targets = new ArrayList<MailSender>();
 
-
         for ( String d : dests ) {
-            OfflinePlayer player = Utility.getOfflinePlayer(d);
-            if ( player == null || !player.hasPlayedBefore() ) {
+            MailSender target = MailSender.getMailSenderFromString(d);
+            if ( target == null || !target.isValidDestination() ) {
                 // 宛先が見つからない場合はエラーを表示
                 sender.sendMessage(Messages.get("ErrorNotFoundDestination", "%dest", d));
-            } else if ( !config.isEnableSendSelf() && player.getName().equals(sender.getName()) ) {
+            } else if ( !config.isEnableSendSelf() && target.equals(sender) ) {
                 // 自分自身が指定不可の設定の場合は、自分自身が指定されたらエラーを表示
                 sender.sendMessage(Messages.get("ErrorCannotSendSelf"));
-            } else {
-                targets.add(new MailSenderPlayer(player));
+            } else if ( !targets.contains(target) ) {
+                targets.add(target);
             }
         }
 
@@ -266,7 +263,24 @@ public class UndineCommand implements TabExecutor {
                         Messages.get("ErrorTooManyDestination", "%num", MailData.TO_MAX_SIZE));
                 return true;
             }
-            mail.setTo(line, MailSender.getMailSenderFromString(args[2]));
+
+            MailSender target = MailSender.getMailSenderFromString(args[2]);
+
+            if ( target == null || !target.isValidDestination() ) {
+                // 宛先が見つからない場合はエラーを表示
+                sender.sendMessage(Messages.get("ErrorNotFoundDestination", "%dest", args[2]));
+                return true;
+            } else if ( !config.isEnableSendSelf() && target.equals(sender) ) {
+                // 自分自身が指定不可の設定の場合は、自分自身が指定されたらエラーを表示
+                sender.sendMessage(Messages.get("ErrorCannotSendSelf"));
+                return true;
+            } else if ( mail.getTo().contains(target) ) {
+                // 既に指定済みの宛先が再度指定された場合は、エラーを表示
+                sender.sendMessage(Messages.get("ErrorAlreadyExistTo"));
+                return true;
+            }
+
+            mail.setTo(line, target);
 
         } else if ( args[1].equalsIgnoreCase("delete") && args[2].matches("[0-9]{1,2}") ) {
             // 2番めの引数にdeleteが来た場合は、削除
@@ -408,6 +422,11 @@ public class UndineCommand implements TabExecutor {
         if ( mail == null ) {
             sender.sendMessage(Messages.get("ErrorNotInEditmode"));
             return true;
+        }
+
+        // 宛先が設定されていないならエラーを表示して終了
+        if ( mail.getTo().size() == 0 ) {
+
         }
 
         // 送信

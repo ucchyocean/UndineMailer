@@ -1,0 +1,13 @@
+# ${project.name} v${project.version}
+# @author     ucchy
+# @license    LGPLv3
+# @copyright  Copyright ucchy 2015
+
+lang: en
+enableAttachment: true
+enableSendFee: false
+sendFee: 10
+attachFee: 10
+enableSendSelf: false
+disableWorldsToOpenAttachBox: []
+attachBoxSize: 1

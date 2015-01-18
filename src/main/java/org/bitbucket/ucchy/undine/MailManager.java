@@ -159,6 +159,8 @@ public class MailManager {
         for ( MailSender to : mail.getTo() ) {
             if ( to.isOnline() ) {
                 to.sendMessage(msg);
+                String pre = Messages.get("InboxLinePre");
+                sendMailLine(to, pre, ChatColor.GOLD + mail.getInboxSummary(), mail);
             }
         }
 

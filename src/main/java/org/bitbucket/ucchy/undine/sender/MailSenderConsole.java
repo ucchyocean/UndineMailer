@@ -36,6 +36,15 @@ public class MailSenderConsole extends MailSender {
     }
 
     /**
+     * 宛先として有効かどうか
+     * @return 常にtrue
+     */
+    @Override
+    public boolean isValidDestination() {
+        return true;
+    }
+
+    /**
      * プレイヤー名を返す
      * @return プレイヤー名
      * @see org.bitbucket.ucchy.undine.sender.MailSender#getName()

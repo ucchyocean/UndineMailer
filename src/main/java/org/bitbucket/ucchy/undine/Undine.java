@@ -112,4 +112,14 @@ public class Undine extends JavaPlugin {
     protected File getJarFile() {
         return getFile();
     }
+
+    /**
+     * このプラグインのリリース先を返す
+     * @return en または ja (pom.xml の release.lang の内容が返される)
+     */
+    protected String getReleaseLang() {
+        String[] descs = getDescription().getDescription().split(" ");
+        if ( descs.length <= 0 ) return "en";
+        return descs[descs.length - 1];
+    }
 }

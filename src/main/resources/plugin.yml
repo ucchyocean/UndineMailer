@@ -1,7 +1,7 @@
 name: ${project.name}
 version: ${project.version}
 main: org.bitbucket.ucchy.undine.Undine
-Description: Undine Mail Plugin
+description: Undine Mail Plugin for ${release.lang}
 author: ucchy
 
 commands:
@@ -56,6 +56,9 @@ permissions:
   undine.command.attach:
     description: Permission of attach command.
     default: true
+  undine.command.attach-all:
+    description: Permission of opening other's mail attach box.
+    default: op
   undine.command.send:
     description: Permission of send command.
     default: true
@@ -81,6 +84,7 @@ permissions:
       undine.command.to: true
       undine.command.message: true
       undine.command.attach: true
+      undine.command.attach-all: true
       undine.command.send: true
       undine.command.send-all: true
       undine.command.cancel: true

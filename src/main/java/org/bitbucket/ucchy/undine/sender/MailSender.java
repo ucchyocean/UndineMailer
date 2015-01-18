@@ -27,6 +27,12 @@ public abstract class MailSender implements Comparable<MailSender> {
     public abstract boolean isOnline();
 
     /**
+     * 宛先として有効かどうか
+     * @return 接続したことがあるプレイヤーかどうか
+     */
+    public abstract boolean isValidDestination();
+
+    /**
      * プレイヤー名を返す
      * @return プレイヤー名
      */
