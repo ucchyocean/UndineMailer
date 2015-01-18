@@ -136,56 +136,63 @@ public class MailData {
     protected void save(File file) {
 
         YamlConfiguration config = new YamlConfiguration();
+        saveToConfigSection(config);
+        try {
+            config.save(file);
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
+
+    /**
+     * 指定されたコンフィグセクションへ保存する
+     * @param section コンフィグセクション
+     */
+    protected void saveToConfigSection(ConfigurationSection section) {
 
         ArrayList<String> toList = new ArrayList<String>();
         for ( MailSender t : to ) {
             toList.add(t.toString());
         }
-        config.set("to", toList);
-        config.set("from", from.toString());
-        config.set("message", message);
+        section.set("to", toList);
+        section.set("from", from.toString());
+        section.set("message", message);
 
         if ( attachments != null ) {
-            ConfigurationSection section = config.createSection("attachments");
+            ConfigurationSection sub = section.createSection("attachments");
             int i = 1;
             for ( ItemStack item : attachments ) {
-                ConfigurationSection sub = section.createSection("attachment" + i++);
-                ItemConfigParser.setItemToSection(sub, item);
+                ConfigurationSection subsub = sub.createSection("attachment" + i++);
+                ItemConfigParser.setItemToSection(subsub, item);
             }
         }
 
-        config.set("feeMoney", feeMoney);
+        section.set("feeMoney", feeMoney);
 
         if ( feeItem != null ) {
-            ConfigurationSection sub = config.createSection("feeItem");
+            ConfigurationSection sub = section.createSection("feeItem");
             ItemConfigParser.setItemToSection(sub, feeItem);
         }
 
-        config.set("index", index);
+        section.set("index", index);
 
         ArrayList<String> flagList = new ArrayList<String>();
         for ( MailSender t : readFlags ) {
             flagList.add(t.toString());
         }
-        config.set("readFlags", flagList);
+        section.set("readFlags", flagList);
 
         if ( attachmentsOriginal != null ) {
-            ConfigurationSection section = config.createSection("attachmentsOriginal");
+            ConfigurationSection sub = section.createSection("attachmentsOriginal");
             int i = 1;
             for ( ItemStack item : attachmentsOriginal ) {
-                ConfigurationSection sub = section.createSection("attachment" + i++);
-                ItemConfigParser.setItemToSection(sub, item);
+                ConfigurationSection subsub = sub.createSection("attachment" + i++);
+                ItemConfigParser.setItemToSection(subsub, item);
             }
         }
 
         if ( date != null ) {
-            config.set("date", date.getTime());
-        }
-
-        try {
-            config.save(file);
-        } catch (IOException e) {
-            e.printStackTrace();
+            section.set("date", date.getTime());
         }
     }
 
@@ -195,25 +202,34 @@ public class MailData {
      * @return ロードされたMailData
      */
     protected static MailData load(File file) {
+        YamlConfiguration config = YamlConfiguration.loadConfiguration(file);
+        return loadFromConfigSection(config);
+    }
+
+    /**
+     * 指定されたコンフィグセクションからロードする
+     * @param section コンフィグセクション
+     * @return ロードされたMailData
+     */
+    protected static MailData loadFromConfigSection(ConfigurationSection section) {
 
         MailData data = new MailData();
-        YamlConfiguration config = YamlConfiguration.loadConfiguration(file);
 
         data.to = new ArrayList<MailSender>();
-        for ( String t : config.getStringList("to") ) {
+        for ( String t : section.getStringList("to") ) {
             MailSender sender = MailSender.getMailSenderFromString(t);
             if ( sender != null ) {
                 data.to.add(sender);
             }
         }
-        data.from = MailSender.getMailSenderFromString(config.getString("from"));
-        data.message = config.getStringList("message");
+        data.from = MailSender.getMailSenderFromString(section.getString("from"));
+        data.message = section.getStringList("message");
 
-        if ( config.contains("attachments") ) {
+        if ( section.contains("attachments") ) {
             data.attachments = new ArrayList<ItemStack>();
 
-            for ( String name : config.getConfigurationSection("attachments").getKeys(false) ) {
-                ConfigurationSection sub = config.getConfigurationSection("attachments." + name);
+            for ( String name : section.getConfigurationSection("attachments").getKeys(false) ) {
+                ConfigurationSection sub = section.getConfigurationSection("attachments." + name);
                 try {
                     ItemStack item = ItemConfigParser.getItemFromSection(sub);
                     data.attachments.add(item);
@@ -223,33 +239,33 @@ public class MailData {
             }
         }
 
-        data.feeMoney = config.getInt("feeMoney", 0);
-        if ( config.contains("feeItem") ) {
+        data.feeMoney = section.getInt("feeMoney", 0);
+        if ( section.contains("feeItem") ) {
             try {
                 data.feeItem = ItemConfigParser.getItemFromSection(
-                        config.getConfigurationSection("feeItem"));
+                        section.getConfigurationSection("feeItem"));
             } catch (ItemConfigParseException e) {
                 e.printStackTrace();
             }
         }
 
-        data.index = config.getInt("index");
+        data.index = section.getInt("index");
 
         data.readFlags = new ArrayList<MailSender>();
-        for ( String t : config.getStringList("readFlags") ) {
+        for ( String t : section.getStringList("readFlags") ) {
             MailSender sender = MailSender.getMailSenderFromString(t);
             if ( sender != null ) {
                 data.readFlags.add(sender);
             }
         }
 
-        if ( config.contains("attachmentsOriginal") ) {
+        if ( section.contains("attachmentsOriginal") ) {
             data.attachmentsOriginal = new ArrayList<ItemStack>();
 
             for ( String name :
-                    config.getConfigurationSection("attachmentsOriginal").getKeys(false) ) {
+                    section.getConfigurationSection("attachmentsOriginal").getKeys(false) ) {
                 ConfigurationSection sub =
-                        config.getConfigurationSection("attachmentsOriginal." + name);
+                        section.getConfigurationSection("attachmentsOriginal." + name);
                 try {
                     ItemStack item = ItemConfigParser.getItemFromSection(sub);
                     data.attachmentsOriginal.add(item);
@@ -259,8 +275,8 @@ public class MailData {
             }
         }
 
-        if ( config.contains("date") ) {
-            data.date = new Date(config.getLong("date"));
+        if ( section.contains("date") ) {
+            data.date = new Date(section.getLong("date"));
         }
 
         return data;

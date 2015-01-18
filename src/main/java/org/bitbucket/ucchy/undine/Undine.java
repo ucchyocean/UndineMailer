@@ -60,6 +60,17 @@ public class Undine extends JavaPlugin {
     }
 
     /**
+     * プラグインが無効化されたときに呼び出されるメソッド
+     * @see org.bukkit.plugin.java.JavaPlugin#onDisable()
+     */
+    @Override
+    public void onDisable() {
+
+        // 編集中メールの保存
+        mailManager.storeEditmodeMail();
+    }
+
+    /**
      * コマンドが実行された時に呼び出されるメソッド
      * @see org.bukkit.plugin.java.JavaPlugin#onCommand(org.bukkit.command.CommandSender, org.bukkit.command.Command, java.lang.String, java.lang.String[])
      */

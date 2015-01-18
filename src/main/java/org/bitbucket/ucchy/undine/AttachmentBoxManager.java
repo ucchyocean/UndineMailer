@@ -65,6 +65,13 @@ public class AttachmentBoxManager {
 
         Inventory box = Bukkit.createInventory(player, size, title);
 
+        // アイテムの追加
+        MailSender sender = MailSender.getMailSender(player);
+        MailData mail = parent.getMailManager().getEditmodeMail(sender);
+        for ( ItemStack item : mail.getAttachments() ) {
+            box.addItem(item);
+        }
+
         editmodeBoxes.put(player, box);
         player.openInventory(box);
         return box.getName();

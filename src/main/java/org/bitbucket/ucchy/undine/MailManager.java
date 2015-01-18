@@ -7,6 +7,7 @@ package org.bitbucket.ucchy.undine;
 
 import java.io.File;
 import java.io.FilenameFilter;
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
@@ -19,6 +20,8 @@ import org.bitbucket.ucchy.undine.tellraw.ClickEventType;
 import org.bitbucket.ucchy.undine.tellraw.MessageComponent;
 import org.bitbucket.ucchy.undine.tellraw.MessageParts;
 import org.bukkit.ChatColor;
+import org.bukkit.configuration.ConfigurationSection;
+import org.bukkit.configuration.file.YamlConfiguration;
 
 /**
  * メールデータマネージャ
@@ -41,8 +44,8 @@ public class MailManager {
      */
     public MailManager(Undine parent) {
         this.parent = parent;
-        this.editmodeMails = new HashMap<String, MailData>();
         reload();
+        restoreEditmodeMail();
     }
 
     /**
@@ -401,6 +404,47 @@ public class MailManager {
             }
             MailData mail = unread.get(i);
             sendMailLine(sender, pre, ChatColor.GOLD + mail.getInboxSummary(), mail);
+        }
+    }
+
+    /**
+     * 編集中メールをeditmails.ymlへ保存する
+     */
+    protected void storeEditmodeMail() {
+
+        parent.getLogger().info("Saving editmode mails...");
+
+        YamlConfiguration config = new YamlConfiguration();
+        for ( String name : editmodeMails.keySet() ) {
+            ConfigurationSection section = config.createSection(name);
+            editmodeMails.get(name).saveToConfigSection(section);
+        }
+
+        try {
+            File file = new File(parent.getDataFolder(), "editmails.yml");
+            config.save(file);
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
+
+    /**
+     * editmails.ymlから編集中メールを復帰する
+     */
+    protected void restoreEditmodeMail() {
+
+        parent.getLogger().info("Restoring editmode mails...");
+
+        editmodeMails = new HashMap<String, MailData>();
+
+        File file = new File(parent.getDataFolder(), "editmails.yml");
+        if ( !file.exists() ) return;
+
+        YamlConfiguration config = YamlConfiguration.loadConfiguration(file);
+        for ( String name : config.getKeys(false) ) {
+            MailData mail = MailData.loadFromConfigSection(
+                    config.getConfigurationSection(name));
+            editmodeMails.put(name, mail);
         }
     }
 
