@@ -193,7 +193,18 @@ public class AttachmentBoxManager {
             inv = attachmentBoxes.get(index);
         }
 
-        // 同期して保存する
+        // 一旦取り出して再度挿入することで、アイテムをスタックして整理する
+        ArrayList<ItemStack> temp = new ArrayList<ItemStack>();
+        for ( ItemStack item : inv.getContents() ) {
+            if ( item != null && item.getType() != Material.AIR ) {
+                temp.add(item);
+            }
+        }
+        inv.clear();
+        for ( ItemStack item : temp ) {
+            inv.addItem(item);
+        }
+
         ArrayList<ItemStack> array = new ArrayList<ItemStack>();
         for ( ItemStack item : inv.getContents() ) {
             if ( item != null && item.getType() != Material.AIR ) {
@@ -201,6 +212,7 @@ public class AttachmentBoxManager {
             }
         }
 
+        // 同期して保存する
         mail.setAttachments(array);
         parent.getMailManager().saveMail(mail);
     }

@@ -9,6 +9,11 @@ import java.util.ArrayList;
 import java.util.List;
 
 import org.bitbucket.ucchy.undine.sender.MailSender;
+import org.bitbucket.ucchy.undine.sender.MailSenderPlayer;
+import org.bitbucket.ucchy.undine.tellraw.ClickEventType;
+import org.bitbucket.ucchy.undine.tellraw.MessageComponent;
+import org.bitbucket.ucchy.undine.tellraw.MessageParts;
+import org.bukkit.ChatColor;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandSender;
 import org.bukkit.command.TabExecutor;
@@ -19,6 +24,8 @@ import org.bukkit.entity.Player;
  * @author ucchy
  */
 public class UndineCommand implements TabExecutor {
+
+    private static final String COMMAND = Undine.COMMAND;
 
     private static final String PERMISSION = "undine";
 
@@ -165,7 +172,7 @@ public class UndineCommand implements TabExecutor {
     private boolean doTextCommand(CommandSender sender, Command command, String label, String[] args) {
 
         // パーミッション確認
-        if  ( !sender.hasPermission(PERMISSION + ".create") ) {
+        if  ( !sender.hasPermission(PERMISSION + ".text") ) {
             sender.sendMessage(Messages.get("PermissionDeniedCommand"));
             return true;
         }
@@ -181,6 +188,16 @@ public class UndineCommand implements TabExecutor {
             return true;
         }
 
+        // メッセージ本文
+        StringBuffer message = new StringBuffer();
+        for ( int i=2; i<args.length; i++ ) {
+            if ( message.length() > 0 ) {
+                message.append(" ");
+            }
+            message.append(args[i]);
+        }
+
+        // 宛先
         String[] dests = args[1].split(",");
         ArrayList<MailSender> targets = new ArrayList<MailSender>();
 
@@ -202,8 +219,39 @@ public class UndineCommand implements TabExecutor {
             return true;
         }
 
+        // メール生成
+        MailSender ms = MailSender.getMailSender(sender);
+        MailData mail = new MailData(
+                targets, ms, message.toString());
+
+        // 送信にお金がかかる場合
+        int fee = manager.getSendFee(mail);
+        if ( (ms instanceof MailSenderPlayer) && fee > 0 ) {
+
+            VaultEcoBridge eco = parent.getVaultEco();
+            String feeDisplay = eco.format(fee);
+
+            // 残金が足りないならエラーで終了
+            if ( !eco.has(ms.getPlayer(), fee) ) {
+                sender.sendMessage(Messages.get("ErrorYouDontHaveEnoughMoney"));
+                return true;
+            }
+
+            // 引き落としの実行、ただし、エラーが返されたらエラーで終了
+            if ( !eco.withdrawPlayer(ms.getPlayer(), fee) ) {
+                sender.sendMessage(Messages.get("ErrorFailToWithdraw"));
+                return true;
+            }
+
+            // 引き落としたことを通知
+            int balance = parent.getVaultEco().getBalance(ms.getPlayer());
+            sender.sendMessage(Messages.get("EditmodeFeeResult",
+                    new String[]{"%fee", "%remain"},
+                    new String[]{feeDisplay, eco.format(balance)}));
+        }
+
         // メールを送信する
-        manager.sendNewMail(MailSender.getMailSender(sender), targets, args[2]);
+        manager.sendNewMail(mail);
 
         return true;
     }
@@ -416,7 +464,8 @@ public class UndineCommand implements TabExecutor {
             return true;
         }
 
-        MailData mail = manager.getEditmodeMail(MailSender.getMailSender(sender));
+        MailSender ms = MailSender.getMailSender(sender);
+        MailData mail = manager.getEditmodeMail(ms);
 
         // 編集中でないならエラーを表示して終了
         if ( mail == null ) {
@@ -438,9 +487,67 @@ public class UndineCommand implements TabExecutor {
             }
         }
 
+        // 送信にお金がかかる場合
+        int fee = manager.getSendFee(mail);
+        if ( (ms instanceof MailSenderPlayer) && fee > 0 ) {
+
+            VaultEcoBridge eco = parent.getVaultEco();
+            String feeDisplay = eco.format(fee);
+
+            if ( args.length > 1 && args[1].equals("confirm") ) {
+                // 課金して送信
+
+                if ( !eco.has(ms.getPlayer(), fee) ) {
+                    sender.sendMessage(Messages.get("ErrorYouDontHaveEnoughMoney"));
+                    return true;
+                }
+                if ( !eco.withdrawPlayer(ms.getPlayer(), fee) ) {
+                    sender.sendMessage(Messages.get("ErrorFailToWithdraw"));
+                    return true;
+                }
+                int balance = parent.getVaultEco().getBalance(ms.getPlayer());
+                sender.sendMessage(Messages.get("EditmodeFeeResult",
+                        new String[]{"%fee", "%remain"},
+                        new String[]{feeDisplay, eco.format(balance)}));
+
+                manager.sendNewMail(mail);
+                manager.clearEditmodeMail(ms);
+
+                return true;
+            }
+
+            // かかる金額を表示
+            sender.sendMessage(Messages.get(
+                    "EditmodeFeeInformation", "%fee", feeDisplay));
+
+            if ( !eco.has(ms.getPlayer(), fee) ) {
+                // 残金が足りない
+                sender.sendMessage(Messages.get("ErrorYouDontHaveEnoughMoney"));
+                return true;
+            }
+
+            sender.sendMessage(Messages.get("EditmodeFeeConfirm"));
+
+            MessageComponent msg = new MessageComponent();
+            msg.addText("     ");
+            MessageParts buttonOK = new MessageParts(
+                    Messages.get("EditmodeFeeOK"), ChatColor.AQUA);
+            buttonOK.setClickEvent(ClickEventType.RUN_COMMAND, COMMAND + " send confirm");
+            msg.addParts(buttonOK);
+            msg.addText("     ");
+            MessageParts buttonCancel = new MessageParts(
+                    Messages.get("EditmodeFeeCancel"), ChatColor.AQUA);
+            buttonCancel.setClickEvent(ClickEventType.RUN_COMMAND, COMMAND + " write");
+            msg.addParts(buttonCancel);
+
+            msg.send(ms);
+
+            return true;
+        }
+
         // 送信
         manager.sendNewMail(mail);
-        manager.clearEditmodeMail(MailSender.getMailSender(sender));
+        manager.clearEditmodeMail(ms);
 
         return true;
     }

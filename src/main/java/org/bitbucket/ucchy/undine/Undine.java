@@ -18,12 +18,15 @@ import org.bukkit.plugin.java.JavaPlugin;
  */
 public class Undine extends JavaPlugin {
 
+    protected static final String COMMAND = "/umail";
+
     private static final String MAIL_FOLDER = "mail";
 
     private MailManager mailManager;
     private AttachmentBoxManager boxManager;
     private UndineConfig config;
     private UndineCommand command;
+    private VaultEcoBridge vaulteco;
 
     /**
      * プラグインが有効化されたときに呼び出されるメソッド
@@ -38,6 +41,12 @@ public class Undine extends JavaPlugin {
 
         // コンフィグをロードする
         config = new UndineConfig(this);
+
+        // VaultEcoをロード
+        if ( getServer().getPluginManager().isPluginEnabled("Vault") ) {
+            vaulteco = VaultEcoBridge.load(
+                    getServer().getPluginManager().getPlugin("Vault"));
+        }
 
         // メッセージをロードする
         Messages.initialize(getFile(), getDataFolder());
@@ -93,7 +102,7 @@ public class Undine extends JavaPlugin {
      * 添付ボックスマネージャを取得する
      * @return 添付ボックスマネージャ
      */
-    public AttachmentBoxManager getBoxManager() {
+    protected AttachmentBoxManager getBoxManager() {
         return boxManager;
     }
 
@@ -103,6 +112,14 @@ public class Undine extends JavaPlugin {
      */
     public UndineConfig getUndineConfig() {
         return config;
+    }
+
+    /**
+     * 経済プラグインへのアクセスブリッジを取得する
+     * @return VaultEcoBridge、ロードされていなければnullになる
+     */
+    protected VaultEcoBridge getVaultEco() {
+        return vaulteco;
     }
 
     /**

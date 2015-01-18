@@ -1,9 +1,11 @@
 # v0.0.3 実装予定
 
-- VaultEcoBridgeの実装と、送信fee・添付feeの実装
+- onDisable時の Editmodeメールの保存
 
 # v0.1.0 実装予定
 
+- 着払い機能の実装
 - メーリングリスト機能の実装
+- TABキー補完の実装
 
 

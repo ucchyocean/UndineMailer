@@ -25,8 +25,11 @@ public class UndineConfig {
     /** 送信に料金を必要とするか */
     private boolean enableSendFee;
 
-    /** 送信に必要な料金 */
+    /** 送信に必要な料金、送信先が複数ある場合は、送信先ごとに課金される */
     private int sendFee;
+
+    /** 添付アイテムを1件付けるのに必要な料金 */
+    private int attachFee;
 
     /** 自分自身に送信を可能とするか */
     private boolean enableSendSelf;
@@ -76,6 +79,7 @@ public class UndineConfig {
         enableAttachment = conf.getBoolean("enableAttachment", true);
         enableSendFee = conf.getBoolean("enableSendFee", false);
         sendFee = conf.getInt("sendFee", 10);
+        attachFee = conf.getInt("attachFee", 10);
         enableSendSelf = conf.getBoolean("enableSendSelf", false);
         disableWorldsToOpenAttachBox =
                 conf.getStringList("disableWorldsToOpenAttachBox");
@@ -120,6 +124,13 @@ public class UndineConfig {
      */
     public int getSendFee() {
         return sendFee;
+    }
+
+    /**
+     * @return attachFee
+     */
+    public int getAttachFee() {
+        return attachFee;
     }
 
     /**

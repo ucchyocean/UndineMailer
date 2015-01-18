@@ -26,7 +26,8 @@ import org.bukkit.ChatColor;
  */
 public class MailManager {
 
-    private static final String COMMAND = "/umail";
+    private static final String COMMAND = Undine.COMMAND;
+
     private static final int PAGE_SIZE = 10;
 
     private ArrayList<MailData> mails;
@@ -289,6 +290,21 @@ public class MailManager {
      */
     public void clearEditmodeMail(MailSender sender) {
         editmodeMails.remove(sender.toString());
+    }
+
+    /**
+     * 指定されたメールを送信するのにかかる金額を返す
+     * @param mail メール
+     * @return 送信にかかる金額
+     */
+    protected int getSendFee(MailData mail) {
+        if ( parent.getVaultEco() == null ) return 0;
+        UndineConfig config = parent.getUndineConfig();
+        if ( !config.isEnableSendFee() ) return 0;
+        int total = 0;
+        total += mail.getTo().size() * config.getSendFee();
+        total += mail.getAttachments().size() * config.getAttachFee();
+        return total;
     }
 
     /**

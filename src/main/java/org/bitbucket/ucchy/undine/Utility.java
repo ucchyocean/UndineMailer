@@ -20,7 +20,6 @@ import java.util.zip.ZipEntry;
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.OfflinePlayer;
-import org.bukkit.entity.Player;
 
 /**
  * ユーティリティクラス
@@ -247,19 +246,6 @@ public class Utility {
             isCB178orLaterCache = false;
             return false;
         }
-    }
-
-    /**
-     * 現在のサーバー接続人数を返します。
-     * @return サーバー接続人数
-     */
-    public static int getOnlinePlayersCount() {
-        int count = 0;
-        for ( @SuppressWarnings("unused")
-                Player player : Bukkit.getOnlinePlayers() ) {
-            count++;
-        }
-        return count;
     }
 
     /**

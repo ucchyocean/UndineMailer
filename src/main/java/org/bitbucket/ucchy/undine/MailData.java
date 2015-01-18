@@ -30,7 +30,8 @@ import org.bukkit.inventory.ItemStack;
  */
 public class MailData {
 
-    private static final String COMMAND = "/umail";
+    private static final String COMMAND = Undine.COMMAND;
+
     private static final int SUMMARY_MAX_SIZE = 40;
     protected static final int TO_MAX_SIZE = 10;
     protected static final int MESSAGE_MAX_SIZE = 15;
@@ -55,6 +56,22 @@ public class MailData {
         this.index = 0;
         this.to = new ArrayList<MailSender>();
         this.message = new ArrayList<String>();
+        this.attachments = new ArrayList<ItemStack>();
+        this.readFlags = new ArrayList<MailSender>();
+    }
+
+    /**
+     * コンストラクタ
+     * @param to 宛先
+     * @param from 送り主
+     * @param message メッセージ
+     */
+    public MailData(List<MailSender> to, MailSender from, String message) {
+        this.index = 0;
+        this.to = to;
+        this.from = from;
+        this.message = new ArrayList<String>();
+        this.message.add(message);
         this.attachments = new ArrayList<ItemStack>();
         this.readFlags = new ArrayList<MailSender>();
     }
