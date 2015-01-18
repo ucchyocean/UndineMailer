@@ -14,6 +14,9 @@ ErrorInGameCommand: '&cこのコマンドはゲーム内から実行してくだ
 ErrorNotInEditmode: '&cあなたはメール編集中でないため、このコマンドを実行することができません。'
 ErrorTooManyDestination: '&c一つのメールに設定できる宛先は、%numまでです。'
 ErrorAlreadyExistTo: '&c既に指定されている宛先です。'
+ErrorEmptyTo: '&c宛先が設定されていません。'
+ErrorItemAttachedYet: '&cアイテムが添付されたままです。キャンセルする前に取り出してください。'
+ErrorCannotSendMultiAttach: '&c添付アイテム付きのメールを、複数の宛先に出すことはできません。'
 
 InformationReload: '&aデータを再読み込みしました。'
 InformationYouGotMail: '&7%from &aさんから新しいメールが届きました!'

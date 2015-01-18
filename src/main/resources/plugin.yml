@@ -29,75 +29,67 @@ permissions:
   undine.command:
     description: Permission of command.
     default: true
-  undine.command.inbox:
+  undine.inbox:
     description: Permission of inbox command.
     default: true
-  undine.command.outbox:
+  undine.outbox:
     description: Permission of outbox command.
     default: true
-  undine.command.read:
+  undine.read:
     description: Permission of read command.
     default: true
-  undine.command.read-all:
+  undine.read-all:
     description: Permission of read other's mail.
     default: op
-  undine.command.text:
+  undine.text:
     description: Permission of text command.
     default: true
-  undine.command.write:
+  undine.write:
     description: Permission of write command.
     default: true
-  undine.command.to:
+  undine.to:
     description: Permission of to command.
     default: true
-  undine.command.message:
+  undine.message:
     description: Permission of message command.
     default: true
-  undine.command.attach:
+  undine.attach:
     description: Permission of attach command.
     default: true
-  undine.command.attach-all:
+  undine.attach-all:
     description: Permission of opening other's mail attach box.
     default: op
-  undine.command.send:
-    description: Permission of send command.
-    default: true
-  undine.command.send-all:
-    description: Permission of send all command.
-    default: op
-  undine.command.cancel:
-    description: Permission of send command.
-    default: true
-  undine.command.reload:
-    description: Permission of reload command.
-    default: op
-  'undine.command.*':
-    description: Permissions of all commands.
-    children:
-      undine.command: true
-      undine.command.inbox: true
-      undine.command.outbox: true
-      undine.command.read: true
-      undine.command.read-all: true
-      undine.command.text: true
-      undine.command.write: true
-      undine.command.to: true
-      undine.command.message: true
-      undine.command.attach: true
-      undine.command.attach-all: true
-      undine.command.send: true
-      undine.command.send-all: true
-      undine.command.cancel: true
-      undine.command.reload: true
-
   undine.multi-attach:
     description: Permission of sending multi attachment mail.
     default: op
-
+  undine.send:
+    description: Permission of send command.
+    default: true
+  undine.send-all:
+    description: Permission of send all command.
+    default: op
+  undine.cancel:
+    description: Permission of send command.
+    default: true
+  undine.reload:
+    description: Permission of reload command.
+    default: op
   'undine.*':
-    undine: All Permissions of Undine.
+    description: All Permissions of Undine.
     children:
-      'undine.command.*': true
+      undine.command: true
+      undine.inbox: true
+      undine.outbox: true
+      undine.read: true
+      undine.read-all: true
+      undine.text: true
+      undine.write: true
+      undine.to: true
+      undine.message: true
+      undine.attach: true
+      undine.attach-all: true
       undine.multi-attach: true
-
-
+      undine.send: true
+      undine.send-all: true
+      undine.cancel: true
+      undine.reload: true

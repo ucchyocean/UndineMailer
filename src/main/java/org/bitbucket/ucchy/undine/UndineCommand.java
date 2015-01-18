@@ -20,7 +20,7 @@ import org.bukkit.entity.Player;
  */
 public class UndineCommand implements TabExecutor {
 
-    private static final String PERMISSION = "undine.command";
+    private static final String PERMISSION = "undine";
 
     private Undine parent;
     private MailManager manager;
@@ -426,7 +426,16 @@ public class UndineCommand implements TabExecutor {
 
         // 宛先が設定されていないならエラーを表示して終了
         if ( mail.getTo().size() == 0 ) {
+            sender.sendMessage(Messages.get("ErrorEmptyTo"));
+            return true;
+        }
 
+        // 添付ファイル付きのメールを複数の宛先に出そうとしたなら、エラーを表示して終了
+        if ( mail.getAttachments().size() > 0 && mail.getTo().size() > 1 ) {
+            if ( !sender.hasPermission(PERMISSION + ".multi-attach") ) {
+                sender.sendMessage(Messages.get("ErrorCannotSendMultiAttach"));
+                return true;
+            }
         }
 
         // 送信
@@ -449,6 +458,12 @@ public class UndineCommand implements TabExecutor {
         // 編集中でないならエラーを表示して終了
         if ( mail == null ) {
             sender.sendMessage(Messages.get("ErrorNotInEditmode"));
+            return true;
+        }
+
+        // 添付ファイルが残っているなら、エラーを表示して終了
+        if ( mail.getAttachments().size() > 0 ) {
+            sender.sendMessage(Messages.get("ErrorItemAttachedYet"));
             return true;
         }
 
