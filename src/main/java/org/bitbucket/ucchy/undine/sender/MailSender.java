@@ -51,6 +51,12 @@ public abstract class MailSender implements Comparable<MailSender> {
     public abstract void sendMessage(String message);
 
     /**
+     * BukkitのOfflinePlayerを取得する。
+     * @return OfflinePlayer
+     */
+    public abstract OfflinePlayer getOfflinePlayer();
+
+    /**
      * BukkitのPlayerを取得する
      * @return Player
      */

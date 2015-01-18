@@ -20,6 +20,8 @@ commands:
            /<command> message <line num> <message> - Change the message of mail.
            /<command> message delete <line num> - Delete the message of mail.
            /<command> attach [index] - Open attachment box of mail.
+           /<command> costmoney <amount> - Set fee that cost money on opening box.
+           /<command> costitem <item[:amount]> - Set fee that cost item on opening box.
            /<command> send - Send mail.
            /<command> cancel - Cancel to mail creation mode.
            /<command> reload - Reload all of data.
@@ -63,6 +65,12 @@ permissions:
   undine.multi-attach:
     description: Permission of sending multi attachment mail.
     default: op
+  undine.costmoney:
+    description: Permission of costmoney command.
+    default: true
+  undine.costitem:
+    description: Permission of costitem command.
+    default: true
   undine.send:
     description: Permission of send command.
     default: true
@@ -90,6 +98,8 @@ permissions:
       undine.attach: true
       undine.attach-all: true
       undine.multi-attach: true
+      undine.costmoney: true
+      undine.costitem: true
       undine.send: true
       undine.send-all: true
       undine.cancel: true

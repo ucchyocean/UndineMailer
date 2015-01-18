@@ -97,6 +97,7 @@ public class AttachmentBoxManager {
     protected void clearEditmodeBox(Player player) {
 
         if ( editmodeBoxes.containsKey(player) ) {
+            editmodeBoxes.get(player).clear();
             editmodeBoxes.remove(player);
         }
     }
@@ -222,6 +223,17 @@ public class AttachmentBoxManager {
         // 同期して保存する
         mail.setAttachments(array);
         parent.getMailManager().saveMail(mail);
+
+        // メール詳細を開く
+        if ( player.isOnline() ) {
+            if ( index == 0 ) {
+                mail.displayEditmode(
+                        MailSender.getMailSender(player), parent.getUndineConfig());
+            } else {
+                parent.getMailManager().displayMail(
+                        MailSender.getMailSender(player), mail);
+            }
+        }
     }
 }
 

@@ -78,6 +78,17 @@ public class VaultEcoBridge {
     }
 
     /**
+     * 指定されたプレイヤーに、指定された金額を入金する
+     * @param player プレイヤー
+     * @param amount 入金する金額
+     * @return 正常に完了したかどうか
+     */
+    public boolean depositPlayer(OfflinePlayer player, int amount) {
+        EconomyResponse response = eco.depositPlayer(player, amount);
+        return response.transactionSuccess();
+    }
+
+    /**
      * 指定された金額を、経済プラグインに設定されている書式で表示する
      * @param amount 金額
      * @return 表示用の文字列

@@ -8,6 +8,7 @@ package org.bitbucket.ucchy.undine;
 import java.io.File;
 import java.util.List;
 
+import org.bukkit.Bukkit;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandSender;
 import org.bukkit.plugin.java.JavaPlugin;
@@ -149,5 +150,13 @@ public class Undine extends JavaPlugin {
         String[] descs = getDescription().getDescription().split(" ");
         if ( descs.length <= 0 ) return "en";
         return descs[descs.length - 1];
+    }
+
+    /**
+     * このプラグインのインスタンスを返す
+     * @return プラグインのインスタンス
+     */
+    public static Undine getInstance() {
+        return (Undine)Bukkit.getPluginManager().getPlugin("Undine");
     }
 }

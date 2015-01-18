@@ -5,6 +5,7 @@
  */
 package org.bitbucket.ucchy.undine.sender;
 
+import org.bukkit.OfflinePlayer;
 import org.bukkit.command.BlockCommandSender;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
@@ -72,6 +73,16 @@ public class MailSenderBlock extends MailSender {
     @Override
     public void sendMessage(String message) {
         // do nothing.
+    }
+
+    /**
+     * BukkitのOfflinePlayerを取得する。
+     * @return 常にnullが返される
+     * @see org.bitbucket.ucchy.undine.sender.MailSender#getOfflinePlayer()
+     */
+    @Override
+    public OfflinePlayer getOfflinePlayer() {
+        return null;
     }
 
     /**

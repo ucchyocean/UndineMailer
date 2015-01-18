@@ -9,15 +9,20 @@ import java.util.ArrayList;
 import java.util.List;
 
 import org.bitbucket.ucchy.undine.sender.MailSender;
+import org.bitbucket.ucchy.undine.sender.MailSenderConsole;
 import org.bitbucket.ucchy.undine.sender.MailSenderPlayer;
 import org.bitbucket.ucchy.undine.tellraw.ClickEventType;
 import org.bitbucket.ucchy.undine.tellraw.MessageComponent;
 import org.bitbucket.ucchy.undine.tellraw.MessageParts;
 import org.bukkit.ChatColor;
+import org.bukkit.Material;
+import org.bukkit.OfflinePlayer;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandSender;
 import org.bukkit.command.TabExecutor;
 import org.bukkit.entity.Player;
+import org.bukkit.inventory.Inventory;
+import org.bukkit.inventory.ItemStack;
 
 /**
  * Undineコマンドクラス
@@ -68,6 +73,10 @@ public class UndineCommand implements TabExecutor {
             return doMessageCommand(sender, command, label, args);
         } else if ( args[0].equalsIgnoreCase("attach") ) {
             return doAttachCommand(sender, command, label, args);
+        } else if ( args[0].equalsIgnoreCase("costmoney") ) {
+            return doCostmoneyCommand(sender, command, label, args);
+        } else if ( args[0].equalsIgnoreCase("costitem") ) {
+            return doCostitemCommand(sender, command, label, args);
         } else if ( args[0].equalsIgnoreCase("send") ) {
             return doSendCommand(sender, command, label, args);
         } else if ( args[0].equalsIgnoreCase("cancel") ) {
@@ -448,11 +457,244 @@ public class UndineCommand implements TabExecutor {
                 return true;
             }
 
+            if ( mail.getCostMoney() > 0 ) {
+                // 着払い料金が設定がされている場合
+
+                MailSender ms = MailSender.getMailSender(sender);
+                VaultEcoBridge eco = parent.getVaultEco();
+                int fee = mail.getCostMoney();
+                String feeDisplay = eco.format(fee);
+
+                if ( args.length >= 3 && args[2].equals("confirm") ) {
+
+                    // 引き落とし
+                    if ( !eco.has(ms.getPlayer(), fee) ) {
+                        sender.sendMessage(Messages.get("ErrorYouDontHaveEnoughMoney"));
+                        return true;
+                    }
+                    if ( !eco.withdrawPlayer(ms.getPlayer(), fee) ) {
+                        sender.sendMessage(Messages.get("ErrorFailToWithdraw"));
+                        return true;
+                    }
+                    int balance = eco.getBalance(ms.getPlayer());
+                    sender.sendMessage(Messages.get("BoxOpenCostMoneyResult",
+                            new String[]{"%fee", "%remain"},
+                            new String[]{feeDisplay, eco.format(balance)}));
+
+                    // メールの送信元に送金
+                    OfflinePlayer from = mail.getFrom().getOfflinePlayer();
+                    eco.depositPlayer(from, fee);
+                    if ( mail.getFrom().isOnline() ) {
+                        balance = eco.getBalance(from);
+                        mail.getFrom().sendMessage(Messages.get("BoxOpenCostMoneySenderResult",
+                                new String[]{"%to", "%fee", "%remain"},
+                                new String[]{ms.getName(), feeDisplay, eco.format(balance)}));
+                    }
+
+                    // 着払いを0に設定して保存
+                    mail.setCostMoney(0);
+                    manager.saveMail(mail);
+
+                    // 添付ボックスを表示する
+                    parent.getBoxManager().displayAttachBox(player, mail);
+
+                    return true;
+                }
+
+                // かかる金額を表示
+                sender.sendMessage(Messages.get(
+                        "BoxOpenCostMoneyInformation", "%fee", feeDisplay));
+
+                if ( !eco.has(ms.getPlayer(), fee) ) {
+                    // 残金が足りない
+                    sender.sendMessage(Messages.get("ErrorYouDontHaveEnoughMoney"));
+                    return true;
+                }
+
+                sender.sendMessage(Messages.get("BoxOpenCostConfirm"));
+
+                MessageComponent msg = new MessageComponent();
+                msg.addText("     ");
+                MessageParts buttonOK = new MessageParts(
+                        Messages.get("BoxOpenCostOK"), ChatColor.AQUA);
+                buttonOK.setClickEvent(
+                        ClickEventType.RUN_COMMAND,
+                        COMMAND + " attach " + index + " confirm");
+                msg.addParts(buttonOK);
+                msg.addText("     ");
+                MessageParts buttonCancel = new MessageParts(
+                        Messages.get("BoxOpenCostCancel"), ChatColor.AQUA);
+                buttonCancel.setClickEvent(
+                        ClickEventType.RUN_COMMAND, COMMAND + " read " + index);
+                msg.addParts(buttonCancel);
+
+                msg.send(ms);
+                return true;
+
+            } else if ( mail.getCostItem() != null ) {
+                // 着払いアイテムが設定されている場合
+
+                MailSender ms = MailSender.getMailSender(sender);
+                ItemStack fee = mail.getCostItem();
+
+                if ( args.length >= 3 && args[2].equals("confirm") ) {
+
+                    // 引き落とし
+                    if ( !hasItem(player, fee) ) {
+                        sender.sendMessage(Messages.get("ErrorYouDontHaveEnoughItem"));
+                        return true;
+                    }
+                    consumeItem(player, fee);
+                    sender.sendMessage(Messages.get("BoxOpenCostItemResult",
+                            new String[]{"%material", "%amount"},
+                            new String[]{fee.getType().toString(), fee.getAmount() + ""}));
+
+                    // メールの送信元に送金
+                    MailData reply = new MailData();
+                    reply.setTo(0, mail.getFrom());
+                    reply.setFrom(MailSenderConsole.getMailSenderConsole());
+                    reply.setMessage(0, Messages.get(
+                            "BoxOpenCostItemSenderResult",
+                            new String[]{"%to", "%material", "%amount"},
+                            new String[]{ms.getName(), fee.getType().toString(), fee.getAmount() + ""}));
+                    reply.addAttachment(fee);
+                    parent.getMailManager().sendNewMail(reply);
+
+                    // 着払いをnullに設定して保存
+                    mail.setCostItem(null);
+                    manager.saveMail(mail);
+
+                    // 添付ボックスを表示する
+                    parent.getBoxManager().displayAttachBox(player, mail);
+
+                    return true;
+                }
+
+                // かかる金額を表示
+                sender.sendMessage(Messages.get(
+                        "BoxOpenCostItemInformation",
+                        new String[]{"%material", "%amount"},
+                        new String[]{fee.getType().toString(), fee.getAmount() + ""}));
+
+                if ( !hasItem(player, fee) ) {
+                    // 残金が足りない
+                    sender.sendMessage(Messages.get("ErrorYouDontHaveEnoughItem"));
+                    return true;
+                }
+
+                sender.sendMessage(Messages.get("BoxOpenCostConfirm"));
+
+                MessageComponent msg = new MessageComponent();
+                msg.addText("     ");
+                MessageParts buttonOK = new MessageParts(
+                        Messages.get("BoxOpenCostOK"), ChatColor.AQUA);
+                buttonOK.setClickEvent(
+                        ClickEventType.RUN_COMMAND,
+                        COMMAND + " attach " + index + " confirm");
+                msg.addParts(buttonOK);
+                msg.addText("     ");
+                MessageParts buttonCancel = new MessageParts(
+                        Messages.get("BoxOpenCostCancel"), ChatColor.AQUA);
+                buttonCancel.setClickEvent(
+                        ClickEventType.RUN_COMMAND, COMMAND + " read " + index);
+                msg.addParts(buttonCancel);
+
+                msg.send(ms);
+                return true;
+
+            }
+
             // 添付ボックスを表示する
             parent.getBoxManager().displayAttachBox(player, mail);
-
         }
 
+        return true;
+    }
+
+    private boolean doCostmoneyCommand(CommandSender sender, Command command2, String label, String[] args) {
+
+        // パーミッション確認
+        if  ( !sender.hasPermission(PERMISSION + ".costmoney") ) {
+            sender.sendMessage(Messages.get("PermissionDeniedCommand"));
+            return true;
+        }
+
+        MailData mail = manager.getEditmodeMail(MailSender.getMailSender(sender));
+
+        // 編集中でないならエラーを表示して終了
+        if ( mail == null ) {
+            sender.sendMessage(Messages.get("ErrorNotInEditmode"));
+            return true;
+        }
+
+        // パラメータが足りない場合はエラーを表示して終了
+        if ( args.length < 2 ) {
+            sender.sendMessage(Messages.get("ErrorRequireArgument", "%param", "Amount"));
+            return true;
+        }
+
+        // 指定値が数値ではない場合はエラーを表示して終了
+        if ( !args[1].matches("[0-9]{1,9}") ) {
+            sender.sendMessage(Messages.get("ErrorInvalidCostMoney", "%fee", args[1]));
+            return true;
+        }
+
+        int amount = Integer.parseInt(args[1]);
+
+        // アイテムと料金を両方設定しようとしたら、エラーを表示して終了
+        if ( amount > 0 && mail.getCostItem() != null ) {
+            sender.sendMessage(Messages.get("ErrorCannotSetMoneyAndItem"));
+            return true;
+        }
+
+        // 設定する
+        mail.setCostMoney(amount);
+
+        // 編集画面を表示する。
+        mail.displayEditmode(MailSender.getMailSender(sender), config);
+        return true;
+    }
+
+    private boolean doCostitemCommand(CommandSender sender, Command command2, String label, String[] args) {
+
+        // パーミッション確認
+        if  ( !sender.hasPermission(PERMISSION + ".costitem") ) {
+            sender.sendMessage(Messages.get("PermissionDeniedCommand"));
+            return true;
+        }
+
+        MailData mail = manager.getEditmodeMail(MailSender.getMailSender(sender));
+
+        // 編集中でないならエラーを表示して終了
+        if ( mail == null ) {
+            sender.sendMessage(Messages.get("ErrorNotInEditmode"));
+            return true;
+        }
+
+        // パラメータが足りない場合はエラーを表示して終了
+        if ( args.length < 2 ) {
+            sender.sendMessage(Messages.get("ErrorRequireArgument", "%param", "Item"));
+            return true;
+        }
+
+        // 指定値がアイテム表現形式ではない場合はエラーを表示して終了
+        ItemStack item = getItemFromDescription(args[1]);
+        if ( item == null && !args[1].equals("remove") ) {
+            sender.sendMessage(Messages.get("ErrorInvalidCostItem", "%item", args[1]));
+            return true;
+        }
+
+        // アイテムと料金を両方設定しようとしたら、エラーを表示して終了
+        if ( item != null && mail.getCostMoney() > 0 ) {
+            sender.sendMessage(Messages.get("ErrorCannotSetMoneyAndItem"));
+            return true;
+        }
+
+        // 設定する
+        mail.setCostItem(item);
+
+        // 編集画面を表示する。
+        mail.displayEditmode(MailSender.getMailSender(sender), config);
         return true;
     }
 
@@ -549,6 +791,10 @@ public class UndineCommand implements TabExecutor {
         manager.sendNewMail(mail);
         manager.clearEditmodeMail(ms);
 
+        if ( sender instanceof Player ) {
+            parent.getBoxManager().clearEditmodeBox((Player)sender);
+        }
+
         return true;
     }
 
@@ -576,6 +822,11 @@ public class UndineCommand implements TabExecutor {
 
         // キャンセル
         manager.clearEditmodeMail(MailSender.getMailSender(sender));
+
+        if ( sender instanceof Player ) {
+            parent.getBoxManager().clearEditmodeBox((Player)sender);
+        }
+
         sender.sendMessage(Messages.get("InformationEditCancelled"));
 
         return true;
@@ -595,5 +846,74 @@ public class UndineCommand implements TabExecutor {
         Messages.reload(config.getLang());
         sender.sendMessage(Messages.get("InformationReload"));
         return true;
+    }
+
+    /**
+     * アイテム表現形式（DIAMOND または DIAMOND:5）からItemStackを生成して返す
+     * @param description アイテム表現形式
+     * @return アイテム
+     */
+    private ItemStack getItemFromDescription(String description) {
+
+        String mat = description;
+        int amount = 1;
+        if ( description.contains(":") ) {
+            String[] temp = description.split(":");
+            mat = temp[0];
+            if ( temp.length >= 2 && temp[1].matches("[0-9]{1,9}") ) {
+                amount = Integer.parseInt(temp[1]);
+            }
+        }
+
+        Material material = Material.getMaterial(mat);
+        if ( material == null ) {
+            return null;
+        }
+
+        return new ItemStack(material, amount);
+    }
+
+    /**
+     * 指定したプレイヤーが指定したアイテムを十分な個数持っているかどうか確認する
+     * @param player プレイヤー
+     * @param item アイテム
+     * @return 持っているかどうか
+     */
+    private boolean hasItem(Player player, ItemStack item) {
+        return player.getInventory().contains(item.getType(), item.getAmount());
+    }
+
+    /**
+     * 指定したプレイヤーから指定したアイテムを回収する
+     * @param player プレイヤー
+     * @param item アイテム
+     * @return 回収に成功したかどうか
+     */
+    @SuppressWarnings("deprecation")
+    private boolean consumeItem(Player player, ItemStack item) {
+        Inventory inv = player.getInventory();
+        int remain = item.getAmount();
+        for ( int index=0; index<inv.getSize(); index++ ) {
+            ItemStack i = inv.getItem(index);
+            if ( i == null || i.getType() != item.getType() ) {
+                continue;
+            }
+
+            if ( i.getAmount() >= remain ) {
+                if ( i.getAmount() == remain ) {
+                    inv.clear(index);
+                } else {
+                    i.setAmount(i.getAmount() - remain);
+                    inv.setItem(index, i);
+                }
+                remain = 0;
+                break;
+            } else {
+                remain -= i.getAmount();
+                inv.clear(index);
+            }
+        }
+        player.updateInventory();
+        return (remain <= 0);
     }
 }

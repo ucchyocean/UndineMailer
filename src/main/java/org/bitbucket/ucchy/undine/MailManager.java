@@ -151,7 +151,20 @@ public class MailManager {
 
         // 送信時間を設定する
         mail.setDate(new Date());
+
+        // オリジナルの添付ファイルを記録する
         mail.makeAttachmentsOriginal();
+
+        // 添付が無いなら、着払い設定はクリアしておく
+        if ( mail.getAttachments().size() == 0 ) {
+            mail.setCostMoney(0);
+            mail.setCostItem(null);
+        }
+
+        // 着払いアイテムが設定されているなら、着払い料金はクリアしておく
+        if ( mail.getCostItem() != null ) {
+            mail.setCostMoney(0);
+        }
 
         // 保存する
         mails.add(mail);

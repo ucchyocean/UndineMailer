@@ -41,8 +41,8 @@ public class MailData {
     private MailSender from;
     private List<String> message;
     private List<ItemStack> attachments;
-    private int feeMoney;
-    private ItemStack feeItem;
+    private int costMoney;
+    private ItemStack costItem;
 
     private int index;
     private List<MailSender> readFlags;
@@ -114,18 +114,18 @@ public class MailData {
      * @param from 送り主
      * @param message メッセージ
      * @param attachments 添付アイテム
-     * @param feeMoney 受け取りにかかる金額
-     * @param feeItem 受け取りにかかる取引アイテム
+     * @param costMoney 受け取りにかかる金額
+     * @param costItem 受け取りにかかる取引アイテム
      */
     public MailData(List<MailSender> to, MailSender from, List<String> message,
-            List<ItemStack> attachments, int feeMoney, ItemStack feeItem) {
+            List<ItemStack> attachments, int costMoney, ItemStack costItem) {
         this.index = 0;
         this.to = to;
         this.from = from;
         this.message = message;
         this.attachments = attachments;
-        this.feeMoney = feeMoney;
-        this.feeItem = feeItem;
+        this.costMoney = costMoney;
+        this.costItem = costItem;
         this.readFlags = new ArrayList<MailSender>();
     }
 
@@ -167,11 +167,11 @@ public class MailData {
             }
         }
 
-        section.set("feeMoney", feeMoney);
+        section.set("costMoney", costMoney);
 
-        if ( feeItem != null ) {
-            ConfigurationSection sub = section.createSection("feeItem");
-            ItemConfigParser.setItemToSection(sub, feeItem);
+        if ( costItem != null ) {
+            ConfigurationSection sub = section.createSection("costItem");
+            ItemConfigParser.setItemToSection(sub, costItem);
         }
 
         section.set("index", index);
@@ -239,11 +239,11 @@ public class MailData {
             }
         }
 
-        data.feeMoney = section.getInt("feeMoney", 0);
-        if ( section.contains("feeItem") ) {
+        data.costMoney = section.getInt("costMoney", 0);
+        if ( section.contains("costItem") ) {
             try {
-                data.feeItem = ItemConfigParser.getItemFromSection(
-                        section.getConfigurationSection("feeItem"));
+                data.costItem = ItemConfigParser.getItemFromSection(
+                        section.getConfigurationSection("costItem"));
             } catch (ItemConfigParseException e) {
                 e.printStackTrace();
             }
@@ -289,7 +289,7 @@ public class MailData {
     protected MailData clone() {
         return new MailData(
                 new ArrayList<MailSender>(to), from, message,
-                new ArrayList<ItemStack>(attachments), feeMoney, feeItem);
+                new ArrayList<ItemStack>(attachments), costMoney, costItem);
     }
 
     /**
@@ -417,6 +417,14 @@ public class MailData {
     }
 
     /**
+     * 指定されたアイテムを添付アイテムに追加します。
+     * @param item アイテム
+     */
+    public void addAttachment(ItemStack item) {
+        this.attachments.add(item);
+    }
+
+    /**
      * このメールを読んだ人のリストを取得します。
      * @return 読んだ人のリスト
      */
@@ -428,32 +436,32 @@ public class MailData {
      * このメールの添付アイテムを受け取るのに必要な金額を取得します。
      * @return 受け取り金額
      */
-    public int getFeeMoney() {
-        return feeMoney;
+    public int getCostMoney() {
+        return costMoney;
     }
 
     /**
      * このメールの添付アイテムを受け取るのに必要な金額を設定します。
      * @param feeMoney 受け取り金額
      */
-    public void setFeeMoney(int feeMoney) {
-        this.feeMoney = feeMoney;
+    public void setCostMoney(int feeMoney) {
+        this.costMoney = feeMoney;
     }
 
     /**
      * このメールの添付アイテムを受け取るのに必要な引き換えアイテムを取得します。
      * @return 引き換えアイテム
      */
-    public ItemStack getFeeItem() {
-        return feeItem;
+    public ItemStack getCostItem() {
+        return costItem;
     }
 
     /**
      * このメールの添付アイテムを受け取るのに必要な引き換えアイテムを設定します。
      * @param feeItem 引き換えアイテム
      */
-    public void setFeeItem(ItemStack feeItem) {
-        this.feeItem = feeItem;
+    public void setCostItem(ItemStack feeItem) {
+        this.costItem = feeItem;
     }
 
     /**
@@ -559,8 +567,17 @@ public class MailData {
                 msg.addParts(button);
                 msg.send(sender);
             }
+
             for ( ItemStack i : attachmentsOriginal ) {
                 sender.sendMessage(pre + "  " + ChatColor.WHITE + getItemDesc(i));
+            }
+
+            if ( costMoney > 0 ) {
+                sender.sendMessage(Messages.get(
+                        "MailDetailAttachCostMoneyLine", "%fee", costMoney));
+            } else if ( costItem != null ) {
+                sender.sendMessage(Messages.get(
+                        "MailDetailAttachCostItemLine", "%item", getItemDesc(costItem)));
             }
         }
 
@@ -669,6 +686,69 @@ public class MailData {
             msg.addText(" ");
             msg.addText(Messages.get("EditmodeAttachNum", "%num", attachments.size()));
             msg.send(sender);
+
+            if ( attachments.size() > 0 ) {
+
+                MessageComponent msgfee = new MessageComponent();
+                msgfee.addText(pre);
+
+                if ( costMoney == 0 && costItem == null ) {
+
+                    MessageParts buttonFee = new MessageParts(
+                            Messages.get("EditmodeCostMoney"), ChatColor.AQUA);
+                    buttonFee.setClickEvent(
+                            ClickEventType.SUGGEST_COMMAND, COMMAND + " costmoney ");
+                    buttonFee.setHoverText(Messages.get("EditmodeCostMoneyToolTip"));
+                    msgfee.addParts(buttonFee);
+                    msgfee.addText(" ");
+
+                    MessageParts buttonItem = new MessageParts(
+                            Messages.get("EditmodeCostItem"), ChatColor.AQUA);
+                    buttonItem.setClickEvent(
+                            ClickEventType.SUGGEST_COMMAND, COMMAND + " costitem ");
+                    buttonItem.setHoverText(Messages.get("EditmodeCostItemToolTip"));
+                    msgfee.addParts(buttonItem);
+
+                } else if ( costMoney > 0 ) {
+
+                    MessageParts buttonDelete = new MessageParts(
+                            Messages.get("EditmodeCostMoneyRemove"), ChatColor.AQUA);
+                    buttonDelete.setClickEvent(
+                            ClickEventType.RUN_COMMAND,
+                            COMMAND + " costmoney 0");
+                    buttonDelete.setHoverText(Messages.get("EditmodeCostMoneyRemoveToolTip"));
+                    msgfee.addParts(buttonDelete);
+                    MessageParts buttonFee = new MessageParts(
+                            Messages.get("EditmodeCostMoneyData", "%fee", costMoney),
+                            ChatColor.AQUA);
+                    buttonFee.setClickEvent(
+                            ClickEventType.SUGGEST_COMMAND,
+                            COMMAND + " costmoney " + costMoney);
+                    msgfee.addParts(buttonFee);
+
+                } else {
+
+                    String desc = getItemDesc(costItem);
+
+                    MessageParts buttonDelete = new MessageParts(
+                            Messages.get("EditmodeCostItemRemove"), ChatColor.AQUA);
+                    buttonDelete.setClickEvent(
+                            ClickEventType.RUN_COMMAND,
+                            COMMAND + " costitem remove");
+                    buttonDelete.setHoverText(Messages.get("EditmodeCostItemRemoveToolTip"));
+                    msgfee.addParts(buttonDelete);
+                    MessageParts buttonItem = new MessageParts(
+                            Messages.get("EditmodeCostItemData", "%item", desc),
+                            ChatColor.AQUA);
+                    buttonItem.setClickEvent(
+                            ClickEventType.SUGGEST_COMMAND,
+                            COMMAND + " costitem " + getItemDesc(costItem));
+                    msgfee.addParts(buttonItem);
+
+                }
+
+                msgfee.send(sender);
+            }
         }
 
         String lineParts = Messages.get("EditmodeLastLineParts");

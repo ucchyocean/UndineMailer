@@ -83,6 +83,16 @@ public class MailSenderPlayer extends MailSender {
     }
 
     /**
+     * BukkitのOfflinePlayerを取得する。
+     * @return OfflinePlayer
+     * @see org.bitbucket.ucchy.undine.sender.MailSender#getOfflinePlayer()
+     */
+    @Override
+    public OfflinePlayer getOfflinePlayer() {
+        return sender;
+    }
+
+    /**
      * BukkitのPlayerを取得する
      * @return Player
      * @see org.bitbucket.ucchy.undine.sender.MailSender#getPlayer()

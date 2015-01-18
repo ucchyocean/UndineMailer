@@ -5,6 +5,8 @@
  */
 package org.bitbucket.ucchy.undine.sender;
 
+import org.bukkit.Bukkit;
+import org.bukkit.OfflinePlayer;
 import org.bukkit.command.CommandSender;
 import org.bukkit.command.ConsoleCommandSender;
 import org.bukkit.entity.Player;
@@ -75,6 +77,16 @@ public class MailSenderConsole extends MailSender {
     }
 
     /**
+     * BukkitのOfflinePlayerを取得する。
+     * @return 常にnullが返される
+     * @see org.bitbucket.ucchy.undine.sender.MailSender#getOfflinePlayer()
+     */
+    @Override
+    public OfflinePlayer getOfflinePlayer() {
+        return null;
+    }
+
+    /**
      * BukkitのPlayerを取得する
      * @return 常にnullが返される
      * @see org.bitbucket.ucchy.undine.sender.MailSender#getPlayer()
@@ -124,5 +136,13 @@ public class MailSenderConsole extends MailSender {
     @Override
     public String toString() {
         return getName();
+    }
+
+    /**
+     * MailSenderConsoleを返す
+     * @return MailSenderConsole
+     */
+    public static MailSenderConsole getMailSenderConsole() {
+        return new MailSenderConsole(Bukkit.getConsoleSender());
     }
 }
