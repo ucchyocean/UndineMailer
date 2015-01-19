@@ -476,9 +476,10 @@ public class UndineCommand implements TabExecutor {
         }
 
         Player player = (Player)sender;
+        MailSender ms = MailSender.getMailSender(sender);
 
         if ( args.length == 1 ) {
-            MailData mail = manager.getEditmodeMail(MailSender.getMailSender(sender));
+            MailData mail = manager.getEditmodeMail(ms);
 
             // 編集中でないならエラーを表示して終了
             if ( mail == null ) {
@@ -493,9 +494,51 @@ public class UndineCommand implements TabExecutor {
             int index = Integer.parseInt(args[1]);
             MailData mail = manager.getMail(index);
 
-            // 他人のメールだった場合はエラーを表示して終了
-            if ( !mail.getTo().contains(MailSender.getMailSender(sender) ) &&
-                    !sender.hasPermission(PERMISSION + ".read-all") ) {
+            // 3番目のパラメータがcancelなら、添付のキャンセル処理
+            if ( args.length >= 3 && args[2].equalsIgnoreCase("cancel") ) {
+
+                // 既にキャンセル済みならエラーを表示して終了
+                if ( mail.isAttachmentsCancelled() ) {
+                    sender.sendMessage(Messages.get("ErrorAlreadyAttachCancelled"));
+                    return true;
+                }
+
+                // 送信者ではないならエラーを表示して終了
+                if ( !mail.getFrom().equals(ms) ) {
+                    sender.sendMessage(Messages.get("ErrorNoneCancelAttachPermission"));
+                    return true;
+                }
+
+                // 既に送信者がボックスを開いてしまったなら、エラーを表示して終了
+                if ( mail.isAttachmentsOpened() ) {
+                    sender.sendMessage(Messages.get("ErrorAlreadyRecipientOpened"));
+                    return true;
+                }
+
+                // 添付をキャンセルする
+                mail.cancelAttachments();
+                manager.saveMail(mail);
+
+                // 添付ボックスを表示する
+                parent.getBoxManager().displayAttachBox(player, mail);
+
+                return true;
+            }
+
+            // 以下、添付ボックスのオープン処理
+
+            // 開く権限が無い場合はエラーを表示して終了
+            if ( mail.getFrom().equals(ms) ) {
+                if ( !mail.isAttachmentsCancelled() ) {
+                    sender.sendMessage(Messages.get("ErrorNoneReadPermission"));
+                    return true;
+                }
+            } else if ( mail.getTo().contains(ms) ) {
+                if ( mail.isAttachmentsCancelled() ) {
+                    sender.sendMessage(Messages.get("ErrorAlreadyAttachCancelled"));
+                    return true;
+                }
+            } else if ( !sender.hasPermission(PERMISSION + ".attach-all") ) {
                 sender.sendMessage(Messages.get("ErrorNoneReadPermission"));
                 return true;
             }
@@ -503,7 +546,6 @@ public class UndineCommand implements TabExecutor {
             if ( mail.getCostMoney() > 0 ) {
                 // 着払い料金が設定がされている場合
 
-                MailSender ms = MailSender.getMailSender(sender);
                 VaultEcoBridge eco = parent.getVaultEco();
                 int fee = mail.getCostMoney();
                 String feeDisplay = eco.format(fee);
@@ -554,30 +596,17 @@ public class UndineCommand implements TabExecutor {
                     return true;
                 }
 
+                // 確認メッセージを表示
                 sender.sendMessage(Messages.get("BoxOpenCostConfirm"));
+                showOKCancelButton(ms,
+                        COMMAND + " attach " + index + " confirm",
+                        COMMAND + " read " + index);
 
-                MessageComponent msg = new MessageComponent();
-                msg.addText("     ");
-                MessageParts buttonOK = new MessageParts(
-                        Messages.get("BoxOpenCostOK"), ChatColor.AQUA);
-                buttonOK.setClickEvent(
-                        ClickEventType.RUN_COMMAND,
-                        COMMAND + " attach " + index + " confirm");
-                msg.addParts(buttonOK);
-                msg.addText("     ");
-                MessageParts buttonCancel = new MessageParts(
-                        Messages.get("BoxOpenCostCancel"), ChatColor.AQUA);
-                buttonCancel.setClickEvent(
-                        ClickEventType.RUN_COMMAND, COMMAND + " read " + index);
-                msg.addParts(buttonCancel);
-
-                msg.send(ms);
                 return true;
 
             } else if ( mail.getCostItem() != null ) {
                 // 着払いアイテムが設定されている場合
 
-                MailSender ms = MailSender.getMailSender(sender);
                 ItemStack fee = mail.getCostItem();
 
                 if ( args.length >= 3 && args[2].equals("confirm") ) {
@@ -625,24 +654,12 @@ public class UndineCommand implements TabExecutor {
                     return true;
                 }
 
+                // 確認メッセージを表示
                 sender.sendMessage(Messages.get("BoxOpenCostConfirm"));
+                showOKCancelButton(ms,
+                        COMMAND + " attach " + index + " confirm",
+                        COMMAND + " read " + index);
 
-                MessageComponent msg = new MessageComponent();
-                msg.addText("     ");
-                MessageParts buttonOK = new MessageParts(
-                        Messages.get("BoxOpenCostOK"), ChatColor.AQUA);
-                buttonOK.setClickEvent(
-                        ClickEventType.RUN_COMMAND,
-                        COMMAND + " attach " + index + " confirm");
-                msg.addParts(buttonOK);
-                msg.addText("     ");
-                MessageParts buttonCancel = new MessageParts(
-                        Messages.get("BoxOpenCostCancel"), ChatColor.AQUA);
-                buttonCancel.setClickEvent(
-                        ClickEventType.RUN_COMMAND, COMMAND + " read " + index);
-                msg.addParts(buttonCancel);
-
-                msg.send(ms);
                 return true;
 
             }
@@ -781,10 +798,8 @@ public class UndineCommand implements TabExecutor {
 
         // 添付ファイル付きのメールを複数の宛先に出そうとしたなら、エラーを表示して終了
         if ( mail.getAttachments().size() > 0 && mail.getTo().size() > 1 ) {
-            if ( !sender.hasPermission(PERMISSION + ".multi-attach") ) {
-                sender.sendMessage(Messages.get("ErrorCannotSendMultiAttach"));
-                return true;
-            }
+            sender.sendMessage(Messages.get("ErrorCannotSendMultiAttach"));
+            return true;
         }
 
         // 送信にお金がかかる場合
@@ -826,21 +841,11 @@ public class UndineCommand implements TabExecutor {
                 return true;
             }
 
+            // 確認メッセージを表示
             sender.sendMessage(Messages.get("EditmodeFeeConfirm"));
-
-            MessageComponent msg = new MessageComponent();
-            msg.addText("     ");
-            MessageParts buttonOK = new MessageParts(
-                    Messages.get("EditmodeFeeOK"), ChatColor.AQUA);
-            buttonOK.setClickEvent(ClickEventType.RUN_COMMAND, COMMAND + " send confirm");
-            msg.addParts(buttonOK);
-            msg.addText("     ");
-            MessageParts buttonCancel = new MessageParts(
-                    Messages.get("EditmodeFeeCancel"), ChatColor.AQUA);
-            buttonCancel.setClickEvent(ClickEventType.RUN_COMMAND, COMMAND + " write");
-            msg.addParts(buttonCancel);
-
-            msg.send(ms);
+            showOKCancelButton(ms,
+                    COMMAND + " send confirm",
+                    COMMAND + " write");
 
             return true;
         }
@@ -962,5 +967,29 @@ public class UndineCommand implements TabExecutor {
             }
         }
         return players;
+    }
+
+    /**
+     * OKボタンとキャンセルボタンを表示して、確認をとるtellrawメッセージを表示する。
+     * @param ms メッセージ送信先
+     * @param okCommand OKボタンを押した時に実行するコマンド
+     * @param cancelCommand キャンセルボタンを押した時に実行するコマンド
+     */
+    private void showOKCancelButton(
+            MailSender ms, String okCommand, String cancelCommand) {
+
+        MessageComponent msg = new MessageComponent();
+        msg.addText("     ");
+        MessageParts buttonOK = new MessageParts(
+                Messages.get("ButtonOK"), ChatColor.AQUA);
+        buttonOK.setClickEvent(ClickEventType.RUN_COMMAND, okCommand);
+        msg.addParts(buttonOK);
+        msg.addText("     ");
+        MessageParts buttonCancel = new MessageParts(
+                Messages.get("ButtonCancel"), ChatColor.AQUA);
+        buttonCancel.setClickEvent(ClickEventType.RUN_COMMAND, cancelCommand);
+        msg.addParts(buttonCancel);
+
+        msg.send(ms);
     }
 }

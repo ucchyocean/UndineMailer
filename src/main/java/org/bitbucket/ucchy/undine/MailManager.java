@@ -249,9 +249,11 @@ public class MailManager {
         // 指定されたsenderの画面にメールを表示する
         mail.displayDescription(sender);
 
-        // 既読を付ける
-        mail.setReadFlag(sender);
-        saveMail(mail);
+        // 添付ボックスがからっぽになっているなら、既読を付ける
+        if ( mail.getAttachments().size() == 0 ) {
+            mail.setReadFlag(sender);
+            saveMail(mail);
+        }
     }
 
     /**
@@ -425,8 +427,6 @@ public class MailManager {
      */
     protected void storeEditmodeMail() {
 
-        parent.getLogger().info("Saving editmode mails...");
-
         YamlConfiguration config = new YamlConfiguration();
         for ( String name : editmodeMails.keySet() ) {
             ConfigurationSection section = config.createSection(name);
@@ -446,8 +446,6 @@ public class MailManager {
      */
     protected void restoreEditmodeMail() {
 
-        parent.getLogger().info("Restoring editmode mails...");
-
         editmodeMails = new HashMap<String, MailData>();
 
         File file = new File(parent.getDataFolder(), "editmails.yml");
@@ -459,6 +457,9 @@ public class MailManager {
                     config.getConfigurationSection(name));
             editmodeMails.put(name, mail);
         }
+
+        // 復帰元ファイルを削除しておく
+        file.delete();
     }
 
     /**
@@ -491,7 +492,10 @@ public class MailManager {
                 "[" + mail.getIndex() + "]", ChatColor.AQUA);
         button.setClickEvent(
                 ClickEventType.RUN_COMMAND, COMMAND + " read " + mail.getIndex());
+        button.addHoverText(Messages.get("SummaryOpenThisMailToolTip"));
         msg.addParts(button);
+
+        msg.addText((mail.getAttachments().size() > 0) ? "*" : " ");
 
         msg.addText(summary);
 

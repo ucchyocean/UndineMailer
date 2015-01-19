@@ -46,7 +46,7 @@ public class AttachmentBoxManager {
      * @param player プレイヤー
      * @param インベントリ名
      */
-    protected String displayEditmodeBox(Player player) {
+    private String displayEditmodeBox(Player player) {
 
         // 既に、該当プレイヤーの編集中ボックスインベントリがある場合は、そちらを表示する
         if ( editmodeBoxes.containsKey(player) ) {
@@ -108,7 +108,7 @@ public class AttachmentBoxManager {
      * @param mail メール
      * @param インベントリ名
      */
-    protected String displayAttachmentBox(Player player, MailData mail) {
+    private String displayAttachmentBox(Player player, MailData mail) {
 
         // 既に、該当メールの添付ボックスインベントリがある場合は、そちらを表示する
         if ( attachmentBoxes.containsKey(mail.getIndex()) ) {
@@ -149,9 +149,10 @@ public class AttachmentBoxManager {
 
         String invname;
         if ( mail.isEditmode() ) {
-            invname = parent.getBoxManager().displayEditmodeBox(player);
+            invname = displayEditmodeBox(player);
         } else {
-            invname = parent.getBoxManager().displayAttachmentBox(player, mail);
+            invname = displayAttachmentBox(player, mail);
+            mail.setOpenAttachments();
         }
 
         // プレイヤーにメタデータを仕込む

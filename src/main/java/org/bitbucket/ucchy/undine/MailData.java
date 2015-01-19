@@ -15,7 +15,6 @@ import java.util.List;
 import org.bitbucket.ucchy.undine.item.ItemConfigParseException;
 import org.bitbucket.ucchy.undine.item.ItemConfigParser;
 import org.bitbucket.ucchy.undine.sender.MailSender;
-import org.bitbucket.ucchy.undine.sender.MailSenderPlayer;
 import org.bitbucket.ucchy.undine.tellraw.ClickEventType;
 import org.bitbucket.ucchy.undine.tellraw.MessageComponent;
 import org.bitbucket.ucchy.undine.tellraw.MessageParts;
@@ -47,6 +46,8 @@ public class MailData {
     private int index;
     private List<MailSender> readFlags;
     private List<ItemStack> attachmentsOriginal;
+    private boolean isAttachmentsOpened;
+    private boolean isAttachmentsCancelled;
     private Date date;
 
     /**
@@ -108,6 +109,8 @@ public class MailData {
         this.costMoney = costMoney;
         this.costItem = costItem;
         this.readFlags = new ArrayList<MailSender>();
+        this.isAttachmentsOpened = false;
+        this.isAttachmentsCancelled = false;
     }
 
     /**
@@ -175,6 +178,8 @@ public class MailData {
         if ( date != null ) {
             section.set("date", date.getTime());
         }
+
+        section.set("isAttachmentsCancelled", isAttachmentsCancelled);
     }
 
     /**
@@ -259,6 +264,8 @@ public class MailData {
         if ( section.contains("date") ) {
             data.date = new Date(section.getLong("date"));
         }
+
+        data.isAttachmentsCancelled = section.getBoolean("isAttachmentsCancelled", false);
 
         return data;
     }
@@ -514,6 +521,42 @@ public class MailData {
     }
 
     /**
+     * このメールの添付アイテムがオープンされたのかどうかを返す
+     * @return 添付アイテムがオープンされたのかどうか
+     */
+    public boolean isAttachmentsOpened() {
+        return isAttachmentsOpened;
+    }
+
+    /**
+     * このメールの添付アイテムをオープンされたとして記録する。
+     * 受信者が添付ボックスを一度でも開いた事がある状態なら、
+     * 送信者は添付アイテムをキャンセルすることができなくなる。
+     */
+    public void setOpenAttachments() {
+        this.isAttachmentsOpened = true;
+    }
+
+    /**
+     * このメールの添付アイテムがキャンセルされたのかどうかを返す
+     * @return 添付アイテムがキャンセルされたのかどうか
+     */
+    public boolean isAttachmentsCancelled() {
+        return isAttachmentsCancelled;
+    }
+
+    /**
+     * このメールの添付アイテムをキャンセルする。
+     * 添付アイテムがキャンセルされると、受信者はボックスを開けなくなり、
+     * 逆に送信者がボックスを開くことができるようになる。
+     */
+    public void cancelAttachments() {
+        this.isAttachmentsCancelled = true;
+        this.costItem = null;
+        this.costMoney = 0;
+    }
+
+    /**
      * メールの詳細情報を表示する
      * @param sender 表示するsender
      */
@@ -533,29 +576,54 @@ public class MailData {
             sender.sendMessage(pre + "  " + ChatColor.WHITE + m);
         }
 
-        if ( attachmentsOriginal != null && attachmentsOriginal.size() > 0 ) {
+        if ( attachments.size() > 0 ) {
 
-            if ( !(sender instanceof MailSenderPlayer) ) {
-                sender.sendMessage(Messages.get("MailDetailAttachmentsLine"));
-            } else {
-                MessageComponent msg = new MessageComponent();
-                msg.addText(Messages.get("MailDetailAttachmentsLine"));
-                msg.addText(" ");
+            MessageComponent msg = new MessageComponent();
+            msg.addText(Messages.get("MailDetailAttachmentsLine"));
+            msg.addText(" ");
+
+            if ( !isAttachmentsCancelled && from.equals(sender) && !isAttachmentsOpened ) {
+                // 未キャンセルで送信者の場合、
+                // 受信者がボックスを一度も開いていないなら、キャンセルボタンを置く
+
+                MessageParts button = new MessageParts(
+                        Messages.get("MailDetailAttachmentBoxCancel"),
+                        ChatColor.AQUA);
+                button.setClickEvent(ClickEventType.RUN_COMMAND,
+                        COMMAND + " attach " + index + " cancel");
+                button.addHoverText(Messages.get("MailDetailAttachmentBoxCancelToolTip"));
+                msg.addParts(button);
+
+            } else if ( (!isAttachmentsCancelled && !from.equals(sender))
+                    || (isAttachmentsCancelled && from.equals(sender)) ) {
+                // 未キャンセルで受信者の場合、または、
+                // キャンセル済みで送信者の場合、オープンボタンを置く
+
                 MessageParts button = new MessageParts(
                         Messages.get("MailDetailAttachmentBox"), ChatColor.AQUA);
                 button.setClickEvent(ClickEventType.RUN_COMMAND,
                         COMMAND + " attach " + index);
                 msg.addParts(button);
-                msg.send(sender);
+            } else if ( isAttachmentsCancelled && !from.equals(sender) ) {
+                // キャンセル済みで受信者の場合、キャンセルされた旨のラベルを出す
+
+                msg.addText(Messages.get("MailDetailAttachmentBoxCancelled"));
             }
 
-            for ( ItemStack i : attachmentsOriginal ) {
+            msg.send(sender);
+
+            for ( ItemStack i : attachments ) {
                 sender.sendMessage(pre + "  " + ChatColor.WHITE + getItemDesc(i));
             }
 
             if ( costMoney > 0 ) {
+                String costDesc = costMoney + "";
+                VaultEcoBridge eco = UndineMailer.getInstance().getVaultEco();
+                if ( eco != null ) {
+                    costDesc = eco.format(costMoney);
+                }
                 sender.sendMessage(Messages.get(
-                        "MailDetailAttachCostMoneyLine", "%fee", costMoney));
+                        "MailDetailAttachCostMoneyLine", "%fee", costDesc));
             } else if ( costItem != null ) {
                 sender.sendMessage(Messages.get(
                         "MailDetailAttachCostItemLine", "%item", getItemDesc(costItem)));
@@ -692,6 +760,12 @@ public class MailData {
 
                 } else if ( costMoney > 0 ) {
 
+                    String costDesc = costMoney + "";
+                    VaultEcoBridge eco = UndineMailer.getInstance().getVaultEco();
+                    if ( eco != null ) {
+                        costDesc = eco.format(costMoney);
+                    }
+
                     MessageParts buttonDelete = new MessageParts(
                             Messages.get("EditmodeCostMoneyRemove"), ChatColor.AQUA);
                     buttonDelete.setClickEvent(
@@ -700,7 +774,7 @@ public class MailData {
                     buttonDelete.addHoverText(Messages.get("EditmodeCostMoneyRemoveToolTip"));
                     msgfee.addParts(buttonDelete);
                     MessageParts buttonFee = new MessageParts(
-                            Messages.get("EditmodeCostMoneyData", "%fee", costMoney),
+                            Messages.get("EditmodeCostMoneyData", "%fee", costDesc),
                             ChatColor.AQUA);
                     buttonFee.setClickEvent(
                             ClickEventType.SUGGEST_COMMAND,
