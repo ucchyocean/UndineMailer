@@ -14,6 +14,7 @@ import org.bitbucket.ucchy.undine.sender.MailSenderPlayer;
 import org.bitbucket.ucchy.undine.tellraw.ClickEventType;
 import org.bitbucket.ucchy.undine.tellraw.MessageComponent;
 import org.bitbucket.ucchy.undine.tellraw.MessageParts;
+import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.Material;
 import org.bukkit.OfflinePlayer;
@@ -31,8 +32,11 @@ import org.bukkit.inventory.ItemStack;
 public class UndineCommand implements TabExecutor {
 
     private static final String COMMAND = UndineMailer.COMMAND;
-
     private static final String PERMISSION = "undine";
+    private static final String[] COMMANDS = new String[]{
+        "inbox", "outbox", "read", "text", "write", "to", "message",
+        "attach", "costmoney", "costitem", "send", "cancel", "reload"
+    };
 
     private UndineMailer parent;
     private MailManager manager;
@@ -94,6 +98,45 @@ public class UndineCommand implements TabExecutor {
      */
     @Override
     public List<String> onTabComplete(CommandSender sender, Command command, String alias, String[] args) {
+
+        if ( args.length == 1 ) {
+            // コマンド名で補完する
+            String arg = args[0].toLowerCase();
+            ArrayList<String> coms = new ArrayList<String>();
+            for ( String c : COMMANDS ) {
+                if ( c.startsWith(arg) &&
+                        sender.hasPermission(PERMISSION + "." + c) ) {
+                    coms.add(c);
+                }
+            }
+            return coms;
+
+        } else if ( ( args.length == 2 && args[0].equalsIgnoreCase("text")
+                || args.length == 3 && args[0].equalsIgnoreCase("to") ) ) {
+            // textコマンドの2つ目と、toコマンドの3つ目は、有効な宛先で補完する
+            String arg = args.length == 2 ?
+                    args[1].toLowerCase() : args[2].toLowerCase();
+            ArrayList<String> candidates = new ArrayList<String>();
+            for ( OfflinePlayer player : getAllValidPlayers() ) {
+                if ( player.getName().toLowerCase().startsWith(arg)
+                        && !player.getName().equals(sender.getName())) {
+                    candidates.add(player.getName());
+                }
+            }
+            return candidates;
+
+        } else if ( ( args.length == 2 && args[0].equalsIgnoreCase("costitem") ) ) {
+            // costitemコマンドの2つ目は、マテリアル名で補完する
+            String arg = args[1].toUpperCase();
+            ArrayList<String> candidates = new ArrayList<String>();
+            for ( Material material : Material.values() ) {
+                if ( material.toString().startsWith(arg) ) {
+                    candidates.add(material.toString());
+                }
+            }
+            return candidates;
+
+        }
 
         return null;
     }
@@ -188,7 +231,7 @@ public class UndineCommand implements TabExecutor {
 
         // パラメータが足りない場合はエラーを表示して終了
         if ( args.length < 2 ) {
-            sender.sendMessage(Messages.get("ErrorRequireArgument", "%param", "To"));
+            sender.sendMessage(Messages.get("ErrorRequireArgument", "%param", "Destination"));
             return true;
         }
 
@@ -677,17 +720,32 @@ public class UndineCommand implements TabExecutor {
             return true;
         }
 
-        // 指定値がアイテム表現形式ではない場合はエラーを表示して終了
-        ItemStack item = getItemFromDescription(args[1]);
-        if ( item == null && !args[1].equals("remove") ) {
-            sender.sendMessage(Messages.get("ErrorInvalidCostItem", "%item", args[1]));
+        // 2番めのパラメータがremoveだったら、着払いアイテムを解除する
+        if ( args[1].equalsIgnoreCase("remove") ) {
+            mail.setCostItem(null);
+
+            // 編集画面を表示して終了する
+            mail.displayEditmode(MailSender.getMailSender(sender), config);
             return true;
         }
 
+        // 指定値がアイテム表現形式ではない場合はエラーを表示して終了
+        Material material = Material.getMaterial(args[1]);
+        if ( material == null ) {
+            sender.sendMessage(Messages.get("ErrorInvalidCostItem", "%item", args[1]));
+            return true;
+        }
+        ItemStack item = new ItemStack(material, 1);
+
         // アイテムと料金を両方設定しようとしたら、エラーを表示して終了
-        if ( item != null && mail.getCostMoney() > 0 ) {
+        if ( mail.getCostMoney() > 0 ) {
             sender.sendMessage(Messages.get("ErrorCannotSetMoneyAndItem"));
             return true;
+        }
+
+        // 個数も指定されている場合は、個数を反映する
+        if ( args.length >= 3 && args[2].matches("[0-9]{1,9}") ) {
+            item.setAmount(Integer.parseInt(args[2]));
         }
 
         // 設定する
@@ -849,31 +907,6 @@ public class UndineCommand implements TabExecutor {
     }
 
     /**
-     * アイテム表現形式（DIAMOND または DIAMOND:5）からItemStackを生成して返す
-     * @param description アイテム表現形式
-     * @return アイテム
-     */
-    private ItemStack getItemFromDescription(String description) {
-
-        String mat = description;
-        int amount = 1;
-        if ( description.contains(":") ) {
-            String[] temp = description.split(":");
-            mat = temp[0];
-            if ( temp.length >= 2 && temp[1].matches("[0-9]{1,9}") ) {
-                amount = Integer.parseInt(temp[1]);
-            }
-        }
-
-        Material material = Material.getMaterial(mat);
-        if ( material == null ) {
-            return null;
-        }
-
-        return new ItemStack(material, amount);
-    }
-
-    /**
      * 指定したプレイヤーが指定したアイテムを十分な個数持っているかどうか確認する
      * @param player プレイヤー
      * @param item アイテム
@@ -915,5 +948,19 @@ public class UndineCommand implements TabExecutor {
         }
         player.updateInventory();
         return (remain <= 0);
+    }
+
+    /**
+     * 宛先として有効な全てのプレイヤー名を取得する
+     * @return 有効な宛先
+     */
+    private ArrayList<OfflinePlayer> getAllValidPlayers() {
+        ArrayList<OfflinePlayer> players = new ArrayList<OfflinePlayer>();
+        for ( OfflinePlayer player : Bukkit.getOfflinePlayers() ) {
+            if ( player.hasPlayedBefore() || player.isOnline() ) {
+                players.add(player);
+            }
+        }
+        return players;
     }
 }
