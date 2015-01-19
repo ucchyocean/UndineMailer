@@ -20,13 +20,13 @@ import org.bukkit.event.player.PlayerJoinEvent;
  */
 public class UndineListener implements Listener {
 
-    private Undine parent;
+    private UndineMailer parent;
 
     /**
      * コンストラクタ
      * @param parent プラグイン
      */
-    public UndineListener(Undine parent) {
+    public UndineListener(UndineMailer parent) {
         this.parent = parent;
     }
 

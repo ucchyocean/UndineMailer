@@ -1,13 +1,13 @@
 name: ${project.name}
 version: ${project.version}
-main: org.bitbucket.ucchy.undine.Undine
-description: Undine Mail Plugin for ${release.lang}
+main: org.bitbucket.ucchy.undine.UndineMailer
+description: UndineMailer - Mail Plugin for ${release.lang}
 softdepend: [Vault]
 author: ucchy
 
 commands:
   undine:
-    description: Commands of Undine
+    description: Commands of UndineMailer
     aliases: [mail,umail]
     usage: |
            /<command> inbox [page] - Check your unread mails.
@@ -84,7 +84,7 @@ permissions:
     description: Permission of reload command.
     default: op
   'undine.*':
-    description: All Permissions of Undine.
+    description: All Permissions of UndineMailer.
     children:
       undine.command: true
       undine.inbox: true

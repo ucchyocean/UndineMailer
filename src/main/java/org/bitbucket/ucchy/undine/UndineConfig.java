@@ -40,13 +40,13 @@ public class UndineConfig {
     /** 添付ボックスのサイズ */
     private int attachBoxSize;
 
-    private Undine parent;
+    private UndineMailer parent;
 
     /**
      * コンストラクタ
      * @param parent プラグイン
      */
-    public UndineConfig(Undine parent) {
+    public UndineConfig(UndineMailer parent) {
         this.parent = parent;
         reloadConfig();
     }

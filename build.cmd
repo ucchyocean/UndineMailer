@@ -1,28 +1,28 @@
 @echo off
 pushd %~dp0
 
-rem ===== ƒNƒŠ[ƒ“ =====
+rem ===== ã‚¯ãƒªãƒ¼ãƒ³ =====
 if exist release rmdir /s /q release
 mkdir release
 
-rem ===== BukkitDevŒü‚¯ƒŠƒŠ[ƒXƒtƒ@ƒCƒ‹‚Ìì¬ =====
+rem ===== BukkitDevå‘ã‘ãƒªãƒªãƒ¼ã‚¹ãƒ•ã‚¡ã‚¤ãƒ«ã®ä½œæˆ =====
 move /y pom.xml pom.xml.backup
 java -jar XmlSetter.jar pom.xml.backup pom.xml release.lang en
 call mvn clean deploy
 pushd target
-ren Undine-*-dist.zip Undine-*-en.zip
+ren UndineMailer-*-dist.zip UndineMailer-*-en.zip
 popd
-move /y target\Undine-*-en.zip release\
+move /y target\UndineMailer-*-en.zip release\
 
-rem ===== “ú–{ƒtƒH[ƒ‰ƒ€Œü‚¯ƒŠƒŠ[ƒXƒtƒ@ƒCƒ‹‚Ìì¬ =====
+rem ===== æ—¥æœ¬ãƒ•ã‚©ãƒ¼ãƒ©ãƒ å‘ã‘ãƒªãƒªãƒ¼ã‚¹ãƒ•ã‚¡ã‚¤ãƒ«ã®ä½œæˆ =====
 java -jar XmlSetter.jar pom.xml.backup pom.xml release.lang ja
 call mvn clean javadoc:jar source:jar deploy
 pushd target
-ren Undine-*-dist.zip Undine-*-ja.zip
+ren UndineMailer-*-dist.zip UndineMailer-*-ja.zip
 popd
-move /y target\Undine-*-ja.zip release\
+move /y target\UndineMailer-*-ja.zip release\
 
-rem ===== Œã•Ð•t‚¯ =====
+rem ===== å¾Œç‰‡ä»˜ã‘ =====
 move /y pom.xml.backup pom.xml
 
 popd

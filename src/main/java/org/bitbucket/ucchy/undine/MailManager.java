@@ -29,7 +29,7 @@ import org.bukkit.configuration.file.YamlConfiguration;
  */
 public class MailManager {
 
-    private static final String COMMAND = Undine.COMMAND;
+    private static final String COMMAND = UndineMailer.COMMAND;
 
     private static final int PAGE_SIZE = 10;
 
@@ -37,12 +37,12 @@ public class MailManager {
     private HashMap<String, MailData> editmodeMails;
     private int nextIndex;
 
-    private Undine parent;
+    private UndineMailer parent;
 
     /**
      * コンストラクタ
      */
-    public MailManager(Undine parent) {
+    public MailManager(UndineMailer parent) {
         this.parent = parent;
         reload();
         restoreEditmodeMail();

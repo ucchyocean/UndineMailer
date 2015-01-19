@@ -14,10 +14,10 @@ import org.bukkit.command.CommandSender;
 import org.bukkit.plugin.java.JavaPlugin;
 
 /**
- * Undine メール送受信システムプラグイン
+ * UndineMailer メール送受信システムプラグイン
  * @author ucchy
  */
-public class Undine extends JavaPlugin {
+public class UndineMailer extends JavaPlugin {
 
     protected static final String COMMAND = "/umail";
 
@@ -156,7 +156,7 @@ public class Undine extends JavaPlugin {
      * このプラグインのインスタンスを返す
      * @return プラグインのインスタンス
      */
-    public static Undine getInstance() {
-        return (Undine)Bukkit.getPluginManager().getPlugin("Undine");
+    public static UndineMailer getInstance() {
+        return (UndineMailer)Bukkit.getPluginManager().getPlugin("UndineMailer");
     }
 }

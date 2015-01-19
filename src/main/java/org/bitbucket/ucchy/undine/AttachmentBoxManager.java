@@ -24,7 +24,7 @@ public class AttachmentBoxManager {
 
     private static final String BOX_INV_META_NAME = "undine_boxinv";
 
-    private Undine parent;
+    private UndineMailer parent;
 
     private HashMap<Player, Inventory> editmodeBoxes;
     private HashMap<Integer, Inventory> attachmentBoxes;
@@ -34,7 +34,7 @@ public class AttachmentBoxManager {
      * コンストラクタ
      * @param parent プラグイン
      */
-    public AttachmentBoxManager(Undine parent) {
+    public AttachmentBoxManager(UndineMailer parent) {
         this.parent = parent;
         editmodeBoxes = new HashMap<Player, Inventory>();
         attachmentBoxes = new HashMap<Integer, Inventory>();

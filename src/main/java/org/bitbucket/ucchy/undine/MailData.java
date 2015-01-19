@@ -30,7 +30,7 @@ import org.bukkit.inventory.ItemStack;
  */
 public class MailData {
 
-    private static final String COMMAND = Undine.COMMAND;
+    private static final String COMMAND = UndineMailer.COMMAND;
 
     private static final int SUMMARY_MAX_SIZE = 40;
     protected static final int TO_MAX_SIZE = 10;

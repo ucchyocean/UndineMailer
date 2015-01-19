@@ -30,15 +30,15 @@ import org.bukkit.inventory.ItemStack;
  */
 public class UndineCommand implements TabExecutor {
 
-    private static final String COMMAND = Undine.COMMAND;
+    private static final String COMMAND = UndineMailer.COMMAND;
 
     private static final String PERMISSION = "undine";
 
-    private Undine parent;
+    private UndineMailer parent;
     private MailManager manager;
     private UndineConfig config;
 
-    public UndineCommand(Undine parent) {
+    public UndineCommand(UndineMailer parent) {
         this.parent = parent;
         manager = parent.getMailManager();
         config = parent.getUndineConfig();
