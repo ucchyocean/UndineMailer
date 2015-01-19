@@ -525,7 +525,7 @@ public class MailManager {
             MessageParts firstButton = new MessageParts(
                     firstLabel, ChatColor.AQUA);
             firstButton.setClickEvent(ClickEventType.RUN_COMMAND, commandPre + " 1");
-            firstButton.setHoverText(firstToolTip);
+            firstButton.addHoverText(firstToolTip);
             msg.addParts(firstButton);
 
             msg.addText(" ");
@@ -533,7 +533,7 @@ public class MailManager {
             MessageParts prevButton = new MessageParts(
                     prevLabel, ChatColor.AQUA);
             prevButton.setClickEvent(ClickEventType.RUN_COMMAND, commandPre + " " + (page - 1));
-            prevButton.setHoverText(prevToolTip);
+            prevButton.addHoverText(prevToolTip);
             msg.addParts(prevButton);
 
         } else {
@@ -547,7 +547,7 @@ public class MailManager {
             MessageParts nextButton = new MessageParts(
                     nextLabel, ChatColor.AQUA);
             nextButton.setClickEvent(ClickEventType.RUN_COMMAND, commandPre + " " + (page + 1));
-            nextButton.setHoverText(nextToolTip);
+            nextButton.addHoverText(nextToolTip);
             msg.addParts(nextButton);
 
             msg.addText(" ");
@@ -555,7 +555,7 @@ public class MailManager {
             MessageParts lastButton = new MessageParts(
                     lastLabel, ChatColor.AQUA);
             lastButton.setClickEvent(ClickEventType.RUN_COMMAND, commandPre + " " + max);
-            lastButton.setHoverText(lastToolTip);
+            lastButton.addHoverText(lastToolTip);
             msg.addParts(lastButton);
 
         } else {

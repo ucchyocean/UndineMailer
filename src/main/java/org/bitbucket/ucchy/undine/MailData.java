@@ -53,11 +53,7 @@ public class MailData {
      * コンストラクタ
      */
     public MailData() {
-        this.index = 0;
-        this.to = new ArrayList<MailSender>();
-        this.message = new ArrayList<String>();
-        this.attachments = new ArrayList<ItemStack>();
-        this.readFlags = new ArrayList<MailSender>();
+        this(new ArrayList<MailSender>(), null, new ArrayList<String>());
     }
 
     /**
@@ -67,13 +63,8 @@ public class MailData {
      * @param message メッセージ
      */
     public MailData(List<MailSender> to, MailSender from, String message) {
-        this.index = 0;
-        this.to = to;
-        this.from = from;
-        this.message = new ArrayList<String>();
+        this(to, from, new ArrayList<String>());
         this.message.add(message);
-        this.attachments = new ArrayList<ItemStack>();
-        this.readFlags = new ArrayList<MailSender>();
     }
 
     /**
@@ -83,12 +74,7 @@ public class MailData {
      * @param message メッセージ
      */
     public MailData(List<MailSender> to, MailSender from, List<String> message) {
-        this.index = 0;
-        this.to = to;
-        this.from = from;
-        this.message = message;
-        this.attachments = new ArrayList<ItemStack>();
-        this.readFlags = new ArrayList<MailSender>();
+        this(to, from, message, new ArrayList<ItemStack>());
     }
 
     /**
@@ -100,12 +86,7 @@ public class MailData {
      */
     public MailData(List<MailSender> to, MailSender from, List<String> message,
             List<ItemStack> attachments) {
-        this.index = 0;
-        this.to = to;
-        this.from = from;
-        this.message = message;
-        this.attachments = attachments;
-        this.readFlags = new ArrayList<MailSender>();
+        this(to, from, message, attachments, 0, null);
     }
 
     /**
@@ -608,7 +589,7 @@ public class MailData {
             buttonDelete.setClickEvent(
                     ClickEventType.RUN_COMMAND,
                     COMMAND + " to delete " + (i+1));
-            buttonDelete.setHoverText(Messages.get("EditmodeToDeleteToolTip"));
+            buttonDelete.addHoverText(Messages.get("EditmodeToDeleteToolTip"));
             msg.addParts(buttonDelete);
             msg.addText(" ");
             MessageParts button = new MessageParts(
@@ -616,7 +597,7 @@ public class MailData {
             button.setClickEvent(
                     ClickEventType.SUGGEST_COMMAND,
                     COMMAND + " to " + (i+1) + " " + to.get(i).getName());
-            button.setHoverText(Messages.get("EditmodeToToolTip"));
+            button.addHoverText(Messages.get("EditmodeToToolTip"));
             msg.addParts(button);
             msg.addText(" ");
             msg.addText(to.get(i).getName(), ChatColor.WHITE);
@@ -643,7 +624,7 @@ public class MailData {
             buttonDelete.setClickEvent(
                     ClickEventType.RUN_COMMAND,
                     COMMAND + " message delete " + (i+1));
-            buttonDelete.setHoverText(Messages.get("EditmodeLineDeleteToolTip"));
+            buttonDelete.addHoverText(Messages.get("EditmodeLineDeleteToolTip"));
             msg.addParts(buttonDelete);
             msg.addText(" ");
             MessageParts buttonEdit = new MessageParts(
@@ -651,7 +632,7 @@ public class MailData {
             buttonEdit.setClickEvent(
                     ClickEventType.SUGGEST_COMMAND,
                     COMMAND + " message " + (i+1) + " " + message.get(i));
-            buttonEdit.setHoverText(Messages.get("EditmodeLineEditToolTip"));
+            buttonEdit.addHoverText(Messages.get("EditmodeLineEditToolTip"));
             msg.addParts(buttonEdit);
             msg.addText(" ");
             msg.addText(message.get(i), ChatColor.WHITE);
@@ -698,7 +679,7 @@ public class MailData {
                             Messages.get("EditmodeCostMoney"), ChatColor.AQUA);
                     buttonFee.setClickEvent(
                             ClickEventType.SUGGEST_COMMAND, COMMAND + " costmoney ");
-                    buttonFee.setHoverText(Messages.get("EditmodeCostMoneyToolTip"));
+                    buttonFee.addHoverText(Messages.get("EditmodeCostMoneyToolTip"));
                     msgfee.addParts(buttonFee);
                     msgfee.addText(" ");
 
@@ -706,7 +687,7 @@ public class MailData {
                             Messages.get("EditmodeCostItem"), ChatColor.AQUA);
                     buttonItem.setClickEvent(
                             ClickEventType.SUGGEST_COMMAND, COMMAND + " costitem ");
-                    buttonItem.setHoverText(Messages.get("EditmodeCostItemToolTip"));
+                    buttonItem.addHoverText(Messages.get("EditmodeCostItemToolTip"));
                     msgfee.addParts(buttonItem);
 
                 } else if ( costMoney > 0 ) {
@@ -716,7 +697,7 @@ public class MailData {
                     buttonDelete.setClickEvent(
                             ClickEventType.RUN_COMMAND,
                             COMMAND + " costmoney 0");
-                    buttonDelete.setHoverText(Messages.get("EditmodeCostMoneyRemoveToolTip"));
+                    buttonDelete.addHoverText(Messages.get("EditmodeCostMoneyRemoveToolTip"));
                     msgfee.addParts(buttonDelete);
                     MessageParts buttonFee = new MessageParts(
                             Messages.get("EditmodeCostMoneyData", "%fee", costMoney),
@@ -735,7 +716,7 @@ public class MailData {
                     buttonDelete.setClickEvent(
                             ClickEventType.RUN_COMMAND,
                             COMMAND + " costitem remove");
-                    buttonDelete.setHoverText(Messages.get("EditmodeCostItemRemoveToolTip"));
+                    buttonDelete.addHoverText(Messages.get("EditmodeCostItemRemoveToolTip"));
                     msgfee.addParts(buttonDelete);
                     MessageParts buttonItem = new MessageParts(
                             Messages.get("EditmodeCostItemData", "%item", desc),

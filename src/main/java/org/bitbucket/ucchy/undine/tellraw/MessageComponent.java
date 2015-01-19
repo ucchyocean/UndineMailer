@@ -11,50 +11,99 @@ import org.bitbucket.ucchy.undine.sender.MailSender;
 import org.bitbucket.ucchy.undine.sender.MailSenderPlayer;
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
+import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 
 /**
- * なんちゃってtellrawメッセージコンポーネント
+ * tellrawメッセージコンポーネント
  * @author ucchy
  */
 public class MessageComponent {
 
     private ArrayList<MessageParts> parts;
 
+    /**
+     * コンストラクタ
+     */
     public MessageComponent() {
         parts = new ArrayList<MessageParts>();
     }
 
+    /**
+     * コンストラクタ
+     * @param parts メッセージパーツ
+     */
     public MessageComponent(ArrayList<MessageParts> parts) {
         this.parts = parts;
     }
 
+    /**
+     * テキストパーツを追加する
+     * @param text テキスト
+     */
     public void addText(String text) {
         this.parts.add(new MessageParts(text));
     }
 
+    /**
+     * テキストパーツを追加する
+     * @param text テキスト
+     * @param color テキスト色
+     */
     public void addText(String text, ChatColor color) {
         this.parts.add(new MessageParts(text, color));
     }
 
+    /**
+     * テキストパーツを追加する
+     * @param parts テキストパーツ
+     */
     public void addParts(MessageParts parts) {
         this.parts.add(parts);
     }
 
-    private String build(String name) {
-        return "tellraw "
-                + name
-                + " {\"text\":\"\",\"extra\":["
-                + buildJoin(parts)
-                + "]}";
-    }
-
+    /**
+     * 指定されたsenderに、このコンポーネントを送信する。
+     * 相手がプレイヤーならtellrawコマンドで、コンソールならプレーンなテキストデータで送る。
+     * @param sender 送信先
+     */
     public void send(MailSender sender) {
         if ( sender instanceof MailSenderPlayer && sender.isOnline() ) {
             sendCommand(sender.getPlayer());
         } else {
             sender.sendMessage(buildPlain());
         }
+    }
+
+    /**
+     * 指定されたsenderに、このコンポーネントを送信する。
+     * 相手がプレイヤーならtellrawコマンドで、コンソールならプレーンなテキストデータで送る。
+     * @param sender 送信先
+     */
+    public void send(CommandSender sender) {
+        if ( sender instanceof Player ) {
+            Player player = (Player)sender;
+            if ( player.isOnline() ) {
+                sendCommand(player);
+            } else {
+                // do nothing.
+            }
+        } else {
+            sender.sendMessage(buildPlain());
+        }
+    }
+
+    /**
+     * このコンポーネントをビルドして、tellrawのコマンド文字列を作成して返す
+     * @param name 実行先のプレイヤー名
+     * @return ビルドされたコマンド文字列
+     */
+    private String build(String name) {
+        return "tellraw "
+                + name
+                + " {\"text\":\"\",\"extra\":["
+                + buildJoin(parts)
+                + "]}";
     }
 
     private boolean sendCommand(Player player) {
@@ -79,5 +128,28 @@ public class MessageComponent {
             buffer.append(s.build());
         }
         return buffer.toString();
+    }
+
+    /**
+     * デバッグ用のエントリポイント
+     * @param args
+     */
+    public static void main(String[] args) {
+
+        // MessageComponentの使用例：相手に自殺ボタン付きメッセージを送る
+        MessageComponent msg = new MessageComponent();
+        msg.addText("自殺ボタンはこちら→");
+        MessageParts button = new MessageParts("[あぼーん]", ChatColor.BLUE);
+        button.setClickEvent(ClickEventType.RUN_COMMAND, "/kill");
+        button.addHoverText("押しても後悔してはならない\n");
+        button.addHoverText("絶対に後悔してはならない", ChatColor.GOLD);
+        msg.addParts(button);
+        msg.addText(" 押すなよ！絶対に押すなよ！！", ChatColor.RED);
+
+        // 送信
+        // msg.send(player);
+
+        // デバッグ出力
+        System.out.println(msg.build("ucchy"));
     }
 }

@@ -21,24 +21,44 @@ public class MessageParts {
     private ClickEventType ctype;
     private String cvalue;
     private HashSet<String> flags;
-    private String hover;
+    private ArrayList<MessageParts> hover;
 
+    /**
+     * コンストラクタ
+     * @param text テキスト
+     */
     public MessageParts(String text) {
         this.text = text;
         this.flags = new HashSet<String>();
+        this.hover = new ArrayList<MessageParts>();
     }
 
+    /**
+     * コンストラクタ
+     * @param text テキスト
+     * @param color テキスト色
+     */
     public MessageParts(String text, ChatColor color) {
         this(text);
         setColor(color);
     }
 
+    /**
+     * コンストラクタ
+     * @param text テキスト
+     * @param color テキスト色その1
+     * @param color2 テキスト色その2
+     */
     public MessageParts(String text, ChatColor color, ChatColor color2) {
         this(text);
         setColor(color);
         setColor(color2);
     }
 
+    /**
+     * パーツに色を設定する
+     * @param color 色。装飾系も可。
+     */
     public void setColor(ChatColor color) {
         if ( color.isColor() ) {
             this.color = color;
@@ -55,15 +75,37 @@ public class MessageParts {
         }
     }
 
+    /**
+     * パーツにクリック動作を設定する
+     * @param type 動作の種類
+     * @param value 設定値
+     */
     public void setClickEvent(ClickEventType type, String value) {
         ctype = type;
         cvalue = value;
     }
 
-    public void setHoverText(String text) {
-        hover = text;
+    /**
+     * ホバーテキストを追加する
+     * @param text ホバーテキスト
+     */
+    public void addHoverText(String text) {
+        this.hover.add(new MessageParts(text));
     }
 
+    /**
+     * ホバーテキストを1行追加する
+     * @param text ホバーテキスト
+     * @param color テキスト色
+     */
+    public void addHoverText(String text, ChatColor color) {
+        this.hover.add(new MessageParts(text, color));
+    }
+
+    /**
+     * このパーツをビルドして、tellrawのパラメータ文字列に変換する
+     * @return パラメータ文字列
+     */
     public String build() {
 
         ArrayList<String> items = new ArrayList<String>();
@@ -79,20 +121,48 @@ public class MessageParts {
                     + "{\"action\":\"" + ctype.toString() + "\","
                             + "\"value\":\"" + cvalue + "\"}");
         }
-        if ( hover != null ) {
+        if ( hover.size() > 0 ) {
             items.add("\"hoverEvent\":"
                     + "{\"action\":\"show_text\","
-                            + "\"value\":\"" + hover + "\"}");
+                            + "\"value\":{\"text\":\"\",\"extra\":["
+                            + joinHover() + "]}}");
         }
 
         return "{" + join(items) + "}";
     }
 
+    /**
+     * このパーツを、tellrawを受け取れない人（コンソールなど）のために、
+     * プレーンな文字列に変換して返す。
+     * @return プレーンな文字列
+     */
     public String buildPlain() {
         if ( color != null ) return color + text;
         return text;
     }
 
+    /**
+     * ホバーテキストを結合する
+     * @return 結合された文字列
+     */
+    private String joinHover() {
+        ArrayList<String> items = new ArrayList<String>();
+        for ( MessageParts msg : hover ) {
+            if ( msg.color == null ) {
+                items.add("{\"text\":\"" + msg.text + "\"}");
+            } else {
+                items.add("{\"text\":\"" + msg.text + "\","
+                        + "\"color\":\"" + msg.color.name().toLowerCase() + "\"}");
+            }
+        }
+        return join(items);
+    }
+
+    /**
+     * 文字列をコンマで結合する
+     * @param arr 文字列の配列
+     * @return 結合された文字列
+     */
     private static String join(ArrayList<String> arr) {
         StringBuffer buffer = new StringBuffer();
         for ( String s : arr ) {
