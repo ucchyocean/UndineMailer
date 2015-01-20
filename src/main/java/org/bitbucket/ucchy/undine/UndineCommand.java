@@ -8,6 +8,7 @@ package org.bitbucket.ucchy.undine;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.bitbucket.ucchy.undine.item.TradableMaterial;
 import org.bitbucket.ucchy.undine.sender.MailSender;
 import org.bitbucket.ucchy.undine.sender.MailSenderConsole;
 import org.bitbucket.ucchy.undine.sender.MailSenderPlayer;
@@ -129,7 +130,7 @@ public class UndineCommand implements TabExecutor {
             // costitemコマンドの2つ目は、マテリアル名で補完する
             String arg = args[1].toUpperCase();
             ArrayList<String> candidates = new ArrayList<String>();
-            for ( Material material : Material.values() ) {
+            for ( TradableMaterial material : TradableMaterial.values() ) {
                 if ( material.toString().startsWith(arg) ) {
                     candidates.add(material.toString());
                 }
@@ -747,7 +748,12 @@ public class UndineCommand implements TabExecutor {
         }
 
         // 指定値がアイテム表現形式ではない場合はエラーを表示して終了
-        Material material = Material.getMaterial(args[1]);
+        TradableMaterial tm = TradableMaterial.getMaterial(args[1]);
+        if ( tm == null ) {
+            sender.sendMessage(Messages.get("ErrorInvalidCostItem", "%item", args[1]));
+            return true;
+        }
+        Material material = tm.convertToMaterial();
         if ( material == null ) {
             sender.sendMessage(Messages.get("ErrorInvalidCostItem", "%item", args[1]));
             return true;

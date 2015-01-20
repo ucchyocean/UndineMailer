@@ -882,7 +882,7 @@ public class MailData {
      */
     private String getItemDesc(ItemStack item) {
         if ( item.getAmount() == 1 ) return item.getType().toString();
-        return item.getType().toString() + ":" + item.getAmount();
+        return item.getType().toString() + " * " + item.getAmount();
     }
 
     /**
