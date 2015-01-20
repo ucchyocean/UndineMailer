@@ -395,6 +395,15 @@ public enum TradableMaterial {
     }
 
     /**
+     * 指定されたMaterialが、取引可能な種類のアイテムかどうかを検査する
+     * @param material マテリアル
+     * @return 取引可能かどうか
+     */
+    public static boolean isTradable(Material material) {
+        return (convertFromMaterial(material) != null);
+    }
+
+    /**
      * アイテムIDを返す
      * @return アイテムID
      */

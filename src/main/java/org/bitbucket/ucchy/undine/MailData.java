@@ -881,8 +881,10 @@ public class MailData {
      * @return 文字列表現
      */
     private String getItemDesc(ItemStack item) {
-        if ( item.getAmount() == 1 ) return item.getType().toString();
-        return item.getType().toString() + " * " + item.getAmount();
+        String desc = item.getDurability() == 0 ? item.getType().toString() :
+                item.getType().toString() + ":" + item.getDurability();
+        if ( item.getAmount() == 1 ) return desc;
+        return desc + " * " + item.getAmount();
     }
 
     /**

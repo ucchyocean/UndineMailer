@@ -748,17 +748,17 @@ public class UndineCommand implements TabExecutor {
         }
 
         // 指定値がアイテム表現形式ではない場合はエラーを表示して終了
-        TradableMaterial tm = TradableMaterial.getMaterial(args[1]);
-        if ( tm == null ) {
+        ItemStack item = getItemStackFromDescription(args[1]);
+        if ( item == null ) {
             sender.sendMessage(Messages.get("ErrorInvalidCostItem", "%item", args[1]));
             return true;
         }
-        Material material = tm.convertToMaterial();
-        if ( material == null ) {
+
+        // 取引可能な種類のアイテムでないなら、エラーを表示して終了
+        if ( !TradableMaterial.isTradable(item.getType()) ) {
             sender.sendMessage(Messages.get("ErrorInvalidCostItem", "%item", args[1]));
             return true;
         }
-        ItemStack item = new ItemStack(material, 1);
 
         // アイテムと料金を両方設定しようとしたら、エラーを表示して終了
         if ( mail.getCostMoney() > 0 ) {
@@ -918,13 +918,49 @@ public class UndineCommand implements TabExecutor {
     }
 
     /**
+     * アイテム表記から、ItemStackを作成して返す
+     * @param desc アイテム表記
+     * （マテリアル名、または、アイテムID。コロンを付けた後にデータ値を指定することも可能。
+     * 　例：WOOL, WOOL:3, 35, 35:6 ）
+     * @return ItemStack
+     */
+    private ItemStack getItemStackFromDescription(String desc) {
+        String[] descs = desc.split(":");
+        if ( descs.length <= 0 ) return null;
+        Material material = Material.getMaterial(descs[0]);
+        if ( material == null && descs[0].matches("[0-9]{1-5}") ) {
+            @SuppressWarnings("deprecation")
+            Material m = Material.getMaterial(Integer.parseInt(descs[0]));
+            material = m;
+        }
+        if ( material == null ) return null;
+        ItemStack item = new ItemStack(material);
+        if ( descs.length >= 2 && descs[1].matches("[0-9]{1,5}") ) {
+            short durability = Short.parseShort(descs[1]);
+            item.setDurability(durability);
+        }
+        return item;
+    }
+
+    /**
      * 指定したプレイヤーが指定したアイテムを十分な個数持っているかどうか確認する
      * @param player プレイヤー
      * @param item アイテム
      * @return 持っているかどうか
      */
     private boolean hasItem(Player player, ItemStack item) {
-        return player.getInventory().contains(item.getType(), item.getAmount());
+        //return player.getInventory().contains(item.getType(), item.getAmount());
+        // ↑のコードは、アイテムのデータ値を検査しないのでNG
+
+        int total = 0;
+        for ( ItemStack i : player.getInventory().getContents() ) {
+            if ( i != null && i.getType() == item.getType()
+                    && i.getDurability() == item.getDurability() ) {
+                total += i.getAmount();
+                if ( total >= item.getAmount() ) return true;
+            }
+        }
+        return false;
     }
 
     /**
@@ -939,7 +975,8 @@ public class UndineCommand implements TabExecutor {
         int remain = item.getAmount();
         for ( int index=0; index<inv.getSize(); index++ ) {
             ItemStack i = inv.getItem(index);
-            if ( i == null || i.getType() != item.getType() ) {
+            if ( i == null || i.getType() != item.getType()
+                    || i.getDurability() != item.getDurability() ) {
                 continue;
             }
 
