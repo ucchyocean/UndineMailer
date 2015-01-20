@@ -11,3 +11,4 @@ attachFee: 10
 enableSendSelf: false
 disableWorldsToOpenAttachBox: []
 attachBoxSize: 1
+uiEmptyLines: 3

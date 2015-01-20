@@ -26,6 +26,7 @@ ErrorInvalidCostItem: '&c指定された着払いアイテム %item が正しく
 ErrorNoneCancelAttachPermission: '&c指定されたメールの送信者ではないので、キャンセルできません。'
 ErrorAlreadyAttachCancelled: '&c既に添付アイテムはキャンセルされています。'
 ErrorAlreadyRecipientOpened: '&c既に受信者がボックスを開いたため、キャンセルできません。'
+ErrorInvalidAttachBoxWorld: '&cあなたのいるワールドは、アイテムの送受信が禁止されています。別のワールドに移動してから、添付ボックスを開いてください。'
 
 InformationReload: '&aデータを再読み込みしました。'
 InformationYouGotMail: '&7%from &aさんから新しいメールが届きました!'

@@ -332,6 +332,11 @@ public class MailManager {
      */
     protected void displayInboxList(MailSender sender, int page) {
 
+        // 空行を挿入する
+        for ( int i=0; i<parent.getUndineConfig().getUiEmptyLines(); i++ ) {
+            sender.sendMessage("");
+        }
+
         String pre = Messages.get("InboxLinePre");
 
         ArrayList<MailData> mails = getInboxMails(sender);
@@ -368,6 +373,11 @@ public class MailManager {
      * @param page 表示するページ
      */
     protected void displayOutboxList(MailSender sender, int page) {
+
+        // 空行を挿入する
+        for ( int i=0; i<parent.getUndineConfig().getUiEmptyLines(); i++ ) {
+            sender.sendMessage("");
+        }
 
         String pre = Messages.get("OutboxLinePre");
 

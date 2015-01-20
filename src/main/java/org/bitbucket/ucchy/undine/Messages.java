@@ -60,6 +60,7 @@ public class Messages {
     public static String get(String key) {
         String message = instance.resources.getString(key);
         if ( message == null ) return "";
+        message = message.replace("\\n", "\n");
         return ChatColor.translateAlternateColorCodes('&', message);
     }
 

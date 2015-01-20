@@ -28,6 +28,13 @@ commands:
     permission: undine.command
     permission-message: 'You don''t have a permission "<permission>".'
 
+  player:
+    description: Commands of Player name list
+    aliases: [list]
+    usage: |
+           /<command> - display player index button page.
+           /<command> <pre> [page]
+
 permissions:
   undine.command:
     description: Permission of command.

@@ -26,6 +26,7 @@ ErrorInvalidCostItem: '&cThe specified cost item %item is invalid.'
 ErrorNoneCancelAttachPermission: '&cBecause you are not sender of this mail, you cannot cancel attachments.'
 ErrorAlreadyAttachCancelled: '&cThe attachment was cancelled already.'
 ErrorAlreadyRecipientOpened: '&cBecause recipient had opened box, you cannot cancel attachments.'
+ErrorInvalidAttachBoxWorld: '&cIn this world, sending and receiving of items is prohibited. After you move to a different world, please open the attached box.'
 
 InformationReload: '&aAll data were reloaded.'
 InformationYouGotMail: '&aYou got new mail from &7%from&a!'

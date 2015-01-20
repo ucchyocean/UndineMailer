@@ -40,6 +40,9 @@ public class UndineConfig {
     /** 添付ボックスのサイズ */
     private int attachBoxSize;
 
+    /** UIの前に挿入する空行の行数 */
+    private int uiEmptyLines;
+
     private UndineMailer parent;
 
     /**
@@ -84,6 +87,7 @@ public class UndineConfig {
         disableWorldsToOpenAttachBox =
                 conf.getStringList("disableWorldsToOpenAttachBox");
         attachBoxSize = conf.getInt("attachBoxSize", 1);
+        uiEmptyLines = conf.getInt("uiEmptyLines", 3);
 
         // sendFeeは、マイナスが指定されていたら0に変更する
         if ( sendFee < 0 ) {
@@ -95,6 +99,13 @@ public class UndineConfig {
             attachBoxSize = 1;
         } else if ( attachBoxSize > 6 ) {
             attachBoxSize = 6;
+        }
+
+        // 挿入する空行の行数は、0から9までの数値に制限する
+        if ( uiEmptyLines < 0 ) {
+            uiEmptyLines = 0;
+        } else if ( uiEmptyLines > 9 ) {
+            uiEmptyLines = 9;
         }
     }
 
@@ -152,5 +163,12 @@ public class UndineConfig {
      */
     public int getAttachBoxSize() {
         return attachBoxSize;
+    }
+
+    /**
+     * @return uiEmptyLines
+     */
+    public int getUiEmptyLines() {
+        return uiEmptyLines;
     }
 }

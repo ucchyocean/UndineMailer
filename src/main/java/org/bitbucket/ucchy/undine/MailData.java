@@ -562,6 +562,12 @@ public class MailData {
      */
     protected void displayDescription(MailSender sender) {
 
+        // 空行を挿入する
+        int lines = UndineMailer.getInstance().getUndineConfig().getUiEmptyLines();
+        for ( int i=0; i<lines; i++ ) {
+            sender.sendMessage("");
+        }
+
         String num = (index == 0) ? Messages.get("Editmode") : index + "";
         String fdate = getFormattedDate(date);
         String pre = Messages.get("MailDetailLinePre");
@@ -643,6 +649,12 @@ public class MailData {
         // メッセージが3行に満たない場合は、この時点で空行を足しておく
         while ( message.size() < MESSAGE_ADD_SIZE ) {
             message.add("");
+        }
+
+        // 空行を挿入する
+        int lines = UndineMailer.getInstance().getUndineConfig().getUiEmptyLines();
+        for ( int i=0; i<lines; i++ ) {
+            sender.sendMessage("");
         }
 
         String pre = Messages.get("EditmodeLinePre");

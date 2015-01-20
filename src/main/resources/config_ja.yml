@@ -33,4 +33,7 @@ disableWorldsToOpenAttachBox: []
 # 1列（＝9個）から6列（＝54個）まで指定可能です。
 attachBoxSize: 1
 
-
+# UIを表示する系統のコマンドを実行したときに、
+# UIの前に挿入する空行の行数を設定します。
+# 0から9まで指定可能です。
+uiEmptyLines: 3

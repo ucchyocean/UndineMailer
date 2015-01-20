@@ -488,6 +488,12 @@ public class UndineCommand implements TabExecutor {
                 return true;
             }
 
+            // 添付ボックス利用不可のワールドにいるなら、エラーを表示して終了
+            if ( config.getDisableWorldsToOpenAttachBox().contains(ms.getWorldName()) ) {
+                sender.sendMessage(Messages.get("ErrorInvalidAttachBoxWorld"));
+                return true;
+            }
+
             // 添付ボックスを表示する
             parent.getBoxManager().displayAttachBox(player, mail);
 
@@ -541,6 +547,12 @@ public class UndineCommand implements TabExecutor {
                 }
             } else if ( !sender.hasPermission(PERMISSION + ".attach-all") ) {
                 sender.sendMessage(Messages.get("ErrorNoneReadPermission"));
+                return true;
+            }
+
+            // 添付ボックス利用不可のワールドにいるなら、エラーを表示して終了
+            if ( config.getDisableWorldsToOpenAttachBox().contains(ms.getWorldName()) ) {
+                sender.sendMessage(Messages.get("ErrorInvalidAttachBoxWorld"));
                 return true;
             }
 
