@@ -14,15 +14,12 @@ import org.bukkit.Material;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.ItemStack;
-import org.bukkit.metadata.FixedMetadataValue;
 
 /**
  * 添付ボックス管理クラス
  * @author ucchy
  */
 public class AttachmentBoxManager {
-
-    private static final String BOX_INV_META_NAME = "undine_boxinv";
 
     private UndineMailer parent;
 
@@ -147,16 +144,12 @@ public class AttachmentBoxManager {
      */
     public void displayAttachBox(Player player, MailData mail) {
 
-        String invname;
         if ( mail.isEditmode() ) {
-            invname = displayEditmodeBox(player);
+            displayEditmodeBox(player);
         } else {
-            invname = displayAttachmentBox(player, mail);
+            displayAttachmentBox(player, mail);
             mail.setOpenAttachments();
         }
-
-        // プレイヤーにメタデータを仕込む
-        player.setMetadata(BOX_INV_META_NAME, new FixedMetadataValue(parent, invname));
 
         // メールのインデクスを記録しておく
         indexCache.put(player, mail.getIndex());
@@ -169,8 +162,7 @@ public class AttachmentBoxManager {
      * （編集メールのボックスを含まない）
      */
     protected boolean isOpeningAttachBox(Player player) {
-        return player.hasMetadata(BOX_INV_META_NAME)
-                && indexCache.containsKey(player)
+        return indexCache.containsKey(player)
                 && indexCache.get(player) > 0;
     }
 
@@ -180,14 +172,10 @@ public class AttachmentBoxManager {
      */
     protected void syncAttachBox(Player player) {
 
-        // メタデータが無いプレイヤーなら何もしない
-        if ( !player.hasMetadata(BOX_INV_META_NAME) ) return;
-
         // 開いていたボックスのインデクスが記録されていないなら、何もしない
         if ( !indexCache.containsKey(player) ) return;
 
-        // メタデータ、インデクスを削除する
-        player.removeMetadata(AttachmentBoxManager.BOX_INV_META_NAME, parent);
+        // インデクスを削除する
         int index = indexCache.get(player);
         indexCache.remove(player);
 
@@ -234,6 +222,16 @@ public class AttachmentBoxManager {
                 parent.getMailManager().displayMail(
                         MailSender.getMailSender(player), mail);
             }
+        }
+    }
+
+    /**
+     * 開いたままになっているインベントリを強制的に全て閉じ、同期を実行する
+     */
+    protected void closeAllBox() {
+        for ( Player player : indexCache.keySet() ) {
+            player.closeInventory();
+            syncAttachBox(player);
         }
     }
 }

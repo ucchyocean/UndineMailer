@@ -67,6 +67,10 @@ public class UndineMailer extends JavaPlugin {
     @Override
     public void onDisable() {
 
+        // 添付ボックスを開いたままにしているプレイヤーの
+        // インベントリを強制的に閉じる
+        boxManager.closeAllBox();
+
         // 編集中メールの保存
         mailManager.storeEditmodeMail();
     }
