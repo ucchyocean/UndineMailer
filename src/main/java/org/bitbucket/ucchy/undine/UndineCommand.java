@@ -940,7 +940,7 @@ public class UndineCommand implements TabExecutor {
         String[] descs = desc.split(":");
         if ( descs.length <= 0 ) return null;
         Material material = Material.getMaterial(descs[0]);
-        if ( material == null && descs[0].matches("[0-9]{1-5}") ) {
+        if ( material == null && descs[0].matches("[0-9]{1,5}") ) {
             @SuppressWarnings("deprecation")
             Material m = Material.getMaterial(Integer.parseInt(descs[0]));
             material = m;
