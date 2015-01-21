@@ -687,12 +687,25 @@ public class MailData {
         if ( to.size() < TO_MAX_SIZE ) {
             MessageComponent msg = new MessageComponent();
             msg.addText(pre);
+
             MessageParts button = new MessageParts(
                     Messages.get("EditmodeToAdd"), ChatColor.AQUA);
             button.setClickEvent(
                     ClickEventType.SUGGEST_COMMAND,
                     COMMAND + " to " + (to.size()+1) + " ");
             msg.addParts(button);
+
+            if ( config.isEnablePlayerList() ) {
+                msg.addText(" ");
+
+                MessageParts buttonAddress = new MessageParts(
+                        Messages.get("EditmodeToAddress"), ChatColor.AQUA);
+                buttonAddress.setClickEvent(
+                        ClickEventType.RUN_COMMAND,
+                        ListCommand.COMMAND_INDEX + " " + COMMAND + " to " + (to.size()+1));
+                msg.addParts(buttonAddress);
+            }
+
             msg.send(sender);
         }
 

@@ -7,7 +7,7 @@ author: ucchy
 
 commands:
   undine:
-    description: Commands of UndineMailer
+    description: Command of UndineMailer
     aliases: [mail,umail]
     usage: |
            /<command> inbox [page] - Check your unread mails.
@@ -28,12 +28,23 @@ commands:
     permission: undine.command
     permission-message: 'You don''t have a permission "<permission>".'
 
-  player:
-    description: Commands of Player name list
-    aliases: [list]
+  undinelist:
+    description: Command of Player list
+    aliases: [ulist,uindex]
     usage: |
            /<command> - display player index button page.
-           /<command> <pre> [page]
+           /<command> <pre> [page] - display players that starts with prefix.
+    permission: undine.list
+    permission-message: 'You don''t have a permission "<permission>".'
+
+  undinegroup:
+    description: Command of Mail group
+    aliases: [ugroup]
+    usage: |
+           /<command> - display player index button page.
+           /<command> <pre> [page] - display players that starts with prefix.
+    permission: undine.group
+    permission-message: 'You don''t have a permission "<permission>".'
 
 permissions:
   undine.command:
@@ -84,6 +95,12 @@ permissions:
   undine.reload:
     description: Permission of reload command.
     default: op
+  undine.list:
+    description: Permission of list command.
+    default: true
+  undine.group:
+    description: Permission of group command.
+    default: true
   'undine.*':
     description: All Permissions of UndineMailer.
     children:
@@ -103,3 +120,5 @@ permissions:
       undine.send: true
       undine.cancel: true
       undine.reload: true
+      undine.list: true
+      undine.group: true

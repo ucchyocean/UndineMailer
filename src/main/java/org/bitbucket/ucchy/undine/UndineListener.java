@@ -67,12 +67,14 @@ public class UndineListener implements Listener {
     public void onInventoryClick(InventoryClickEvent event) {
 
         Player player = (Player)event.getWhoClicked();
+
+        // 添付アイテムボックスのインベントリでなければ、何もしない
         if ( !parent.getBoxManager().isOpeningAttachBox(player) ) return;
 
         int size = event.getInventory().getSize();
         boolean inside = (event.getRawSlot() < size);
 
-        // 添付ボックス内へのアイテム配置を禁止する
+        // 添付ボックス内へのアイテム配置を禁止する(取り出し専用にする)
         switch ( event.getAction() ) {
         case PLACE_ALL:
         case PLACE_ONE:
@@ -103,8 +105,11 @@ public class UndineListener implements Listener {
     public void onInventoryDrag(InventoryDragEvent event) {
 
         Player player = (Player)event.getWhoClicked();
+
+        // 添付アイテムボックスのインベントリでなければ、何もしない
         if ( !parent.getBoxManager().isOpeningAttachBox(player) ) return;
 
+        // 添付ボックス内へのアイテム配置を禁止する(取り出し専用にする)
         int size = event.getInventory().getSize();
         for ( int i : event.getRawSlots() ) {
             if ( i < size ) {

@@ -43,6 +43,9 @@ public class UndineConfig {
     /** UIの前に挿入する空行の行数 */
     private int uiEmptyLines;
 
+    /** プレイヤーリストを利用可能にするかどうか */
+    private boolean enablePlayerList;
+
     private UndineMailer parent;
 
     /**
@@ -88,6 +91,7 @@ public class UndineConfig {
                 conf.getStringList("disableWorldsToOpenAttachBox");
         attachBoxSize = conf.getInt("attachBoxSize", 1);
         uiEmptyLines = conf.getInt("uiEmptyLines", 3);
+        enablePlayerList = conf.getBoolean("enablePlayerList", true);
 
         // sendFeeは、マイナスが指定されていたら0に変更する
         if ( sendFee < 0 ) {
@@ -171,4 +175,13 @@ public class UndineConfig {
     public int getUiEmptyLines() {
         return uiEmptyLines;
     }
+
+    /**
+     * @return enablePlayerList
+     */
+    public boolean isEnablePlayerList() {
+        return enablePlayerList;
+    }
+
+
 }

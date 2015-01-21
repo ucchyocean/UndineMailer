@@ -26,7 +26,8 @@ public class UndineMailer extends JavaPlugin {
     private MailManager mailManager;
     private AttachmentBoxManager boxManager;
     private UndineConfig config;
-    private UndineCommand command;
+    private UndineCommand undineCommand;
+    private ListCommand listCommand;
     private VaultEcoBridge vaulteco;
 
     /**
@@ -54,7 +55,8 @@ public class UndineMailer extends JavaPlugin {
         Messages.reload(config.getLang());
 
         // コマンドクラスを作成する
-        command = new UndineCommand(this);
+        undineCommand = new UndineCommand(this);
+        listCommand = new ListCommand(this);
 
         // リスナーの登録
         getServer().getPluginManager().registerEvents(new UndineListener(this), this);
@@ -81,7 +83,11 @@ public class UndineMailer extends JavaPlugin {
      */
     @Override
     public boolean onCommand(CommandSender sender, Command command, String label, String[] args) {
-        return this.command.onCommand(sender, command, label, args);
+        if ( command.getName().equals("undine") )
+            return undineCommand.onCommand(sender, command, label, args);
+        else if ( command.getName().equals("undinelist") )
+            return listCommand.onCommand(sender, command, label, args);
+        return false;
     }
 
     /**
@@ -90,7 +96,11 @@ public class UndineMailer extends JavaPlugin {
      */
     @Override
     public List<String> onTabComplete(CommandSender sender, Command command, String alias, String[] args) {
-        return this.command.onTabComplete(sender, command, alias, args);
+        if ( command.getName().equals("undine") )
+            return undineCommand.onTabComplete(sender, command, alias, args);
+        else if ( command.getName().equals("undinelist") )
+            return listCommand.onTabComplete(sender, command, alias, args);
+        return null;
     }
 
     /**
