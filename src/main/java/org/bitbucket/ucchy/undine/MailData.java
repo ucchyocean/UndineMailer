@@ -634,6 +634,13 @@ public class MailData {
                 sender.sendMessage(Messages.get(
                         "MailDetailAttachCostItemLine", "%item", getItemDesc(costItem)));
             }
+
+        } else if ( isAttachmentsCancelled ) {
+            // キャンセル済みの場合、キャンセルされた旨のラベルを出す
+
+            sender.sendMessage(Messages.get("MailDetailAttachmentsLine") + " "
+                    + ChatColor.WHITE + Messages.get("MailDetailAttachmentBoxCancelled"));
+
         }
 
         sender.sendMessage(Messages.get("MailDetailLastLine"));
