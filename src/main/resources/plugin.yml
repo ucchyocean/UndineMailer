@@ -24,6 +24,7 @@ commands:
            /<command> costitem <item[:amount]> - Set fee that cost item on opening box.
            /<command> send - Send mail.
            /<command> cancel - Cancel to mail creation mode.
+           /<command> item - Show the detailed information of item in your hand.
            /<command> reload - Reload all of data.
     permission: undine.command
     permission-message: 'You don''t have a permission "<permission>".'
@@ -41,8 +42,7 @@ commands:
     description: Command of Mail group
     aliases: [ugroup]
     usage: |
-           /<command> - display player index button page.
-           /<command> <pre> [page] - display players that starts with prefix.
+           /<command> - display group management menu page.
     permission: undine.group
     permission-message: 'You don''t have a permission "<permission>".'
 
@@ -92,6 +92,9 @@ permissions:
   undine.cancel:
     description: Permission of send command.
     default: true
+  undine.item:
+    description: Permission of item command.
+    default: true
   undine.reload:
     description: Permission of reload command.
     default: op
@@ -119,6 +122,7 @@ permissions:
       undine.costitem: true
       undine.send: true
       undine.cancel: true
+      undine.item: true
       undine.reload: true
       undine.list: true
       undine.group: true

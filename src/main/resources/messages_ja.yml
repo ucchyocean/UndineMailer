@@ -34,6 +34,7 @@ InformationYouGotMail: '&7%from &aさんから新しいメールが届きまし�
 InformationYouSentMail: '&7メールを送信しました。'
 InformationEditCancelled: '&7メールの編集をキャンセルしました。'
 InformationPlayerJoin: '&7未読のメールが %unread件あります。'
+InformationItemDetail: '&7アイテム情報: %desc  取引可能？: %tradable'
 
 SummaryOpenThisMailToolTip: 'このメールを開く'
 

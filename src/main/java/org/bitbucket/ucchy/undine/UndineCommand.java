@@ -36,7 +36,7 @@ public class UndineCommand implements TabExecutor {
     private static final String PERMISSION = "undine";
     private static final String[] COMMANDS = new String[]{
         "inbox", "outbox", "read", "text", "write", "to", "message",
-        "attach", "costmoney", "costitem", "send", "cancel", "reload"
+        "attach", "costmoney", "costitem", "send", "cancel", "item", "reload",
     };
 
     private UndineMailer parent;
@@ -86,6 +86,8 @@ public class UndineCommand implements TabExecutor {
             return doSendCommand(sender, command, label, args);
         } else if ( args[0].equalsIgnoreCase("cancel") ) {
             return doCancelCommand(sender, command, label, args);
+        } else if ( args[0].equalsIgnoreCase("item") ) {
+            return doItemCommand(sender, command, label, args);
         } else if ( args[0].equalsIgnoreCase("reload") ) {
             return doReloadCommand(sender, command, label, args);
         }
@@ -913,6 +915,33 @@ public class UndineCommand implements TabExecutor {
         return true;
     }
 
+    private boolean doItemCommand(CommandSender sender, Command command, String label, String[] args) {
+
+        // パーミッション確認
+        if  ( !sender.hasPermission(PERMISSION + ".item") ) {
+            sender.sendMessage(Messages.get("PermissionDeniedCommand"));
+            return true;
+        }
+
+        // このコマンドは、ゲーム内からの実行でない場合はエラーを表示して終了する
+        if ( !(sender instanceof Player) ) {
+            sender.sendMessage(Messages.get("ErrorInGameCommand"));
+            return true;
+        }
+
+        ItemStack hand = ((Player)sender).getItemInHand();
+        if ( hand == null ) return true;
+
+        // 情報表示
+        String description = getItemDesc(hand);
+        String isTradable = TradableMaterial.isTradable(hand.getType()) ? "yes" : "no";
+        sender.sendMessage(Messages.get("InformationItemDetail",
+                new String[]{"%desc", "%tradable"},
+                new String[]{description, isTradable}));
+
+        return true;
+    }
+
     private boolean doReloadCommand(CommandSender sender, Command command, String label, String[] args) {
 
         // パーミッション確認
@@ -1046,5 +1075,15 @@ public class UndineCommand implements TabExecutor {
         msg.addParts(buttonCancel);
 
         msg.send(ms);
+    }
+
+    /**
+     * アイテムを簡単な文字列表現にして返す
+     * @param item アイテム
+     * @return 文字列表現
+     */
+    private String getItemDesc(ItemStack item) {
+        return item.getDurability() == 0 ? item.getType().toString() :
+                item.getType().toString() + ":" + item.getDurability();
     }
 }
