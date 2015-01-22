@@ -43,7 +43,7 @@ commands:
     aliases: [ugroup]
     usage: |
            /<command> - display group management menu page.
-    permission: undine.group
+    permission: undine.group.command
     permission-message: 'You don''t have a permission "<permission>".'
 
 permissions:
@@ -98,13 +98,53 @@ permissions:
   undine.reload:
     description: Permission of reload command.
     default: op
+
   undine.list:
     description: Permission of list command.
     default: true
-  undine.group:
+
+  undine.group.command:
     description: Permission of group command.
     default: true
-  'undine.*':
+  undine.group.create:
+    description: Permission of group create command.
+    default: true
+  undine.group.delete:
+    description: Permission of group delete command.
+    default: true
+  undine.group.list:
+    description: Permission of group list command.
+    default: true
+  undine.group.detail:
+    description: Permission of group detail command.
+    default: true
+  undine.group.add:
+    description: Permission of group add command.
+    default: true
+  undine.group.remove:
+    description: Permission of group remove command.
+    default: true
+  undine.group.infinite-create:
+    description: Permission of infinite create groups.
+    default: op
+  undine.group.infinite-add-member:
+    description: Permission of infinite add members.
+    default: op
+
+  undine.group.*:
+    description: All Permissions of Undine Group Management.
+    children:
+      undine.group.command: true
+      undine.group.create: true
+      undine.group.delete: true
+      undine.group.list: true
+      undine.group.detail: true
+      undine.group.add: true
+      undine.group.remove: true
+      undine.group.infinite-create: true
+      undine.group.infinite-add-member: true
+
+  undine.*:
     description: All Permissions of UndineMailer.
     children:
       undine.command: true
@@ -125,4 +165,4 @@ permissions:
       undine.item: true
       undine.reload: true
       undine.list: true
-      undine.group: true
+      undine.group.*: true

@@ -315,11 +315,11 @@ public class MailManager {
      * @param mail メール
      * @return 送信にかかる金額
      */
-    protected int getSendFee(MailData mail) {
+    protected double getSendFee(MailData mail) {
         if ( parent.getVaultEco() == null ) return 0;
         UndineConfig config = parent.getUndineConfig();
         if ( !config.isEnableSendFee() ) return 0;
-        int total = 0;
+        double total = 0;
         total += mail.getTo().size() * config.getSendFee();
         total += mail.getAttachments().size() * config.getAttachFee();
         return total;

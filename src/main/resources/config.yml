@@ -3,11 +3,32 @@
 # @license    LGPLv3
 # @copyright  Copyright ucchy 2015
 
+# -------------------- Misc --------------------
+
 # Message locale.
 lang: en
 
 # Enable the attachment item box.
 enableAttachment: true
+
+# Attachment item box line size. Please set 1 - 6.
+# ex) 1 ->  you can attach 9 items per 1 mail.
+# ex) 6 ->  you can attach 54 items per 1 mail.
+attachBoxSize: 1
+
+# Enable to send mail to oneself.
+enableSendSelf: false
+
+# World names that disable to open attachment item box.
+disableWorldsToOpenAttachBox: []
+
+# Display empty line count before display UI.
+uiEmptyLines: 3
+
+# Enable to use player list.
+enablePlayerList: true
+
+# -------------------- Send Fee --------------------
 
 # Enable mail sending fee.
 enableSendFee: false
@@ -18,19 +39,20 @@ sendFee: 10
 # Attaching fee per an item.
 attachFee: 10
 
-# Enable to send mail to oneself.
-enableSendSelf: false
+# -------------------- Mail Group --------------------
 
-# World names that disable to open attachment item box.
-disableWorldsToOpenAttachBox: []
+# Max group creation num per a player.
+maxCreateGroup: 5
 
-# Attachment item box line size. Please set 1 - 6.
-# ex) 1 ->  you can attach 9 items per 1 mail.
-# ex) 6 ->  you can attach 54 items per 1 mail.
-attachBoxSize: 1
+# Max member num per a group.
+maxGroupMember: 15
 
-# Display empty line count before display UI.
-uiEmptyLines: 3
+# Default mode of members modification.
+# OWNER: only owner can add/remove members.
+# MEMBER: group members anyone can add/remove members.
+modifyModeDefault: OWNER
 
-# Enable to use player list.
-enablePlayerList: true
+# Default mode of dissolution.
+# OWNER: only owner can break-up group.
+# MEMBER: group members anyone can break-up group.
+dissolutionModeDefault: OWNER

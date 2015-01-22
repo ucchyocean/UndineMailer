@@ -50,10 +50,10 @@ public class VaultEcoBridge {
     /**
      * 指定されたプレイヤーの所持金を取得する
      * @param player プレイヤー
-     * @return 所持金（端数は切り捨て）
+     * @return 所持金
      */
-    public int getBalance(OfflinePlayer player) {
-        return (int)eco.getBalance(player);
+    public double getBalance(OfflinePlayer player) {
+        return eco.getBalance(player);
     }
 
     /**
@@ -62,7 +62,7 @@ public class VaultEcoBridge {
      * @param amount 確認する金額
      * @return 持っているかどうか
      */
-    public boolean has(OfflinePlayer player, int amount) {
+    public boolean has(OfflinePlayer player, double amount) {
         return eco.has(player, amount);
     }
 
@@ -72,7 +72,7 @@ public class VaultEcoBridge {
      * @param amount 差し引く金額
      * @return 正常に完了したかどうか
      */
-    public boolean withdrawPlayer(OfflinePlayer player, int amount) {
+    public boolean withdrawPlayer(OfflinePlayer player, double amount) {
         EconomyResponse response = eco.withdrawPlayer(player, amount);
         return response.transactionSuccess();
     }
@@ -83,7 +83,7 @@ public class VaultEcoBridge {
      * @param amount 入金する金額
      * @return 正常に完了したかどうか
      */
-    public boolean depositPlayer(OfflinePlayer player, int amount) {
+    public boolean depositPlayer(OfflinePlayer player, double amount) {
         EconomyResponse response = eco.depositPlayer(player, amount);
         return response.transactionSuccess();
     }
@@ -93,7 +93,7 @@ public class VaultEcoBridge {
      * @param amount 金額
      * @return 表示用の文字列
      */
-    public String format(int amount) {
+    public String format(double amount) {
         return eco.format(amount);
     }
 }

@@ -22,6 +22,7 @@ public class UndineMailer extends JavaPlugin {
     protected static final String COMMAND = "/umail";
 
     private static final String MAIL_FOLDER = "mail";
+    private static final String GROUP_FOLDER = "group";
 
     private MailManager mailManager;
     private AttachmentBoxManager boxManager;
@@ -108,8 +109,19 @@ public class UndineMailer extends JavaPlugin {
      * @return メールデータ格納フォルダ
      */
     public File getMailFolder() {
-
         File folder = new File(getDataFolder(), MAIL_FOLDER);
+        if ( !folder.exists() ) {
+            folder.mkdirs();
+        }
+        return folder;
+    }
+
+    /**
+     * グループデータを格納するフォルダを返す
+     * @return グループデータ格納フォルダ
+     */
+    public File getGroupFolder() {
+        File folder = new File(getDataFolder(), GROUP_FOLDER);
         if ( !folder.exists() ) {
             folder.mkdirs();
         }

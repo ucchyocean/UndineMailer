@@ -117,6 +117,14 @@ public class UndineCommand implements TabExecutor {
         } else if ( ( args.length == 2 && args[0].equalsIgnoreCase("text")
                 || args.length == 3 && args[0].equalsIgnoreCase("to") ) ) {
             // textコマンドの2つ目と、toコマンドの3つ目は、有効な宛先で補完する
+
+            // プレイヤー名簿が利用不可の場合は、nullを返す
+            //（オンラインプレイヤー名で補完される）
+            if ( !parent.getUndineConfig().isEnablePlayerList() ) {
+                return null;
+            }
+
+            // オフラインプレイヤー名で補完する
             String arg = args.length == 2 ?
                     args[1].toLowerCase() : args[2].toLowerCase();
             ArrayList<String> candidates = new ArrayList<String>();
@@ -280,7 +288,7 @@ public class UndineCommand implements TabExecutor {
                 targets, ms, message.toString());
 
         // 送信にお金がかかる場合
-        int fee = manager.getSendFee(mail);
+        double fee = manager.getSendFee(mail);
         if ( (ms instanceof MailSenderPlayer) && fee > 0 ) {
 
             VaultEcoBridge eco = parent.getVaultEco();
@@ -299,7 +307,7 @@ public class UndineCommand implements TabExecutor {
             }
 
             // 引き落としたことを通知
-            int balance = parent.getVaultEco().getBalance(ms.getPlayer());
+            double balance = parent.getVaultEco().getBalance(ms.getPlayer());
             sender.sendMessage(Messages.get("EditmodeFeeResult",
                     new String[]{"%fee", "%remain"},
                     new String[]{feeDisplay, eco.format(balance)}));
@@ -562,7 +570,7 @@ public class UndineCommand implements TabExecutor {
                 // 着払い料金が設定がされている場合
 
                 VaultEcoBridge eco = parent.getVaultEco();
-                int fee = mail.getCostMoney();
+                double fee = mail.getCostMoney();
                 String feeDisplay = eco.format(fee);
 
                 if ( args.length >= 3 && args[2].equals("confirm") ) {
@@ -576,7 +584,7 @@ public class UndineCommand implements TabExecutor {
                         sender.sendMessage(Messages.get("ErrorFailToWithdraw"));
                         return true;
                     }
-                    int balance = eco.getBalance(ms.getPlayer());
+                    double balance = eco.getBalance(ms.getPlayer());
                     sender.sendMessage(Messages.get("BoxOpenCostMoneyResult",
                             new String[]{"%fee", "%remain"},
                             new String[]{feeDisplay, eco.format(balance)}));
@@ -709,12 +717,11 @@ public class UndineCommand implements TabExecutor {
         }
 
         // 指定値が数値ではない場合はエラーを表示して終了
-        if ( !args[1].matches("[0-9]{1,9}") ) {
+        double amount = tryParseDouble(args[1]);
+        if ( amount < 0 ) {
             sender.sendMessage(Messages.get("ErrorInvalidCostMoney", "%fee", args[1]));
             return true;
         }
-
-        int amount = Integer.parseInt(args[1]);
 
         // アイテムと料金を両方設定しようとしたら、エラーを表示して終了
         if ( amount > 0 && mail.getCostItem() != null ) {
@@ -823,7 +830,7 @@ public class UndineCommand implements TabExecutor {
         }
 
         // 送信にお金がかかる場合
-        int fee = manager.getSendFee(mail);
+        double fee = manager.getSendFee(mail);
         if ( (ms instanceof MailSenderPlayer) && fee > 0 ) {
 
             VaultEcoBridge eco = parent.getVaultEco();
@@ -840,7 +847,7 @@ public class UndineCommand implements TabExecutor {
                     sender.sendMessage(Messages.get("ErrorFailToWithdraw"));
                     return true;
                 }
-                int balance = parent.getVaultEco().getBalance(ms.getPlayer());
+                double balance = parent.getVaultEco().getBalance(ms.getPlayer());
                 sender.sendMessage(Messages.get("EditmodeFeeResult",
                         new String[]{"%fee", "%remain"},
                         new String[]{feeDisplay, eco.format(balance)}));
@@ -1085,5 +1092,18 @@ public class UndineCommand implements TabExecutor {
     private String getItemDesc(ItemStack item) {
         return item.getDurability() == 0 ? item.getType().toString() :
                 item.getType().toString() + ":" + item.getDurability();
+    }
+
+    /**
+     * 正の小数付き数値を返す。Doubleにパース不可の場合は、-1が返される。
+     * @param value 変換対象
+     * @return 変換後の値。doubleでない場合は-1が返される
+     */
+    private double tryParseDouble(String value) {
+        try {
+            return Double.parseDouble(value);
+        } catch(NumberFormatException e) {
+            return -1;
+        }
     }
 }

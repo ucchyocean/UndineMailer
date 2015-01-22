@@ -8,6 +8,7 @@ package org.bitbucket.ucchy.undine;
 import java.io.File;
 import java.util.List;
 
+import org.bitbucket.ucchy.undine.group.GroupPermissionMode;
 import org.bukkit.configuration.file.FileConfiguration;
 
 /**
@@ -26,10 +27,10 @@ public class UndineConfig {
     private boolean enableSendFee;
 
     /** 送信に必要な料金、送信先が複数ある場合は、送信先ごとに課金される */
-    private int sendFee;
+    private double sendFee;
 
     /** 添付アイテムを1件付けるのに必要な料金 */
-    private int attachFee;
+    private double attachFee;
 
     /** 自分自身に送信を可能とするか */
     private boolean enableSendSelf;
@@ -45,6 +46,18 @@ public class UndineConfig {
 
     /** プレイヤーリストを利用可能にするかどうか */
     private boolean enablePlayerList;
+
+    /** 1プレイヤーが作成可能なグループの最大数 */
+    private int maxCreateGroup;
+
+    /** 1グループに追加できる最大プレイヤー数 */
+    private int maxGroupMember;
+
+    /** グループのメンバー変更は、オーナーのみ可能とするかどうか */
+    private GroupPermissionMode modifyModeDefault;
+
+    /** グループの解散は、オーナーのみ可能とするかどうか */
+    private GroupPermissionMode dissolutionModeDefault;
 
     private UndineMailer parent;
 
@@ -92,6 +105,14 @@ public class UndineConfig {
         attachBoxSize = conf.getInt("attachBoxSize", 1);
         uiEmptyLines = conf.getInt("uiEmptyLines", 3);
         enablePlayerList = conf.getBoolean("enablePlayerList", true);
+        maxCreateGroup = conf.getInt("maxCreateGroup", 5);
+        maxGroupMember = conf.getInt("maxGroupMember", 15);
+        modifyModeDefault = GroupPermissionMode.getFromString(
+                conf.getString("modifyModeDefault"),
+                GroupPermissionMode.OWNER);
+        dissolutionModeDefault = GroupPermissionMode.getFromString(
+                conf.getString("dissolutionModeDefault"),
+                GroupPermissionMode.OWNER);
 
         // sendFeeは、マイナスが指定されていたら0に変更する
         if ( sendFee < 0 ) {
@@ -137,14 +158,14 @@ public class UndineConfig {
     /**
      * @return sendFee
      */
-    public int getSendFee() {
+    public double getSendFee() {
         return sendFee;
     }
 
     /**
      * @return attachFee
      */
-    public int getAttachFee() {
+    public double getAttachFee() {
         return attachFee;
     }
 
@@ -181,6 +202,34 @@ public class UndineConfig {
      */
     public boolean isEnablePlayerList() {
         return enablePlayerList;
+    }
+
+    /**
+     * @return maxCreateGroup
+     */
+    public int getMaxCreateGroup() {
+        return maxCreateGroup;
+    }
+
+    /**
+     * @return maxGroupMember
+     */
+    public int getMaxGroupMember() {
+        return maxGroupMember;
+    }
+
+    /**
+     * @return modifyModeDefault
+     */
+    public GroupPermissionMode getModifyModeDefault() {
+        return modifyModeDefault;
+    }
+
+    /**
+     * @return dissolutionMode
+     */
+    public GroupPermissionMode getDissolutionModeDefault() {
+        return dissolutionModeDefault;
     }
 
 

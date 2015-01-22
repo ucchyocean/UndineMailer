@@ -40,7 +40,7 @@ public class MailData {
     private MailSender from;
     private List<String> message;
     private List<ItemStack> attachments;
-    private int costMoney;
+    private double costMoney;
     private ItemStack costItem;
 
     private int index;
@@ -100,7 +100,7 @@ public class MailData {
      * @param costItem 受け取りにかかる取引アイテム
      */
     public MailData(List<MailSender> to, MailSender from, List<String> message,
-            List<ItemStack> attachments, int costMoney, ItemStack costItem) {
+            List<ItemStack> attachments, double costMoney, ItemStack costItem) {
         this.index = 0;
         this.to = to;
         this.from = from;
@@ -424,7 +424,7 @@ public class MailData {
      * このメールの添付アイテムを受け取るのに必要な金額を取得します。
      * @return 受け取り金額
      */
-    public int getCostMoney() {
+    public double getCostMoney() {
         return costMoney;
     }
 
@@ -432,7 +432,7 @@ public class MailData {
      * このメールの添付アイテムを受け取るのに必要な金額を設定します。
      * @param feeMoney 受け取り金額
      */
-    public void setCostMoney(int feeMoney) {
+    public void setCostMoney(double feeMoney) {
         this.costMoney = feeMoney;
     }
 
