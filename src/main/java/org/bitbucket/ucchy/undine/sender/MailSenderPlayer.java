@@ -21,7 +21,7 @@ public class MailSenderPlayer extends MailSender {
 
     /**
      * コンストラクタ
-     * @param player プレイヤー
+     * @param sender プレイヤー
      */
     public MailSenderPlayer(OfflinePlayer sender) {
         this.sender = sender;
@@ -149,7 +149,7 @@ public class MailSenderPlayer extends MailSender {
     /**
      * IDを返す
      * @return CB178移行なら "$" + UUID を返す、CB175以前ならIDを返す
-     * @see org.bitbucket.ucchy.undine.sender.MailSender#getID()
+     * @see org.bitbucket.ucchy.undine.sender.MailSender#toString()
      */
     @Override
     public String toString() {

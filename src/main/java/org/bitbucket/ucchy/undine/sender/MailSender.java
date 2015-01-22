@@ -106,7 +106,7 @@ public abstract class MailSender implements Comparable<MailSender> {
      * インスタンス同士の比較を行う。このメソッドを実装しておくことで、
      * Java8でのHashMapのキー挿入における高速化が期待できる（らしい）。
      * @param other
-     * @return
+     * @return 比較結果
      * @see java.lang.Comparable#compareTo(java.lang.Object)
      */
     @Override

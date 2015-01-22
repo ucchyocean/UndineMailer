@@ -131,7 +131,7 @@ public class MailSenderConsole extends MailSender {
     /**
      * IDを返す
      * @return 名前をそのまま返す
-     * @see org.bitbucket.ucchy.undine.sender.MailSender#getID()
+     * @see org.bitbucket.ucchy.undine.sender.MailSender#toString()
      */
     @Override
     public String toString() {

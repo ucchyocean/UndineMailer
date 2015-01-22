@@ -189,7 +189,7 @@ public class Utility {
 
     /**
      * カラーコードかどうかを判断する
-     * @param color カラー表記の文字列
+     * @param code カラー表記の文字列
      * @return 指定可能かどうか
      */
     public static boolean isValidColorCode(String code) {

@@ -30,7 +30,7 @@ public class VaultEcoBridge {
     /**
      * vault-ecoをロードする
      * @param plugin vaultのプラグインインスタンス
-     * @param ロードしたbridgeのインスタンス
+     * @return ロードしたbridgeのインスタンス
      */
     public static VaultEcoBridge load(Plugin plugin) {
 

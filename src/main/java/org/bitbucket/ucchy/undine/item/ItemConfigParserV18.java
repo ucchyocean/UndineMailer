@@ -25,7 +25,7 @@ public class ItemConfigParserV18 {
      * Bannerのメタデータを含める必要がある場合に、メタ情報を復帰して含めておく。
      * @param section
      * @param item
-     * @return
+     * @return 変更後のItemStack
      */
     protected static ItemStack addBannerInfoToItem(
             ConfigurationSection section, ItemStack item) {
