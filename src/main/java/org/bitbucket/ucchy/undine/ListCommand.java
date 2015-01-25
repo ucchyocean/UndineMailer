@@ -26,7 +26,7 @@ import org.bukkit.command.TabExecutor;
  */
 public class ListCommand implements TabExecutor {
 
-    protected static final String COMMAND_INDEX = "/uindex";
+    public static final String COMMAND_INDEX = "/uindex";
     protected static final String COMMAND_LIST = "/ulist";
     private static final String PERMISSION = "undine.list";
     private static final int PAGE_SIZE = 10;
@@ -72,7 +72,7 @@ public class ListCommand implements TabExecutor {
             }
         });
 
-        String pre = Messages.get("ListLinePre");
+        String pre = Messages.get("PlayerListLinePre");
 
         // 空行を挿入する
         for ( int i=0; i<parent.getUndineConfig().getUiEmptyLines(); i++ ) {
@@ -94,7 +94,7 @@ public class ListCommand implements TabExecutor {
                 if ( !indexes.contains(p) ) indexes.add(p);
             }
 
-            sender.sendMessage(Messages.get("ListIndexFirstLine"));
+            sender.sendMessage(Messages.get("PlayerListIndexFirstLine"));
 
             int linenum = (int)((indexes.size() - 1) / 10) + 1;
             for ( int line=0; line<linenum; line++ ) {
@@ -116,7 +116,7 @@ public class ListCommand implements TabExecutor {
                 msg.send(sender);
             }
 
-            sender.sendMessage(Messages.get("ListIndexLastLine"));
+            sender.sendMessage(Messages.get("PlayerListIndexLastLine"));
 
             return true;
         }
@@ -141,7 +141,7 @@ public class ListCommand implements TabExecutor {
         }
         int max = (int)((list.size() - 1) / PAGE_SIZE) + 1;
 
-        sender.sendMessage(Messages.get("ListFirstLine", "%pre", prefix));
+        sender.sendMessage(Messages.get("PlayerListFirstLine", "%pre", prefix));
 
         for ( int i=0; i<PAGE_SIZE; i++ ) {
 

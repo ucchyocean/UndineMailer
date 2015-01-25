@@ -11,11 +11,17 @@ package org.bitbucket.ucchy.undine.group;
  */
 public enum GroupPermissionMode {
 
-    /** オーナーのみ可能 */
+    /** OPのみ変更可能 */
+    OP,
+
+    /** オーナーとOPが可能 */
     OWNER,
 
     /** メンバーなら誰でも可能 */
     MEMBER,
+
+    /** 誰でも可能 */
+    EVERYONE,
     ;
 
     /**

@@ -348,7 +348,7 @@ public class MailManager {
             }
         }
 
-        String fline = Messages.get("InboxFirstLine", "%unread", unread + "");
+        String fline = Messages.get("InboxFirstLine", "%unread", unread);
         sender.sendMessage(fline);
 
         for ( int i=0; i<10; i++ ) {
@@ -384,14 +384,12 @@ public class MailManager {
         ArrayList<MailData> mails = getOutboxMails(sender);
         int max = (int)((mails.size() - 1) / PAGE_SIZE) + 1;
 
-        String fline = Messages.get("OutboxFirstLine",
-                new String[]{"%page", "%max"},
-                new String[]{page + "", max + ""});
+        String fline = Messages.get("OutboxFirstLine");
         sender.sendMessage(fline);
 
-        for ( int i=0; i<10; i++ ) {
+        for ( int i=0; i<PAGE_SIZE; i++ ) {
 
-            int index = (page - 1) * 10 + i;
+            int index = (page - 1) * PAGE_SIZE + i;
             if ( index < 0 || mails.size() <= index ) {
                 continue;
             }

@@ -23,7 +23,7 @@ enableSendSelf: false
 disableWorldsToOpenAttachBox: []
 
 # Display empty line count before display UI.
-uiEmptyLines: 3
+uiEmptyLines: 1
 
 # Enable to use player list.
 enablePlayerList: true
@@ -48,11 +48,15 @@ maxCreateGroup: 5
 maxGroupMember: 15
 
 # Default mode of members modification.
-# OWNER: only owner can add/remove members.
+# OP: only OP can add/remove members.
+# OWNER: owner and OP can add/remove members.
 # MEMBER: group members anyone can add/remove members.
+# EVERYONE: everyone can add/remove members.
 modifyModeDefault: OWNER
 
 # Default mode of dissolution.
-# OWNER: only owner can break-up group.
+# OP: only OP can break-up group.
+# OWNER: owner and OP can break-up group.
 # MEMBER: group members anyone can break-up group.
+# EVERYONE: everyone can break-up group.
 dissolutionModeDefault: OWNER

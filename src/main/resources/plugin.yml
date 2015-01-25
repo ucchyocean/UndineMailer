@@ -130,6 +130,12 @@ permissions:
   undine.group.infinite-add-member:
     description: Permission of infinite add members.
     default: op
+  undine.group.modify-all:
+    description: Permission of modification all groups.
+    default: op
+  undine.group.dissolution-all:
+    description: Permission of break-up groups.
+    default: op
 
   undine.group.*:
     description: All Permissions of Undine Group Management.
@@ -143,6 +149,9 @@ permissions:
       undine.group.remove: true
       undine.group.infinite-create: true
       undine.group.infinite-add-member: true
+      undine.group.send-all: true
+      undine.group.modify-all: true
+      undine.group.dissolution-all: true
 
   undine.*:
     description: All Permissions of UndineMailer.

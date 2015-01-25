@@ -118,6 +118,16 @@ public class MailSenderConsole extends MailSender {
     }
 
     /**
+     * OPかどうかを調べる
+     * @return OPかどうか
+     * @see org.bitbucket.ucchy.undine.sender.MailSender#isOp()
+     */
+    @Override
+    public boolean isOp() {
+        return sender.isOp();
+    }
+
+    /**
      * 指定されたCommandSenderと同一かどうかを返す
      * @param sender
      * @return 同一かどうか

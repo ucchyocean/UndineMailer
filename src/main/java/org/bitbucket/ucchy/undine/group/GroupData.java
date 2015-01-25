@@ -10,6 +10,7 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.bitbucket.ucchy.undine.UndineMailer;
 import org.bitbucket.ucchy.undine.sender.MailSender;
 import org.bukkit.configuration.ConfigurationSection;
 import org.bukkit.configuration.file.YamlConfiguration;
@@ -23,6 +24,9 @@ public class GroupData {
     private String name;
     private MailSender owner;
     private ArrayList<MailSender> members;
+    private GroupPermissionMode sendMode;
+    private GroupPermissionMode modifyMode;
+    private GroupPermissionMode dissolutionMode;
 
     /**
      * コンストラクタ(引数なしは外から利用不可)
@@ -40,6 +44,10 @@ public class GroupData {
         this.owner = owner;
         members = new ArrayList<MailSender>();
         members.add(owner);
+        sendMode = UndineMailer.getInstance().getUndineConfig().getSendModeDefault();
+        modifyMode = UndineMailer.getInstance().getUndineConfig().getModifyModeDefault();
+        dissolutionMode =
+                UndineMailer.getInstance().getUndineConfig().getDissolutionModeDefault();
     }
 
     /**
@@ -87,6 +95,132 @@ public class GroupData {
     }
 
     /**
+     * 指定されたsenderがオーナーかどうかを返す
+     * @param sender
+     * @return オーナーかどうか
+     */
+    public boolean isOwner(MailSender sender) {
+        return owner.equals(sender);
+    }
+
+    /**
+     * 送信権限モードを取得する
+     * @return sendMode
+     */
+    public GroupPermissionMode getSendMode() {
+        return sendMode;
+    }
+
+    /**
+     * 送信権限モードを設定する
+     * @param sendMode sendMode
+     */
+    public void setSendMode(GroupPermissionMode sendMode) {
+        this.sendMode = sendMode;
+    }
+
+    /**
+     * 指定されたsenderは、送信権限を持っているかどうかを調べる
+     * @param sender
+     * @return 送信権限を持っているかどうか
+     */
+    public boolean canSend(MailSender sender) {
+        if ( sender.hasPermission("undine.group.send-all") ) {
+            return true;
+        }
+        switch ( sendMode ) {
+        case EVERYONE:
+            return true;
+        case MEMBER:
+            return members.contains(sender);
+        case OWNER:
+            return owner.equals(sender);
+        case OP:
+            return sender.isOp();
+        default:
+            return false;
+        }
+    }
+
+    /**
+     * 変更権限モードを取得する
+     * @return modifyMode
+     */
+    public GroupPermissionMode getModifyMode() {
+        return modifyMode;
+    }
+
+    /**
+     * 変更権限モードを設定する
+     * @param modifyMode modifyMode
+     */
+    public void setModifyMode(GroupPermissionMode modifyMode) {
+        this.modifyMode = modifyMode;
+    }
+
+    /**
+     * 指定されたsenderは、変更権限を持っているかどうかを調べる
+     * @param sender
+     * @return 変更権限を持っているかどうか
+     */
+    public boolean canModify(MailSender sender) {
+        if ( sender.hasPermission("undine.group.modify-all") ) {
+            return true;
+        }
+        switch ( modifyMode ) {
+        case EVERYONE:
+            return true;
+        case MEMBER:
+            return members.contains(sender);
+        case OWNER:
+            return owner.equals(sender);
+        case OP:
+            return sender.isOp();
+        default:
+            return false;
+        }
+    }
+
+    /**
+     * 解散権限モードを取得する
+     * @return dissolutionMode
+     */
+    public GroupPermissionMode getDissolutionMode() {
+        return dissolutionMode;
+    }
+
+    /**
+     * 解散権限モードを設定する
+     * @param dissolutionMode dissolutionMode
+     */
+    public void setDissolutionMode(GroupPermissionMode dissolutionMode) {
+        this.dissolutionMode = dissolutionMode;
+    }
+
+    /**
+     * 指定されたsenderは、解散権限を持っているかどうかを調べる
+     * @param sender
+     * @return 解散権限を持っているかどうか
+     */
+    public boolean canBreakup(MailSender sender) {
+        if ( sender.hasPermission("undine.group.dissolution-all") ) {
+            return true;
+        }
+        switch ( dissolutionMode ) {
+        case EVERYONE:
+            return true;
+        case MEMBER:
+            return members.contains(sender);
+        case OWNER:
+            return owner.equals(sender);
+        case OP:
+            return sender.isOp();
+        default:
+            return false;
+        }
+    }
+
+    /**
      * コンフィグセクションにグループを保存する
      * @param section コンフィグセクション
      */
@@ -99,6 +233,9 @@ public class GroupData {
             array.add(mem.toString());
         }
         section.set("members", array);
+
+        section.set("modifyMode", modifyMode.toString());
+        section.set("dissolutionMode", dissolutionMode.toString());
     }
 
     /**
@@ -127,6 +264,10 @@ public class GroupData {
         for ( String mem : section.getStringList("members") ) {
             data.members.add(MailSender.getMailSenderFromString(mem));
         }
+        data.modifyMode = GroupPermissionMode.getFromString(
+                section.getString("modifyMode"), GroupPermissionMode.OWNER);
+        data.dissolutionMode = GroupPermissionMode.getFromString(
+                section.getString("dissolutionMode"), GroupPermissionMode.OWNER);
         return data;
     }
 

@@ -76,6 +76,12 @@ public abstract class MailSender implements Comparable<MailSender> {
     public abstract boolean hasPermission(String node);
 
     /**
+     * OPかどうかを調べる
+     * @return OPかどうか
+     */
+    public abstract boolean isOp();
+
+    /**
      * 指定されたCommandSenderと同一かどうかを返す
      * @param sender
      * @return 同一かどうか

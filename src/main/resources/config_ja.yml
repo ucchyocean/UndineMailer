@@ -27,7 +27,7 @@ disableWorldsToOpenAttachBox: []
 # UIを表示する系統のコマンドを実行したときに、
 # UIの前に挿入する空行の行数を設定します。
 # 0から9まで指定可能です。
-uiEmptyLines: 3
+uiEmptyLines: 1
 
 # プレイヤー名簿を利用するかどうか。
 # プレイヤー名簿では、サーバーに１度でも接続したことがあるプレイヤー全てが
@@ -59,10 +59,23 @@ maxCreateGroup: 5
 # この数値に関係なく無限に追加可能です。
 maxGroupMember: 15
 
-# グループのメンバー変更は、オーナーのみ可能とするかどうか
-# OWNER → オーナーのみが変更可能  MEMBER → メンバーなら誰でも変更可能
+# グループへのメール送信権限のデフォルト
+# OP → OPのみがグループへメール送信可能
+# OWNER → オーナーとOPがグループへメール送信可能
+# MEMBER → メンバーならグループへメール送信可能
+# EVERYONE → 誰でもグループへメール送信可能
+sendModeDefault: MEMBER
+
+# グループのメンバー変更権限のデフォルト
+# OP → OPのみが変更可能
+# OWNER → オーナーとOPが変更可能
+# MEMBER → メンバーなら変更可能
+# EVERYONE → 誰でも変更可能
 modifyModeDefault: OWNER
 
-# グループの解散は、オーナーのみ可能とするかどうか
-# OWNER → オーナーのみが解散可能  MEMBER → メンバーなら誰でも解散可能
+# グループの解散権限のデフォルト
+# OP → OPのみが解散可能
+# OWNER → オーナーとOPが解散可能
+# MEMBER → メンバーなら解散可能
+# EVERYONE → 誰でも解散可能
 dissolutionModeDefault: OWNER

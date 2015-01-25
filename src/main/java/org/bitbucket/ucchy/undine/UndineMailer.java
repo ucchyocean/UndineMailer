@@ -8,6 +8,7 @@ package org.bitbucket.ucchy.undine;
 import java.io.File;
 import java.util.List;
 
+import org.bitbucket.ucchy.undine.group.GroupManager;
 import org.bukkit.Bukkit;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandSender;
@@ -26,6 +27,7 @@ public class UndineMailer extends JavaPlugin {
 
     private MailManager mailManager;
     private AttachmentBoxManager boxManager;
+    private GroupManager groupManager;
     private UndineConfig config;
     private UndineCommand undineCommand;
     private ListCommand listCommand;
@@ -41,6 +43,7 @@ public class UndineMailer extends JavaPlugin {
         // マネージャを生成し、データをロードする
         mailManager = new MailManager(this);
         boxManager = new AttachmentBoxManager(this);
+        groupManager = new GroupManager(this);
 
         // コンフィグをロードする
         config = new UndineConfig(this);
@@ -142,6 +145,14 @@ public class UndineMailer extends JavaPlugin {
      */
     protected AttachmentBoxManager getBoxManager() {
         return boxManager;
+    }
+
+    /**
+     * グループマネージャを取得する
+     * @return グループマネージャ
+     */
+    public GroupManager getGroupManager() {
+        return groupManager;
     }
 
     /**

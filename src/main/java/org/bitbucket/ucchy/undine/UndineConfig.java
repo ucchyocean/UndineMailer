@@ -53,10 +53,13 @@ public class UndineConfig {
     /** 1グループに追加できる最大プレイヤー数 */
     private int maxGroupMember;
 
-    /** グループのメンバー変更は、オーナーのみ可能とするかどうか */
+    /** グループへのメール送信権限のデフォルト */
+    private GroupPermissionMode sendModeDefault;
+
+    /** グループのメンバー変更権限のデフォルト */
     private GroupPermissionMode modifyModeDefault;
 
-    /** グループの解散は、オーナーのみ可能とするかどうか */
+    /** グループの解散権限のデフォルト */
     private GroupPermissionMode dissolutionModeDefault;
 
     private UndineMailer parent;
@@ -103,10 +106,13 @@ public class UndineConfig {
         disableWorldsToOpenAttachBox =
                 conf.getStringList("disableWorldsToOpenAttachBox");
         attachBoxSize = conf.getInt("attachBoxSize", 1);
-        uiEmptyLines = conf.getInt("uiEmptyLines", 3);
+        uiEmptyLines = conf.getInt("uiEmptyLines", 1);
         enablePlayerList = conf.getBoolean("enablePlayerList", true);
         maxCreateGroup = conf.getInt("maxCreateGroup", 5);
         maxGroupMember = conf.getInt("maxGroupMember", 15);
+        sendModeDefault = GroupPermissionMode.getFromString(
+                conf.getString("sendModeDefault"),
+                GroupPermissionMode.MEMBER);
         modifyModeDefault = GroupPermissionMode.getFromString(
                 conf.getString("modifyModeDefault"),
                 GroupPermissionMode.OWNER);
@@ -216,6 +222,13 @@ public class UndineConfig {
      */
     public int getMaxGroupMember() {
         return maxGroupMember;
+    }
+
+    /**
+     * @return sendModeDefault
+     */
+    public GroupPermissionMode getSendModeDefault() {
+        return sendModeDefault;
     }
 
     /**

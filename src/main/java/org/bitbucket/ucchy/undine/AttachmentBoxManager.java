@@ -138,7 +138,7 @@ public class AttachmentBoxManager {
     }
 
     /**
-     * 指定されたメールの添付ボックスを開いて確認する
+     * 指定されたメールの添付ボックスを、指定されたプレイヤーの画面に表示する
      * @param player 確認する人
      * @param mail メール
      */
