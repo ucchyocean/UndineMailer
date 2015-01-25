@@ -41,6 +41,7 @@ public class GroupData {
      * @param owner オーナー
      */
     public GroupData(String name, MailSender owner) {
+        this.name = name;
         this.owner = owner;
         members = new ArrayList<MailSender>();
         members.add(owner);
@@ -234,6 +235,7 @@ public class GroupData {
         }
         section.set("members", array);
 
+        section.set("sendMode", sendMode.toString());
         section.set("modifyMode", modifyMode.toString());
         section.set("dissolutionMode", dissolutionMode.toString());
     }
@@ -264,6 +266,8 @@ public class GroupData {
         for ( String mem : section.getStringList("members") ) {
             data.members.add(MailSender.getMailSenderFromString(mem));
         }
+        data.sendMode = GroupPermissionMode.getFromString(
+                section.getString("sendMode"), GroupPermissionMode.MEMBER);
         data.modifyMode = GroupPermissionMode.getFromString(
                 section.getString("modifyMode"), GroupPermissionMode.OWNER);
         data.dissolutionMode = GroupPermissionMode.getFromString(

@@ -134,6 +134,8 @@ ErrorNotFoundPlayer: '&cプレイヤー %player が見つかりません。'
 ErrorPlayerIsAlreadyMember: '&cプレイヤー %player は既にメンバーです。'
 ErrorPlayerIsNotMember: '&cプレイヤー %player はメンバーではありません。'
 ErrorPlayerIsOwner: '&cプレイヤー %player はオーナーなので削除できません。'
+ErrorGroupCreateLimitExceed: '&cあなたはグループの作成制限 %num を超えたため、新規グループを作成できません。'
+ErrorGroupMemberLimitExceed: '&cグループのメンバー数制限 %num を超えたため、メンバーを追加できません。'
 
 InformationMakeGroup: '&7新しいグループ %name を作成しました。'
 InformationDeleteGroup: '&7グループ %name を削除しました。'

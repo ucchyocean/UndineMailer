@@ -217,7 +217,7 @@ public class GroupManager {
         int max = (int)((list.size() - 1) / PAGE_SIZE) + 1;
 
         String title = Messages.get("GroupListTitle", "%num", list.size());
-        sender.sendMessage(parts + parts + title + parts + parts);
+        sender.sendMessage(parts + parts + " " + title + " " + parts + parts);
 
         for ( int i=0; i<10; i++ ) {
 
@@ -237,7 +237,7 @@ public class GroupManager {
                     COMMAND + " detail " + group.getName());
             msg.addParts(button);
 
-            msg.addText(Messages.get("GroupListSummayLine",
+            msg.addText(" " + Messages.get("GroupListSummayLine",
                     new String[]{"%owner", "%num"},
                     new String[]{group.getOwner().getName(), group.getMembers().size() + ""}));
 
@@ -252,10 +252,13 @@ public class GroupManager {
                     new MessageParts(Messages.get("GroupMakeNewGroup"), ChatColor.AQUA);
             button.setClickEvent(ClickEventType.SUGGEST_COMMAND,
                     COMMAND + " create ");
+            button.addHoverText(Messages.get("GroupMakeNewGroupToolTip"));
             msg.addParts(button);
+
+            msg.send(sender);
         }
 
-        sendPager(sender, COMMAND + " list", page, max);
+        sendPager(sender, COMMAND + " list", page, max, Messages.get("ListHorizontalParts"));
     }
 
     /**
@@ -274,7 +277,7 @@ public class GroupManager {
         String parts = Messages.get("DetailHorizontalParts");
 
         String title = Messages.get("GroupDetailTitle", "%name", group.getName());
-        sender.sendMessage(parts + parts + title + parts + parts);
+        sender.sendMessage(parts + parts + " " + title + " " + parts + parts);
 
         sender.sendMessage(Messages.get(
                 "GroupOwnerLine", "%owner", group.getOwner().getName()));
@@ -319,11 +322,11 @@ public class GroupManager {
         String parts = Messages.get("DetailHorizontalParts");
 
         String title = Messages.get("GroupDetailTitle", "%name", group.getName());
-        sender.sendMessage(parts + parts + title + parts + parts);
+        sender.sendMessage(parts + parts + " " + title + " " + parts + parts);
 
-        sender.sendMessage(Messages.get(
+        sender.sendMessage(pre + Messages.get(
                 "GroupOwnerLine", "%owner", group.getOwner().getName()));
-        sender.sendMessage(Messages.get("GroupMemberLine"));
+        sender.sendMessage(pre + Messages.get("GroupMemberLine"));
 
         ArrayList<MailSender> members = group.getMembers();
         Collections.sort(members, new Comparator<MailSender>() {
@@ -338,6 +341,8 @@ public class GroupManager {
         for ( int i=0; i<PAGE_SIZE; i++ ) {
 
             int index = (page - 1) * PAGE_SIZE + i;
+            if( index < 0 || index >= members.size() ) continue;
+
             MailSender member = members.get(index);
 
             MessageComponent msg = new MessageComponent();
@@ -366,37 +371,47 @@ public class GroupManager {
         }
 
         // メンバー追加ボタンと、解散ボタンを置く
-        MessageComponent msg = new MessageComponent();
-        msg.addText(pre);
+        if ( (group.getMembers().size() < parent.getUndineConfig().getMaxGroupMember())
+                || group.canBreakup(sender) ) {
+            MessageComponent msg = new MessageComponent();
+            msg.addText(pre);
 
-        MessageParts add = new MessageParts(Messages.get("GroupAddMember"), ChatColor.AQUA);
-        add.setClickEvent(
-                ClickEventType.SUGGEST_COMMAND,
-                COMMAND + " add " + group.getName() + " ");
-        msg.addParts(add);
+            if ( group.getMembers().size() < parent.getUndineConfig().getMaxGroupMember() ) {
+                MessageParts add = new MessageParts(Messages.get("GroupAddMember"), ChatColor.AQUA);
+                add.setClickEvent(
+                        ClickEventType.SUGGEST_COMMAND,
+                        COMMAND + " add " + group.getName() + " ");
+                msg.addParts(add);
+                msg.addText(" ");
 
-        if ( parent.getUndineConfig().isEnablePlayerList() ) {
-            msg.addText(" ");
-            MessageParts addAddress = new MessageParts(
-                    Messages.get("GroupAddMemberAddress"), ChatColor.AQUA);
-            addAddress.setClickEvent(
-                    ClickEventType.RUN_COMMAND,
-                    ListCommand.COMMAND_INDEX + " "
-                    + COMMAND + " add " + group.getName() + " ");
-            msg.addParts(addAddress);
+                if ( parent.getUndineConfig().isEnablePlayerList() ) {
+                    MessageParts addAddress = new MessageParts(
+                            Messages.get("GroupAddMemberAddress"), ChatColor.AQUA);
+                    addAddress.setClickEvent(
+                            ClickEventType.RUN_COMMAND,
+                            ListCommand.COMMAND_INDEX + " "
+                            + COMMAND + " add " + group.getName() + " ");
+                    msg.addParts(addAddress);
+                    msg.addText(" ");
+                }
+            }
+
+            if ( group.canBreakup(sender) ) {
+                msg.addText(" ");
+                MessageParts breakup = new MessageParts(
+                        Messages.get("GroupDeleteGroup"), ChatColor.AQUA);
+                breakup.setClickEvent(
+                        ClickEventType.RUN_COMMAND,
+                        COMMAND + " delete " + group.getName());
+                msg.addParts(breakup);
+                msg.addText(" ");
+            }
+
+            msg.send(sender);
         }
 
-        if ( group.canBreakup(sender) ) {
-            msg.addText(" ");
-            MessageParts breakup = new MessageParts(
-                    Messages.get("GroupDeleteGroup"), ChatColor.AQUA);
-            breakup.setClickEvent(
-                    ClickEventType.RUN_COMMAND,
-                    COMMAND + " delete " + group.getName());
-            msg.addParts(breakup);
-        }
-
-        sendPager(sender, COMMAND + " detail " + group.getName(), page, max);
+        sendPager(sender, COMMAND + " detail " + group.getName(),
+                page, max, Messages.get("DetailHorizontalParts"));
     }
 
     /**
@@ -405,8 +420,9 @@ public class GroupManager {
      * @param commandPre コマンドのプレフィックス
      * @param page 現在のページ
      * @param max 最終ページ
+     * @param parts ボタンの前後に表示する枠パーツ
      */
-    private void sendPager(MailSender sender, String commandPre, int page, int max) {
+    private void sendPager(MailSender sender, String commandPre, int page, int max, String parts) {
 
         String firstLabel = Messages.get("FirstPage");
         String prevLabel = Messages.get("PrevPage");
@@ -416,7 +432,6 @@ public class GroupManager {
         String prevToolTip = Messages.get("PrevPageToolTip");
         String nextToolTip = Messages.get("NextPageToolTip");
         String lastToolTip = Messages.get("LastPageToolTip");
-        String parts = Messages.get("PagerParts");
 
         MessageComponent msg = new MessageComponent();
 

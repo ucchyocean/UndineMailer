@@ -8,6 +8,7 @@ package org.bitbucket.ucchy.undine;
 import java.io.File;
 import java.util.List;
 
+import org.bitbucket.ucchy.undine.group.GroupCommand;
 import org.bitbucket.ucchy.undine.group.GroupManager;
 import org.bukkit.Bukkit;
 import org.bukkit.command.Command;
@@ -28,9 +29,13 @@ public class UndineMailer extends JavaPlugin {
     private MailManager mailManager;
     private AttachmentBoxManager boxManager;
     private GroupManager groupManager;
-    private UndineConfig config;
+
     private UndineCommand undineCommand;
     private ListCommand listCommand;
+    private GroupCommand groupCommand;
+
+    private UndineConfig config;
+
     private VaultEcoBridge vaulteco;
 
     /**
@@ -61,6 +66,7 @@ public class UndineMailer extends JavaPlugin {
         // コマンドクラスを作成する
         undineCommand = new UndineCommand(this);
         listCommand = new ListCommand(this);
+        groupCommand = new GroupCommand(this);
 
         // リスナーの登録
         getServer().getPluginManager().registerEvents(new UndineListener(this), this);
@@ -91,6 +97,8 @@ public class UndineMailer extends JavaPlugin {
             return undineCommand.onCommand(sender, command, label, args);
         else if ( command.getName().equals("undinelist") )
             return listCommand.onCommand(sender, command, label, args);
+        else if ( command.getName().equals("undinegroup") )
+            return groupCommand.onCommand(sender, command, label, args);
         return false;
     }
 
@@ -104,6 +112,8 @@ public class UndineMailer extends JavaPlugin {
             return undineCommand.onTabComplete(sender, command, alias, args);
         else if ( command.getName().equals("undinelist") )
             return listCommand.onTabComplete(sender, command, alias, args);
+        else if ( command.getName().equals("undinegroup") )
+            return groupCommand.onTabComplete(sender, command, alias, args);
         return null;
     }
 

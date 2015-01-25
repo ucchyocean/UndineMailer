@@ -11,6 +11,10 @@ import java.util.List;
 import org.bitbucket.ucchy.undine.Messages;
 import org.bitbucket.ucchy.undine.UndineMailer;
 import org.bitbucket.ucchy.undine.sender.MailSender;
+import org.bitbucket.ucchy.undine.tellraw.ClickEventType;
+import org.bitbucket.ucchy.undine.tellraw.MessageComponent;
+import org.bitbucket.ucchy.undine.tellraw.MessageParts;
+import org.bukkit.ChatColor;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandSender;
 import org.bukkit.command.TabExecutor;
@@ -149,6 +153,15 @@ public class GroupCommand implements TabExecutor {
 
         String name = args[1];
         GroupManager manager = parent.getGroupManager();
+        MailSender ms = MailSender.getMailSender(sender);
+
+        // 作成可能数を超えた場合はエラーを表示して終了
+        int num = manager.getOwnerGroupCount(ms);
+        int limit = parent.getUndineConfig().getMaxCreateGroup();
+        if ( num >= limit ) {
+            sender.sendMessage(Messages.get("ErrorGroupCreateLimitExceed", "%num", limit));
+            return true;
+        }
 
         // グループ名として使用できない場合はエラーを表示して終了
         if ( !GroupManager.canUseNameFromGroup(name) ) {
@@ -164,6 +177,11 @@ public class GroupCommand implements TabExecutor {
 
         // グループ作成
         manager.addGroup(new GroupData(name, MailSender.getMailSender(sender)));
+
+        // グループリスト表示
+        parent.getGroupManager().displayGroupList(MailSender.getMailSender(sender), 1);
+
+        sender.sendMessage(Messages.get("InformationMakeGroup", "%name", name));
 
         return true;
     }
@@ -200,8 +218,22 @@ public class GroupCommand implements TabExecutor {
             return true;
         }
 
-        // グループ削除
-        manager.removeGroup(name);
+        if ( args.length >= 3 && args[2].equals("confirm") ) {
+            // グループ削除
+            manager.removeGroup(name);
+
+            // グループリスト表示
+            parent.getGroupManager().displayGroupList(MailSender.getMailSender(sender), 1);
+
+            sender.sendMessage(Messages.get("InformationDeleteGroup", "%name", name));
+
+            return true;
+
+        }
+
+        // 削除の確認メッセージを表示する
+        sender.sendMessage(Messages.get("InformationDeleteGroupConfirm", "%name", name));
+        showOKCancelButton(ms, COMMAND + " delete " + name + " confirm", COMMAND);
 
         return true;
     }
@@ -298,6 +330,14 @@ public class GroupCommand implements TabExecutor {
         GroupData group = manager.getGroup(gname);
         MailSender ms = MailSender.getMailSender(sender);
         MailSender target = MailSender.getMailSenderFromString(pname);
+
+        // 追加可能数を超えた場合はエラーを表示して終了
+        int num = group.getMembers().size();
+        int limit = parent.getUndineConfig().getMaxGroupMember();
+        if ( num >= limit ) {
+            sender.sendMessage(Messages.get("ErrorGroupMemberLimitExceed", "%num", limit));
+            return true;
+        }
 
         // グループを編集する権限が無い場合はエラーを表示して終了
         if ( !group.canModify(ms) ) {
@@ -396,5 +436,29 @@ public class GroupCommand implements TabExecutor {
                         new String[]{pname, gname}));
 
         return true;
+    }
+
+    /**
+     * OKボタンとキャンセルボタンを表示して、確認をとるtellrawメッセージを表示する。
+     * @param ms メッセージ送信先
+     * @param okCommand OKボタンを押した時に実行するコマンド
+     * @param cancelCommand キャンセルボタンを押した時に実行するコマンド
+     */
+    private void showOKCancelButton(
+            MailSender ms, String okCommand, String cancelCommand) {
+
+        MessageComponent msg = new MessageComponent();
+        msg.addText("     ");
+        MessageParts buttonOK = new MessageParts(
+                Messages.get("ButtonOK"), ChatColor.AQUA);
+        buttonOK.setClickEvent(ClickEventType.RUN_COMMAND, okCommand);
+        msg.addParts(buttonOK);
+        msg.addText("     ");
+        MessageParts buttonCancel = new MessageParts(
+                Messages.get("ButtonCancel"), ChatColor.AQUA);
+        buttonCancel.setClickEvent(ClickEventType.RUN_COMMAND, cancelCommand);
+        msg.addParts(buttonCancel);
+
+        msg.send(ms);
     }
 }
