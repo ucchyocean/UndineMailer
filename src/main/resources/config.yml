@@ -47,6 +47,13 @@ maxCreateGroup: 5
 # Max member num per a group.
 maxGroupMember: 15
 
+# Default mode of send mail permission.
+# OP: only OP can send mail to this group.
+# OWNER: owner and OP can send mail to this group.
+# MEMBER: group members anyone can send mail to this group.
+# EVERYONE: everyone can send mail to this group.
+sendModeDefault: MEMBER
+
 # Default mode of members modification.
 # OP: only OP can add/remove members.
 # OWNER: owner and OP can add/remove members.

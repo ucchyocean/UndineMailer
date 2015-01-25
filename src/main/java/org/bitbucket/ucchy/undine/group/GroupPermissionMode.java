@@ -5,6 +5,8 @@
  */
 package org.bitbucket.ucchy.undine.group;
 
+import org.bitbucket.ucchy.undine.Messages;
+
 /**
  * グループの権限モード
  * @author ucchy
@@ -45,5 +47,19 @@ public enum GroupPermissionMode {
             if ( mode.toString().equals(str.toUpperCase()) ) return mode;
         }
         return def;
+    }
+
+    /**
+     * 表示用の文字列を取得する
+     * @return 表示用の文字列
+     */
+    public String getDisplayString() {
+        switch (this) {
+        case OP: return Messages.get("GroupPermOP");
+        case OWNER: return Messages.get("GroupPermOwner");
+        case MEMBER: return Messages.get("GroupPermMember");
+        case EVERYONE: return Messages.get("GroupPermEveryone");
+        default: return "";
+        }
     }
 }

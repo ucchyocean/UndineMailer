@@ -258,7 +258,8 @@ public class GroupManager {
             msg.send(sender);
         }
 
-        sendPager(sender, COMMAND + " list", page, max, Messages.get("ListHorizontalParts"));
+        sendPager(sender, COMMAND + " list", page, max,
+                Messages.get("ListHorizontalParts"), null);
     }
 
     /**
@@ -353,7 +354,7 @@ public class GroupManager {
                         Messages.get("GroupDeleteMemberButton"), ChatColor.AQUA);
                 delete.setClickEvent(
                         ClickEventType.RUN_COMMAND,
-                        COMMAND + " remove " + member.getName());
+                        COMMAND + " remove " + group.getName() + " " + member.getName());
                 delete.addHoverText(Messages.get("GroupDeleteMemberToolTip"));
                 msg.addParts(delete);
 
@@ -370,48 +371,175 @@ public class GroupManager {
             msg.send(sender);
         }
 
-        // メンバー追加ボタンと、解散ボタンを置く
-        if ( (group.getMembers().size() < parent.getUndineConfig().getMaxGroupMember())
-                || group.canBreakup(sender) ) {
+        // メンバー追加ボタンと、設定ボタンを置く
+        if ( group.getMembers().size() < parent.getUndineConfig().getMaxGroupMember() ) {
             MessageComponent msg = new MessageComponent();
             msg.addText(pre);
 
-            if ( group.getMembers().size() < parent.getUndineConfig().getMaxGroupMember() ) {
-                MessageParts add = new MessageParts(Messages.get("GroupAddMember"), ChatColor.AQUA);
-                add.setClickEvent(
-                        ClickEventType.SUGGEST_COMMAND,
-                        COMMAND + " add " + group.getName() + " ");
-                msg.addParts(add);
-                msg.addText(" ");
+            MessageParts add = new MessageParts(Messages.get("GroupAddMember"), ChatColor.AQUA);
+            add.setClickEvent(
+                    ClickEventType.SUGGEST_COMMAND,
+                    COMMAND + " add " + group.getName() + " ");
+            msg.addParts(add);
 
-                if ( parent.getUndineConfig().isEnablePlayerList() ) {
-                    MessageParts addAddress = new MessageParts(
-                            Messages.get("GroupAddMemberAddress"), ChatColor.AQUA);
-                    addAddress.setClickEvent(
-                            ClickEventType.RUN_COMMAND,
-                            ListCommand.COMMAND_INDEX + " "
-                            + COMMAND + " add " + group.getName() + " ");
-                    msg.addParts(addAddress);
-                    msg.addText(" ");
-                }
-            }
-
-            if ( group.canBreakup(sender) ) {
+            if ( parent.getUndineConfig().isEnablePlayerList() ) {
                 msg.addText(" ");
-                MessageParts breakup = new MessageParts(
-                        Messages.get("GroupDeleteGroup"), ChatColor.AQUA);
-                breakup.setClickEvent(
+                MessageParts addAddress = new MessageParts(
+                        Messages.get("GroupAddMemberAddress"), ChatColor.AQUA);
+                addAddress.setClickEvent(
                         ClickEventType.RUN_COMMAND,
-                        COMMAND + " delete " + group.getName());
-                msg.addParts(breakup);
-                msg.addText(" ");
+                        ListCommand.COMMAND_INDEX + " "
+                        + COMMAND + " add " + group.getName() + " ");
+                msg.addParts(addAddress);
             }
 
             msg.send(sender);
         }
 
+        MessageComponent msg = new MessageComponent();
+        msg.addText(pre);
+        MessageParts setting = new MessageParts(
+                Messages.get("GroupChangeSetting"), ChatColor.AQUA);
+        setting.setClickEvent(
+                ClickEventType.RUN_COMMAND,
+                COMMAND + " detail " + group.getName() + " setting");
+        msg.addParts(setting);
+
+        msg.send(sender);
+
         sendPager(sender, COMMAND + " detail " + group.getName(),
-                page, max, Messages.get("DetailHorizontalParts"));
+                page, max, Messages.get("DetailHorizontalParts"),
+                COMMAND + " list");
+    }
+
+    /**
+     * 指定されたsenderに、グループの設定変更画面を表示する
+     * @param sender
+     * @param group
+     */
+    public void displayGroupSetting(MailSender sender, GroupData group) {
+
+        // 空行を挿入する
+        for ( int i=0; i<parent.getUndineConfig().getUiEmptyLines(); i++ ) {
+            sender.sendMessage("");
+        }
+
+        String pre = Messages.get("DetailVerticalParts");
+        String parts = Messages.get("DetailHorizontalParts");
+
+        String title = Messages.get("GroupSettingTitle", "%name", group.getName());
+        sender.sendMessage(parts + parts + " " + title + " " + parts + parts);
+
+        GroupPermissionMode mode = group.getSendMode();
+        sender.sendMessage(pre + Messages.get("GroupSendPerm")
+                + ChatColor.WHITE + mode.getDisplayString() );
+
+        MessageComponent msgSend = new MessageComponent();
+        msgSend.addText(pre + " ");
+        addChangeButtons(msgSend,
+                COMMAND + " perm " + group.getName() + " send",
+                (mode != GroupPermissionMode.OWNER),
+                (mode != GroupPermissionMode.MEMBER),
+                (mode != GroupPermissionMode.EVERYONE), true);
+        msgSend.send(sender);
+
+        mode = group.getModifyMode();
+        sender.sendMessage(pre + Messages.get("GroupModifyPerm")
+                + ChatColor.WHITE + mode.getDisplayString() );
+
+        MessageComponent msgMod = new MessageComponent();
+        msgMod.addText(pre + " ");
+        addChangeButtons(msgMod,
+                COMMAND + " perm " + group.getName() + " modify",
+                (mode != GroupPermissionMode.OWNER),
+                (mode != GroupPermissionMode.MEMBER),
+                false, false);
+        msgMod.send(sender);
+
+        mode = group.getDissolutionMode();
+        sender.sendMessage(pre + Messages.get("GroupDissolutionPerm")
+                + ChatColor.WHITE + mode.getDisplayString() );
+
+        MessageComponent msgDis = new MessageComponent();
+        msgDis.addText(pre + " ");
+        addChangeButtons(msgDis,
+                COMMAND + " perm " + group.getName() + " dissolution",
+                (mode != GroupPermissionMode.OWNER),
+                (mode != GroupPermissionMode.MEMBER),
+                false, false);
+        msgDis.send(sender);
+
+        if ( group.canBreakup(sender) ) {
+            MessageComponent msg = new MessageComponent();
+            msg.addText(pre);
+            MessageParts breakup = new MessageParts(
+                    Messages.get("GroupDeleteGroup"), ChatColor.AQUA);
+            breakup.setClickEvent(
+                    ClickEventType.RUN_COMMAND,
+                    COMMAND + " delete " + group.getName());
+            msg.addParts(breakup);
+            msg.send(sender);
+        }
+
+        MessageComponent msg = new MessageComponent();
+        msg.addText(pre);
+        MessageParts breakup = new MessageParts(
+                Messages.get("GroupReturnToMemberList"), ChatColor.AQUA);
+        breakup.setClickEvent(
+                ClickEventType.RUN_COMMAND,
+                COMMAND + " detail " + group.getName());
+        msg.addParts(breakup);
+        msg.send(sender);
+
+        sender.sendMessage(Messages.get("DetailLastLine"));
+    }
+
+    /**
+     * 権限設定のメッセージコンポーネントにボタンを加える
+     * @param msg
+     * @param base
+     * @param owner
+     * @param member
+     * @param everyone
+     * @param evisible
+     */
+    private void addChangeButtons(MessageComponent msg, String base,
+            boolean owner, boolean member, boolean everyone, boolean evisible) {
+
+        msg.addText(" ");
+        MessageParts buttonOwner = new MessageParts(
+                Messages.get("GroupPermChangeButton", "%perm",
+                        GroupPermissionMode.OWNER.getDisplayString()));
+        if ( owner ) {
+            buttonOwner.setColor(ChatColor.AQUA);
+            buttonOwner.setClickEvent(ClickEventType.RUN_COMMAND,
+                    base + " " + GroupPermissionMode.OWNER);
+        }
+        msg.addParts(buttonOwner);
+
+        msg.addText(" ");
+        MessageParts buttonMember = new MessageParts(
+                Messages.get("GroupPermChangeButton", "%perm",
+                        GroupPermissionMode.MEMBER.getDisplayString()));
+        if ( member ) {
+            buttonMember.setColor(ChatColor.AQUA);
+            buttonMember.setClickEvent(ClickEventType.RUN_COMMAND,
+                    base + " " + GroupPermissionMode.MEMBER);
+        }
+        msg.addParts(buttonMember);
+
+        if ( evisible ) {
+            msg.addText(" ");
+            MessageParts buttonEveryone = new MessageParts(
+                    Messages.get("GroupPermChangeButton", "%perm",
+                            GroupPermissionMode.EVERYONE.getDisplayString()));
+            if ( everyone ) {
+                buttonEveryone.setColor(ChatColor.AQUA);
+                buttonEveryone.setClickEvent(ClickEventType.RUN_COMMAND,
+                        base + " " + GroupPermissionMode.EVERYONE);
+            }
+            msg.addParts(buttonEveryone);
+        }
     }
 
     /**
@@ -421,8 +549,10 @@ public class GroupManager {
      * @param page 現在のページ
      * @param max 最終ページ
      * @param parts ボタンの前後に表示する枠パーツ
+     * @param returnCommand 戻るボタンに設定するコマンド、nullを指定したら戻るボタンは表示しない
      */
-    private void sendPager(MailSender sender, String commandPre, int page, int max, String parts) {
+    private void sendPager(MailSender sender, String commandPre, int page, int max,
+            String parts, String returnCommand) {
 
         String firstLabel = Messages.get("FirstPage");
         String prevLabel = Messages.get("PrevPage");
@@ -436,6 +566,16 @@ public class GroupManager {
         MessageComponent msg = new MessageComponent();
 
         msg.addText(parts + " ");
+
+        if ( returnCommand != null ) {
+            MessageParts returnButton = new MessageParts(
+                    Messages.get("Return"), ChatColor.AQUA);
+            returnButton.setClickEvent(ClickEventType.RUN_COMMAND, returnCommand);
+            returnButton.addHoverText(Messages.get("returnToolTip"));
+            msg.addParts(returnButton);
+
+            msg.addText(" ");
+        }
 
         if ( page > 1 ) {
             MessageParts firstButton = new MessageParts(

@@ -12,18 +12,8 @@ commands:
     usage: |
            /<command> inbox [page] - Check your unread mails.
            /<command> outbox [page] - Check your sent mails.
-           /<command> read <index> - Opens the specified mail.
            /<command> text <to> <message> - Send simple text mail.
            /<command> write - Enter to mail creation mode.
-           /<command> to <line num> <to> - Change the destination of mail.
-           /<command> to delete <line num> - Delete the destination of mail.
-           /<command> message <line num> <message> - Change the message of mail.
-           /<command> message delete <line num> - Delete the message of mail.
-           /<command> attach [index] - Open attachment box of mail.
-           /<command> costmoney <amount> - Set fee that cost money on opening box.
-           /<command> costitem <item[:amount]> - Set fee that cost item on opening box.
-           /<command> send - Send mail.
-           /<command> cancel - Cancel to mail creation mode.
            /<command> item - Show the detailed information of item in your hand.
            /<command> reload - Reload all of data.
     permission: undine.command
@@ -34,7 +24,6 @@ commands:
     aliases: [ulist,uindex]
     usage: |
            /<command> - display player index button page.
-           /<command> <pre> [page] - display players that starts with prefix.
     permission: undine.list
     permission-message: 'You don''t have a permission "<permission>".'
 
@@ -124,6 +113,9 @@ permissions:
   undine.group.remove:
     description: Permission of group remove command.
     default: true
+  undine.group.perm:
+    description: Permission of group perm command.
+    default: true
   undine.group.infinite-create:
     description: Permission of infinite create groups.
     default: op
@@ -147,6 +139,7 @@ permissions:
       undine.group.detail: true
       undine.group.add: true
       undine.group.remove: true
+      undine.group.perm: true
       undine.group.infinite-create: true
       undine.group.infinite-add-member: true
       undine.group.send-all: true

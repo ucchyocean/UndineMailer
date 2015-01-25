@@ -28,7 +28,7 @@ public class GroupCommand implements TabExecutor {
     protected static final String COMMAND = "/ugroup";
     protected static final String PERMISSION = "undine.group";
     private static final String[] COMMANDS = new String[]{
-        "create", "delete", "list", "detail", "add", "remove",
+        "create", "delete", "list", "detail", "add", "remove", "perm"
     };
 
     private UndineMailer parent;
@@ -66,6 +66,8 @@ public class GroupCommand implements TabExecutor {
             return doAddCommand(sender, command, label, args);
         } else if ( args[0].equalsIgnoreCase("remove") ) {
             return doRemoveCommand(sender, command, label, args);
+        } else if ( args[0].equalsIgnoreCase("perm") ) {
+            return doPermCommand(sender, command, label, args);
         }
 
         return false;
@@ -283,17 +285,24 @@ public class GroupCommand implements TabExecutor {
         GroupData group = manager.getGroup(name);
         MailSender ms = MailSender.getMailSender(sender);
 
+        // グループの詳細表示（リードオンリー）
+        if ( !group.canModify(ms) ) {
+            manager.displayGroupDetailReadOnly(ms, group);
+            return true;
+        }
+
+        // グループの設定表示
+        if ( args.length >= 3 && args[2].equals("setting") ) {
+            manager.displayGroupSetting(ms, group);
+            return true;
+        }
+
+        // グループのメンバー表示
         int page = 1;
         if ( args.length >= 3 && args[2].matches("[0-9]{1,5}") ) {
             page = Integer.parseInt(args[2]);
         }
-
-        // グループの詳細表示
-        if ( group.canModify(ms) ) {
-            manager.displayGroupDetailModifyMode(ms, group, page);
-        } else {
-            manager.displayGroupDetailReadOnly(ms, group);
-        }
+        manager.displayGroupDetailModifyMode(ms, group, page);
 
         return true;
     }
@@ -434,6 +443,112 @@ public class GroupCommand implements TabExecutor {
                 Messages.get("InformationGroupMemberRemove",
                         new String[]{"%player", "%group"},
                         new String[]{pname, gname}));
+
+        return true;
+    }
+
+    private boolean doPermCommand(CommandSender sender, Command command2, String label, String[] args) {
+
+        // パーミッション確認
+        if  ( !sender.hasPermission(PERMISSION + ".remove") ) {
+            sender.sendMessage(Messages.get("PermissionDeniedCommand"));
+            return true;
+        }
+
+        // パラメータが足りない場合はエラーを表示して終了
+        if ( args.length < 2 ) {
+            sender.sendMessage(Messages.get("ErrorRequireArgument", "%param", "GroupName"));
+            return true;
+        }
+
+        if ( args.length < 3 ) {
+            sender.sendMessage(Messages.get("ErrorRequireArgument", "%param", "PermType"));
+            return true;
+        }
+
+        if ( args.length < 4 ) {
+            sender.sendMessage(Messages.get("ErrorRequireArgument", "%param", "PermValue"));
+            return true;
+        }
+
+        String gname = args[1];
+        GroupManager manager = parent.getGroupManager();
+
+        // 存在しないグループ名が指定された場合はエラーを表示して終了
+        if ( !manager.existGroupName(gname) ) {
+            sender.sendMessage(Messages.get("ErrorGroupNotExist", "%name", gname));
+            return true;
+        }
+
+        GroupData group = manager.getGroup(gname);
+        MailSender ms = MailSender.getMailSender(sender);
+
+        String ptype = args[2];
+
+        // 正しくない権限タイプが指定された場合はエラーを表示して終了
+        if ( !ptype.equalsIgnoreCase("send") && !ptype.equalsIgnoreCase("modify")
+                && !ptype.equalsIgnoreCase("dissolution") ) {
+            sender.sendMessage(Messages.get("ErrorInvalidPermissionType", "%type", args[2]));
+            return true;
+        }
+
+        String pvalue = args[3];
+        GroupPermissionMode mode = GroupPermissionMode.getFromString(pvalue);
+
+        // 正しくない権限設定値が指定された場合はエラーを表示して終了
+        if ( mode == null ) {
+            sender.sendMessage(Messages.get("ErrorInvalidPermissionValue", "%value", args[3]));
+            return true;
+        }
+
+        // 該当グループの権限を持っていない場合はエラーを表示して終了
+        if ( ptype.equalsIgnoreCase("send") && !group.canModify(ms) ) {
+            // 送信権限の変更は、変更権限に従う。ちょっとややこしい
+            sender.sendMessage(Messages.get("ErrorGroupModifyNotPermission", "%name", gname));
+            return true;
+        } else if ( ptype.equalsIgnoreCase("modify") && !group.canModify(ms) ) {
+            sender.sendMessage(Messages.get("ErrorGroupModifyNotPermission", "%name", gname));
+            return true;
+        } else if ( ptype.equalsIgnoreCase("dissolution")
+                && (!group.canBreakup(ms) || !group.canModify(ms)) ) {
+            // 解散権限の変更は、変更権限と解散権限の両方が必要。ちょっとややこしい
+            sender.sendMessage(Messages.get("ErrorGroupModifyNotPermission", "%name", gname));
+            return true;
+        }
+
+        if ( (ptype.equalsIgnoreCase("modify") || ptype.equalsIgnoreCase("dissolution"))
+                && mode == GroupPermissionMode.EVERYONE ) {
+            sender.sendMessage(Messages.get("ErrorEveryonePermissionInvalid"));
+            return true;
+        }
+
+        // TODO mode == OP へ変更しようとした時は、警告文を表示して確認を求めるようにする
+
+        // 権限を設定する
+        if ( ptype.equalsIgnoreCase("send") ) {
+            group.setSendMode(mode);
+        } else if ( ptype.equalsIgnoreCase("modify") ) {
+            group.setModifyMode(mode);
+        } else if ( ptype.equalsIgnoreCase("dissolution") ) {
+            group.setDissolutionMode(mode);
+        }
+
+        manager.saveGroupData(group);
+
+        if ( group.canModify(ms) ) {
+            // グループ設定画面を表示する
+            manager.displayGroupSetting(ms, group);
+        } else {
+            // 権限を変更することで、編集権限を失ってしまった場合は、
+            // 一旦グループリストまで戻る
+            manager.displayGroupList(ms, 1);
+        }
+
+        // メッセージを表示
+        sender.sendMessage(Messages.get(
+                "InformationGroupSetPermission",
+                new String[]{"%name", "%type", "%value"},
+                new String[]{group.getName(), ptype, mode.getDisplayString()}));
 
         return true;
     }
