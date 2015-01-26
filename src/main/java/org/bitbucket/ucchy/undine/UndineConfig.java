@@ -106,7 +106,7 @@ public class UndineConfig {
         disableWorldsToOpenAttachBox =
                 conf.getStringList("disableWorldsToOpenAttachBox");
         attachBoxSize = conf.getInt("attachBoxSize", 1);
-        uiEmptyLines = conf.getInt("uiEmptyLines", 1);
+        uiEmptyLines = conf.getInt("uiEmptyLines", 2);
         enablePlayerList = conf.getBoolean("enablePlayerList", true);
         maxCreateGroup = conf.getInt("maxCreateGroup", 5);
         maxGroupMember = conf.getInt("maxGroupMember", 15);

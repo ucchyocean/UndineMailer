@@ -176,7 +176,7 @@ public class MailManager {
         for ( MailSender to : mail.getTo() ) {
             if ( to.isOnline() ) {
                 to.sendMessage(msg);
-                String pre = Messages.get("InboxLinePre");
+                String pre = Messages.get("ListVerticalParts");
                 sendMailLine(to, pre, ChatColor.GOLD + mail.getInboxSummary(), mail);
             }
         }
@@ -337,7 +337,8 @@ public class MailManager {
             sender.sendMessage("");
         }
 
-        String pre = Messages.get("InboxLinePre");
+        String parts = Messages.get("ListHorizontalParts");
+        String pre = Messages.get("ListVerticalParts");
 
         ArrayList<MailData> mails = getInboxMails(sender);
         int max = (int)((mails.size() - 1) / PAGE_SIZE) + 1;
@@ -348,8 +349,8 @@ public class MailManager {
             }
         }
 
-        String fline = Messages.get("InboxFirstLine", "%unread", unread);
-        sender.sendMessage(fline);
+        String title = Messages.get("InboxTitle", "%unread", unread);
+        sender.sendMessage(parts + parts + " " + title + " " + parts + parts);
 
         for ( int i=0; i<10; i++ ) {
 
@@ -379,13 +380,14 @@ public class MailManager {
             sender.sendMessage("");
         }
 
-        String pre = Messages.get("OutboxLinePre");
+        String parts = Messages.get("ListHorizontalParts");
+        String pre = Messages.get("ListVerticalParts");
 
         ArrayList<MailData> mails = getOutboxMails(sender);
         int max = (int)((mails.size() - 1) / PAGE_SIZE) + 1;
 
-        String fline = Messages.get("OutboxFirstLine");
-        sender.sendMessage(fline);
+        String title = Messages.get("OutboxTitle");
+        sender.sendMessage(parts + parts + " " + title + " " + parts + parts);
 
         for ( int i=0; i<PAGE_SIZE; i++ ) {
 
@@ -420,7 +422,7 @@ public class MailManager {
                 "InformationPlayerJoin", "%unread", unread.size()));
 
         // 最大5件まで、メールのサマリーを表示する
-        String pre = Messages.get("InboxLinePre");
+        String pre = Messages.get("ListVerticalParts");
         for ( int i=0; i<5; i++ ) {
             if ( i >= unread.size() ) {
                 break;
@@ -527,7 +529,7 @@ public class MailManager {
         String prevToolTip = Messages.get("PrevPageToolTip");
         String nextToolTip = Messages.get("NextPageToolTip");
         String lastToolTip = Messages.get("LastPageToolTip");
-        String parts = Messages.get("PagerParts");
+        String parts = Messages.get("ListHorizontalParts");
 
         MessageComponent msg = new MessageComponent();
 

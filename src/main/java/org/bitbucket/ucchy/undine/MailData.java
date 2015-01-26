@@ -570,14 +570,17 @@ public class MailData {
 
         String num = (index == 0) ? Messages.get("Editmode") : index + "";
         String fdate = getFormattedDate(date);
-        String pre = Messages.get("MailDetailLinePre");
 
-        sender.sendMessage(Messages.get("MailDetailFirstLine", "%number", num));
-        sender.sendMessage(Messages.get("MailDetailFromToLine",
+        String parts = Messages.get("DetailHorizontalParts");
+        String pre = Messages.get("DetailVerticalParts");
+
+        String title = Messages.get("MailDetailTitle", "%number", num);
+        sender.sendMessage(parts + parts + " " + title + " " + parts + parts);
+        sender.sendMessage(pre + Messages.get("MailDetailFromToLine",
                 new String[]{"%from", "%to"},
                 new String[]{from.getName(), join(to)}));
-        sender.sendMessage(Messages.get("MailDetailDateLine", "%date", fdate));
-        sender.sendMessage(Messages.get("MailDetailMessageLine"));
+        sender.sendMessage(pre + Messages.get("MailDetailDateLine", "%date", fdate));
+        sender.sendMessage(pre + Messages.get("MailDetailMessageLine"));
         for ( String m : message ) {
             sender.sendMessage(pre + "  " + ChatColor.WHITE + m);
         }
@@ -585,7 +588,7 @@ public class MailData {
         if ( attachments.size() > 0 ) {
 
             MessageComponent msg = new MessageComponent();
-            msg.addText(Messages.get("MailDetailAttachmentsLine"));
+            msg.addText(pre + Messages.get("MailDetailAttachmentsLine"));
             msg.addText(" ");
 
             if ( !isAttachmentsCancelled && from.equals(sender) && !isAttachmentsOpened ) {
@@ -610,6 +613,7 @@ public class MailData {
                 button.setClickEvent(ClickEventType.RUN_COMMAND,
                         COMMAND + " attach " + index);
                 msg.addParts(button);
+
             } else if ( isAttachmentsCancelled && !from.equals(sender) ) {
                 // キャンセル済みで受信者の場合、キャンセルされた旨のラベルを出す
 
@@ -628,22 +632,22 @@ public class MailData {
                 if ( eco != null ) {
                     costDesc = eco.format(costMoney);
                 }
-                sender.sendMessage(Messages.get(
+                sender.sendMessage(pre + Messages.get(
                         "MailDetailAttachCostMoneyLine", "%fee", costDesc));
             } else if ( costItem != null ) {
-                sender.sendMessage(Messages.get(
+                sender.sendMessage(pre + Messages.get(
                         "MailDetailAttachCostItemLine", "%item", getItemDesc(costItem)));
             }
 
         } else if ( isAttachmentsCancelled ) {
             // キャンセル済みの場合、キャンセルされた旨のラベルを出す
 
-            sender.sendMessage(Messages.get("MailDetailAttachmentsLine") + " "
+            sender.sendMessage(pre + Messages.get("MailDetailAttachmentsLine") + " "
                     + ChatColor.WHITE + Messages.get("MailDetailAttachmentBoxCancelled"));
 
         }
 
-        sender.sendMessage(Messages.get("MailDetailLastLine"));
+        sender.sendMessage(Messages.get("DetailLastLine"));
     }
 
     /**
@@ -664,9 +668,11 @@ public class MailData {
             sender.sendMessage("");
         }
 
-        String pre = Messages.get("EditmodeLinePre");
+        String parts = Messages.get("DetailHorizontalParts");
+        String pre = Messages.get("DetailVerticalParts");
 
-        sender.sendMessage(Messages.get("EditmodeFirstLine"));
+        String title = Messages.get("EditmodeTitle");
+        sender.sendMessage(parts + parts + " " + title + " " + parts + parts);
 
         for ( int i=0; i<to.size(); i++ ) {
             MessageComponent msg = new MessageComponent();
@@ -838,19 +844,18 @@ public class MailData {
             }
         }
 
-        String lineParts = Messages.get("EditmodeLastLineParts");
         MessageComponent last = new MessageComponent();
-        last.addText(lineParts);
+        last.addText(parts);
         MessageParts sendButton = new MessageParts(
                 Messages.get("EditmodeSend"), ChatColor.AQUA);
         sendButton.setClickEvent(ClickEventType.RUN_COMMAND, COMMAND + " send");
         last.addParts(sendButton);
-        last.addText(lineParts);
+        last.addText(parts);
         MessageParts cancelButton = new MessageParts(
                 Messages.get("EditmodeCancel"), ChatColor.AQUA);
         cancelButton.setClickEvent(ClickEventType.RUN_COMMAND, COMMAND + " cancel");
         last.addParts(cancelButton);
-        last.addText(lineParts);
+        last.addText(parts);
         last.send(sender);
     }
 

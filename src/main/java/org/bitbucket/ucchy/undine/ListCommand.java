@@ -72,7 +72,8 @@ public class ListCommand implements TabExecutor {
             }
         });
 
-        String pre = Messages.get("PlayerListLinePre");
+        String parts = Messages.get("ListHorizontalParts");
+        String pre = Messages.get("ListVerticalParts");
 
         // 空行を挿入する
         for ( int i=0; i<parent.getUndineConfig().getUiEmptyLines(); i++ ) {
@@ -94,7 +95,8 @@ public class ListCommand implements TabExecutor {
                 if ( !indexes.contains(p) ) indexes.add(p);
             }
 
-            sender.sendMessage(Messages.get("PlayerListIndexFirstLine"));
+            String title = Messages.get("PlayerListIndexTitle");
+            sender.sendMessage(parts + parts + " " + title + " " + parts + parts);
 
             int linenum = (int)((indexes.size() - 1) / 10) + 1;
             for ( int line=0; line<linenum; line++ ) {
@@ -116,7 +118,7 @@ public class ListCommand implements TabExecutor {
                 msg.send(sender);
             }
 
-            sender.sendMessage(Messages.get("PlayerListIndexLastLine"));
+            sender.sendMessage(Messages.get("ListLastLine"));
 
             return true;
         }
@@ -141,7 +143,8 @@ public class ListCommand implements TabExecutor {
         }
         int max = (int)((list.size() - 1) / PAGE_SIZE) + 1;
 
-        sender.sendMessage(Messages.get("PlayerListFirstLine", "%pre", prefix));
+        String title = Messages.get("PlayerListTitle", "%pre", prefix);
+        sender.sendMessage(parts + parts + " " + title + " " + parts + parts);
 
         for ( int i=0; i<PAGE_SIZE; i++ ) {
 
@@ -210,7 +213,7 @@ public class ListCommand implements TabExecutor {
         String prevToolTip = Messages.get("PrevPageToolTip");
         String nextToolTip = Messages.get("NextPageToolTip");
         String lastToolTip = Messages.get("LastPageToolTip");
-        String parts = Messages.get("PagerParts");
+        String parts = Messages.get("ListHorizontalParts");
 
         MessageComponent msg = new MessageComponent();
 
