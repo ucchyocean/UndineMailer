@@ -25,7 +25,7 @@ import org.bukkit.command.TabExecutor;
  */
 public class GroupCommand implements TabExecutor {
 
-    protected static final String COMMAND = "/ugroup";
+    public static final String COMMAND = "/ugroup";
     protected static final String PERMISSION = "undine.group";
     private static final String[] COMMANDS = new String[]{
         "create", "delete", "list", "detail", "add", "remove", "perm"
@@ -249,12 +249,23 @@ public class GroupCommand implements TabExecutor {
         }
 
         int page = 1;
+        String next = "";
         if ( args.length >= 2 && args[1].matches("[0-9]{1,5}") ) {
             page = Integer.parseInt(args[1]);
+
+            for ( int i=2; i<args.length; i++ ) {
+                next += " " + args[i];
+            }
         }
 
         // リスト表示
-        parent.getGroupManager().displayGroupList(MailSender.getMailSender(sender), page);
+        if ( next.length() > 0 ) {
+            parent.getGroupManager().displayGroupSelection(
+                    MailSender.getMailSender(sender), page, next.trim());
+        } else {
+            parent.getGroupManager().displayGroupList(
+                    MailSender.getMailSender(sender), page);
+        }
 
         return true;
     }

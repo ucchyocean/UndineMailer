@@ -284,4 +284,15 @@ public class GroupData {
         YamlConfiguration config = YamlConfiguration.loadConfiguration(file);
         return loadFromSection(config);
     }
+
+    /**
+     * 指定されたオブジェクトが一致するかどうかを確認する。
+     * @see java.lang.Object#equals(java.lang.Object)
+     */
+    @Override
+    public boolean equals(Object other) {
+        if ( !(other instanceof GroupData) ) return false;
+        GroupData o = (GroupData)other;
+        return name.equals(o);
+    }
 }

@@ -8,6 +8,7 @@ package org.bitbucket.ucchy.undine;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.bitbucket.ucchy.undine.group.GroupData;
 import org.bitbucket.ucchy.undine.item.TradableMaterial;
 import org.bitbucket.ucchy.undine.sender.MailSender;
 import org.bitbucket.ucchy.undine.sender.MailSenderConsole;
@@ -352,7 +353,7 @@ public class UndineCommand implements TabExecutor {
 
         // パラメータが足りない場合はエラーを表示して終了
         if ( args.length < 2 ) {
-            sender.sendMessage(Messages.get("ErrorRequireArgument", "%param", "Index Number"));
+            sender.sendMessage(Messages.get("ErrorRequireArgument", "%param", "IndexNumber"));
             return true;
         }
 
@@ -402,6 +403,68 @@ public class UndineCommand implements TabExecutor {
                 line = mail.getTo().size() - 1;
             }
             mail.deleteTo(line);
+
+        } else if ( args[1].equalsIgnoreCase("group") && args[2].matches("[0-9]{1,2}") ) {
+            // 2番めの引数にgroupが来た場合は、グループ追加
+            int line = Integer.parseInt(args[2]) - 1;
+            if ( line < 0 ) {
+                line = 0;
+            } else if ( line > mail.getToGroups().size() ) {
+                line = mail.getToGroups().size();
+            }
+            if ( line >= MailData.TOGROUP_MAX_SIZE ) {
+                sender.sendMessage(
+                        Messages.get("ErrorTooManyDestination", "%num", MailData.TOGROUP_MAX_SIZE));
+                return true;
+            }
+
+            // パラメータが足りない場合はエラーを表示して終了
+            if ( args.length < 4 ) {
+                sender.sendMessage(Messages.get("ErrorRequireArgument", "%param", "GroupName"));
+                return true;
+            }
+
+            // 指定されたグループが見つからないなら、エラーを表示して終了
+            GroupData group = parent.getGroupManager().getGroup(args[3]);
+            if ( group == null ) {
+                sender.sendMessage(Messages.get("ErrorGroupNotExist", "%name", args[3]));
+                return true;
+            }
+
+            // 既に指定済みの宛先が再度指定された場合は、エラーを表示
+            if ( mail.getToGroups().contains(group.getName()) ) {
+                sender.sendMessage(Messages.get("ErrorAlreadyExistTo"));
+                return true;
+            }
+
+            // 宛先グループ追加
+            mail.setToGroup(line, group.getName());
+
+        } else if ( args[1].equalsIgnoreCase("group")
+                && args[2].equalsIgnoreCase("delete") ) {
+            // 2番めの引数にgroup、3番目の引数にdeleteが来た場合は、グループ削除
+
+            // パラメータが足りない場合はエラーを表示して終了
+            if ( args.length < 4 ) {
+                sender.sendMessage(Messages.get("ErrorRequireArgument", "%param", "IndexNumber"));
+                return true;
+            }
+
+            // 指定されたパラメータが数字(正の整数)でない場合はエラーを表示して終了
+            if ( !args[3].matches("[0-9]{1,9}") ) {
+                sender.sendMessage(Messages.get("ErrorInvalidIndex", "%index", args[3]));
+                return true;
+            }
+
+            int line = Integer.parseInt(args[3]) - 1;
+            if ( line < 0 ) {
+                line = 0;
+            } else if ( line >= mail.getToGroups().size() ) {
+                line = mail.getToGroups().size() - 1;
+            }
+
+            // 宛先グループ削除
+            mail.deleteToGroup(line);
 
         }
 
@@ -818,13 +881,14 @@ public class UndineCommand implements TabExecutor {
         }
 
         // 宛先が設定されていないならエラーを表示して終了
-        if ( mail.getTo().size() == 0 ) {
+        if ( (mail.getTo().size() + mail.getToGroups().size()) == 0 ) {
             sender.sendMessage(Messages.get("ErrorEmptyTo"));
             return true;
         }
 
         // 添付ファイル付きのメールを複数の宛先に出そうとしたなら、エラーを表示して終了
-        if ( mail.getAttachments().size() > 0 && mail.getTo().size() > 1 ) {
+        if ( mail.getAttachments().size() > 0
+                && (mail.getTo().size() > 1 || mail.getToGroups().size() > 0) ) {
             sender.sendMessage(Messages.get("ErrorCannotSendMultiAttach"));
             return true;
         }

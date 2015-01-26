@@ -12,6 +12,9 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 
+import org.bitbucket.ucchy.undine.group.GroupCommand;
+import org.bitbucket.ucchy.undine.group.GroupData;
+import org.bitbucket.ucchy.undine.group.GroupManager;
 import org.bitbucket.ucchy.undine.item.ItemConfigParseException;
 import org.bitbucket.ucchy.undine.item.ItemConfigParser;
 import org.bitbucket.ucchy.undine.sender.MailSender;
@@ -33,10 +36,13 @@ public class MailData {
 
     private static final int SUMMARY_MAX_SIZE = 40;
     protected static final int TO_MAX_SIZE = 10;
+    protected static final int TOGROUP_MAX_SIZE = 3;
     protected static final int MESSAGE_MAX_SIZE = 15;
     private static final int MESSAGE_ADD_SIZE = 3;
 
     private List<MailSender> to;
+    private List<String> toGroups;
+    private List<MailSender> toTotal;
     private MailSender from;
     private List<String> message;
     private List<ItemStack> attachments;
@@ -111,6 +117,18 @@ public class MailData {
         this.readFlags = new ArrayList<MailSender>();
         this.isAttachmentsOpened = false;
         this.isAttachmentsCancelled = false;
+        this.toGroups = new ArrayList<String>();
+    }
+
+    /**
+     * コンストラクタ
+     * @param toGroup 宛先グループ
+     * @param from 送り主
+     * @param message メッセージ
+     */
+    public MailData(String toGroup, MailSender from, String message) {
+        this(new ArrayList<MailSender>(), from, message);
+        setToGroup(0, toGroup);
     }
 
     /**
@@ -139,6 +157,17 @@ public class MailData {
             toList.add(t.toString());
         }
         section.set("to", toList);
+
+        section.set("toGroups", toGroups);
+
+        if ( toTotal != null ) {
+            ArrayList<String> toTotalList = new ArrayList<String>();
+            for ( MailSender t : toTotal ) {
+                toTotalList.add(t.toString());
+            }
+            section.set("toTotal", toTotalList);
+        }
+
         section.set("from", from.toString());
         section.set("message", message);
 
@@ -208,6 +237,19 @@ public class MailData {
                 data.to.add(sender);
             }
         }
+
+        data.toGroups = section.getStringList("toGroups");
+
+        if ( section.contains("toTotal") ) {
+            data.toTotal = new ArrayList<MailSender>();
+            for ( String t : section.getStringList("toTotal") ) {
+                MailSender sender = MailSender.getMailSenderFromString(t);
+                if ( sender != null ) {
+                    data.toTotal.add(sender);
+                }
+            }
+        }
+
         data.from = MailSender.getMailSenderFromString(section.getString("from"));
         data.message = section.getStringList("message");
 
@@ -318,10 +360,11 @@ public class MailData {
      * @param to 宛先
      */
     public void setTo(int line, MailSender to) {
-        while ( this.to.size() <= line ) {
+        if ( this.to.size() == line ) {
             this.to.add(to);
+        } else if ( this.to.size() > line ) {
+            this.to.set(line, to);
         }
-        this.to.set(line, to);
     }
 
     /**
@@ -383,9 +426,72 @@ public class MailData {
      * @param line 宛先番号（0から始まることに注意）
      */
     public void deleteMessage(int line) {
-        if ( this.message.size() > line ) {
+        if ( this.message.size() > line && line >= 0 ) {
             this.message.remove(line);
         }
+    }
+
+    /**
+     * 宛先グループを取得します。
+     * @return 宛先グループ
+     */
+    public List<String> getToGroups() {
+        return toGroups;
+    }
+
+    /**
+     * 宛先グループを取得します。
+     * @return 宛先グループ
+     */
+    public List<GroupData> getToGroupsConv() {
+        GroupManager manager = UndineMailer.getInstance().getGroupManager();
+        List<GroupData> result = new ArrayList<GroupData>();
+        for ( String name : toGroups ) {
+            GroupData group = manager.getGroup(name);
+            if ( group != null ) {
+                result.add(group);
+            }
+        }
+        return result;
+    }
+
+    /**
+     * このメールの宛先グループを設定します。
+     * @param line 宛先番号（0から始まることに注意）
+     * @param group グループ
+     */
+    public void setToGroup(int line, String group) {
+        if ( this.toGroups.size() == line ) {
+            this.toGroups.add(group);
+        } else if ( this.toGroups.size() > line ) {
+            this.toGroups.set(line, group);
+        }
+    }
+
+    /**
+     * このメールの宛先グループの、指定された行番号を削除します。
+     * @param line 宛先番号（0から始まることに注意）
+     */
+    public void deleteToGroup(int line) {
+        if ( this.toGroups.size() > line && line >= 0 ) {
+            this.toGroups.remove(line);
+        }
+    }
+
+    /**
+     * 統合宛先を設定する
+     * @param total 統合宛先
+     */
+    protected void setToTotal(List<MailSender> total) {
+        this.toTotal = total;
+    }
+
+    /**
+     * 統合宛先（宛先＋宛先グループの和集合）を取得する。未送信メールの場合はnullになる。
+     * @return 統合宛先
+     */
+    public List<MailSender> getToTotal() {
+        return toTotal;
     }
 
     /**
@@ -576,9 +682,20 @@ public class MailData {
 
         String title = Messages.get("MailDetailTitle", "%number", num);
         sender.sendMessage(parts + parts + " " + title + " " + parts + parts);
+
+        String todesc = joinToAndGroup();
+        String tonext = "";
+        if ( todesc.length() > 25 ) { // 宛先が長すぎる場合は、次の行に折り返す
+            tonext = todesc.substring(25);
+            todesc = todesc.substring(0, 25);
+        }
         sender.sendMessage(pre + Messages.get("MailDetailFromToLine",
                 new String[]{"%from", "%to"},
-                new String[]{from.getName(), join(to)}));
+                new String[]{from.getName(), todesc}));
+        if ( tonext.length() > 0 ) {
+            sender.sendMessage(pre + "  " + ChatColor.WHITE + tonext);
+        }
+
         sender.sendMessage(pre + Messages.get("MailDetailDateLine", "%date", fdate));
         sender.sendMessage(pre + Messages.get("MailDetailMessageLine"));
         for ( String m : message ) {
@@ -718,6 +835,35 @@ public class MailData {
                         ListCommand.COMMAND_INDEX + " " + COMMAND + " to " + (to.size()+1));
                 msg.addParts(buttonAddress);
             }
+
+            msg.send(sender);
+        }
+
+        for ( int i=0; i<toGroups.size(); i++ ) {
+            MessageComponent msg = new MessageComponent();
+            msg.addText(pre);
+            MessageParts buttonDelete = new MessageParts(
+                    Messages.get("EditmodeToDelete"), ChatColor.AQUA);
+            buttonDelete.setClickEvent(
+                    ClickEventType.RUN_COMMAND,
+                    COMMAND + " to group delete " + (i+1));
+            buttonDelete.addHoverText(Messages.get("EditmodeToDeleteToolTip"));
+            msg.addParts(buttonDelete);
+            msg.addText(" " + ChatColor.WHITE + Messages.get("EditmodeToGroup")
+                    + " " + toGroups.get(i), ChatColor.WHITE);
+            msg.send(sender);
+        }
+
+        if ( toGroups.size() < TOGROUP_MAX_SIZE ) {
+            MessageComponent msg = new MessageComponent();
+            msg.addText(pre);
+            MessageParts button = new MessageParts(
+                    Messages.get("EditmodeToGroupAdd"), ChatColor.AQUA);
+            button.setClickEvent(
+                    ClickEventType.RUN_COMMAND,
+                    GroupCommand.COMMAND + " list 1 "
+                            + COMMAND + " to group " + (toGroups.size()+1));
+            msg.addParts(button);
 
             msg.send(sender);
         }
@@ -884,8 +1030,12 @@ public class MailData {
     protected String getOutboxSummary() {
 
         String fdate = getFormattedDate(date);
+        String todesc = joinToAndGroup();
+        if ( todesc.length() > 15 ) { // 長すぎる場合は切る
+            todesc = todesc.substring(0, 15);
+        }
         String summary = String.format("%s (%s) %s",
-                join(to), fdate, message.get(0));
+                todesc, fdate, message.get(0));
 
         // 長すぎる場合は切る
         if ( summary.length() > SUMMARY_MAX_SIZE ) {
@@ -896,18 +1046,23 @@ public class MailData {
     }
 
     /**
-     * MailSenderのリストを、コンマを使ってつなげる
-     * @param list MailSenderのリスト
+     * 宛先のリストを、コンマを使ってつなげる
      * @return 繋がった文字列
      */
-    private String join(List<MailSender> list) {
+    private String joinToAndGroup() {
 
         StringBuffer buffer = new StringBuffer();
-        for ( MailSender item : list ) {
+        for ( MailSender item : to ) {
             if ( buffer.length() > 0 ) {
-                buffer.append(",");
+                buffer.append(", ");
             }
             buffer.append(item.getName());
+        }
+        for ( String group : toGroups ) {
+            if ( buffer.length() > 0 ) {
+                buffer.append(", ");
+            }
+            buffer.append(group);
         }
         return buffer.toString();
     }

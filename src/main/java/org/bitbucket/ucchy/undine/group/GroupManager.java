@@ -258,8 +258,60 @@ public class GroupManager {
             msg.send(sender);
         }
 
-        sendPager(sender, COMMAND + " list", page, max,
+        sendPager(sender, COMMAND + " list", "", page, max,
                 Messages.get("ListHorizontalParts"), null);
+    }
+
+    /**
+     * 指定されたsenderに、Group選択リストを表示する。
+     * @param sender 表示対象のsender
+     * @param page 表示するページ(1から始まることに注意)
+     * @param next 選択したときに実行するコマンド
+     */
+    public void displayGroupSelection(MailSender sender, int page, String next) {
+
+        // 空行を挿入する
+        for ( int i=0; i<parent.getUndineConfig().getUiEmptyLines(); i++ ) {
+            sender.sendMessage("");
+        }
+
+        String pre = Messages.get("ListVerticalParts");
+        String parts = Messages.get("ListHorizontalParts");
+
+        ArrayList<GroupData> list = getGroupsFor(sender);
+        int max = (int)((list.size() - 1) / PAGE_SIZE) + 1;
+
+        String title = Messages.get("GroupListTitle", "%num", list.size());
+        sender.sendMessage(parts + parts + " " + title + " " + parts + parts);
+
+        for ( int i=0; i<10; i++ ) {
+
+            int index = (page - 1) * 10 + i;
+            if ( index < 0 || list.size() <= index ) {
+                continue;
+            }
+
+            GroupData group = list.get(index);
+
+            MessageComponent msg = new MessageComponent();
+            msg.addText(pre);
+
+            MessageParts button =
+                    new MessageParts("[" + group.getName() + "]", ChatColor.AQUA);
+            button.setClickEvent(ClickEventType.RUN_COMMAND,
+                    next + " " + group.getName());
+            msg.addParts(button);
+
+            msg.addText(" " + Messages.get("GroupListSummayLine",
+                    new String[]{"%owner", "%num"},
+                    new String[]{group.getOwner().getName(), group.getMembers().size() + ""}));
+
+            msg.send(sender);
+        }
+
+        sendPager(sender, COMMAND + " list", " " + next, page, max,
+                Messages.get("ListHorizontalParts"),
+                UndineMailer.COMMAND + " write");
     }
 
     /**
@@ -407,7 +459,7 @@ public class GroupManager {
 
         msg.send(sender);
 
-        sendPager(sender, COMMAND + " detail " + group.getName(),
+        sendPager(sender, COMMAND + " detail " + group.getName(), "",
                 page, max, Messages.get("DetailHorizontalParts"),
                 COMMAND + " list");
     }
@@ -546,12 +598,14 @@ public class GroupManager {
      * ページャーを対象プレイヤーに表示する
      * @param sender 表示対象
      * @param commandPre コマンドのプレフィックス
+     * @param commandSuf コマンドのサフィックス
      * @param page 現在のページ
      * @param max 最終ページ
      * @param parts ボタンの前後に表示する枠パーツ
      * @param returnCommand 戻るボタンに設定するコマンド、nullを指定したら戻るボタンは表示しない
      */
-    private void sendPager(MailSender sender, String commandPre, int page, int max,
+    private void sendPager(MailSender sender, String commandPre, String commandSuf,
+            int page, int max,
             String parts, String returnCommand) {
 
         String firstLabel = Messages.get("FirstPage");
@@ -580,7 +634,8 @@ public class GroupManager {
         if ( page > 1 ) {
             MessageParts firstButton = new MessageParts(
                     firstLabel, ChatColor.AQUA);
-            firstButton.setClickEvent(ClickEventType.RUN_COMMAND, commandPre + " 1");
+            firstButton.setClickEvent(ClickEventType.RUN_COMMAND,
+                    commandPre + " 1" + commandSuf);
             firstButton.addHoverText(firstToolTip);
             msg.addParts(firstButton);
 
@@ -588,7 +643,8 @@ public class GroupManager {
 
             MessageParts prevButton = new MessageParts(
                     prevLabel, ChatColor.AQUA);
-            prevButton.setClickEvent(ClickEventType.RUN_COMMAND, commandPre + " " + (page - 1));
+            prevButton.setClickEvent(ClickEventType.RUN_COMMAND,
+                    commandPre + " " + (page - 1) + commandSuf);
             prevButton.addHoverText(prevToolTip);
             msg.addParts(prevButton);
 
@@ -602,7 +658,8 @@ public class GroupManager {
         if ( page < max ) {
             MessageParts nextButton = new MessageParts(
                     nextLabel, ChatColor.AQUA);
-            nextButton.setClickEvent(ClickEventType.RUN_COMMAND, commandPre + " " + (page + 1));
+            nextButton.setClickEvent(ClickEventType.RUN_COMMAND,
+                    commandPre + " " + (page + 1) + commandSuf);
             nextButton.addHoverText(nextToolTip);
             msg.addParts(nextButton);
 
@@ -610,7 +667,8 @@ public class GroupManager {
 
             MessageParts lastButton = new MessageParts(
                     lastLabel, ChatColor.AQUA);
-            lastButton.setClickEvent(ClickEventType.RUN_COMMAND, commandPre + " " + max);
+            lastButton.setClickEvent(ClickEventType.RUN_COMMAND,
+                    commandPre + " " + max + commandSuf);
             lastButton.addHoverText(lastToolTip);
             msg.addParts(lastButton);
 

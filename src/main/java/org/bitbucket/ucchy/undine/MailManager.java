@@ -15,6 +15,7 @@ import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 
+import org.bitbucket.ucchy.undine.group.GroupData;
 import org.bitbucket.ucchy.undine.sender.MailSender;
 import org.bitbucket.ucchy.undine.tellraw.ClickEventType;
 import org.bitbucket.ucchy.undine.tellraw.MessageComponent;
@@ -145,6 +146,17 @@ public class MailManager {
         }
         mail.setTo(to_copy);
 
+        // 統合宛先を設定する。
+        ArrayList<MailSender> to_total = new ArrayList<MailSender>(to_copy);
+        for ( GroupData group : mail.getToGroupsConv() ) {
+            for ( MailSender t : group.getMembers() ) {
+                if ( !to_total.contains(t) ) {
+                    to_total.add(t);
+                }
+            }
+        }
+        mail.setToTotal(to_total);
+
         // インデクスを設定する
         mail.setIndex(nextIndex);
         nextIndex++;
@@ -173,7 +185,7 @@ public class MailManager {
         // 宛先の人がログイン中なら知らせる
         String msg = Messages.get("InformationYouGotMail",
                 "%from", mail.getFrom().getName());
-        for ( MailSender to : mail.getTo() ) {
+        for ( MailSender to : mail.getToTotal() ) {
             if ( to.isOnline() ) {
                 to.sendMessage(msg);
                 String pre = Messages.get("ListVerticalParts");
@@ -197,7 +209,8 @@ public class MailManager {
 
         ArrayList<MailData> box = new ArrayList<MailData>();
         for ( MailData mail : mails ) {
-            if ( mail.getTo().contains(sender) ) {
+            if ( (mail.getToTotal() != null && mail.getToTotal().contains(sender))
+                    || mail.getTo().contains(sender) ) {
                 box.add(mail);
             }
         }
@@ -214,8 +227,11 @@ public class MailManager {
 
         ArrayList<MailData> box = new ArrayList<MailData>();
         for ( MailData mail : mails ) {
-            if ( mail.getTo().contains(sender) && !mail.isRead(sender) ) {
-                box.add(mail);
+            if ( (mail.getToTotal() != null && mail.getToTotal().contains(sender))
+                    || mail.getTo().contains(sender) ) {
+                if ( !mail.isRead(sender) ) {
+                    box.add(mail);
+                }
             }
         }
         sortNewer(box);

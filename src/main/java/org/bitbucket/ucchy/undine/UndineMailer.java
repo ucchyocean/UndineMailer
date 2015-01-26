@@ -21,7 +21,7 @@ import org.bukkit.plugin.java.JavaPlugin;
  */
 public class UndineMailer extends JavaPlugin {
 
-    protected static final String COMMAND = "/umail";
+    public static final String COMMAND = "/umail";
 
     private static final String MAIL_FOLDER = "mail";
     private static final String GROUP_FOLDER = "group";
@@ -46,9 +46,9 @@ public class UndineMailer extends JavaPlugin {
     public void onEnable() {
 
         // マネージャを生成し、データをロードする
+        groupManager = new GroupManager(this);
         mailManager = new MailManager(this);
         boxManager = new AttachmentBoxManager(this);
-        groupManager = new GroupManager(this);
 
         // コンフィグをロードする
         config = new UndineConfig(this);
