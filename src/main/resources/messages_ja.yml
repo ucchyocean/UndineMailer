@@ -28,6 +28,7 @@ ErrorAlreadyAttachCancelled: '&c既に添付アイテムはキャンセルされ
 ErrorAlreadyRecipientOpened: '&c既に受信者がボックスを開いたため、キャンセルできません。'
 ErrorInvalidAttachBoxWorld: '&cあなたのいるワールドは、アイテムの送受信が禁止されています。別のワールドに移動してから、添付ボックスを開いてください。'
 ErrorInvalidCommand: '&cこのコマンドは利用不可に設定されています。'
+ErrorAttachBoxCountExceed: '&cあなたは現在 %num個の添付ボックスを使用しており、制限数 %limitを超えているため、添付付きメールを送信することはできません。'
 
 ErrorInvalidGroupName: '&c%name はグループ名として使用できません。'
 ErrorGroupIsAlreadyExist: '&cグループ %name は既に存在するため使用できません。'
@@ -132,8 +133,6 @@ PrevPageToolTip: '前のページヘ'
 NextPageToolTip: '次のページへ'
 LastPageToolTip: '最後のページヘ'
 
-DateFormat: 'yyyy/MM/dd(E) HH:mm:ss'
-
 EditmodeBoxTitle: '編集中メールの添付ボックス'
 AttachmentBoxTitle: '添付ボックス(#%number)'
 
@@ -164,6 +163,8 @@ GroupPermEveryone: '誰でも'
 GroupPermChangeButton: '[%perm に変更]'
 GroupDeleteGroup: '[グループを解散する]'
 GroupReturnToMemberList: '[グループのメンバーリストに戻る]'
+
+DateFormat: 'yyyy/MM/dd(E) HH:mm:ss'
 
 ListVerticalParts: '&7| '
 ListHorizontalParts: '&7-----'

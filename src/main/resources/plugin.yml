@@ -69,6 +69,9 @@ permissions:
   undine.attach-all:
     description: Permission of opening other's mail attach box.
     default: op
+  undine.attach-infinity:
+    description: Permission of infinity use of attachment box.
+    default: op
   undine.costmoney:
     description: Permission of costmoney command.
     default: true
@@ -160,6 +163,7 @@ permissions:
       undine.message: true
       undine.attach: true
       undine.attach-all: true
+      undine.attach-infinity: true
       undine.costmoney: true
       undine.costitem: true
       undine.send: true

@@ -28,6 +28,7 @@ ErrorAlreadyAttachCancelled: '&cThe attachment was cancelled already.'
 ErrorAlreadyRecipientOpened: '&cBecause recipient had opened box, you cannot cancel attachments.'
 ErrorInvalidAttachBoxWorld: '&cIn this world, sending and receiving of items is prohibited. After you move to a different world, please open the attached box.'
 ErrorInvalidCommand: '&cThis command is invalid.'
+ErrorAttachBoxCountExceed: '&cYou are using %num attached boxes now, because it exceeds the limit %limit, you cannot send attachments with mail!'
 
 ErrorInvalidGroupName: '&c%name cannot be used as a group name.'
 ErrorGroupIsAlreadyExist: '&cGroup %name cannot be used because it already exists.'
@@ -132,8 +133,6 @@ PrevPageToolTip: 'Prev Page'
 NextPageToolTip: 'Next Page'
 LastPageToolTip: 'Last Page'
 
-DateFormat: 'MM/dd/yyyy(E) HH:mm:ss'
-
 EditmodeBoxTitle: 'AttachmentBox (EditMode)'
 AttachmentBoxTitle: 'AttachmentBox (#%number)'
 
@@ -164,6 +163,8 @@ GroupPermEveryone: 'Everyone'
 GroupPermChangeButton: '[Change to %perm]'
 GroupDeleteGroup: '[Break-up this group]'
 GroupReturnToMemberList: '[Return to group members list]'
+
+DateFormat: 'MM/dd/yyyy(E) HH:mm:ss'
 
 ListVerticalParts: '&7| '
 ListHorizontalParts: '&7-----'

@@ -893,6 +893,13 @@ public class UndineCommand implements TabExecutor {
             return true;
         }
 
+        // 添付ボックスの使用制限を超える場合は、エラーを表示して終了
+        if ( !sender.hasPermission(PERMISSION + ".attach-infinity")
+                && manager.getAttachBoxUsageCount(ms) >= config.getAttachBoxSize() ) {
+            sender.sendMessage(Messages.get("ErrorAttachBoxCountExceed"));
+            return true;
+        }
+
         // 送信にお金がかかる場合
         double fee = manager.getSendFee(mail);
         if ( (ms instanceof MailSenderPlayer) && fee > 0 ) {

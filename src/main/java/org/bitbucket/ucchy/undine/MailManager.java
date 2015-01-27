@@ -195,6 +195,12 @@ public class MailManager {
 
         // 送信したことを送信元に知らせる
         if ( mail.getFrom() != null && mail.getFrom().isOnline() ) {
+
+            // 空行を挿入する
+            for ( int i=0; i<parent.getUndineConfig().getUiEmptyLines(); i++ ) {
+                mail.getFrom().sendMessage("");
+            }
+
             msg = Messages.get("InformationYouSentMail");
             mail.getFrom().sendMessage(msg);
         }
@@ -486,6 +492,22 @@ public class MailManager {
 
         // 復帰元ファイルを削除しておく
         file.delete();
+    }
+
+    /**
+     * 指定したsenderが使用中の添付ボックスの個数を返す
+     * @param sender
+     * @return 使用中添付ボックスの個数
+     */
+    protected int getAttachBoxUsageCount(MailSender sender) {
+
+        int count = 0;
+        for ( MailData mail : mails ) {
+            if ( mail.getFrom().equals(sender) && mail.getAttachments().size() > 0 ) {
+                count++;
+            }
+        }
+        return count;
     }
 
     /**

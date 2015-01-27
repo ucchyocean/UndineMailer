@@ -41,6 +41,9 @@ public class UndineConfig {
     /** 添付ボックスのサイズ */
     private int attachBoxSize;
 
+    /** 同時に使用可能な添付ボックスの個数を指定します。 */
+    private int maxAttachmentBoxCount;
+
     /** UIの前に挿入する空行の行数 */
     private int uiEmptyLines;
 
@@ -106,6 +109,7 @@ public class UndineConfig {
         disableWorldsToOpenAttachBox =
                 conf.getStringList("disableWorldsToOpenAttachBox");
         attachBoxSize = conf.getInt("attachBoxSize", 1);
+        maxAttachmentBoxCount = conf.getInt("maxAttachmentBoxCount", 3);
         uiEmptyLines = conf.getInt("uiEmptyLines", 2);
         enablePlayerList = conf.getBoolean("enablePlayerList", true);
         maxCreateGroup = conf.getInt("maxCreateGroup", 5);
@@ -130,6 +134,11 @@ public class UndineConfig {
             attachBoxSize = 1;
         } else if ( attachBoxSize > 6 ) {
             attachBoxSize = 6;
+        }
+
+        // 添付ボックスの個数制限は、1以上の数値に制限する
+        if ( maxAttachmentBoxCount < 1 ) {
+            maxAttachmentBoxCount = 1;
         }
 
         // 挿入する空行の行数は、0から9までの数値に制限する
@@ -194,6 +203,13 @@ public class UndineConfig {
      */
     public int getAttachBoxSize() {
         return attachBoxSize;
+    }
+
+    /**
+     * @return maxAttachmentBoxCount
+     */
+    public int getMaxAttachmentBoxCount() {
+        return maxAttachmentBoxCount;
     }
 
     /**

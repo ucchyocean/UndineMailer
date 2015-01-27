@@ -8,6 +8,17 @@
 # Message locale.
 lang: en
 
+# Enable to send mail to oneself.
+enableSendSelf: false
+
+# Display empty line count before display UI.
+uiEmptyLines: 2
+
+# Enable to use player list address book.
+enablePlayerList: true
+
+# -------------------- Attachment Item Box --------------------
+
 # Enable the attachment item box.
 enableAttachment: true
 
@@ -16,17 +27,11 @@ enableAttachment: true
 # ex) 6 ->  you can attach 54 items per 1 mail.
 attachBoxSize: 1
 
-# Enable to send mail to oneself.
-enableSendSelf: false
+# Max usage count of attachment item box per a player.
+maxAttachmentBoxCount: 3
 
 # World names that disable to open attachment item box.
 disableWorldsToOpenAttachBox: []
-
-# Display empty line count before display UI.
-uiEmptyLines: 1
-
-# Enable to use player list.
-enablePlayerList: true
 
 # -------------------- Send Fee --------------------
 
