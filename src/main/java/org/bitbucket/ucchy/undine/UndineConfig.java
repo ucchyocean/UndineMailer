@@ -65,6 +65,12 @@ public class UndineConfig {
     /** グループの解散権限のデフォルト */
     private GroupPermissionMode dissolutionModeDefault;
 
+    /** 指定できる宛先の最大数 */
+    private int maxDestination;
+
+    /** 指定できる宛先グループの最大数 */
+    private int maxDestinationGroup;
+
     private UndineMailer parent;
 
     /**
@@ -123,6 +129,8 @@ public class UndineConfig {
         dissolutionModeDefault = GroupPermissionMode.getFromString(
                 conf.getString("dissolutionModeDefault"),
                 GroupPermissionMode.OWNER);
+        maxDestination = conf.getInt("maxDestination", 10);
+        maxDestinationGroup = conf.getInt("maxDestinationGroup", 3);
 
         // sendFeeは、マイナスが指定されていたら0に変更する
         if ( sendFee < 0 ) {
@@ -146,6 +154,14 @@ public class UndineConfig {
             uiEmptyLines = 0;
         } else if ( uiEmptyLines > 9 ) {
             uiEmptyLines = 9;
+        }
+
+        // maxDestination、maxDestinationGroupは、1以上の数値に制限する
+        if ( maxDestination < 1 ) {
+            maxDestination = 1;
+        }
+        if ( maxDestinationGroup < 1 ) {
+            maxDestinationGroup = 1;
         }
     }
 
@@ -259,6 +275,20 @@ public class UndineConfig {
      */
     public GroupPermissionMode getDissolutionModeDefault() {
         return dissolutionModeDefault;
+    }
+
+    /**
+     * @return maxDestination
+     */
+    public int getMaxDestination() {
+        return maxDestination;
+    }
+
+    /**
+     * @return maxDestinationGroup
+     */
+    public int getMaxDestinationGroup() {
+        return maxDestinationGroup;
     }
 
 

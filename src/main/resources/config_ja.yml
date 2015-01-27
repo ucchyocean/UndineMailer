@@ -21,6 +21,12 @@ uiEmptyLines: 2
 # 一覧にリストアップされます。
 enablePlayerList: true
 
+# 指定できる宛先の最大数
+maxDestination: 10
+
+# 指定できる宛先グループの最大数
+maxDestinationGroup: 3
+
 # -------------------- アイテム添付設定 --------------------
 
 # メールにアイテムの添付を可能にするかどうか。

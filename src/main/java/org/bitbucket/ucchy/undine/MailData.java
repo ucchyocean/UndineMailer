@@ -35,8 +35,6 @@ public class MailData {
     private static final String COMMAND = UndineMailer.COMMAND;
 
     private static final int SUMMARY_MAX_SIZE = 40;
-    protected static final int TO_MAX_SIZE = 10;
-    protected static final int TOGROUP_MAX_SIZE = 3;
     protected static final int MESSAGE_MAX_SIZE = 15;
     private static final int MESSAGE_ADD_SIZE = 3;
 
@@ -814,7 +812,7 @@ public class MailData {
             msg.send(sender);
         }
 
-        if ( to.size() < TO_MAX_SIZE ) {
+        if ( to.size() < config.getMaxDestination() ) {
             MessageComponent msg = new MessageComponent();
             msg.addText(pre);
 
@@ -854,7 +852,7 @@ public class MailData {
             msg.send(sender);
         }
 
-        if ( toGroups.size() < TOGROUP_MAX_SIZE ) {
+        if ( toGroups.size() < config.getMaxDestinationGroup() ) {
             MessageComponent msg = new MessageComponent();
             msg.addText(pre);
             MessageParts button = new MessageParts(

@@ -370,9 +370,10 @@ public class UndineCommand implements TabExecutor {
             } else if ( line > mail.getTo().size() ) {
                 line = mail.getTo().size();
             }
-            if ( line >= MailData.TO_MAX_SIZE ) {
+            if ( line >= config.getMaxDestination() ) {
                 sender.sendMessage(
-                        Messages.get("ErrorTooManyDestination", "%num", MailData.TO_MAX_SIZE));
+                        Messages.get("ErrorTooManyDestination", "%num",
+                                config.getMaxDestination()));
                 return true;
             }
 
@@ -412,9 +413,10 @@ public class UndineCommand implements TabExecutor {
             } else if ( line > mail.getToGroups().size() ) {
                 line = mail.getToGroups().size();
             }
-            if ( line >= MailData.TOGROUP_MAX_SIZE ) {
+            if ( line >= config.getMaxDestinationGroup() ) {
                 sender.sendMessage(
-                        Messages.get("ErrorTooManyDestination", "%num", MailData.TOGROUP_MAX_SIZE));
+                        Messages.get("ErrorTooManyDestination", "%num",
+                                config.getMaxDestinationGroup()));
                 return true;
             }
 
