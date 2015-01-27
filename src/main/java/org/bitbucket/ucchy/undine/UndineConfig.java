@@ -156,12 +156,14 @@ public class UndineConfig {
             uiEmptyLines = 9;
         }
 
-        // maxDestination、maxDestinationGroupは、1以上の数値に制限する
+        // maxDestinationは、1以上の数値に制限する
         if ( maxDestination < 1 ) {
             maxDestination = 1;
         }
-        if ( maxDestinationGroup < 1 ) {
-            maxDestinationGroup = 1;
+
+        // maxDestinationGroupは、マイナスが指定されていたら0に変更する
+        if ( maxDestinationGroup < 0 ) {
+            maxDestinationGroup = 0;
         }
     }
 

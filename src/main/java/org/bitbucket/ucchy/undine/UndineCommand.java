@@ -896,7 +896,8 @@ public class UndineCommand implements TabExecutor {
         }
 
         // 添付ボックスの使用制限を超える場合は、エラーを表示して終了
-        if ( !sender.hasPermission(PERMISSION + ".attach-infinity")
+        if ( mail.getAttachments().size() > 0
+                && !sender.hasPermission(PERMISSION + ".attach-infinity")
                 && manager.getAttachBoxUsageCount(ms) >= config.getMaxAttachmentBoxCount() ) {
             sender.sendMessage(Messages.get("ErrorAttachBoxCountExceed",
                     new String[]{"%num", "%limit"},
