@@ -15,7 +15,7 @@ enableSendSelf: false
 uiEmptyLines: 2
 
 # Enable to use player list address book.
-enablePlayerList: true
+enablePlayerList: false
 
 # Limitation number of mail destination.
 maxDestination: 10

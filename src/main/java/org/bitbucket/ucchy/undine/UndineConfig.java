@@ -117,7 +117,7 @@ public class UndineConfig {
         attachBoxSize = conf.getInt("attachBoxSize", 1);
         maxAttachmentBoxCount = conf.getInt("maxAttachmentBoxCount", 3);
         uiEmptyLines = conf.getInt("uiEmptyLines", 2);
-        enablePlayerList = conf.getBoolean("enablePlayerList", true);
+        enablePlayerList = conf.getBoolean("enablePlayerList", false);
         maxCreateGroup = conf.getInt("maxCreateGroup", 5);
         maxGroupMember = conf.getInt("maxGroupMember", 15);
         sendModeDefault = GroupPermissionMode.getFromString(

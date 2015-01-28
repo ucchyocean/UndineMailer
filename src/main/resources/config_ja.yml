@@ -19,7 +19,7 @@ uiEmptyLines: 2
 # プレイヤー名簿を利用するかどうか。
 # プレイヤー名簿では、サーバーに１度でも接続したことがあるプレイヤー全てが
 # 一覧にリストアップされます。
-enablePlayerList: true
+enablePlayerList: false
 
 # 指定できる宛先の最大数
 maxDestination: 10
