@@ -262,14 +262,30 @@ public class UndineCommand implements TabExecutor {
         }
 
         // 宛先
+        MailSender ms = MailSender.getMailSender(sender);
         String[] dests = args[1].split(",");
         ArrayList<MailSender> targets = new ArrayList<MailSender>();
+        ArrayList<GroupData> targetGroups = new ArrayList<GroupData>();
 
         for ( String d : dests ) {
+
             MailSender target = MailSender.getMailSenderFromString(d);
             if ( target == null || !target.isValidDestination() ) {
-                // 宛先が見つからない場合はエラーを表示
-                sender.sendMessage(Messages.get("ErrorNotFoundDestination", "%dest", d));
+                // 宛先が見つからない場合は、グループを確認
+                GroupData group = parent.getGroupManager().getGroup(d);
+                if ( group != null ) {
+                    if ( group.canSend(ms) ) {
+                        targetGroups.add(group);
+                    } else {
+                        // 権限がなくて送れないグループは、エラーを表示
+                        sender.sendMessage(Messages.get(
+                                "ErrorGroupSendNotPermission", "%name", d));
+                    }
+                } else {
+                    // グループも見つからないなら、エラーを表示
+                    sender.sendMessage(Messages.get(
+                            "ErrorNotFoundDestination", "%dest", d));
+                }
             } else if ( !config.isEnableSendSelf() && target.equals(sender) ) {
                 // 自分自身が指定不可の設定の場合は、自分自身が指定されたらエラーを表示
                 sender.sendMessage(Messages.get("ErrorCannotSendSelf"));
@@ -279,14 +295,16 @@ public class UndineCommand implements TabExecutor {
         }
 
         // 結果として宛先が一つもないなら、メールを送信せずにそのまま終了
-        if ( targets.size() == 0 ) {
+        if ( (targets.size() + targetGroups.size()) == 0 ) {
             return true;
         }
 
         // メール生成
-        MailSender ms = MailSender.getMailSender(sender);
         MailData mail = new MailData(
                 targets, ms, message.toString());
+        for ( GroupData g : targetGroups ) {
+            mail.setToGroup(mail.getToGroups().size(), g.getName());
+        }
 
         // 送信にお金がかかる場合
         double fee = manager.getSendFee(mail);
@@ -433,9 +451,16 @@ public class UndineCommand implements TabExecutor {
                 return true;
             }
 
-            // 既に指定済みの宛先が再度指定された場合は、エラーを表示
+            // 既に指定済みの宛先が再度指定された場合は、エラーを表示して終了
             if ( mail.getToGroups().contains(group.getName()) ) {
                 sender.sendMessage(Messages.get("ErrorAlreadyExistTo"));
+                return true;
+            }
+
+            // 送信権限の無いグループが指定された場合は、エラーを表示して終了
+            if ( !group.canSend(MailSender.getMailSender(sender)) ) {
+                sender.sendMessage(Messages.get(
+                        "ErrorGroupSendNotPermission", "%name", group.getName()));
                 return true;
             }
 
