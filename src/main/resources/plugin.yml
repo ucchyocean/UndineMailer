@@ -10,11 +10,12 @@ commands:
     description: Command of UndineMailer
     aliases: [mail,umail]
     usage: |
-           /<command> inbox [page] - Check your unread mails.
+           /<command> inbox [page] - Check your inbox mails.
            /<command> outbox [page] - Check your sent mails.
            /<command> text <to> <message> - Send simple text mail.
            /<command> write - Enter to mail creation mode.
            /<command> item - Show the detailed information of item in your hand.
+           /<command> help - Show help messages.
            /<command> reload - Reload all of data.
     permission: undine.command
     permission-message: 'You don''t have a permission "<permission>".'
@@ -31,7 +32,7 @@ commands:
     description: Command of Mail group
     aliases: [ugroup]
     usage: |
-           /<command> - display group management menu page.
+           /<command> - Show the group management menu page.
     permission: undine.group.command
     permission-message: 'You don''t have a permission "<permission>".'
 
@@ -86,6 +87,9 @@ permissions:
     default: true
   undine.item:
     description: Permission of item command.
+    default: true
+  undine.help:
+    description: Permission of help command.
     default: true
   undine.reload:
     description: Permission of reload command.
@@ -169,6 +173,7 @@ permissions:
       undine.send: true
       undine.cancel: true
       undine.item: true
+      undine.help: true
       undine.reload: true
       undine.list: true
       undine.group.*: true

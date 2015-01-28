@@ -8,6 +8,7 @@ package org.bitbucket.ucchy.undine;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.bitbucket.ucchy.undine.group.GroupCommand;
 import org.bitbucket.ucchy.undine.group.GroupData;
 import org.bitbucket.ucchy.undine.item.TradableMaterial;
 import org.bitbucket.ucchy.undine.sender.MailSender;
@@ -37,7 +38,8 @@ public class UndineCommand implements TabExecutor {
     private static final String PERMISSION = "undine";
     private static final String[] COMMANDS = new String[]{
         "inbox", "outbox", "read", "text", "write", "to", "message",
-        "attach", "costmoney", "costitem", "send", "cancel", "item", "reload",
+        "attach", "costmoney", "costitem", "send", "cancel", "item",
+        "help", "reload",
     };
 
     private UndineMailer parent;
@@ -89,6 +91,8 @@ public class UndineCommand implements TabExecutor {
             return doCancelCommand(sender, command, label, args);
         } else if ( args[0].equalsIgnoreCase("item") ) {
             return doItemCommand(sender, command, label, args);
+        } else if ( args[0].equalsIgnoreCase("help") ) {
+            return doHelpCommand(sender, command, label, args);
         } else if ( args[0].equalsIgnoreCase("reload") ) {
             return doReloadCommand(sender, command, label, args);
         }
@@ -1046,6 +1050,69 @@ public class UndineCommand implements TabExecutor {
         sender.sendMessage(Messages.get("InformationItemDetail",
                 new String[]{"%desc", "%tradable"},
                 new String[]{description, isTradable}));
+
+        return true;
+    }
+
+    private boolean doHelpCommand(CommandSender sender, Command command, String label, String[] args) {
+
+        // パーミッション確認
+        if  ( !sender.hasPermission(PERMISSION + ".help") ) {
+            sender.sendMessage(Messages.get("PermissionDeniedCommand"));
+            return true;
+        }
+
+        String parts = Messages.get("ListHorizontalParts");
+        String pre = Messages.get("ListVerticalParts");
+
+        sender.sendMessage(parts + parts + " "
+                + Messages.get("HelpTitle") + " " + parts + parts);
+
+        // umailコマンドのヘルプ
+        for ( String c : new String[]{
+                "inbox", "outbox", "text", "write",
+                "item", "help", "reload"} ) {
+
+            if ( !sender.hasPermission(PERMISSION + "." + c) ) {
+                continue;
+            }
+
+            MessageComponent msg = new MessageComponent();
+            msg.addText(pre);
+
+            String l = "[" + Messages.get("HelpCommand_" + c) + "]";
+            MessageParts button = new MessageParts(l, ChatColor.AQUA);
+            if ( !c.equals("text") ) {
+                button.setClickEvent(ClickEventType.RUN_COMMAND,
+                        COMMAND + " " + c);
+            } else {
+                button.setClickEvent(ClickEventType.SUGGEST_COMMAND,
+                        COMMAND + " " + c);
+            }
+            msg.addParts(button);
+
+            msg.addText(" " + ChatColor.WHITE + Messages.get("HelpDescription_" + c));
+
+            msg.send(sender);
+        }
+
+        // ugroupコマンドのヘルプ
+        if ( sender.hasPermission(GroupCommand.PERMISSION + ".command") ) {
+
+            MessageComponent msg = new MessageComponent();
+            msg.addText(pre);
+
+            String l = "[" + Messages.get("HelpCommand_group") + "]";
+            MessageParts button = new MessageParts(l, ChatColor.AQUA);
+            button.setClickEvent(ClickEventType.RUN_COMMAND, GroupCommand.COMMAND);
+            msg.addParts(button);
+
+            msg.addText(" " + ChatColor.WHITE + Messages.get("HelpDescription_group"));
+
+            msg.send(sender);
+        }
+
+        sender.sendMessage(Messages.get("ListLastLine"));
 
         return true;
     }

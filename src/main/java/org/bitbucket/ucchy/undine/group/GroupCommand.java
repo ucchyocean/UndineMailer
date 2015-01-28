@@ -26,7 +26,7 @@ import org.bukkit.command.TabExecutor;
 public class GroupCommand implements TabExecutor {
 
     public static final String COMMAND = "/ugroup";
-    protected static final String PERMISSION = "undine.group";
+    public static final String PERMISSION = "undine.group";
     private static final String[] COMMANDS = new String[]{
         "create", "delete", "list", "detail", "add", "remove", "perm"
     };

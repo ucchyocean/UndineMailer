@@ -60,7 +60,7 @@ public class UndineMailer extends JavaPlugin {
         }
 
         // メッセージをロードする
-        Messages.initialize(getFile(), getDataFolder());
+        Messages.initialize(getFile(), getDataFolder(), getReleaseLang());
         Messages.reload(config.getLang());
 
         // コマンドクラスを作成する

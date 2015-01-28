@@ -22,8 +22,6 @@ import org.bukkit.configuration.file.YamlConfiguration;
  */
 public class Messages {
 
-    private static final String DEFAULT_FILE_NAME = "messages_en.yml";
-
     private static YamlConfiguration defaultMessages;
     private static File configFolder;
     private static File jar;
@@ -39,13 +37,7 @@ public class Messages {
     private Messages(String filename) {
 
         // メッセージファイルをロード
-        if ( filename == null ) {
-            filename = DEFAULT_FILE_NAME;
-        }
         File file = new File(configFolder, filename);
-        if ( !file.exists() ) {
-            file = new File(configFolder, DEFAULT_FILE_NAME);
-        }
         resources = YamlConfiguration.loadConfiguration(file);
 
         // デフォルトメッセージをデフォルトとして足す。
@@ -112,8 +104,9 @@ public class Messages {
      * defaultMessagesとしてロードする。
      * @param _jar jarファイル
      * @param _configFolder コンフィグフォルダ
+     * @param lang デフォルト言語
      */
-    protected static void initialize(File _jar, File _configFolder) {
+    protected static void initialize(File _jar, File _configFolder, String lang) {
 
         jar = _jar;
         configFolder = _configFolder;
@@ -131,7 +124,7 @@ public class Messages {
         JarFile jarFile = null;
         try {
             jarFile = new JarFile(jar);
-            ZipEntry zipEntry = jarFile.getEntry(DEFAULT_FILE_NAME);
+            ZipEntry zipEntry = jarFile.getEntry(String.format("messages_%s.yml", lang));
             InputStream inputStream = jarFile.getInputStream(zipEntry);
             BufferedReader reader =
                     new BufferedReader(new InputStreamReader(inputStream, "UTF-8"));
