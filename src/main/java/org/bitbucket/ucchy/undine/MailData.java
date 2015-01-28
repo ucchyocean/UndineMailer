@@ -613,7 +613,9 @@ public class MailData {
      * @return 指定された名前がtoまたはfromに含まれるかどうか
      */
     public boolean isRelatedWith(MailSender sender) {
-        return to.contains(sender) || from.equals(sender);
+        if ( from.equals(sender) ) return true;
+        if ( toTotal != null ) return toTotal.contains(sender);
+        return to.contains(sender);
     }
 
     /**
