@@ -39,6 +39,14 @@ maxAttachmentBoxCount: 3
 # World names that disable to open attachment item box.
 disableWorldsToOpenAttachBox: []
 
+# When paying cash on delivery fee to the other player,
+#   if the amount of post-payment does not match, you can set whether an error.
+# In such Essentials "max-money" setting, if you have set the upper limit of money,
+#   payment will be disappear. So please make this setting to true, for saving payment.
+# If you are using such as taking a tax on payment,
+#   so you will not be able to remittances, please make this setting to false.
+depositErrorOnUnmatch: true
+
 # -------------------- Send Fee --------------------
 
 # Enable mail sending fee.

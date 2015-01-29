@@ -38,6 +38,9 @@ public class UndineConfig {
     /** 添付ボックス操作不可とするワールド */
     private List<String> disableWorldsToOpenAttachBox;
 
+    /** 着払い料金の入金後の残金が一致しない場合に、エラーとするかどうか */
+    private boolean depositErrorOnUnmatch;
+
     /** 添付ボックスのサイズ */
     private int attachBoxSize;
 
@@ -114,6 +117,7 @@ public class UndineConfig {
         enableSendSelf = conf.getBoolean("enableSendSelf", false);
         disableWorldsToOpenAttachBox =
                 conf.getStringList("disableWorldsToOpenAttachBox");
+        depositErrorOnUnmatch = conf.getBoolean("depositErrorOnUnmatch", true);
         attachBoxSize = conf.getInt("attachBoxSize", 1);
         maxAttachmentBoxCount = conf.getInt("maxAttachmentBoxCount", 3);
         uiEmptyLines = conf.getInt("uiEmptyLines", 2);
@@ -214,6 +218,13 @@ public class UndineConfig {
      */
     public List<String> getDisableWorldsToOpenAttachBox() {
         return disableWorldsToOpenAttachBox;
+    }
+
+    /**
+     * @return depositErrorOnUnmatch
+     */
+    public boolean getDepositErrorOnUnmatch() {
+        return depositErrorOnUnmatch;
     }
 
     /**

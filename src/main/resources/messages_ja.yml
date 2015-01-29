@@ -20,6 +20,7 @@ ErrorCannotSendMultiAttach: '&c添付アイテム付きのメールを、複数�
 ErrorYouDontHaveEnoughMoney: '&c残金が足りません！'
 ErrorYouDontHaveEnoughItem: '&c指定のアイテムが足りません！'
 ErrorFailToWithdraw: '&c料金の引き落としに失敗しました。'
+ErrorFailToDeposit: '&c相手への入金に失敗しました。'
 ErrorCannotSetMoneyAndItem: '&c着払い料金と着払いアイテムを両方同時に設定することはできません。'
 ErrorInvalidCostMoney: '&c指定された着払い料金 %fee が正しくありません。'
 ErrorInvalidCostItem: '&c指定された着払いアイテム %item が正しくありません。'

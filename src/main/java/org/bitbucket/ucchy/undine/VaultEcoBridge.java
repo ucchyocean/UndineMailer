@@ -89,6 +89,22 @@ public class VaultEcoBridge {
     }
 
     /**
+     * 指定されたプレイヤーの残金を、指定値に設定する
+     * @param player プレイヤー
+     * @param amount 設定する金額
+     * @return 正常に完了したかどうか
+     */
+    public boolean setPlayer(OfflinePlayer player, double amount) {
+        double now = eco.getBalance(player);
+        if ( now > amount ) {
+            return withdrawPlayer(player, (now - amount));
+        } else if ( now < amount ) {
+            return depositPlayer(player, (amount - now));
+        }
+        return true; // do nothing.
+    }
+
+    /**
      * 指定された金額を、経済プラグインに設定されている書式で表示する
      * @param amount 金額
      * @return 表示用の文字列

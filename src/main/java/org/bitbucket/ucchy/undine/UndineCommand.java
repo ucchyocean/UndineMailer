@@ -669,23 +669,42 @@ public class UndineCommand implements TabExecutor {
 
                 if ( args.length >= 3 && args[2].equals("confirm") ) {
 
+                    OfflinePlayer from = mail.getFrom().getOfflinePlayer();
+                    double preTo = eco.getBalance(ms.getOfflinePlayer());
+                    double preFrom = eco.getBalance(from);
+
                     // 引き落とし
-                    if ( !eco.has(ms.getPlayer(), fee) ) {
+                    if ( !eco.has(ms.getOfflinePlayer(), fee) ) {
                         sender.sendMessage(Messages.get("ErrorYouDontHaveEnoughMoney"));
                         return true;
                     }
-                    if ( !eco.withdrawPlayer(ms.getPlayer(), fee) ) {
+                    if ( !eco.withdrawPlayer(ms.getOfflinePlayer(), fee) ) {
                         sender.sendMessage(Messages.get("ErrorFailToWithdraw"));
                         return true;
                     }
+
+                    // メールの送信元に送金
+                    boolean depositResult = eco.depositPlayer(from, fee);
+
+                    // NOTE: EssentialsEcoでは、max-money以上になる入金は失敗する
+                    // (しかし、困ったことに、transactionSuccess が返される) ので、
+                    // 入金後が (pre + fee) > now なら、入金失敗として
+                    // 取り引きをキャンセルさせる。
+                    if ( depositResult || ( config.getDepositErrorOnUnmatch()
+                            && ((preFrom + fee) > eco.getBalance(from)) ) ) {
+                        // 返金
+                        eco.setPlayer(ms.getOfflinePlayer(), preTo);
+                        eco.setPlayer(from, preFrom);
+                        sender.sendMessage(Messages.get("ErrorFailToDeposit"));
+                        return true;
+                    }
+
+                    // 成功メッセージを両者に表示する
                     double balance = eco.getBalance(ms.getPlayer());
                     sender.sendMessage(Messages.get("BoxOpenCostMoneyResult",
                             new String[]{"%fee", "%remain"},
                             new String[]{feeDisplay, eco.format(balance)}));
 
-                    // メールの送信元に送金
-                    OfflinePlayer from = mail.getFrom().getOfflinePlayer();
-                    eco.depositPlayer(from, fee);
                     if ( mail.getFrom().isOnline() ) {
                         balance = eco.getBalance(from);
                         mail.getFrom().sendMessage(Messages.get("BoxOpenCostMoneySenderResult",
