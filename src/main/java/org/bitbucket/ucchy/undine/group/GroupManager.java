@@ -392,7 +392,9 @@ public class GroupManager {
                 buffer.append(pre + "  " + ChatColor.WHITE);
                 for ( int j=0; j<5; j++ ) {
                     int index = i * 5 + j;
-                    buffer.append(members.get(index) + ", ");
+                    if ( index < size ) {
+                        buffer.append(members.get(index).getName() + ", ");
+                    }
                 }
                 sender.sendMessage(buffer.toString());
             }
