@@ -574,16 +574,18 @@ public class UndineCommand implements TabExecutor {
             return true;
         }
 
-        // このコマンドは、ゲーム内からの実行でない場合はエラーを表示して終了する
-        if ( !(sender instanceof Player) ) {
-            sender.sendMessage(Messages.get("ErrorInGameCommand"));
-            return true;
-        }
-
-        Player player = (Player)sender;
         MailSender ms = MailSender.getMailSender(sender);
 
         if ( args.length == 1 ) {
+            // 編集メールの添付ボックスを開く。
+
+            // ゲーム内からの実行でない場合はエラーを表示して終了する
+            if ( !(sender instanceof Player) ) {
+                sender.sendMessage(Messages.get("ErrorInGameCommand"));
+                return true;
+            }
+
+            Player player = (Player)sender;
             MailData mail = manager.getEditmodeMail(ms);
 
             // 編集中でないならエラーを表示して終了
@@ -601,7 +603,86 @@ public class UndineCommand implements TabExecutor {
             // 添付ボックスを表示する
             parent.getBoxManager().displayAttachBox(player, mail);
 
-        } else if (args[1].matches("[0-9]{1,9}") ) {
+            return true;
+
+        } else if ( args.length >= 3 && args[1].equalsIgnoreCase("add") ) {
+            // 編集メールに、コマンドでアイテムを足す。
+
+            // パーミッション確認
+            if  ( !sender.hasPermission(PERMISSION + ".command-attach") ) {
+                sender.sendMessage(Messages.get("PermissionDeniedCommand"));
+                return true;
+            }
+
+            MailData mail = manager.getEditmodeMail(ms);
+
+            // 編集中でないならエラーを表示して終了
+            if ( mail == null ) {
+                sender.sendMessage(Messages.get("ErrorNotInEditmode"));
+                return true;
+            }
+
+            // 指定値がアイテム表現形式ではない場合はエラーを表示して終了
+            ItemStack item = getItemStackFromDescription(args[2]);
+            if ( item == null ) {
+                sender.sendMessage(Messages.get("ErrorInvalidItem", "%item", args[2]));
+                return true;
+            }
+
+            // 取引可能な種類のアイテムでないなら、エラーを表示して終了
+            if ( !TradableMaterial.isTradable(item.getType()) ) {
+                sender.sendMessage(Messages.get("ErrorInvalidItem", "%item", args[2]));
+                return true;
+            }
+
+            // 個数も指定されている場合は、個数を反映する
+            if ( args.length >= 4 && args[3].matches("[0-9]{1,9}") ) {
+                item.setAmount(Integer.parseInt(args[3]));
+            }
+
+            // 添付ボックスに投入する
+            mail.getAttachments().add(item);
+
+            // 編集画面を表示する。
+            mail.displayEditmode(MailSender.getMailSender(sender), config);
+
+            return true;
+
+        } else if ( args.length >= 2 && args[1].equalsIgnoreCase("clear") ) {
+            // 編集メールのアイテムを、コマンドで全て除去する。
+
+            // パーミッション確認
+            if  ( !sender.hasPermission(PERMISSION + ".command-attach") ) {
+                sender.sendMessage(Messages.get("PermissionDeniedCommand"));
+                return true;
+            }
+
+            MailData mail = manager.getEditmodeMail(ms);
+
+            // 編集中でないならエラーを表示して終了
+            if ( mail == null ) {
+                sender.sendMessage(Messages.get("ErrorNotInEditmode"));
+                return true;
+            }
+
+            // 添付ボックスのクリアする
+            mail.getAttachments().clear();
+
+            // 編集画面を表示する。
+            mail.displayEditmode(MailSender.getMailSender(sender), config);
+
+            return true;
+
+        } else if ( args[1].matches("[0-9]{1,9}") ) {
+            // 指定されたインデクスのメールの添付ボックスを開く
+
+            // ゲーム内からの実行でない場合はエラーを表示して終了する
+            if ( !(sender instanceof Player) ) {
+                sender.sendMessage(Messages.get("ErrorInGameCommand"));
+                return true;
+            }
+
+            Player player = (Player)sender;
             int index = Integer.parseInt(args[1]);
             MailData mail = manager.getMail(index);
 
@@ -802,6 +883,8 @@ public class UndineCommand implements TabExecutor {
 
             // 添付ボックスを表示する
             parent.getBoxManager().displayAttachBox(player, mail);
+
+            return true;
         }
 
         return true;
@@ -1162,7 +1245,7 @@ public class UndineCommand implements TabExecutor {
     private ItemStack getItemStackFromDescription(String desc) {
         String[] descs = desc.split(":");
         if ( descs.length <= 0 ) return null;
-        Material material = Material.getMaterial(descs[0]);
+        Material material = Material.getMaterial(descs[0].toUpperCase());
         if ( material == null && descs[0].matches("[0-9]{1,5}") ) {
             @SuppressWarnings("deprecation")
             Material m = Material.getMaterial(Integer.parseInt(descs[0]));

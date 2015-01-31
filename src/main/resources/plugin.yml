@@ -73,6 +73,9 @@ permissions:
   undine.attach-infinity:
     description: Permission of infinity use of attachment box.
     default: op
+  undine.command-attach:
+    description: Permission of adding attachment items by using command.
+    default: op
   undine.costmoney:
     description: Permission of costmoney command.
     default: true
@@ -168,6 +171,7 @@ permissions:
       undine.attach: true
       undine.attach-all: true
       undine.attach-infinity: true
+      undine.command-attach: true
       undine.costmoney: true
       undine.costitem: true
       undine.send: true

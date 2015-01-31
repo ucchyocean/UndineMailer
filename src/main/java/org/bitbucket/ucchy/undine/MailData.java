@@ -19,6 +19,8 @@ import org.bitbucket.ucchy.undine.group.SpecialGroupAll;
 import org.bitbucket.ucchy.undine.item.ItemConfigParseException;
 import org.bitbucket.ucchy.undine.item.ItemConfigParser;
 import org.bitbucket.ucchy.undine.sender.MailSender;
+import org.bitbucket.ucchy.undine.sender.MailSenderBlock;
+import org.bitbucket.ucchy.undine.sender.MailSenderConsole;
 import org.bitbucket.ucchy.undine.tellraw.ClickEventType;
 import org.bitbucket.ucchy.undine.tellraw.MessageComponent;
 import org.bitbucket.ucchy.undine.tellraw.MessageParts;
@@ -696,8 +698,8 @@ public class MailData {
             sender.sendMessage("");
         }
 
-        String num = (index == 0) ? Messages.get("Editmode") : index + "";
-        String fdate = getFormattedDate(date);
+        String num = isEditmode() ? Messages.get("Editmode") : index + "";
+        String fdate = isEditmode() ? null : getFormattedDate(date);
 
         String parts = Messages.get("DetailHorizontalParts");
         String pre = Messages.get("DetailVerticalParts");
@@ -718,7 +720,9 @@ public class MailData {
             sender.sendMessage(pre + "  " + ChatColor.WHITE + tonext);
         }
 
-        sender.sendMessage(pre + Messages.get("MailDetailDateLine", "%date", fdate));
+        if ( fdate != null ) {
+            sender.sendMessage(pre + Messages.get("MailDetailDateLine", "%date", fdate));
+        }
         sender.sendMessage(pre + Messages.get("MailDetailMessageLine"));
         for ( String m : message ) {
             sender.sendMessage(pre + "  " + ChatColor.WHITE + Utility.replaceColorCode(m));
@@ -730,33 +734,35 @@ public class MailData {
             msg.addText(pre + Messages.get("MailDetailAttachmentsLine"));
             msg.addText(" ");
 
-            if ( !isAttachmentsCancelled && from.equals(sender) && !isAttachmentsOpened ) {
-                // 未キャンセルで送信者の場合、
-                // 受信者がボックスを一度も開いていないなら、キャンセルボタンを置く
+            if ( !isEditmode() ) {
+                if ( !isAttachmentsCancelled && from.equals(sender) && !isAttachmentsOpened ) {
+                    // 未キャンセルで送信者の場合、
+                    // 受信者がボックスを一度も開いていないなら、キャンセルボタンを置く
 
-                MessageParts button = new MessageParts(
-                        Messages.get("MailDetailAttachmentBoxCancel"),
-                        ChatColor.AQUA);
-                button.setClickEvent(ClickEventType.RUN_COMMAND,
-                        COMMAND + " attach " + index + " cancel");
-                button.addHoverText(Messages.get("MailDetailAttachmentBoxCancelToolTip"));
-                msg.addParts(button);
+                    MessageParts button = new MessageParts(
+                            Messages.get("MailDetailAttachmentBoxCancel"),
+                            ChatColor.AQUA);
+                    button.setClickEvent(ClickEventType.RUN_COMMAND,
+                            COMMAND + " attach " + index + " cancel");
+                    button.addHoverText(Messages.get("MailDetailAttachmentBoxCancelToolTip"));
+                    msg.addParts(button);
 
-            } else if ( (!isAttachmentsCancelled && !from.equals(sender))
-                    || (isAttachmentsCancelled && from.equals(sender)) ) {
-                // 未キャンセルで受信者の場合、または、
-                // キャンセル済みで送信者の場合、オープンボタンを置く
+                } else if ( (!isAttachmentsCancelled && !from.equals(sender))
+                        || (isAttachmentsCancelled && from.equals(sender)) ) {
+                    // 未キャンセルで受信者の場合、または、
+                    // キャンセル済みで送信者の場合、オープンボタンを置く
 
-                MessageParts button = new MessageParts(
-                        Messages.get("MailDetailAttachmentBox"), ChatColor.AQUA);
-                button.setClickEvent(ClickEventType.RUN_COMMAND,
-                        COMMAND + " attach " + index);
-                msg.addParts(button);
+                    MessageParts button = new MessageParts(
+                            Messages.get("MailDetailAttachmentBox"), ChatColor.AQUA);
+                    button.setClickEvent(ClickEventType.RUN_COMMAND,
+                            COMMAND + " attach " + index);
+                    msg.addParts(button);
 
-            } else if ( isAttachmentsCancelled && !from.equals(sender) ) {
-                // キャンセル済みで受信者の場合、キャンセルされた旨のラベルを出す
+                } else if ( isAttachmentsCancelled && !from.equals(sender) ) {
+                    // キャンセル済みで受信者の場合、キャンセルされた旨のラベルを出す
 
-                msg.addText(Messages.get("MailDetailAttachmentBoxCancelled"));
+                    msg.addText(Messages.get("MailDetailAttachmentBoxCancelled"));
+                }
             }
 
             msg.send(sender);
@@ -795,6 +801,17 @@ public class MailData {
      * @param config Undineのコンフィグ
      */
     protected void displayEditmode(MailSender sender, UndineConfig config) {
+
+        // senderがコマブロなら何もしない
+        if ( sender instanceof MailSenderBlock ) {
+            return;
+        }
+
+        // senderがコンソールなら、displayにリダイレクトする
+        if ( sender instanceof MailSenderConsole ) {
+            displayDescription(sender);
+            return;
+        }
 
         // メッセージが3行に満たない場合は、この時点で空行を足しておく
         while ( message.size() < MESSAGE_ADD_SIZE ) {
