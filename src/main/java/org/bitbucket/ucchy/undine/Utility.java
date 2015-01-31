@@ -141,6 +141,15 @@ public class Utility {
     }
 
     /**
+     * 文字列内のカラーコード候補（&a）を、全て削除する
+     * @param source 置き換え元の文字列
+     * @return
+     */
+    public static String removeColorCode(String source) {
+        return stripColor(replaceColorCode(source));
+    }
+
+    /**
      * 指定された文字数のアスタリスクの文字列を返す
      * @param length アスタリスクの個数
      * @return 指定された文字数のアスタリスク

@@ -721,7 +721,7 @@ public class MailData {
         sender.sendMessage(pre + Messages.get("MailDetailDateLine", "%date", fdate));
         sender.sendMessage(pre + Messages.get("MailDetailMessageLine"));
         for ( String m : message ) {
-            sender.sendMessage(pre + "  " + ChatColor.WHITE + m);
+            sender.sendMessage(pre + "  " + ChatColor.WHITE + Utility.replaceColorCode(m));
         }
 
         if ( attachments.size() > 0 ) {
@@ -908,8 +908,7 @@ public class MailData {
                     COMMAND + " message " + (i+1) + " " + message.get(i));
             buttonEdit.addHoverText(Messages.get("EditmodeLineEditToolTip"));
             msg.addParts(buttonEdit);
-            msg.addText(" ");
-            msg.addText(message.get(i), ChatColor.WHITE);
+            msg.addText(" " + Utility.replaceColorCode(message.get(i)), ChatColor.WHITE);
             msg.send(sender);
         }
 
@@ -1035,7 +1034,7 @@ public class MailData {
 
         String fdate = getFormattedDate(date);
         String summary = String.format("%s (%s) %s",
-                from.getName(), fdate, message.get(0));
+                from.getName(), fdate, Utility.removeColorCode(message.get(0)));
 
         // 長すぎる場合は切る
         if ( summary.length() > SUMMARY_MAX_SIZE ) {
@@ -1057,7 +1056,7 @@ public class MailData {
             todesc = todesc.substring(0, 15);
         }
         String summary = String.format("%s (%s) %s",
-                todesc, fdate, message.get(0));
+                todesc, fdate, Utility.removeColorCode(message.get(0)));
 
         // 長すぎる場合は切る
         if ( summary.length() > SUMMARY_MAX_SIZE ) {
