@@ -74,6 +74,9 @@ public class UndineConfig {
     /** 指定できる宛先グループの最大数 */
     private int maxDestinationGroup;
 
+    /** 特殊グループ All への送信権限 */
+    private GroupPermissionMode specialGroupAllSendMode;
+
     private UndineMailer parent;
 
     /**
@@ -135,6 +138,9 @@ public class UndineConfig {
                 GroupPermissionMode.OWNER);
         maxDestination = conf.getInt("maxDestination", 10);
         maxDestinationGroup = conf.getInt("maxDestinationGroup", 3);
+        specialGroupAllSendMode = GroupPermissionMode.getFromString(
+                conf.getString("specialGroupAllSendMode"),
+                GroupPermissionMode.OP);
 
         // sendFeeは、マイナスが指定されていたら0に変更する
         if ( sendFee < 0 ) {
@@ -302,6 +308,13 @@ public class UndineConfig {
      */
     public int getMaxDestinationGroup() {
         return maxDestinationGroup;
+    }
+
+    /**
+     * @return specialGroupAllSendMode
+     */
+    public GroupPermissionMode getSpecialGroupAllSendMode() {
+        return specialGroupAllSendMode;
     }
 
 

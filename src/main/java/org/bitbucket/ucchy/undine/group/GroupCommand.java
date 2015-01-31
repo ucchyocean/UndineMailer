@@ -533,8 +533,6 @@ public class GroupCommand implements TabExecutor {
             return true;
         }
 
-        // TODO mode == OP へ変更しようとした時は、警告文を表示して確認を求めるようにする
-
         // 権限を設定する
         if ( ptype.equalsIgnoreCase("send") ) {
             group.setSendMode(mode);

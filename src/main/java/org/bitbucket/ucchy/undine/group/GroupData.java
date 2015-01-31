@@ -96,6 +96,15 @@ public class GroupData {
     }
 
     /**
+     * 指定されたsenderが、グループのメンバーかどうかを返す
+     * @param sender
+     * @return メンバーかどうか
+     */
+    public boolean isMember(MailSender sender) {
+        return members.contains(sender);
+    }
+
+    /**
      * 指定されたsenderがオーナーかどうかを返す
      * @param sender
      * @return オーナーかどうか
@@ -126,21 +135,8 @@ public class GroupData {
      * @return 送信権限を持っているかどうか
      */
     public boolean canSend(MailSender sender) {
-        if ( sender.hasPermission("undine.group.send-all") ) {
-            return true;
-        }
-        switch ( sendMode ) {
-        case EVERYONE:
-            return true;
-        case MEMBER:
-            return members.contains(sender);
-        case OWNER:
-            return owner.equals(sender);
-        case OP:
-            return sender.isOp();
-        default:
-            return false;
-        }
+        return permissionCheck(sender,
+                sendMode, "undine.group.send-all");
     }
 
     /**
@@ -165,21 +161,8 @@ public class GroupData {
      * @return 変更権限を持っているかどうか
      */
     public boolean canModify(MailSender sender) {
-        if ( sender.hasPermission("undine.group.modify-all") ) {
-            return true;
-        }
-        switch ( modifyMode ) {
-        case EVERYONE:
-            return true;
-        case MEMBER:
-            return members.contains(sender);
-        case OWNER:
-            return owner.equals(sender);
-        case OP:
-            return sender.isOp();
-        default:
-            return false;
-        }
+        return permissionCheck(sender,
+                modifyMode, "undine.group.modify-all");
     }
 
     /**
@@ -204,21 +187,8 @@ public class GroupData {
      * @return 解散権限を持っているかどうか
      */
     public boolean canBreakup(MailSender sender) {
-        if ( sender.hasPermission("undine.group.dissolution-all") ) {
-            return true;
-        }
-        switch ( dissolutionMode ) {
-        case EVERYONE:
-            return true;
-        case MEMBER:
-            return members.contains(sender);
-        case OWNER:
-            return owner.equals(sender);
-        case OP:
-            return sender.isOp();
-        default:
-            return false;
-        }
+        return permissionCheck(sender,
+                dissolutionMode, "undine.group.dissolution-all");
     }
 
     /**
@@ -283,5 +253,32 @@ public class GroupData {
     protected static GroupData loadFromFile(File file) {
         YamlConfiguration config = YamlConfiguration.loadConfiguration(file);
         return loadFromSection(config);
+    }
+
+    /**
+     * パーミッションのチェックを行う
+     * @param sender
+     * @param mode
+     * @param specialNode
+     * @return パーミッションの有無
+     */
+    private boolean permissionCheck(
+            MailSender sender, GroupPermissionMode mode, String specialNode) {
+        if ( mode == GroupPermissionMode.NEVER ) return false;
+        if ( sender.hasPermission(specialNode) ) {
+            return true;
+        }
+        switch ( mode ) {
+        case EVERYONE:
+            return true;
+        case MEMBER:
+            return isMember(sender);
+        case OWNER:
+            return owner.equals(sender);
+        case OP:
+            return sender.isOp();
+        default:
+            return false;
+        }
     }
 }

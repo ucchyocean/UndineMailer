@@ -97,3 +97,8 @@ modifyModeDefault: OWNER
 # MEMBER → メンバーなら解散可能
 # EVERYONE → 誰でも解散可能
 dissolutionModeDefault: OWNER
+
+# 特殊グループ All (全プレイヤーへのメールが送信できるグループ) への
+# 送信権限を指定します。
+specialGroupAllSendMode: OP
+

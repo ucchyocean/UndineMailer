@@ -13,6 +13,9 @@ import org.bitbucket.ucchy.undine.Messages;
  */
 public enum GroupPermissionMode {
 
+    /** 誰もできない */
+    NEVER,
+
     /** OPのみ変更可能 */
     OP,
 
@@ -55,6 +58,7 @@ public enum GroupPermissionMode {
      */
     public String getDisplayString() {
         switch (this) {
+        case NEVER: return Messages.get("GroupPermNever");
         case OP: return Messages.get("GroupPermOP");
         case OWNER: return Messages.get("GroupPermOwner");
         case MEMBER: return Messages.get("GroupPermMember");

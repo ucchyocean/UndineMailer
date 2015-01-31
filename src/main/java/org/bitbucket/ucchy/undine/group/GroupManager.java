@@ -60,6 +60,10 @@ public class GroupManager {
             GroupData group = GroupData.loadFromFile(f);
             groups.put(group.getName().toLowerCase(), group);
         }
+
+        // 特殊グループを追加する
+        GroupData all = new SpecialGroupAll();
+        groups.put(all.getName().toLowerCase(), all);
     }
 
     /**
@@ -175,16 +179,40 @@ public class GroupManager {
     }
 
     /**
-     * 指定されたsenderに関連のあるグループを取得する
+     * グループ一覧画面で表示する項目として、指定されたsenderが表示可能なグループを返す
      * @param sender 取得対象のsender
-     * @return senderがオーナーあるいはメンバーのグループ
+     * @return senderが宛先として送信可能なグループと、senderがメンバーのグループ、の和。
      */
-    public ArrayList<GroupData> getGroupsFor(MailSender sender) {
+    public ArrayList<GroupData> getGroupsForList(MailSender sender) {
 
         ArrayList<GroupData> results = new ArrayList<GroupData>();
 
         for ( GroupData group : groups.values() ) {
-            if ( group.isOwner(sender) || group.getMembers().contains(sender) ) {
+            if ( group.isMember(sender) || group.canSend(sender) ) {
+                results.add(group);
+            }
+        }
+
+        Collections.sort(results, new Comparator<GroupData>() {
+            public int compare(GroupData o1, GroupData o2) {
+                return o1.getName().compareToIgnoreCase(o2.getName());
+            }
+        });
+
+        return results;
+    }
+
+    /**
+     * メール宛先で表示する項目として、指定されたsenderが送信可能なグループを返す
+     * @param sender 取得対象のsender
+     * @return senderが宛先として送信可能なグループ
+     */
+    public ArrayList<GroupData> getGroupsForSelection(MailSender sender) {
+
+        ArrayList<GroupData> results = new ArrayList<GroupData>();
+
+        for ( GroupData group : groups.values() ) {
+            if ( group.canSend(sender) ) {
                 results.add(group);
             }
         }
@@ -213,7 +241,7 @@ public class GroupManager {
         String pre = Messages.get("ListVerticalParts");
         String parts = Messages.get("ListHorizontalParts");
 
-        ArrayList<GroupData> list = getGroupsFor(sender);
+        ArrayList<GroupData> list = getGroupsForList(sender);
         int max = (int)((list.size() - 1) / PAGE_SIZE) + 1;
 
         String title = Messages.get("GroupListTitle", "%num", list.size());
@@ -237,9 +265,13 @@ public class GroupManager {
                     COMMAND + " detail " + group.getName());
             msg.addParts(button);
 
-            msg.addText(" " + Messages.get("GroupListSummayLine",
-                    new String[]{"%owner", "%num"},
-                    new String[]{group.getOwner().getName(), group.getMembers().size() + ""}));
+            if ( group instanceof SpecialGroupAll ) {
+                msg.addText(" " + Messages.get("GroupSpecialAllSummary"));
+            } else {
+                msg.addText(" " + Messages.get("GroupListSummayLine",
+                        new String[]{"%owner", "%num"},
+                        new String[]{group.getOwner().getName(), group.getMembers().size() + ""}));
+            }
 
             msg.send(sender);
         }
@@ -278,7 +310,7 @@ public class GroupManager {
         String pre = Messages.get("ListVerticalParts");
         String parts = Messages.get("ListHorizontalParts");
 
-        ArrayList<GroupData> list = getGroupsFor(sender);
+        ArrayList<GroupData> list = getGroupsForSelection(sender);
         int max = (int)((list.size() - 1) / PAGE_SIZE) + 1;
 
         String title = Messages.get("GroupListTitle", "%num", list.size());
@@ -302,9 +334,13 @@ public class GroupManager {
                     next + " " + group.getName());
             msg.addParts(button);
 
-            msg.addText(" " + Messages.get("GroupListSummayLine",
-                    new String[]{"%owner", "%num"},
-                    new String[]{group.getOwner().getName(), group.getMembers().size() + ""}));
+            if ( group instanceof SpecialGroupAll ) {
+                msg.addText(" " + Messages.get("GroupSpecialAllSummary"));
+            } else {
+                msg.addText(" " + Messages.get("GroupListSummayLine",
+                        new String[]{"%owner", "%num"},
+                        new String[]{group.getOwner().getName(), group.getMembers().size() + ""}));
+            }
 
             msg.send(sender);
         }
@@ -332,27 +368,34 @@ public class GroupManager {
         String title = Messages.get("GroupDetailTitle", "%name", group.getName());
         sender.sendMessage(parts + parts + " " + title + " " + parts + parts);
 
-        sender.sendMessage(Messages.get(
+        sender.sendMessage(pre + Messages.get(
                 "GroupOwnerLine", "%owner", group.getOwner().getName()));
-        sender.sendMessage(Messages.get("GroupMemberLine"));
+        sender.sendMessage(pre + Messages.get("GroupMemberLine"));
 
-        // メンバーを5人ごとに区切って表示する
-        ArrayList<MailSender> members = group.getMembers();
-        Collections.sort(members, new Comparator<MailSender>() {
-            public int compare(MailSender o1, MailSender o2) {
-                return o1.getName().compareToIgnoreCase(o2.getName());
+        if ( group instanceof SpecialGroupAll ) {
+            sender.sendMessage(pre + "  "
+                    + ChatColor.WHITE + Messages.get("GroupSpecialAllMembers"));
+
+        } else {
+
+            // メンバーを5人ごとに区切って表示する
+            ArrayList<MailSender> members = group.getMembers();
+            Collections.sort(members, new Comparator<MailSender>() {
+                public int compare(MailSender o1, MailSender o2) {
+                    return o1.getName().compareToIgnoreCase(o2.getName());
+                }
+            });
+            int size = members.size();
+            int max = (int)((size - 1) / 5) + 1;
+            for ( int i=0; i<max; i++ ) {
+                StringBuffer buffer = new StringBuffer();
+                buffer.append(pre + "  " + ChatColor.WHITE);
+                for ( int j=0; j<5; j++ ) {
+                    int index = i * 5 + j;
+                    buffer.append(members.get(index) + ", ");
+                }
+                sender.sendMessage(buffer.toString());
             }
-        });
-        int size = members.size();
-        int max = (int)((size - 1) / 5) + 1;
-        for ( int i=0; i<max; i++ ) {
-            StringBuffer buffer = new StringBuffer();
-            buffer.append(pre + "  " + ChatColor.WHITE);
-            for ( int j=0; j<5; j++ ) {
-                int index = i * 5 + j;
-                buffer.append(members.get(index) + ", ");
-            }
-            sender.sendMessage(buffer.toString());
         }
 
         sender.sendMessage(Messages.get("DetailLastLine"));

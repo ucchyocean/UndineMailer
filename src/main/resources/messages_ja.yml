@@ -157,6 +157,7 @@ GroupSettingTitle: 'グループ %name の設定'
 GroupSendPerm: 'このグループへのメール送信権限: '
 GroupModifyPerm: 'このグループの設定変更権限: '
 GroupDissolutionPerm: 'このグループの解散権限: '
+GroupPermNever: '禁止'
 GroupPermOP: 'OPのみ'
 GroupPermOwner: 'オーナーのみ'
 GroupPermMember: 'メンバー'
@@ -164,6 +165,9 @@ GroupPermEveryone: '誰でも'
 GroupPermChangeButton: '[%perm に変更]'
 GroupDeleteGroup: '[グループを解散する]'
 GroupReturnToMemberList: '[グループのメンバーリストに戻る]'
+
+GroupSpecialAllSummary: '全員宛てメールグループ'
+GroupSpecialAllMembers: '全てのプレイヤー'
 
 DateFormat: 'yyyy/MM/dd(E) HH:mm:ss'
 

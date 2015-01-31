@@ -45,13 +45,13 @@ public class UndineMailer extends JavaPlugin {
     @Override
     public void onEnable() {
 
+        // コンフィグをロードする
+        config = new UndineConfig(this);
+
         // マネージャを生成し、データをロードする
         groupManager = new GroupManager(this);
         mailManager = new MailManager(this);
         boxManager = new AttachmentBoxManager(this);
-
-        // コンフィグをロードする
-        config = new UndineConfig(this);
 
         // VaultEcoをロード
         if ( getServer().getPluginManager().isPluginEnabled("Vault") ) {

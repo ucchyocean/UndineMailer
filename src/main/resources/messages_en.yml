@@ -157,6 +157,7 @@ GroupSettingTitle: 'Settings of Group %name'
 GroupSendPerm: 'Send mail to this group permission: '
 GroupModifyPerm: 'Modify settings/members permission: '
 GroupDissolutionPerm: 'Break-up this group permission: '
+GroupPermNever: 'Never'
 GroupPermOP: 'OP only'
 GroupPermOwner: 'Owner only'
 GroupPermMember: 'Members'
@@ -164,6 +165,9 @@ GroupPermEveryone: 'Everyone'
 GroupPermChangeButton: '[%perm]'
 GroupDeleteGroup: '[Break-up this group]'
 GroupReturnToMemberList: '[Return to group members list]'
+
+GroupSpecialAllSummary: 'All Players Group'
+GroupSpecialAllMembers: 'All Players'
 
 DateFormat: 'MM/dd/yyyy(E) HH:mm:ss'
 

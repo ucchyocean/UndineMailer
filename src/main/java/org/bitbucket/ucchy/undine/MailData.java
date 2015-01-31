@@ -15,6 +15,7 @@ import java.util.List;
 import org.bitbucket.ucchy.undine.group.GroupCommand;
 import org.bitbucket.ucchy.undine.group.GroupData;
 import org.bitbucket.ucchy.undine.group.GroupManager;
+import org.bitbucket.ucchy.undine.group.SpecialGroupAll;
 import org.bitbucket.ucchy.undine.item.ItemConfigParseException;
 import org.bitbucket.ucchy.undine.item.ItemConfigParser;
 import org.bitbucket.ucchy.undine.sender.MailSender;
@@ -346,14 +347,6 @@ public class MailData {
 
     /**
      * このメールの宛先を設定します。
-     * @param to 宛先
-     */
-    public void setTo(List<MailSender> to) {
-        this.to = to;
-    }
-
-    /**
-     * このメールの宛先を設定します。
      * @param line 宛先番号（0から始まることに注意）
      * @param to 宛先
      */
@@ -362,6 +355,11 @@ public class MailData {
             this.to.add(to);
         } else if ( this.to.size() > line ) {
             this.to.set(line, to);
+        }
+
+        // 全体メールだった場合は、全体グループを除去しておく。
+        if ( isAllMail() ) {
+            toGroups.remove(SpecialGroupAll.NAME);
         }
     }
 
@@ -459,10 +457,25 @@ public class MailData {
      * @param group グループ
      */
     public void setToGroup(int line, String group) {
+
+        // 追加するグループが全体グループなら、
+        // 他の宛先を全て削除する
+        if ( SpecialGroupAll.NAME.equals(group) ) {
+            this.to.clear();
+            this.toGroups.clear();
+            this.toGroups.add(group);
+            return;
+        }
+
         if ( this.toGroups.size() == line ) {
             this.toGroups.add(group);
         } else if ( this.toGroups.size() > line ) {
             this.toGroups.set(line, group);
+        }
+
+        // 全体グループが含まれていたなら、全体グループを除去する
+        if ( toGroups.contains(SpecialGroupAll.NAME) ) {
+            toGroups.remove(SpecialGroupAll.NAME);
         }
     }
 
@@ -613,6 +626,7 @@ public class MailData {
      * @return 指定された名前がtoまたはfromに含まれるかどうか
      */
     public boolean isRelatedWith(MailSender sender) {
+        if ( isAllMail() ) return true;
         if ( from.equals(sender) ) return true;
         if ( toTotal != null ) return toTotal.contains(sender);
         return to.contains(sender);
@@ -660,6 +674,14 @@ public class MailData {
         this.isAttachmentsCancelled = true;
         this.costItem = null;
         this.costMoney = 0;
+    }
+
+    /**
+     * このメールが全体メールなのかどうかを返します。
+     * @return 全体メールかどうか
+     */
+    public boolean isAllMail() {
+        return toGroups.contains(SpecialGroupAll.NAME);
     }
 
     /**

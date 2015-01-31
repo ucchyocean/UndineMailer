@@ -86,3 +86,7 @@ modifyModeDefault: OWNER
 # MEMBER: group members anyone can break-up group.
 # EVERYONE: everyone can break-up group.
 dissolutionModeDefault: OWNER
+
+# Sending permission mode of special group "All" (all players group).
+specialGroupAllSendMode: OP
+

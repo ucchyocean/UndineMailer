@@ -23,6 +23,7 @@ import org.bitbucket.ucchy.undine.tellraw.MessageParts;
 import org.bukkit.ChatColor;
 import org.bukkit.configuration.ConfigurationSection;
 import org.bukkit.configuration.file.YamlConfiguration;
+import org.bukkit.entity.Player;
 
 /**
  * メールデータマネージャ
@@ -137,17 +138,13 @@ public class MailManager {
      */
     public void sendNewMail(MailData mail) {
 
-        // 宛先の重複を削除して再設定する
-        ArrayList<MailSender> to_copy = new ArrayList<MailSender>();
+        // 統合宛先を設定する。
+        ArrayList<MailSender> to_total = new ArrayList<MailSender>();
         for ( MailSender t : mail.getTo() ) {
-            if ( !to_copy.contains(t) ) {
-                to_copy.add(t);
+            if ( !to_total.contains(t) ) {
+                to_total.add(t);
             }
         }
-        mail.setTo(to_copy);
-
-        // 統合宛先を設定する。
-        ArrayList<MailSender> to_total = new ArrayList<MailSender>(to_copy);
         for ( GroupData group : mail.getToGroupsConv() ) {
             for ( MailSender t : group.getMembers() ) {
                 if ( !to_total.contains(t) ) {
@@ -185,11 +182,21 @@ public class MailManager {
         // 宛先の人がログイン中なら知らせる
         String msg = Messages.get("InformationYouGotMail",
                 "%from", mail.getFrom().getName());
-        for ( MailSender to : mail.getToTotal() ) {
-            if ( to.isOnline() ) {
-                to.sendMessage(msg);
+
+        if ( mail.isAllMail() ) {
+            for ( Player player : Utility.getOnlinePlayers() ) {
+                player.sendMessage(msg);
                 String pre = Messages.get("ListVerticalParts");
-                sendMailLine(to, pre, ChatColor.GOLD + mail.getInboxSummary(), mail);
+                sendMailLine(MailSender.getMailSender(player),
+                        pre, ChatColor.GOLD + mail.getInboxSummary(), mail);
+            }
+        } else {
+            for ( MailSender to : mail.getToTotal() ) {
+                if ( to.isOnline() ) {
+                    to.sendMessage(msg);
+                    String pre = Messages.get("ListVerticalParts");
+                    sendMailLine(to, pre, ChatColor.GOLD + mail.getInboxSummary(), mail);
+                }
             }
         }
 
@@ -215,7 +222,8 @@ public class MailManager {
 
         ArrayList<MailData> box = new ArrayList<MailData>();
         for ( MailData mail : mails ) {
-            if ( (mail.getToTotal() != null && mail.getToTotal().contains(sender))
+            if ( mail.isAllMail()
+                    || (mail.getToTotal() != null && mail.getToTotal().contains(sender))
                     || mail.getTo().contains(sender) ) {
                 box.add(mail);
             }
@@ -233,7 +241,8 @@ public class MailManager {
 
         ArrayList<MailData> box = new ArrayList<MailData>();
         for ( MailData mail : mails ) {
-            if ( (mail.getToTotal() != null && mail.getToTotal().contains(sender))
+            if ( mail.isAllMail()
+                    || (mail.getToTotal() != null && mail.getToTotal().contains(sender))
                     || mail.getTo().contains(sender) ) {
                 if ( !mail.isRead(sender) ) {
                     box.add(mail);
