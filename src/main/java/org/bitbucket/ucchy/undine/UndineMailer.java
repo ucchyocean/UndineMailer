@@ -29,6 +29,7 @@ public class UndineMailer extends JavaPlugin {
     private MailManager mailManager;
     private AttachmentBoxManager boxManager;
     private GroupManager groupManager;
+    private MailCleanupTask cleanupTask;
 
     private UndineCommand undineCommand;
     private ListCommand listCommand;
@@ -68,6 +69,10 @@ public class UndineMailer extends JavaPlugin {
         listCommand = new ListCommand(this);
         groupCommand = new GroupCommand(this);
 
+        // メールクリーンアップタスクを起動する
+        cleanupTask = new MailCleanupTask(mailManager);
+        cleanupTask.startTask();
+
         // リスナーの登録
         getServer().getPluginManager().registerEvents(new UndineListener(this), this);
     }
@@ -78,6 +83,9 @@ public class UndineMailer extends JavaPlugin {
      */
     @Override
     public void onDisable() {
+
+        // タスクを停止する
+        cleanupTask.cancel();
 
         // 添付ボックスを開いたままにしているプレイヤーの
         // インベントリを強制的に閉じる

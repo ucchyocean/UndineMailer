@@ -305,6 +305,46 @@ public class MailManager {
     }
 
     /**
+     * 指定されたインデクスのメールを削除する
+     * @param index インデクス
+     */
+    public void deleteMail(int index) {
+
+        MailData mail = getMail(index);
+        if ( mail != null ) {
+            mails.remove(mail);
+        }
+
+        String filename = String.format("%1$08d.yml", mail.getIndex());
+        File folder = parent.getMailFolder();
+        File file = new File(folder, filename);
+        if ( file.exists() ) {
+            file.delete();
+        }
+    }
+
+    /**
+     * 古いメールを削除する
+     */
+    protected void cleanup() {
+
+        ArrayList<Integer> queue = new ArrayList<Integer>();
+        int period = parent.getUndineConfig().getStorePeriod();
+        Date now = new Date();
+
+        for ( MailData mail : mails ) {
+            int days = (int)((now.getTime() - mail.getDate().getTime()) / (1000*60*60*24));
+            if ( days > period ) {
+                queue.add(mail.getIndex());
+            }
+        }
+
+        for ( int index : queue ) {
+            deleteMail(index);
+        }
+    }
+
+    /**
      * 編集中メールを作成して返す
      * @param sender 取得対象のsender
      * @return 編集中メール

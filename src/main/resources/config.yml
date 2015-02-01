@@ -23,6 +23,10 @@ maxDestination: 10
 # Limitation number of mail destination group.
 maxDestinationGroup: 3
 
+# Mail store period.
+# If you set 30, the system deletes the emails that 31 days passed from sending.
+storePeriod: 30
+
 # -------------------- Attachment Item Box --------------------
 
 # Enable the attachment item box.
