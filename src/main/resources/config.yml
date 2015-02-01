@@ -25,7 +25,7 @@ maxDestinationGroup: 3
 
 # Mail store period.
 # If you set 30, the system deletes the emails that 31 days passed from sending.
-storePeriod: 30
+mailStorageTermDays: 30
 
 # -------------------- Attachment Item Box --------------------
 

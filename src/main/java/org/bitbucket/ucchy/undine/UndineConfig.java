@@ -78,7 +78,7 @@ public class UndineConfig {
     private GroupPermissionMode specialGroupAllSendMode;
 
     /** メールの保存期間（日数） */
-    private int storePeriod;
+    private int mailStorageTermDays;
 
     private UndineMailer parent;
 
@@ -144,7 +144,7 @@ public class UndineConfig {
         specialGroupAllSendMode = GroupPermissionMode.getFromString(
                 conf.getString("specialGroupAllSendMode"),
                 GroupPermissionMode.OP);
-        storePeriod = conf.getInt("storePeriod", 30);
+        mailStorageTermDays = conf.getInt("mailStorageTermDays", 30);
 
         // sendFeeは、マイナスが指定されていたら0に変更する
         if ( sendFee < 0 ) {
@@ -180,9 +180,9 @@ public class UndineConfig {
             maxDestinationGroup = 0;
         }
 
-        // storePeriod は、マイナスが指定されていたら0に変更する
-        if ( storePeriod < 0 ) {
-            storePeriod = 0;
+        // mailStorageTermDays は、マイナスが指定されていたら0に変更する
+        if ( mailStorageTermDays < 0 ) {
+            mailStorageTermDays = 0;
         }
     }
 
@@ -327,10 +327,10 @@ public class UndineConfig {
     }
 
     /**
-     * @return storePeriod
+     * @return mailStorageTermDays
      */
-    public int getStorePeriod() {
-        return storePeriod;
+    public int getMailStorageTermDays() {
+        return mailStorageTermDays;
     }
 
 

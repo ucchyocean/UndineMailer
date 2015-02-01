@@ -316,7 +316,7 @@ public class MailManager {
     protected void cleanup() {
 
         ArrayList<Integer> queue = new ArrayList<Integer>();
-        int period = parent.getUndineConfig().getStorePeriod();
+        int period = parent.getUndineConfig().getMailStorageTermDays();
         Date now = new Date();
 
         for ( MailData mail : mails ) {
