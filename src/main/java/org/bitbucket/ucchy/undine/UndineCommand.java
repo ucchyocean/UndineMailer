@@ -1124,6 +1124,9 @@ public class UndineCommand implements TabExecutor {
 
                 manager.sendNewMail(mail);
                 manager.clearEditmodeMail(ms);
+                if ( sender instanceof Player ) {
+                    parent.getBoxManager().clearEditmodeBox((Player)sender);
+                }
 
                 // 送信したことを送信元に知らせる
                 for ( int i=0; i<parent.getUndineConfig().getUiEmptyLines(); i++ ) {
@@ -1156,7 +1159,6 @@ public class UndineCommand implements TabExecutor {
         // 送信
         manager.sendNewMail(mail);
         manager.clearEditmodeMail(ms);
-
         if ( sender instanceof Player ) {
             parent.getBoxManager().clearEditmodeBox((Player)sender);
         }
