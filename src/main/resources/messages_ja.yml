@@ -31,6 +31,7 @@ ErrorAlreadyRecipientOpened: '&c既に受信者がボックスを開いたため
 ErrorInvalidAttachBoxWorld: '&cあなたのいるワールドは、アイテムの送受信が禁止されています。別のワールドに移動してから、添付ボックスを開いてください。'
 ErrorInvalidCommand: '&cこのコマンドは利用不可に設定されています。'
 ErrorAttachBoxCountExceed: '&cあなたは現在 %num個の添付ボックスを使用しており、制限数 %limitを超えているため、添付付きメールを送信することはできません。'
+ErrorCannotSendAttachMailToAll: '&c添付付きメールをAll宛に送信することはできません。'
 
 ErrorInvalidGroupName: '&c%name はグループ名として使用できません。'
 ErrorGroupIsAlreadyExist: '&cグループ %name は既に存在するため使用できません。'
@@ -54,6 +55,7 @@ InformationYouSentMail: '&7メールを送信しました。'
 InformationEditCancelled: '&7メールの編集をキャンセルしました。'
 InformationPlayerJoin: '&7未読のメールが %unread件あります。'
 InformationItemDetail: '&7アイテム情報: &f%desc  &7取引可能？: &f%tradable'
+InformationMultiAttachConfirm: '&7複数の宛先に添付付きメールを送信しようとしています。\nこのメールは、%num通に複製されて送信されます。よろしいですか？'
 
 InformationMakeGroup: '&7新しいグループ %name を作成しました。'
 InformationDeleteGroup: '&7グループ %name を削除しました。'

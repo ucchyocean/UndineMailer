@@ -199,18 +199,6 @@ public class MailManager {
                 }
             }
         }
-
-        // 送信したことを送信元に知らせる
-        if ( mail.getFrom() != null && mail.getFrom().isOnline() ) {
-
-            // 空行を挿入する
-            for ( int i=0; i<parent.getUndineConfig().getUiEmptyLines(); i++ ) {
-                mail.getFrom().sendMessage("");
-            }
-
-            msg = Messages.get("InformationYouSentMail");
-            mail.getFrom().sendMessage(msg);
-        }
     }
 
     /**

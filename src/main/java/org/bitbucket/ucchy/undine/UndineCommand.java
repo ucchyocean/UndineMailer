@@ -339,6 +339,9 @@ public class UndineCommand implements TabExecutor {
         // メールを送信する
         manager.sendNewMail(mail);
 
+        // 送信したことを送信元に知らせる
+        mail.getFrom().sendMessage(Messages.get("InformationYouSentMail"));
+
         return true;
     }
 
@@ -1019,13 +1022,6 @@ public class UndineCommand implements TabExecutor {
             return true;
         }
 
-        // 添付ファイル付きのメールを複数の宛先に出そうとしたなら、エラーを表示して終了
-        if ( mail.getAttachments().size() > 0
-                && (mail.getTo().size() > 1 || mail.getToGroups().size() > 0) ) {
-            sender.sendMessage(Messages.get("ErrorCannotSendMultiAttach"));
-            return true;
-        }
-
         // 添付ボックスの使用制限を超える場合は、エラーを表示して終了
         if ( mail.getAttachments().size() > 0
                 && !sender.hasPermission(PERMISSION + ".attach-infinity")
@@ -1033,6 +1029,73 @@ public class UndineCommand implements TabExecutor {
             sender.sendMessage(Messages.get("ErrorAttachBoxCountExceed",
                     new String[]{"%num", "%limit"},
                     new String[]{manager.getAttachBoxUsageCount(ms) + "", config.getMaxAttachmentBoxCount() + ""}));
+            return true;
+        }
+
+        // 複数の宛先に、添付付きメールを送信しようとしたときの処理
+        if ( mail.getAttachments().size() > 0
+                && (mail.getTo().size() > 1 || mail.getToGroups().size() > 0) ) {
+
+            // undine.multiple-attach 権限が無いプレイヤーが
+            // 添付ファイル付きのメールを複数の宛先に出そうとしたなら、エラーを表示して終了。
+            if ( !sender.hasPermission(PERMISSION + ".multiple-attach") ) {
+                sender.sendMessage(Messages.get("ErrorCannotSendMultiAttach"));
+                return true;
+            }
+
+            // All宛てのメールで添付付きは、権限があっても送信できないので、エラーを表示する
+            if ( mail.isAllMail() ) {
+                sender.sendMessage(Messages.get("ErrorCannotSendAttachMailToAll"));
+                return true;
+            }
+
+            // 宛先を調べる
+            ArrayList<MailSender> to_total = new ArrayList<MailSender>();
+            for ( MailSender t : mail.getTo() ) {
+                if ( !to_total.contains(t) ) {
+                    to_total.add(t);
+                }
+            }
+            for ( GroupData group : mail.getToGroupsConv() ) {
+                for ( MailSender t : group.getMembers() ) {
+                    if ( !to_total.contains(t) ) {
+                        to_total.add(t);
+                    }
+                }
+            }
+
+            if ( args.length >= 2 && args[1].equals("attachconfirm") ) {
+                // 複製して送信
+
+                for ( MailSender t : to_total ) {
+                    MailData copy = mail.clone();
+                    copy.deleteAllTo();
+                    copy.setTo(0, t);
+                    manager.sendNewMail(copy);
+                }
+
+                manager.clearEditmodeMail(ms);
+                if ( sender instanceof Player ) {
+                    parent.getBoxManager().clearEditmodeBox((Player)sender);
+                }
+
+                // 送信したことを送信元に知らせる
+                for ( int i=0; i<parent.getUndineConfig().getUiEmptyLines(); i++ ) {
+                    mail.getFrom().sendMessage("");
+                }
+                mail.getFrom().sendMessage(Messages.get("InformationYouSentMail"));
+
+                return true;
+            }
+
+            // メールが複製されることについて確認する
+            sender.sendMessage(
+                    Messages.get("InformationMultiAttachConfirm",
+                            "%num", to_total.size()));
+            showOKCancelButton(ms,
+                    COMMAND + " send attachconfirm",
+                    COMMAND + " write");
+
             return true;
         }
 
@@ -1061,6 +1124,12 @@ public class UndineCommand implements TabExecutor {
 
                 manager.sendNewMail(mail);
                 manager.clearEditmodeMail(ms);
+
+                // 送信したことを送信元に知らせる
+                for ( int i=0; i<parent.getUndineConfig().getUiEmptyLines(); i++ ) {
+                    mail.getFrom().sendMessage("");
+                }
+                mail.getFrom().sendMessage(Messages.get("InformationYouSentMail"));
 
                 return true;
             }
@@ -1091,6 +1160,12 @@ public class UndineCommand implements TabExecutor {
         if ( sender instanceof Player ) {
             parent.getBoxManager().clearEditmodeBox((Player)sender);
         }
+
+        // 送信したことを送信元に知らせる
+        for ( int i=0; i<parent.getUndineConfig().getUiEmptyLines(); i++ ) {
+            mail.getFrom().sendMessage("");
+        }
+        mail.getFrom().sendMessage(Messages.get("InformationYouSentMail"));
 
         return true;
     }

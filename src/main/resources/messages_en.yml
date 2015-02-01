@@ -31,6 +31,7 @@ ErrorAlreadyRecipientOpened: '&cBecause recipient had opened box, you cannot can
 ErrorInvalidAttachBoxWorld: '&cIn this world, sending and receiving of items is prohibited. After you move to a different world, please open the attached box.'
 ErrorInvalidCommand: '&cThis command is invalid.'
 ErrorAttachBoxCountExceed: '&cYou are using %num attached boxes now, because it exceeds the limit %limit, you cannot send attachments with mail!'
+ErrorCannotSendAttachMailToAll: '&cYou cannot item attached mail to All group.'
 
 ErrorInvalidGroupName: '&c%name cannot be used as a group name.'
 ErrorGroupIsAlreadyExist: '&cGroup %name cannot be used because it already exists.'
@@ -54,6 +55,7 @@ InformationYouSentMail: '&7Your mail has been sent.'
 InformationEditCancelled: '&7Cancelled to make mail.'
 InformationPlayerJoin: '&7You have %unread unread mail.'
 InformationItemDetail: '&7Item Information: &f%desc  &7Tradable?: &f%tradable'
+InformationMultiAttachConfirm: '&7You will send item attached mail to multiple destinations. This mail will be replicated %num mails to send. Are you sure?'
 
 InformationMakeGroup: '&7Created a new group %name.'
 InformationDeleteGroup: '&7Deleted a group %name.'
@@ -107,7 +109,7 @@ EditmodeSend: '[Send]'
 EditmodeCancel: '[Cancel]'
 
 EditmodeFeeInformation: '&7You need %fee for sending this mail.'
-EditmodeFeeConfirm: '&7Are you OK to send?'
+EditmodeFeeConfirm: '&7Are you sure to send?'
 EditmodeFeeResult: '&7Costed %fee. (Balance: %remain)'
 
 BoxOpenCostMoneyInformation: '&7You need %fee for opening attachment box.'
@@ -116,7 +118,7 @@ BoxOpenCostMoneySenderResult: '&7You got box money %fee from %to. (Balance: %rem
 BoxOpenCostItemInformation: '&7You need %amount %material(s) for opening attachment box.'
 BoxOpenCostItemResult: '&7Costed %amount %material(s).'
 BoxOpenCostItemSenderResult: 'You got box cost item %amount %material(s) from %to.'
-BoxOpenCostConfirm: '&7Are you OK to open?'
+BoxOpenCostConfirm: '&7Are you sure to open?'
 
 ButtonOK: '[OK]'
 ButtonCancel: '[Cancel]'

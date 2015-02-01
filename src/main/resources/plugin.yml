@@ -76,6 +76,9 @@ permissions:
   undine.command-attach:
     description: Permission of adding attachment items by using command.
     default: op
+  undine.multiple-attach:
+    description: Permission of sending item attached mail to multiple destinations.
+    default: op
   undine.costmoney:
     description: Permission of costmoney command.
     default: true
@@ -172,6 +175,7 @@ permissions:
       undine.attach-all: true
       undine.attach-infinity: true
       undine.command-attach: true
+      undine.multiple-attach: true
       undine.costmoney: true
       undine.costitem: true
       undine.send: true

@@ -41,16 +41,18 @@ public class MailData {
     protected static final int MESSAGE_MAX_SIZE = 15;
     private static final int MESSAGE_ADD_SIZE = 3;
 
+    // 編集中に設定される属性
     private List<MailSender> to;
     private List<String> toGroups;
-    private List<MailSender> toTotal;
     private MailSender from;
     private List<String> message;
     private List<ItemStack> attachments;
     private double costMoney;
     private ItemStack costItem;
 
+    // 送信後に設定される属性
     private int index;
+    private List<MailSender> toTotal;
     private List<MailSender> readFlags;
     private List<ItemStack> attachmentsOriginal;
     private boolean isAttachmentsOpened;
@@ -108,8 +110,25 @@ public class MailData {
      */
     public MailData(List<MailSender> to, MailSender from, List<String> message,
             List<ItemStack> attachments, double costMoney, ItemStack costItem) {
+        this(to, from, message, attachments, costMoney, costItem, new ArrayList<String>());
+    }
+
+    /**
+     * コンストラクタ
+     * @param to 宛先
+     * @param from 送り主
+     * @param message メッセージ
+     * @param attachments 添付アイテム
+     * @param costMoney 受け取りにかかる金額
+     * @param costItem 受け取りにかかる取引アイテム
+     * @param toGroup 宛先グループ
+     */
+    public MailData(List<MailSender> to, MailSender from, List<String> message,
+            List<ItemStack> attachments, double costMoney, ItemStack costItem,
+            List<String> toGroup) {
         this.index = 0;
         this.to = to;
+        this.toGroups = toGroup;
         this.from = from;
         this.message = message;
         this.attachments = attachments;
@@ -118,18 +137,6 @@ public class MailData {
         this.readFlags = new ArrayList<MailSender>();
         this.isAttachmentsOpened = false;
         this.isAttachmentsCancelled = false;
-        this.toGroups = new ArrayList<String>();
-    }
-
-    /**
-     * コンストラクタ
-     * @param toGroup 宛先グループ
-     * @param from 送り主
-     * @param message メッセージ
-     */
-    public MailData(String toGroup, MailSender from, String message) {
-        this(new ArrayList<MailSender>(), from, message);
-        setToGroup(0, toGroup);
     }
 
     /**
@@ -320,7 +327,16 @@ public class MailData {
     protected MailData clone() {
         return new MailData(
                 new ArrayList<MailSender>(to), from, message,
-                new ArrayList<ItemStack>(attachments), costMoney, costItem);
+                new ArrayList<ItemStack>(attachments), costMoney, costItem,
+                toGroups);
+    }
+
+    /**
+     * 設定されている宛先を全て消去する
+     */
+    public void deleteAllTo() {
+        to.clear();
+        toGroups.clear();
     }
 
     /**
