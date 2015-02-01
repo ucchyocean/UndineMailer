@@ -12,9 +12,11 @@ import java.util.Collections;
 import java.util.Comparator;
 import java.util.HashMap;
 
-import org.bitbucket.ucchy.undine.ListCommand;
 import org.bitbucket.ucchy.undine.Messages;
 import org.bitbucket.ucchy.undine.UndineMailer;
+import org.bitbucket.ucchy.undine.command.GroupCommand;
+import org.bitbucket.ucchy.undine.command.ListCommand;
+import org.bitbucket.ucchy.undine.command.UndineCommand;
 import org.bitbucket.ucchy.undine.sender.MailSender;
 import org.bitbucket.ucchy.undine.tellraw.ClickEventType;
 import org.bitbucket.ucchy.undine.tellraw.MessageComponent;
@@ -347,7 +349,7 @@ public class GroupManager {
 
         sendPager(sender, COMMAND + " list", " " + next, page, max,
                 Messages.get("ListHorizontalParts"),
-                UndineMailer.COMMAND + " write");
+                UndineCommand.COMMAND + " write");
     }
 
     /**

@@ -8,7 +8,9 @@ package org.bitbucket.ucchy.undine;
 import java.io.File;
 import java.util.List;
 
-import org.bitbucket.ucchy.undine.group.GroupCommand;
+import org.bitbucket.ucchy.undine.command.GroupCommand;
+import org.bitbucket.ucchy.undine.command.ListCommand;
+import org.bitbucket.ucchy.undine.command.UndineCommand;
 import org.bitbucket.ucchy.undine.group.GroupManager;
 import org.bukkit.Bukkit;
 import org.bukkit.command.Command;
@@ -20,8 +22,6 @@ import org.bukkit.plugin.java.JavaPlugin;
  * @author ucchy
  */
 public class UndineMailer extends JavaPlugin {
-
-    public static final String COMMAND = "/umail";
 
     private static final String MAIL_FOLDER = "mail";
     private static final String GROUP_FOLDER = "group";
@@ -161,7 +161,7 @@ public class UndineMailer extends JavaPlugin {
      * 添付ボックスマネージャを取得する
      * @return 添付ボックスマネージャ
      */
-    protected AttachmentBoxManager getBoxManager() {
+    public AttachmentBoxManager getBoxManager() {
         return boxManager;
     }
 
@@ -185,7 +185,7 @@ public class UndineMailer extends JavaPlugin {
      * 経済プラグインへのアクセスブリッジを取得する
      * @return VaultEcoBridge、ロードされていなければnullになる
      */
-    protected VaultEcoBridge getVaultEco() {
+    public VaultEcoBridge getVaultEco() {
         return vaulteco;
     }
 
@@ -205,6 +205,16 @@ public class UndineMailer extends JavaPlugin {
         String[] descs = getDescription().getDescription().split(" ");
         if ( descs.length <= 0 ) return "en";
         return descs[descs.length - 1];
+    }
+
+    /**
+     * このプラグインの関連データをリロードする
+     */
+    public void reloadAll() {
+        mailManager.reload();
+        groupManager.reload();
+        config.reloadConfig();
+        Messages.reload(config.getLang());
     }
 
     /**

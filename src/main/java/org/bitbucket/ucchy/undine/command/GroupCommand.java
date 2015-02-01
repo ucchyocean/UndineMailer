@@ -3,13 +3,16 @@
  * @license    LGPLv3
  * @copyright  Copyright ucchy 2015
  */
-package org.bitbucket.ucchy.undine.group;
+package org.bitbucket.ucchy.undine.command;
 
 import java.util.ArrayList;
 import java.util.List;
 
 import org.bitbucket.ucchy.undine.Messages;
 import org.bitbucket.ucchy.undine.UndineMailer;
+import org.bitbucket.ucchy.undine.group.GroupData;
+import org.bitbucket.ucchy.undine.group.GroupManager;
+import org.bitbucket.ucchy.undine.group.GroupPermissionMode;
 import org.bitbucket.ucchy.undine.sender.MailSender;
 import org.bitbucket.ucchy.undine.tellraw.ClickEventType;
 import org.bitbucket.ucchy.undine.tellraw.MessageComponent;

@@ -15,6 +15,7 @@ import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 
+import org.bitbucket.ucchy.undine.command.UndineCommand;
 import org.bitbucket.ucchy.undine.group.GroupData;
 import org.bitbucket.ucchy.undine.sender.MailSender;
 import org.bitbucket.ucchy.undine.tellraw.ClickEventType;
@@ -30,8 +31,6 @@ import org.bukkit.entity.Player;
  * @author ucchy
  */
 public class MailManager {
-
-    private static final String COMMAND = UndineMailer.COMMAND;
 
     private static final int PAGE_SIZE = 10;
 
@@ -53,7 +52,7 @@ public class MailManager {
     /**
      * メールデータを再読込する
      */
-    public void reload() {
+    protected void reload() {
 
         mails = new ArrayList<MailData>();
         nextIndex = 1;
@@ -370,26 +369,11 @@ public class MailManager {
     }
 
     /**
-     * 指定されたメールを送信するのにかかる金額を返す
-     * @param mail メール
-     * @return 送信にかかる金額
-     */
-    protected double getSendFee(MailData mail) {
-        if ( parent.getVaultEco() == null ) return 0;
-        UndineConfig config = parent.getUndineConfig();
-        if ( !config.isEnableSendFee() ) return 0;
-        double total = 0;
-        total += mail.getTo().size() * config.getSendFee();
-        total += mail.getAttachments().size() * config.getAttachFee();
-        return total;
-    }
-
-    /**
      * 指定されたsenderに、Inboxリストを表示する。
      * @param sender 表示対象のsender
      * @param page 表示するページ
      */
-    protected void displayInboxList(MailSender sender, int page) {
+    public void displayInboxList(MailSender sender, int page) {
 
         // 空行を挿入する
         for ( int i=0; i<parent.getUndineConfig().getUiEmptyLines(); i++ ) {
@@ -424,7 +408,7 @@ public class MailManager {
             sendMailLine(sender, pre, color + mail.getInboxSummary(), mail);
         }
 
-        sendPager(sender, COMMAND + " inbox", page, max);
+        sendPager(sender, UndineCommand.COMMAND + " inbox", page, max);
     }
 
     /**
@@ -432,7 +416,7 @@ public class MailManager {
      * @param sender 表示対象のsender
      * @param page 表示するページ
      */
-    protected void displayOutboxList(MailSender sender, int page) {
+    public void displayOutboxList(MailSender sender, int page) {
 
         // 空行を挿入する
         for ( int i=0; i<parent.getUndineConfig().getUiEmptyLines(); i++ ) {
@@ -461,7 +445,7 @@ public class MailManager {
             sendMailLine(sender, pre, color + mail.getOutboxSummary(), mail);
         }
 
-        sendPager(sender, COMMAND + " outbox", page, max);
+        sendPager(sender, UndineCommand.COMMAND + " outbox", page, max);
     }
 
     /**
@@ -536,7 +520,7 @@ public class MailManager {
      * @param sender
      * @return 使用中添付ボックスの個数
      */
-    protected int getAttachBoxUsageCount(MailSender sender) {
+    public int getAttachBoxUsageCount(MailSender sender) {
 
         int count = 0;
         for ( MailData mail : mails ) {
@@ -576,7 +560,8 @@ public class MailManager {
         MessageParts button = new MessageParts(
                 "[" + mail.getIndex() + "]", ChatColor.AQUA);
         button.setClickEvent(
-                ClickEventType.RUN_COMMAND, COMMAND + " read " + mail.getIndex());
+                ClickEventType.RUN_COMMAND,
+                UndineCommand.COMMAND + " read " + mail.getIndex());
         button.addHoverText(Messages.get("SummaryOpenThisMailToolTip"));
         msg.addParts(button);
 

@@ -3,13 +3,15 @@
  * @license    LGPLv3
  * @copyright  Copyright ucchy 2015
  */
-package org.bitbucket.ucchy.undine;
+package org.bitbucket.ucchy.undine.command;
 
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
 
+import org.bitbucket.ucchy.undine.Messages;
+import org.bitbucket.ucchy.undine.UndineMailer;
 import org.bitbucket.ucchy.undine.tellraw.ClickEventType;
 import org.bitbucket.ucchy.undine.tellraw.MessageComponent;
 import org.bitbucket.ucchy.undine.tellraw.MessageParts;

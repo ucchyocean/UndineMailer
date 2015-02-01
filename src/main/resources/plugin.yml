@@ -67,9 +67,6 @@ permissions:
   undine.attach:
     description: Permission of attach command.
     default: true
-  undine.attach-all:
-    description: Permission of opening other's mail attach box.
-    default: op
   undine.attach-infinity:
     description: Permission of infinity use of attachment box.
     default: op
@@ -172,7 +169,6 @@ permissions:
       undine.to: true
       undine.message: true
       undine.attach: true
-      undine.attach-all: true
       undine.attach-infinity: true
       undine.command-attach: true
       undine.multiple-attach: true

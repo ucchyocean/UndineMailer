@@ -91,7 +91,7 @@ public class AttachmentBoxManager {
      * 該当プレイヤーの編集中ボックスをクリアする
      * @param player プレイヤー
      */
-    protected void clearEditmodeBox(Player player) {
+    public void clearEditmodeBox(Player player) {
 
         if ( editmodeBoxes.containsKey(player) ) {
             editmodeBoxes.get(player).clear();
@@ -217,7 +217,7 @@ public class AttachmentBoxManager {
         if ( player.isOnline() ) {
             if ( index == 0 ) {
                 mail.displayEditmode(
-                        MailSender.getMailSender(player), parent.getUndineConfig());
+                        MailSender.getMailSender(player));
             } else {
                 parent.getMailManager().displayMail(
                         MailSender.getMailSender(player), mail);

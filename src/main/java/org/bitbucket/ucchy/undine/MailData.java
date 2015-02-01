@@ -12,7 +12,9 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 
-import org.bitbucket.ucchy.undine.group.GroupCommand;
+import org.bitbucket.ucchy.undine.command.GroupCommand;
+import org.bitbucket.ucchy.undine.command.ListCommand;
+import org.bitbucket.ucchy.undine.command.UndineCommand;
 import org.bitbucket.ucchy.undine.group.GroupData;
 import org.bitbucket.ucchy.undine.group.GroupManager;
 import org.bitbucket.ucchy.undine.group.SpecialGroupAll;
@@ -35,10 +37,10 @@ import org.bukkit.inventory.ItemStack;
  */
 public class MailData {
 
-    private static final String COMMAND = UndineMailer.COMMAND;
+    private static final String COMMAND = UndineCommand.COMMAND;
 
+    public static final int MESSAGE_MAX_SIZE = 15;
     private static final int SUMMARY_MAX_SIZE = 40;
-    protected static final int MESSAGE_MAX_SIZE = 15;
     private static final int MESSAGE_ADD_SIZE = 3;
 
     // 編集中に設定される属性
@@ -324,7 +326,7 @@ public class MailData {
      * このオブジェクトの複製を作成して返す。
      * @see java.lang.Object#clone()
      */
-    protected MailData clone() {
+    public MailData clone() {
         return new MailData(
                 new ArrayList<MailSender>(to), from, message,
                 new ArrayList<ItemStack>(attachments), costMoney, costItem,
@@ -814,9 +816,8 @@ public class MailData {
     /**
      * このメールの編集画面を表示する
      * @param sender 表示するsender
-     * @param config Undineのコンフィグ
      */
-    protected void displayEditmode(MailSender sender, UndineConfig config) {
+    public void displayEditmode(MailSender sender) {
 
         // senderがコマブロなら何もしない
         if ( sender instanceof MailSenderBlock ) {
@@ -868,6 +869,8 @@ public class MailData {
             msg.addText(to.get(i).getName(), ChatColor.WHITE);
             msg.send(sender);
         }
+
+        UndineConfig config = UndineMailer.getInstance().getUndineConfig();
 
         if ( to.size() < config.getMaxDestination() ) {
             MessageComponent msg = new MessageComponent();

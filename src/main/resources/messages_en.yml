@@ -122,6 +122,8 @@ BoxOpenCostConfirm: '&7Are you sure to open?'
 
 ButtonOK: '[OK]'
 ButtonCancel: '[Cancel]'
+ButtonRefuse: '[Refuse]'
+ButtonRefuseToolTip: 'Refuse to receive items, and send back to sender.'
 
 InboxTitle: 'Inbox (Unread %unread)'
 OutboxTitle: 'Outbox'

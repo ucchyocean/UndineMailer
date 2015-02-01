@@ -122,6 +122,8 @@ BoxOpenCostConfirm: '&7開いてもよろしいですか？'
 
 ButtonOK: '[OK]'
 ButtonCancel: '[キャンセル]'
+ButtonRefuse: '[受取拒否]'
+ButtonRefuseToolTip: '受け取りを拒否して、添付アイテムを送信元に差し戻します。'
 
 InboxTitle: '受信箱 (未読 %unread通)'
 OutboxTitle: '送信箱'
