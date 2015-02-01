@@ -378,8 +378,7 @@ public class UndineAttachCommand implements SubCommand {
         player.sendMessage(Messages.get("BoxOpenCostConfirm"));
         UndineCommandUtil.showOKCancelButton(ms,
                 COMMAND + " attach " + index + " confirm",
-                COMMAND + " read " + index,
-                null);
+                COMMAND + " read " + index);
 
         return false;
     }
@@ -445,8 +444,7 @@ public class UndineAttachCommand implements SubCommand {
         player.sendMessage(Messages.get("BoxOpenCostConfirm"));
         UndineCommandUtil.showOKCancelButton(ms,
                 COMMAND + " attach " + index + " confirm",
-                COMMAND + " read " + index,
-                null);
+                COMMAND + " read " + index);
 
         return false;
     }

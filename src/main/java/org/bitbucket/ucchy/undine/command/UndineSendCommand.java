@@ -162,8 +162,7 @@ public class UndineSendCommand implements SubCommand {
                             "%num", to_total.size()));
             UndineCommandUtil.showOKCancelButton(ms,
                     COMMAND + " send attachconfirm",
-                    COMMAND + " write",
-                    null);
+                    COMMAND + " write");
 
             return;
         }
@@ -220,8 +219,7 @@ public class UndineSendCommand implements SubCommand {
             sender.sendMessage(Messages.get("EditmodeFeeConfirm"));
             UndineCommandUtil.showOKCancelButton(ms,
                     COMMAND + " send confirm",
-                    COMMAND + " write",
-                    null);
+                    COMMAND + " write");
 
             return;
         }

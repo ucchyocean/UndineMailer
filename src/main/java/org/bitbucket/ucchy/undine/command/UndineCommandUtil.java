@@ -69,10 +69,9 @@ public class UndineCommandUtil {
      * @param ms メッセージ送信先
      * @param okCommand OKボタンを押した時に実行するコマンド
      * @param cancelCommand キャンセルボタンを押した時に実行するコマンド
-     * @param refuseCommand 拒否ボタンを押した時に実行するコマンド、nullならボタンを非表示にする
      */
     protected static void showOKCancelButton(
-            MailSender ms, String okCommand, String cancelCommand, String refuseCommand) {
+            MailSender ms, String okCommand, String cancelCommand) {
 
         MessageComponent msg = new MessageComponent();
         msg.addText("     ");
@@ -85,15 +84,6 @@ public class UndineCommandUtil {
                 Messages.get("ButtonCancel"), ChatColor.AQUA);
         buttonCancel.setClickEvent(ClickEventType.RUN_COMMAND, cancelCommand);
         msg.addParts(buttonCancel);
-
-        if ( refuseCommand != null ) {
-            msg.addText("     ");
-            MessageParts buttonRefuse = new MessageParts(
-                    Messages.get("ButtonRefuse"), ChatColor.AQUA);
-            buttonRefuse.setClickEvent(ClickEventType.RUN_COMMAND, refuseCommand);
-            buttonRefuse.addHoverText(Messages.get("ButtonRefuseToolTip"));
-            msg.addParts(buttonRefuse);
-        }
 
         msg.send(ms);
     }
