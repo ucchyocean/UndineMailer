@@ -267,8 +267,8 @@ public class MailManager {
         // 指定されたsenderの画面にメールを表示する
         mail.displayDescription(sender);
 
-        // 添付ボックスがからっぽになっているなら、既読を付ける
-        if ( mail.getAttachments().size() == 0 ) {
+        // 添付ボックスがからっぽになっているか、キャンセルされているなら、既読を付ける
+        if ( mail.getAttachments().size() == 0 || mail.isAttachmentsCancelled() ) {
             mail.setReadFlag(sender);
             saveMail(mail);
         }

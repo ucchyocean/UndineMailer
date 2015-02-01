@@ -59,6 +59,8 @@ public class MailData {
     private List<ItemStack> attachmentsOriginal;
     private boolean isAttachmentsOpened;
     private boolean isAttachmentsCancelled;
+    private boolean isAttachmentsRefused;
+    private String attachmentsRefusedReason;
     private Date date;
 
     /**
@@ -139,6 +141,7 @@ public class MailData {
         this.readFlags = new ArrayList<MailSender>();
         this.isAttachmentsOpened = false;
         this.isAttachmentsCancelled = false;
+        this.isAttachmentsRefused = false;
     }
 
     /**
@@ -219,6 +222,8 @@ public class MailData {
         }
 
         section.set("isAttachmentsCancelled", isAttachmentsCancelled);
+        section.set("isAttachmentsRefused", isAttachmentsRefused);
+        section.set("attachmentsRefusedReason", attachmentsRefusedReason);
     }
 
     /**
@@ -318,6 +323,8 @@ public class MailData {
         }
 
         data.isAttachmentsCancelled = section.getBoolean("isAttachmentsCancelled", false);
+        data.isAttachmentsRefused = section.getBoolean("isAttachmentsRefused", false);
+        data.attachmentsRefusedReason = section.getString("attachmentsRefusedReason");
 
         return data;
     }
@@ -697,6 +704,39 @@ public class MailData {
     }
 
     /**
+     * このメールの添付アイテムが拒否されたのかどうかを返す
+     * @return 添付アイテムが拒否されたのかどうか
+     */
+    public boolean isAttachmentsRefused() {
+        return isAttachmentsRefused;
+    }
+
+    /**
+     * 受取拒否の理由を取得します。
+     * @return 受取拒否の理由（設定されていない場合はnullになることに注意すること）
+     */
+    public String getAttachmentsRefusedReason() {
+        return attachmentsRefusedReason;
+    }
+
+    /**
+     * このメールの添付アイテムを拒否する。
+     * 添付アイテムが拒否されると、受信者はボックスを開けなくなり、
+     * 逆に送信者がボックスを開くことができるようになる。
+     * @param 拒否理由
+     */
+    public void refuseAttachments(String attachmentsRefusedReason) {
+        this.isAttachmentsCancelled = true; // キャンセルフラグも立てる
+        this.isAttachmentsRefused = true;
+        if ( attachmentsRefusedReason != null
+                && attachmentsRefusedReason.length() > 0 ) {
+            this.attachmentsRefusedReason = attachmentsRefusedReason;
+        }
+        this.costItem = null;
+        this.costMoney = 0;
+    }
+
+    /**
      * このメールが全体メールなのかどうかを返します。
      * @return 全体メールかどうか
      */
@@ -708,7 +748,7 @@ public class MailData {
      * メールの詳細情報を表示する
      * @param sender 表示するsender
      */
-    protected void displayDescription(MailSender sender) {
+    public void displayDescription(MailSender sender) {
 
         // 空行を挿入する
         int lines = UndineMailer.getInstance().getUndineConfig().getUiEmptyLines();
@@ -779,7 +819,15 @@ public class MailData {
                 } else if ( isAttachmentsCancelled && !from.equals(sender) ) {
                     // キャンセル済みで受信者の場合、キャンセルされた旨のラベルを出す
 
-                    msg.addText(Messages.get("MailDetailAttachmentBoxCancelled"));
+                    if ( isAttachmentsRefused ) {
+                        msg.addText(Messages.get("MailDetailAttachmentBoxRefused"));
+                        if ( attachmentsRefusedReason != null ) {
+                            msg.addText("\n" + pre + "  " + ChatColor.WHITE
+                                    + attachmentsRefusedReason);
+                        }
+                    } else {
+                        msg.addText(Messages.get("MailDetailAttachmentBoxCancelled"));
+                    }
                 }
             }
 
@@ -789,25 +837,50 @@ public class MailData {
                 sender.sendMessage(pre + "  " + ChatColor.WHITE + getItemDesc(i));
             }
 
-            if ( costMoney > 0 ) {
+            if ( costMoney > 0 || costItem != null ) {
                 String costDesc = costMoney + "";
                 VaultEcoBridge eco = UndineMailer.getInstance().getVaultEco();
                 if ( eco != null ) {
                     costDesc = eco.format(costMoney);
                 }
-                sender.sendMessage(pre + Messages.get(
-                        "MailDetailAttachCostMoneyLine", "%fee", costDesc));
-            } else if ( costItem != null ) {
-                sender.sendMessage(pre + Messages.get(
-                        "MailDetailAttachCostItemLine", "%item", getItemDesc(costItem)));
+
+                msg = new MessageComponent();
+                if ( costMoney > 0 ) {
+                    msg.addText(pre + Messages.get(
+                            "MailDetailAttachCostMoneyLine", "%fee", costDesc));
+                } else {
+                    msg.addText(pre + Messages.get(
+                            "MailDetailAttachCostItemLine", "%item", getItemDesc(costItem)));
+                }
+                if ( to.contains(sender) ) {
+                    msg.addText(" ");
+                    MessageParts refuseButton = new MessageParts(
+                            Messages.get("MailDetailAttachmentBoxRefuse"),
+                            ChatColor.AQUA);
+                    refuseButton.setClickEvent(
+                            ClickEventType.SUGGEST_COMMAND,
+                            UndineCommand.COMMAND + " attach " + index + " refuse ");
+                    refuseButton.addHoverText(
+                            Messages.get("MailDetailAttachmentBoxRefuseToolTip"));
+                    msg.addParts(refuseButton);
+                }
+                msg.send(sender);
             }
 
         } else if ( isAttachmentsCancelled ) {
             // キャンセル済みの場合、キャンセルされた旨のラベルを出す
 
-            sender.sendMessage(pre + Messages.get("MailDetailAttachmentsLine") + " "
-                    + ChatColor.WHITE + Messages.get("MailDetailAttachmentBoxCancelled"));
-
+            if ( isAttachmentsRefused ) {
+                sender.sendMessage(pre + Messages.get("MailDetailAttachmentsLine") + " "
+                        + ChatColor.WHITE + Messages.get("MailDetailAttachmentBoxRefused"));
+                if ( attachmentsRefusedReason != null ) {
+                    sender.sendMessage(pre + "  " + ChatColor.WHITE
+                            + attachmentsRefusedReason);
+                }
+            } else {
+                sender.sendMessage(pre + Messages.get("MailDetailAttachmentsLine") + " "
+                        + ChatColor.WHITE + Messages.get("MailDetailAttachmentBoxCancelled"));
+            }
         }
 
         sender.sendMessage(Messages.get("DetailLastLine"));

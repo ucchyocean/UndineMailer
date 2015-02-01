@@ -26,6 +26,7 @@ ErrorInvalidCostMoney: '&c指定された着払い料金 %fee が正しくあり
 ErrorInvalidCostItem: '&c指定された着払いアイテム %item が正しくありません。'
 ErrorInvalidItem: '&c指定されたアイテム %item が正しくありません。'
 ErrorNoneCancelAttachPermission: '&c指定されたメールの送信者ではないので、キャンセルできません。'
+ErrorNoneRefuseAttachPermission: '&c指定されたメールの受信者ではないので、受取拒否できません。'
 ErrorAlreadyAttachCancelled: '&c既に添付アイテムはキャンセルされています。'
 ErrorAlreadyRecipientOpened: '&c既に受信者がボックスを開いたため、キャンセルできません。'
 ErrorInvalidAttachBoxWorld: '&cあなたのいるワールドは、アイテムの送受信が禁止されています。別のワールドに移動してから、添付ボックスを開いてください。'
@@ -56,6 +57,7 @@ InformationEditCancelled: '&7メールの編集をキャンセルしました。
 InformationPlayerJoin: '&7未読のメールが %unread件あります。'
 InformationItemDetail: '&7アイテム情報: &f%desc  &7取引可能？: &f%tradable'
 InformationMultiAttachConfirm: '&7複数の宛先に添付付きメールを送信しようとしています。\nこのメールは、%num通に複製されて送信されます。よろしいですか？'
+InformationAttachWasCanceledBySender: '&7メール#%num の添付アイテムが、送信者 %sender によりキャンセルされました。'
 
 InformationMakeGroup: '&7新しいグループ %name を作成しました。'
 InformationDeleteGroup: '&7グループ %name を削除しました。'
@@ -73,8 +75,11 @@ MailDetailMessageLine: '&cメッセージ:'
 MailDetailAttachmentsLine: '&c添付アイテム:'
 MailDetailAttachmentBox: '[添付アイテムボックスを開く]'
 MailDetailAttachmentBoxCancel: '[添付アイテムをキャンセルする]'
-MailDetailAttachmentBoxCancelToolTip: '添付をキャンセルし、\nアイテムを回収します。'
+MailDetailAttachmentBoxCancelToolTip: '添付をキャンセルしアイテムを回収します。\n受信者はアイテムを取り出せなくなります。'
 MailDetailAttachmentBoxCancelled: '送信者により添付がキャンセルされました'
+MailDetailAttachmentBoxRefuse: '[受取拒否]'
+MailDetailAttachmentBoxRefuseToolTip: '受け取りを拒否して、添付アイテムを送信元に差し戻します。\n拒否理由を書くことができます（省略可）。\n例: &e/umail attach 1 refuse 高すぎてお支払いできません…'
+MailDetailAttachmentBoxRefused: '受信者により添付が受取拒否されました'
 MailDetailAttachCostMoneyLine: '  &c着払い料金: &f%fee'
 MailDetailAttachCostItemLine: '  &c着払いアイテム: &f%item'
 
@@ -119,6 +124,8 @@ BoxOpenCostItemInformation: '&7この添付ボックスを開くのに、%materi
 BoxOpenCostItemResult: '&7%materialを%amount個消費しました。'
 BoxOpenCostItemSenderResult: '%toさんから、着払いアイテム %materialを%amount個返信されました。'
 BoxOpenCostConfirm: '&7開いてもよろしいですか？'
+
+BoxRefuseSenderResult: '%toさんが、メール#%num の添付アイテムを受け取り拒否しました。'
 
 ButtonOK: '[OK]'
 ButtonCancel: '[キャンセル]'

@@ -5,6 +5,7 @@
  */
 package org.bitbucket.ucchy.undine.command;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import org.bitbucket.ucchy.undine.MailData;
@@ -220,8 +221,8 @@ public class UndineAttachCommand implements SubCommand {
     public void runCommandForSentMail(Player player, MailSender ms,
             String[] args, MailData mail) {
 
-        // 3番目のパラメータがcancelなら、添付のキャンセル処理
         if ( args.length >= 3 && args[2].equalsIgnoreCase("cancel") ) {
+            // 3番目のパラメータがcancelなら、添付のキャンセル処理
 
             // 既にキャンセル済みならエラーを表示して終了
             if ( mail.isAttachmentsCancelled() ) {
@@ -235,7 +236,7 @@ public class UndineAttachCommand implements SubCommand {
                 return;
             }
 
-            // 既に送信者がボックスを開いてしまったなら、エラーを表示して終了
+            // 既に受信者がボックスを開いてしまったなら、エラーを表示して終了
             if ( mail.isAttachmentsOpened() ) {
                 player.sendMessage(Messages.get("ErrorAlreadyRecipientOpened"));
                 return;
@@ -253,6 +254,72 @@ public class UndineAttachCommand implements SubCommand {
 
             // 添付ボックスを表示する
             parent.getBoxManager().displayAttachBox(player, mail);
+
+            // 受信者側にメッセージを表示する
+            String message = Messages.get(
+                    "InformationAttachWasCanceledBySender",
+                    new String[]{"%num", "%sender"},
+                    new String[]{mail.getIndex() + "", player.getName()});
+            for ( MailSender to : mail.getToTotal() ) {
+                if ( to.isOnline() ) {
+                    to.sendMessage(message);
+                }
+            }
+
+            return;
+
+        } else if ( args.length >= 3 && args[2].equalsIgnoreCase("refuse") ) {
+            // 3番目のパラメータがrefuseなら、添付の受取拒否の処理
+
+            // 既にキャンセル済みならエラーを表示して終了
+            if ( mail.isAttachmentsCancelled() ) {
+                player.sendMessage(Messages.get("ErrorAlreadyAttachCancelled"));
+                return;
+            }
+
+            // 受信者ではないならエラーを表示して終了
+            if ( !mail.getToTotal().contains(ms) ) {
+                player.sendMessage(Messages.get("ErrorNoneRefuseAttachPermission"));
+                return;
+            }
+
+            // 既に受信者がボックスを開いてしまったなら、エラーを表示して終了
+            if ( mail.isAttachmentsOpened() ) {
+                player.sendMessage(Messages.get("ErrorAlreadyRecipientOpened"));
+                return;
+            }
+
+            // 拒否理由を取得する
+            StringBuffer reason = new StringBuffer();
+            for ( int i=3; i<args.length; i++ ) {
+                reason.append(args[i] + " ");
+            }
+
+            // 添付のコピーを取る
+            ArrayList<ItemStack> attachments =
+                    new ArrayList<ItemStack>(mail.getAttachments());
+
+            // 添付を拒否し、添付をクリアして、メールを保存する。
+            mail.refuseAttachments(reason.toString().trim());
+            mail.getAttachments().clear();
+            manager.saveMail(mail);
+
+            // 送信者側に新規メールで、アイテムを差し戻す
+            MailData reply = new MailData();
+            reply.setTo(0, mail.getFrom());
+            reply.setFrom(MailSenderConsole.getMailSenderConsole());
+            reply.setMessage(0, Messages.get(
+                    "BoxRefuseSenderResult",
+                    new String[]{"%to", "%num"},
+                    new String[]{ms.getName(), mail.getIndex() + ""}));
+            if ( reason.toString().trim().length() > 0 ) {
+                reply.setMessage(1, reason.toString().trim());
+            }
+            reply.setAttachments(attachments);
+            parent.getMailManager().sendNewMail(reply);
+
+            // 受信者側に、拒否した該当メールの詳細画面を開く
+            mail.displayDescription(ms);
 
             return;
         }
