@@ -131,7 +131,7 @@ public class MailSenderConsole extends MailSender {
      * 指定されたCommandSenderと同一かどうかを返す
      * @param sender
      * @return 同一かどうか
-     * @see org.bitbucket.ucchy.undine.sender.MailSender#equals(org.bukkit.entity.Player)
+     * @see org.bitbucket.ucchy.undine.sender.MailSender#equals(org.bukkit.command.CommandSender)
      */
     @Override
     public boolean equals(CommandSender sender) {

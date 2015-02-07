@@ -23,6 +23,10 @@ public class UndineOutboxCommand implements SubCommand {
 
     private MailManager manager;
 
+    /**
+     * コンストラクタ
+     * @param parent
+     */
     public UndineOutboxCommand(UndineMailer parent) {
         this.manager = parent.getMailManager();
     }

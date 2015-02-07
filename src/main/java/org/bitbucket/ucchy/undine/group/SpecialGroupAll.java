@@ -52,11 +52,13 @@ public class SpecialGroupAll extends GroupData {
     }
 
     /**
-     * コンフィグセクションにグループを保存する
-     * @param section コンフィグセクション
+     * ファイルにグループを保存する
+     * @param file ファイル
      * @see org.bitbucket.ucchy.undine.group.GroupData#saveToFile(java.io.File)
+     * @deprecated このメソッドは実際は何も実行されません。
      */
     @Override
+    @Deprecated
     protected void saveToFile(File file) {
         // do nothing.
     }

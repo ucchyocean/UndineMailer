@@ -143,7 +143,7 @@ public class Utility {
     /**
      * 文字列内のカラーコード候補（&a）を、全て削除する
      * @param source 置き換え元の文字列
-     * @return
+     * @return 置き換え後の文字列
      */
     public static String removeColorCode(String source) {
         return stripColor(replaceColorCode(source));

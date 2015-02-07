@@ -26,7 +26,7 @@ public class UndineWriteCommand implements SubCommand {
 
     /**
      * コンストラクタ
-     * @param manager
+     * @param parent
      */
     public UndineWriteCommand(UndineMailer parent) {
         this.manager = parent.getMailManager();

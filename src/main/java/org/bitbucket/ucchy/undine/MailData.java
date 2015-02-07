@@ -723,7 +723,7 @@ public class MailData {
      * このメールの添付アイテムを拒否する。
      * 添付アイテムが拒否されると、受信者はボックスを開けなくなり、
      * 逆に送信者がボックスを開くことができるようになる。
-     * @param 拒否理由
+     * @param attachmentsRefusedReason 拒否理由
      */
     public void refuseAttachments(String attachmentsRefusedReason) {
         this.isAttachmentsCancelled = true; // キャンセルフラグも立てる
