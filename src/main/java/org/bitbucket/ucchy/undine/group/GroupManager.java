@@ -347,6 +347,18 @@ public class GroupManager {
             msg.send(sender);
         }
 
+        if ( canMakeNewGroup(sender) ) {
+            MessageComponent msg = new MessageComponent();
+            msg.addText(pre);
+
+            MessageParts button =
+                    new MessageParts(Messages.get("GroupMakeNewGroup"), ChatColor.WHITE);
+            button.addHoverText(Messages.get("GroupMakeNewGroupToolTipForSelection"));
+            msg.addParts(button);
+
+            msg.send(sender);
+        }
+
         sendPager(sender, COMMAND + " list", " " + next, page, max,
                 Messages.get("ListHorizontalParts"),
                 UndineCommand.COMMAND + " write");
@@ -475,14 +487,14 @@ public class GroupManager {
             MessageComponent msg = new MessageComponent();
             msg.addText(pre);
 
-            MessageParts add = new MessageParts(Messages.get("GroupAddMember"), ChatColor.AQUA);
-            add.setClickEvent(
-                    ClickEventType.SUGGEST_COMMAND,
-                    COMMAND + " add " + group.getName() + " ");
-            msg.addParts(add);
+            if ( !parent.getUndineConfig().isEnablePlayerList() ) {
+                MessageParts add = new MessageParts(Messages.get("GroupAddMember"), ChatColor.AQUA);
+                add.setClickEvent(
+                        ClickEventType.SUGGEST_COMMAND,
+                        COMMAND + " add " + group.getName() + " ");
+                msg.addParts(add);
 
-            if ( parent.getUndineConfig().isEnablePlayerList() ) {
-                msg.addText(" ");
+            } else {
                 MessageParts addAddress = new MessageParts(
                         Messages.get("GroupAddMemberAddress"), ChatColor.AQUA);
                 addAddress.setClickEvent(
