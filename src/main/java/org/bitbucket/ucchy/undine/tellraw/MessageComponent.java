@@ -94,6 +94,26 @@ public class MessageComponent {
     }
 
     /**
+     * このコンポーネントが含んでいるパーツ数を返す
+     * @return パーツ数
+     */
+    public int getPartsSize() {
+        return parts.size();
+    }
+
+    /**
+     * このコンポーネントが含んでいるパーツを表示したときの、文字列の文字数トータルを返す
+     * @return 文字数
+     */
+    public int getTextLength() {
+        int total = 0;
+        for ( MessageParts part : parts ) {
+            total += part.buildPlain().length();
+        }
+        return total;
+    }
+
+    /**
      * このコンポーネントをビルドして、tellrawのコマンド文字列を作成して返す
      * @param name 実行先のプレイヤー名
      * @return ビルドされたコマンド文字列

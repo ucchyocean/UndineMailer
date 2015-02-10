@@ -10,6 +10,7 @@ import java.util.List;
 import org.bitbucket.ucchy.undine.MailData;
 import org.bitbucket.ucchy.undine.MailManager;
 import org.bitbucket.ucchy.undine.Messages;
+import org.bitbucket.ucchy.undine.UndineConfig;
 import org.bitbucket.ucchy.undine.UndineMailer;
 import org.bitbucket.ucchy.undine.sender.MailSender;
 import org.bukkit.command.CommandSender;
@@ -24,6 +25,7 @@ public class UndineCostMoneyCommand implements SubCommand {
     private static final String NODE = "undine." + NAME;
 
     private MailManager manager;
+    private UndineConfig config;
 
     /**
      * コンストラクタ
@@ -31,6 +33,7 @@ public class UndineCostMoneyCommand implements SubCommand {
      */
     public UndineCostMoneyCommand(UndineMailer parent) {
         this.manager = parent.getMailManager();
+        this.config = parent.getUndineConfig();
     }
     /**
      * コマンドを取得します。
@@ -60,6 +63,12 @@ public class UndineCostMoneyCommand implements SubCommand {
      */
     @Override
     public void runCommand(CommandSender sender, String[] args) {
+
+        // 着払いアイテムが使用不可の設定になっているなら、エラーを表示して終了
+        if ( !config.isEnableCODMoney() ) {
+            sender.sendMessage(Messages.get("ErrorInvalidCommand"));
+            return;
+        }
 
         MailData mail = manager.getEditmodeMail(MailSender.getMailSender(sender));
 

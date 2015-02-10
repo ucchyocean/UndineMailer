@@ -38,6 +38,12 @@ public class UndineConfig {
     /** 添付ボックス操作不可とするワールド */
     private List<String> disableWorldsToOpenAttachBox;
 
+    /** 着払い料金を使用するかどうか */
+    private boolean enableCODMoney;
+
+    /** 着払いアイテムを使用するかどうか */
+    private boolean enableCODItem;
+
     /** 着払い料金の入金後の残金が一致しない場合に、エラーとするかどうか */
     private boolean depositErrorOnUnmatch;
 
@@ -123,6 +129,8 @@ public class UndineConfig {
         enableSendSelf = conf.getBoolean("enableSendSelf", false);
         disableWorldsToOpenAttachBox =
                 conf.getStringList("disableWorldsToOpenAttachBox");
+        enableCODMoney = conf.getBoolean("enableCODMoney", true);
+        enableCODItem = conf.getBoolean("enableCODItem", true);
         depositErrorOnUnmatch = conf.getBoolean("depositErrorOnUnmatch", true);
         attachBoxSize = conf.getInt("attachBoxSize", 1);
         maxAttachmentBoxCount = conf.getInt("maxAttachmentBoxCount", 3);
@@ -233,6 +241,20 @@ public class UndineConfig {
      */
     public List<String> getDisableWorldsToOpenAttachBox() {
         return disableWorldsToOpenAttachBox;
+    }
+
+    /**
+     * @return enableCODMoney
+     */
+    public boolean isEnableCODMoney() {
+        return enableCODMoney;
+    }
+
+    /**
+     * @return enableCODItem
+     */
+    public boolean isEnableCODItem() {
+        return enableCODItem;
     }
 
     /**

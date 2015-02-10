@@ -1050,27 +1050,38 @@ public class MailData {
             msg.addText(Messages.get("EditmodeAttachNum", "%num", attachments.size()));
             msg.send(sender);
 
-            if ( attachments.size() > 0 ) {
+            boolean isEnableCODMoney = (UndineMailer.getInstance().getVaultEco() != null)
+                    && config.isEnableCODMoney();
+            boolean isEnableCODItem = config.isEnableCODItem();
+
+            if ( attachments.size() > 0 && (isEnableCODMoney || isEnableCODItem) ) {
 
                 MessageComponent msgfee = new MessageComponent();
                 msgfee.addText(pre);
 
                 if ( costMoney == 0 && costItem == null ) {
 
-                    MessageParts buttonFee = new MessageParts(
-                            Messages.get("EditmodeCostMoney"), ChatColor.AQUA);
-                    buttonFee.setClickEvent(
-                            ClickEventType.SUGGEST_COMMAND, COMMAND + " costmoney ");
-                    buttonFee.addHoverText(Messages.get("EditmodeCostMoneyToolTip"));
-                    msgfee.addParts(buttonFee);
-                    msgfee.addText(" ");
+                    if ( isEnableCODMoney ) {
+                        MessageParts buttonFee = new MessageParts(
+                                Messages.get("EditmodeCostMoney"), ChatColor.AQUA);
+                        buttonFee.setClickEvent(
+                                ClickEventType.SUGGEST_COMMAND, COMMAND + " costmoney ");
+                        buttonFee.addHoverText(Messages.get("EditmodeCostMoneyToolTip"));
+                        msgfee.addParts(buttonFee);
+                    }
 
-                    MessageParts buttonItem = new MessageParts(
-                            Messages.get("EditmodeCostItem"), ChatColor.AQUA);
-                    buttonItem.setClickEvent(
-                            ClickEventType.SUGGEST_COMMAND, COMMAND + " costitem ");
-                    buttonItem.addHoverText(Messages.get("EditmodeCostItemToolTip"));
-                    msgfee.addParts(buttonItem);
+                    if ( isEnableCODMoney && isEnableCODItem ) {
+                        msgfee.addText(" ");
+                    }
+
+                    if ( isEnableCODItem ) {
+                        MessageParts buttonItem = new MessageParts(
+                                Messages.get("EditmodeCostItem"), ChatColor.AQUA);
+                        buttonItem.setClickEvent(
+                                ClickEventType.SUGGEST_COMMAND, COMMAND + " costitem ");
+                        buttonItem.addHoverText(Messages.get("EditmodeCostItemToolTip"));
+                        msgfee.addParts(buttonItem);
+                    }
 
                 } else if ( costMoney > 0 ) {
 

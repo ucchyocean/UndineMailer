@@ -24,7 +24,7 @@ maxDestination: 10
 maxDestinationGroup: 3
 
 # Mail store period.
-# If you set 30, the system deletes the emails that 31 days passed from sending.
+# If you set 30, the system deletes mails that 31 days passed from sending.
 mailStorageTermDays: 30
 
 # -------------------- Attachment Item Box --------------------
@@ -43,11 +43,20 @@ maxAttachmentBoxCount: 3
 # World names that disable to open attachment item box.
 disableWorldsToOpenAttachBox: []
 
+# -------------------- C.O.D. Setting --------------------
+
+# Enable C.O.D. money feature by using currency of economy plugin.
+# If you want to use C.O.D. money feature, you need Vault and any economy plugin.
+enableCODMoney: true
+
+# Enable C.O.D. item feature.
+enableCODItem: true
+
 # When paying cash on delivery fee to the other player,
 #   if the amount of post-payment does not match, you can set whether an error.
 # In such Essentials "max-money" setting, if you have set the upper limit of money,
 #   payment will be disappear. So please make this setting to true, for saving payment.
-# If you are using such as taking a tax on payment,
+# If you are using such as taking a tax on payment in your economy plugin,
 #   so you will not be able to remittances, please make this setting to false.
 depositErrorOnUnmatch: true
 

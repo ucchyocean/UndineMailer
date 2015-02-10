@@ -174,6 +174,16 @@ public class MailManager {
             mail.setCostMoney(0);
         }
 
+        // 着払い料金が無効なら、着払い料金はクリアしておく
+        if ( !parent.getUndineConfig().isEnableCODMoney() ) {
+            mail.setCostMoney(0);
+        }
+
+        // 着払いアイテム無効なら、着払いアイテムはクリアしておく
+        if ( !parent.getUndineConfig().isEnableCODItem() ) {
+            mail.setCostItem(null);
+        }
+
         // 保存する
         mails.add(mail);
         saveMail(mail);
