@@ -57,6 +57,7 @@ InformationEditCancelled: '&7Cancelled to make mail.'
 InformationPlayerJoin: '&7You have %unread unread mail.'
 InformationItemDetail: '&7Item Information: &f%desc  &7Tradable?: &f%tradable'
 InformationMultiAttachConfirm: '&7You will send item attached mail to multiple destinations. This mail will be replicated %num mails to send. Are you sure?'
+InformationMultiAttachConfirmConsole: 'To send, run ''mail send attachconfirm'' command.'
 InformationAttachWasCanceledBySender: '&7Sender %sender canceled the attachment item box of mail #%num.'
 
 InformationMakeGroup: '&7Created a new group %name.'

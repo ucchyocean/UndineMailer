@@ -18,6 +18,7 @@ import org.bitbucket.ucchy.undine.group.GroupData;
 import org.bitbucket.ucchy.undine.sender.MailSender;
 import org.bitbucket.ucchy.undine.sender.MailSenderPlayer;
 import org.bukkit.command.CommandSender;
+import org.bukkit.command.ConsoleCommandSender;
 import org.bukkit.entity.Player;
 
 /**
@@ -160,9 +161,16 @@ public class UndineSendCommand implements SubCommand {
             sender.sendMessage(
                     Messages.get("InformationMultiAttachConfirm",
                             "%num", to_total.size()));
-            UndineCommandUtil.showOKCancelButton(ms,
-                    COMMAND + " send attachconfirm",
-                    COMMAND + " write");
+
+            if ( sender instanceof ConsoleCommandSender ) {
+                // コンソールの場合は、OK Cancel ボタンの代わりに、コマンドガイドを出す。
+                // see issue #17.
+                sender.sendMessage(Messages.get("InformationMultiAttachConfirmConsole"));
+            } else {
+                UndineCommandUtil.showOKCancelButton(ms,
+                        COMMAND + " send attachconfirm",
+                        COMMAND + " write");
+            }
 
             return;
         }

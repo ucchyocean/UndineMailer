@@ -57,6 +57,7 @@ InformationEditCancelled: '&7メールの編集をキャンセルしました。
 InformationPlayerJoin: '&7未読のメールが %unread件あります。'
 InformationItemDetail: '&7アイテム情報: &f%desc  &7取引可能？: &f%tradable'
 InformationMultiAttachConfirm: '&7複数の宛先に添付付きメールを送信しようとしています。\nこのメールは、%num通に複製されて送信されます。よろしいですか？'
+InformationMultiAttachConfirmConsole: '送信する場合は、''mail send attachconfirm''を実行してください。'
 InformationAttachWasCanceledBySender: '&7メール#%num の添付アイテムが、送信者 %sender によりキャンセルされました。'
 
 InformationMakeGroup: '&7新しいグループ %name を作成しました。'
