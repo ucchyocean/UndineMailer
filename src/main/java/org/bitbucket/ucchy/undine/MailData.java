@@ -897,7 +897,7 @@ public class MailData {
             return;
         }
 
-        // senderがコンソールなら、displayにリダイレクトする
+        // senderがコンソールなら、詳細表示画面にリダイレクトする
         if ( sender instanceof MailSenderConsole ) {
             displayDescription(sender);
             return;
@@ -949,22 +949,22 @@ public class MailData {
             MessageComponent msg = new MessageComponent();
             msg.addText(pre);
 
-            MessageParts button = new MessageParts(
-                    Messages.get("EditmodeToAdd"), ChatColor.AQUA);
-            button.setClickEvent(
-                    ClickEventType.SUGGEST_COMMAND,
-                    COMMAND + " to " + (to.size()+1) + " ");
-            msg.addParts(button);
+            if ( !config.isEnablePlayerList() ) {
+                MessageParts button = new MessageParts(
+                        Messages.get("EditmodeToAdd"), ChatColor.AQUA);
+                button.setClickEvent(
+                        ClickEventType.SUGGEST_COMMAND,
+                        COMMAND + " to " + (to.size()+1) + " ");
+                msg.addParts(button);
 
-            if ( config.isEnablePlayerList() ) {
-                msg.addText(" ");
-
+            } else {
                 MessageParts buttonAddress = new MessageParts(
                         Messages.get("EditmodeToAddress"), ChatColor.AQUA);
                 buttonAddress.setClickEvent(
                         ClickEventType.RUN_COMMAND,
                         ListCommand.COMMAND_INDEX + " " + COMMAND + " to " + (to.size()+1));
                 msg.addParts(buttonAddress);
+
             }
 
             msg.send(sender);
