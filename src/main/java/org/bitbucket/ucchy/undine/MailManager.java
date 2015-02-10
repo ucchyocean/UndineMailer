@@ -32,6 +32,8 @@ import org.bukkit.entity.Player;
  */
 public class MailManager {
 
+    protected static final String MAILLIST_METAKEY = "UndineMailList";
+
     private static final int PAGE_SIZE = 10;
 
     private ArrayList<MailData> mails;
@@ -217,6 +219,8 @@ public class MailManager {
      */
     public ArrayList<MailData> getInboxMails(MailSender sender) {
 
+        sender.setStringMetadata(MAILLIST_METAKEY, "inbox");
+
         ArrayList<MailData> box = new ArrayList<MailData>();
         for ( MailData mail : mails ) {
             if ( mail.isAllMail()
@@ -235,6 +239,8 @@ public class MailManager {
      * @return メールのリスト
      */
     public ArrayList<MailData> getUnreadMails(MailSender sender) {
+
+        sender.setStringMetadata(MAILLIST_METAKEY, "unread");
 
         ArrayList<MailData> box = new ArrayList<MailData>();
         for ( MailData mail : mails ) {
@@ -256,6 +262,8 @@ public class MailManager {
      * @return メールのリスト
      */
     public ArrayList<MailData> getOutboxMails(MailSender sender) {
+
+        sender.setStringMetadata(MAILLIST_METAKEY, "outbox");
 
         ArrayList<MailData> box = new ArrayList<MailData>();
         for ( MailData mail : mails ) {

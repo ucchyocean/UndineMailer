@@ -5,11 +5,16 @@
  */
 package org.bitbucket.ucchy.undine.sender;
 
+import java.util.List;
+
+import org.bitbucket.ucchy.undine.UndineMailer;
 import org.bitbucket.ucchy.undine.Utility;
 import org.bukkit.Bukkit;
 import org.bukkit.OfflinePlayer;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
+import org.bukkit.metadata.FixedMetadataValue;
+import org.bukkit.metadata.MetadataValue;
 
 /**
  * プレイヤー
@@ -140,6 +145,73 @@ public class MailSenderPlayer extends MailSender {
     @Override
     public boolean isOp() {
         return sender.isOp();
+    }
+
+    /**
+     * 文字列のメタデータを設定する
+     * @param key キー
+     * @param value 値
+     * @see org.bitbucket.ucchy.undine.sender.MailSender#setStringMetadata(java.lang.String, java.lang.String)
+     */
+    @Override
+    public void setStringMetadata(String key, String value) {
+        if ( !sender.isOnline() ) {
+            return;
+        }
+        sender.getPlayer().setMetadata(key,
+                new FixedMetadataValue(UndineMailer.getInstance(), value));
+    }
+
+    /**
+     * 文字列のメタデータを取得する
+     * @param key キー
+     * @return 値
+     * @see org.bitbucket.ucchy.undine.sender.MailSender#getStringMetadata(java.lang.String)
+     */
+    @Override
+    public String getStringMetadata(String key) {
+        if ( !sender.isOnline() ) {
+            return null;
+        }
+        List<MetadataValue> values = sender.getPlayer().getMetadata(key);
+        if ( values.size() == 0 ) {
+            return null;
+        }
+        return values.get(0).asString();
+    }
+
+    /**
+     * 真偽値のメタデータを設定する
+     * @param key キー
+     * @param value 値
+     * @see org.bitbucket.ucchy.undine.sender.MailSender#setBooleanMetadata(java.lang.String, boolean)
+     */
+    @Override
+    public void setBooleanMetadata(String key, boolean value) {
+        if ( !sender.isOnline() ) {
+            return;
+        }
+        sender.getPlayer().setMetadata(key,
+                new FixedMetadataValue(UndineMailer.getInstance(), value));
+    }
+
+    /**
+     * 真偽値のメタデータを取得する
+     * @param key キー
+     * @return 値
+     * @see org.bitbucket.ucchy.undine.sender.MailSender#getBooleanMetadata(java.lang.String)
+     */
+    @Override
+    public boolean getBooleanMetadata(String key) {
+        if ( !sender.isOnline() ) {
+            return false;
+        }
+        List<MetadataValue> values = sender.getPlayer().getMetadata(key);
+        if ( values.size() == 0 ) {
+            return false;
+        }
+        return values.get(0).asBoolean();
+
     }
 
     /**

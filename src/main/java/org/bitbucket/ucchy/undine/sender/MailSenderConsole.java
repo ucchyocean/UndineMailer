@@ -5,6 +5,8 @@
  */
 package org.bitbucket.ucchy.undine.sender;
 
+import java.util.HashMap;
+
 import org.bukkit.Bukkit;
 import org.bukkit.OfflinePlayer;
 import org.bukkit.command.CommandSender;
@@ -17,7 +19,10 @@ import org.bukkit.entity.Player;
  */
 public class MailSenderConsole extends MailSender {
 
-    ConsoleCommandSender sender;
+    private ConsoleCommandSender sender;
+
+    private static HashMap<String, String> strMetadata;
+    private static HashMap<String, Boolean> blnMetadata;
 
     /**
      * コンストラクタ
@@ -125,6 +130,62 @@ public class MailSenderConsole extends MailSender {
     @Override
     public boolean isOp() {
         return sender.isOp();
+    }
+
+    /**
+     * 文字列のメタデータを設定する
+     * @param key キー
+     * @param value 値
+     * @see org.bitbucket.ucchy.undine.sender.MailSender#setStringMetadata(java.lang.String, java.lang.String)
+     */
+    @Override
+    public void setStringMetadata(String key, String value) {
+        if ( strMetadata == null ) {
+            strMetadata = new HashMap<String, String>();
+        }
+        strMetadata.put(key, value);
+    }
+
+    /**
+     * 文字列のメタデータを取得する
+     * @param key キー
+     * @return 値
+     * @see org.bitbucket.ucchy.undine.sender.MailSender#getStringMetadata(java.lang.String)
+     */
+    @Override
+    public String getStringMetadata(String key) {
+        if ( strMetadata == null ) {
+            return null;
+        }
+        return strMetadata.get(key);
+    }
+
+    /**
+     * 真偽値のメタデータを設定する
+     * @param key キー
+     * @param value 値
+     * @see org.bitbucket.ucchy.undine.sender.MailSender#setBooleanMetadata(java.lang.String, boolean)
+     */
+    @Override
+    public void setBooleanMetadata(String key, boolean value) {
+        if ( blnMetadata == null ) {
+            blnMetadata = new HashMap<String, Boolean>();
+        }
+        blnMetadata.put(key, value);
+    }
+
+    /**
+     * 真偽値のメタデータを取得する
+     * @param key キー
+     * @return 値
+     * @see org.bitbucket.ucchy.undine.sender.MailSender#getBooleanMetadata(java.lang.String)
+     */
+    @Override
+    public boolean getBooleanMetadata(String key) {
+        if ( blnMetadata == null ) {
+            return false;
+        }
+        return blnMetadata.get(key);
     }
 
     /**

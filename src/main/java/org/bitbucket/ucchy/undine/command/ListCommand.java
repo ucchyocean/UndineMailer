@@ -210,7 +210,7 @@ public class ListCommand implements TabExecutor {
         String prevLabel = Messages.get("PrevPage");
         String nextLabel = Messages.get("NextPage");
         String lastLabel = Messages.get("LastPage");
-        String returnToolTip = Messages.get("returnToolTip");
+        String returnToolTip = Messages.get("ReturnToolTip");
         String firstToolTip = Messages.get("FirstPageToolTip");
         String prevToolTip = Messages.get("PrevPageToolTip");
         String nextToolTip = Messages.get("NextPageToolTip");

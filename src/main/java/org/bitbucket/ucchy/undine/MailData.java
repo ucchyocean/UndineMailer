@@ -883,7 +883,7 @@ public class MailData {
             }
         }
 
-        sender.sendMessage(Messages.get("DetailLastLine"));
+        sendPager(sender, index);
     }
 
     /**
@@ -1227,5 +1227,129 @@ public class MailData {
      */
     private String getFormattedDate(Date date) {
         return new SimpleDateFormat(Messages.get("DateFormat")).format(date);
+    }
+
+    /**
+     * ページャーを対象プレイヤーに表示する
+     * @param sender 表示対象
+     * @param index 表示しようとしているメールのインデクス
+     */
+    private void sendPager(MailSender sender, int index) {
+
+        // メタデータが無いなら、ページャーを表示しない
+        String meta = sender.getStringMetadata(MailManager.MAILLIST_METAKEY);
+        if ( meta == null ||
+                (!meta.equals("inbox") && !meta.equals("outbox") && !meta.equals("unread")) ) {
+            sender.sendMessage(Messages.get("DetailLastLine"));
+            return;
+        }
+
+        // リストの取得
+        ArrayList<MailData> list;
+        if ( meta.equals("inbox") ) {
+            list = UndineMailer.getInstance().getMailManager().getInboxMails(sender);
+        } else if ( meta.equals("outbox") ) {
+            list = UndineMailer.getInstance().getMailManager().getOutboxMails(sender);
+        } else {
+            list = UndineMailer.getInstance().getMailManager().getUnreadMails(sender);
+        }
+
+        // ページ番号の取得
+        int page = getIndexOfMailList(index, list);
+
+        // 該当のメールがリストに含まれていないなら、ページャーを表示しない
+        if ( page == -1 ) {
+            sender.sendMessage(Messages.get("DetailLastLine"));
+            return;
+        }
+
+        String firstLabel = Messages.get("FirstPage");
+        String prevLabel = Messages.get("PrevPage");
+        String nextLabel = Messages.get("NextPage");
+        String lastLabel = Messages.get("LastPage");
+        String firstToolTip = Messages.get("FirstMailToolTip");
+        String prevToolTip = Messages.get("PrevMailToolTip");
+        String nextToolTip = Messages.get("NextMailToolTip");
+        String lastToolTip = Messages.get("LastMailToolTip");
+        String parts = Messages.get("DetailHorizontalParts");
+
+        MessageComponent msg = new MessageComponent();
+
+        msg.addText(parts + " ");
+
+        if ( !meta.equals("unread") ) {
+            String returnCommand = (meta.equals("inbox")) ? COMMAND + " inbox" : COMMAND + " outbox";
+            MessageParts returnButton = new MessageParts(
+                    Messages.get("Return"), ChatColor.AQUA);
+            returnButton.setClickEvent(ClickEventType.RUN_COMMAND, returnCommand);
+            returnButton.addHoverText(Messages.get("ReturnListToolTip"));
+            msg.addParts(returnButton);
+
+            msg.addText(" ");
+        }
+
+        if ( page > 0 ) {
+            int first = list.get(0).getIndex();
+            int prev = list.get(page - 1).getIndex();
+
+            MessageParts firstButton = new MessageParts(
+                    firstLabel, ChatColor.AQUA);
+            firstButton.setClickEvent(ClickEventType.RUN_COMMAND,
+                    COMMAND + " read " + first);
+            firstButton.addHoverText(firstToolTip);
+            msg.addParts(firstButton);
+
+            msg.addText(" ");
+
+            MessageParts prevButton = new MessageParts(
+                    prevLabel, ChatColor.AQUA);
+            prevButton.setClickEvent(ClickEventType.RUN_COMMAND,
+                    COMMAND + " read " + prev);
+            prevButton.addHoverText(prevToolTip);
+            msg.addParts(prevButton);
+
+        } else {
+            msg.addText(firstLabel + " " + prevLabel, ChatColor.WHITE);
+
+        }
+
+        msg.addText(" (" + (page + 1) + "/" + list.size() + ") ");
+
+        if ( page < (list.size() - 1) ) {
+            int next = list.get(page + 1).getIndex();
+            int last = list.get(list.size() - 1).getIndex();
+
+            MessageParts nextButton = new MessageParts(
+                    nextLabel, ChatColor.AQUA);
+            nextButton.setClickEvent(ClickEventType.RUN_COMMAND,
+                    COMMAND + " read " + next);
+            nextButton.addHoverText(nextToolTip);
+            msg.addParts(nextButton);
+
+            msg.addText(" ");
+
+            MessageParts lastButton = new MessageParts(
+                    lastLabel, ChatColor.AQUA);
+            lastButton.setClickEvent(ClickEventType.RUN_COMMAND,
+                    COMMAND + " read " + last);
+            lastButton.addHoverText(lastToolTip);
+            msg.addParts(lastButton);
+
+        } else {
+            msg.addText(nextLabel + " " + lastLabel, ChatColor.WHITE);
+        }
+
+        msg.addText(" " + parts);
+
+        msg.send(sender);
+    }
+
+    private int getIndexOfMailList(int index, ArrayList<MailData> list) {
+        for ( int i=0; i<list.size(); i++ ) {
+            if ( list.get(i).getIndex() == index ) {
+                return i;
+            }
+        }
+        return -1;
     }
 }

@@ -684,7 +684,7 @@ public class GroupManager {
             MessageParts returnButton = new MessageParts(
                     Messages.get("Return"), ChatColor.AQUA);
             returnButton.setClickEvent(ClickEventType.RUN_COMMAND, returnCommand);
-            returnButton.addHoverText(Messages.get("returnToolTip"));
+            returnButton.addHoverText(Messages.get("ReturnToolTip"));
             msg.addParts(returnButton);
 
             msg.addText(" ");

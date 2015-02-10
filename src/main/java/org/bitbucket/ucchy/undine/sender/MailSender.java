@@ -82,6 +82,34 @@ public abstract class MailSender implements Comparable<MailSender> {
     public abstract boolean isOp();
 
     /**
+     * 文字列のメタデータを設定する
+     * @param key キー
+     * @param value 値
+     */
+    public abstract void setStringMetadata(String key, String value);
+
+    /**
+     * 文字列のメタデータを取得する
+     * @param key キー
+     * @return 値
+     */
+    public abstract String getStringMetadata(String key);
+
+    /**
+     * 真偽値のメタデータを設定する
+     * @param key キー
+     * @param value 値
+     */
+    public abstract void setBooleanMetadata(String key, boolean value);
+
+    /**
+     * 真偽値のメタデータを取得する
+     * @param key キー
+     * @return 値
+     */
+    public abstract boolean getBooleanMetadata(String key);
+
+    /**
      * 指定されたCommandSenderと同一かどうかを返す
      * @param sender
      * @return 同一かどうか
