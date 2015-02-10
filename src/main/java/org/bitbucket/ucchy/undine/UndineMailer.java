@@ -101,7 +101,7 @@ public class UndineMailer extends JavaPlugin {
      */
     @Override
     public boolean onCommand(CommandSender sender, Command command, String label, String[] args) {
-        if ( command.getName().equals("undine") )
+        if ( command.getName().equals("mail") )
             return undineCommand.onCommand(sender, command, label, args);
         else if ( command.getName().equals("undinelist") )
             return listCommand.onCommand(sender, command, label, args);
@@ -116,7 +116,7 @@ public class UndineMailer extends JavaPlugin {
      */
     @Override
     public List<String> onTabComplete(CommandSender sender, Command command, String alias, String[] args) {
-        if ( command.getName().equals("undine") )
+        if ( command.getName().equals("mail") )
             return undineCommand.onTabComplete(sender, command, alias, args);
         else if ( command.getName().equals("undinelist") )
             return listCommand.onTabComplete(sender, command, alias, args);

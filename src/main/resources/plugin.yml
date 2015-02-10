@@ -6,9 +6,9 @@ softdepend: [Vault]
 author: ucchy
 
 commands:
-  undine:
+  mail:
     description: Command of UndineMailer
-    aliases: [mail,umail]
+    aliases: [undine,umail]
     usage: |
            /<command> inbox [page] - Check your inbox mails.
            /<command> outbox [page] - Check your sent mails.

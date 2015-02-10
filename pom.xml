@@ -2,7 +2,7 @@
   <modelVersion>4.0.0</modelVersion>
   <groupId>org.bitbucket.ucchy</groupId>
   <artifactId>UndineMailer</artifactId>
-  <version>1.2.1</version>
+  <version>1.3.0</version>
 
   <licenses>
     <license>
@@ -14,7 +14,7 @@
 
   <properties>
     <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-    <release.lang>en</release.lang>
+    <release.lang>ja</release.lang>
   </properties>
 
   <distributionManagement>
