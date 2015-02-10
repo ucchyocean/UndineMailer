@@ -71,6 +71,16 @@ sendFee: 10
 # Attaching fee per an item.
 attachFee: 10
 
+# COD money tax. Please specify parcentage.
+# If you set "codMoneyTax: 10", and one of player set $300 as COD,
+#   this player need to pay the additional sending fee $30 (= $300 * 10%).
+codMoneyTax: 0
+
+# COD item tax. Please specify price per item amount.
+# If you set "codItemTax: 10", and one of player set DIAMOND * 8 as COD,
+#   this player need to pay the additional sending fee $80 (= $10 * 8).
+codItemTax: 0
+
 # -------------------- Mail Group --------------------
 
 # Max group creation num per a player.

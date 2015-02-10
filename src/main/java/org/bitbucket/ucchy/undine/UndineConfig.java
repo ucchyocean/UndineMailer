@@ -32,6 +32,12 @@ public class UndineConfig {
     /** 添付アイテムを1件付けるのに必要な料金 */
     private double attachFee;
 
+    /** 着払い料金に対する着払い税(パーセンテージ) */
+    private int codMoneyTax;
+
+    /** 着払いアイテムに対する着払い税(アイテム1個に対する金額) */
+    private double codItemTax;
+
     /** 自分自身に送信を可能とするか */
     private boolean enableSendSelf;
 
@@ -124,8 +130,10 @@ public class UndineConfig {
         lang = conf.getString("lang", "ja");
         enableAttachment = conf.getBoolean("enableAttachment", true);
         enableSendFee = conf.getBoolean("enableSendFee", false);
-        sendFee = conf.getInt("sendFee", 10);
-        attachFee = conf.getInt("attachFee", 10);
+        sendFee = conf.getDouble("sendFee", 10);
+        attachFee = conf.getDouble("attachFee", 10);
+        codMoneyTax = conf.getInt("codMoneyTax", 0);
+        codItemTax = conf.getDouble("codItemTax", 0);
         enableSendSelf = conf.getBoolean("enableSendSelf", false);
         disableWorldsToOpenAttachBox =
                 conf.getStringList("disableWorldsToOpenAttachBox");
@@ -227,6 +235,20 @@ public class UndineConfig {
      */
     public double getAttachFee() {
         return attachFee;
+    }
+
+    /**
+     * @return codMoneyTax
+     */
+    public int getCodMoneyTax() {
+        return codMoneyTax;
+    }
+
+    /**
+     * @return codItemTax
+     */
+    public double getCodItemTax() {
+        return codItemTax;
     }
 
     /**

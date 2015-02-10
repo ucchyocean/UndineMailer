@@ -193,7 +193,7 @@ public class UndineSendCommand implements SubCommand {
                     sender.sendMessage(Messages.get("ErrorFailToWithdraw"));
                     return;
                 }
-                double balance = parent.getVaultEco().getBalance(ms.getPlayer());
+                double balance = eco.getBalance(ms.getPlayer());
                 sender.sendMessage(Messages.get("EditmodeFeeResult",
                         new String[]{"%fee", "%remain"},
                         new String[]{feeDisplay, eco.format(balance)}));
@@ -216,6 +216,17 @@ public class UndineSendCommand implements SubCommand {
             // かかる金額を表示
             sender.sendMessage(Messages.get(
                     "EditmodeFeeInformation", "%fee", feeDisplay));
+            String sendfee = eco.format(mail.getTo().size() * config.getSendFee());
+            String itemfee = eco.format(mail.getAttachments().size() * config.getAttachFee());
+            String codfee = eco.format(0);
+            if ( mail.getCostMoney() > 0 ) {
+                codfee = eco.format(mail.getCostMoney() * config.getCodMoneyTax() / 100);
+            } else if ( mail.getCostItem() != null ) {
+                codfee = eco.format(mail.getCostItem().getAmount() * config.getCodItemTax());
+            }
+            sender.sendMessage(Messages.get("EditmodeFeeDetail",
+                    new String[]{"%mail", "%item", "%cod"},
+                    new String[]{sendfee, itemfee, codfee}));
 
             if ( !eco.has(ms.getPlayer(), fee) ) {
                 // 残金が足りない
@@ -270,6 +281,11 @@ public class UndineSendCommand implements SubCommand {
         double total = 0;
         total += mail.getTo().size() * config.getSendFee();
         total += mail.getAttachments().size() * config.getAttachFee();
+        if ( mail.getCostMoney() > 0 ) {
+            total += (mail.getCostMoney() * config.getCodMoneyTax() / 100);
+        } else if ( mail.getCostItem() != null ) {
+            total += (mail.getCostItem().getAmount() * config.getCodItemTax());
+        }
         return total;
     }
 }
