@@ -75,6 +75,12 @@ public class UndineTextCommand implements SubCommand {
     @Override
     public void runCommand(CommandSender sender, String[] args) {
 
+        // MailManagerのロードが完了していないなら、エラーを表示して終了
+        if ( !manager.isLoaded() ) {
+            sender.sendMessage(Messages.get("ErrorCannotSendInitializingYet"));
+            return;
+        }
+
         // パラメータが足りない場合はエラーを表示して終了
         if ( args.length < 2 ) {
             sender.sendMessage(Messages.get("ErrorRequireArgument", "%param", "Destination"));

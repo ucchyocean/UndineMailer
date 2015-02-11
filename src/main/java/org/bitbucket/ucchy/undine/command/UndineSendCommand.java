@@ -76,6 +76,12 @@ public class UndineSendCommand implements SubCommand {
     @Override
     public void runCommand(CommandSender sender, String[] args) {
 
+        // MailManagerのロードが完了していないなら、エラーを表示して終了
+        if ( !manager.isLoaded() ) {
+            sender.sendMessage(Messages.get("ErrorCannotSendInitializingYet"));
+            return;
+        }
+
         MailSender ms = MailSender.getMailSender(sender);
         MailData mail = manager.getEditmodeMail(ms);
 

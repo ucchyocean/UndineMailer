@@ -12,21 +12,12 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 
-import org.bitbucket.ucchy.undine.command.GroupCommand;
-import org.bitbucket.ucchy.undine.command.ListCommand;
-import org.bitbucket.ucchy.undine.command.UndineCommand;
 import org.bitbucket.ucchy.undine.group.GroupData;
 import org.bitbucket.ucchy.undine.group.GroupManager;
 import org.bitbucket.ucchy.undine.group.SpecialGroupAll;
 import org.bitbucket.ucchy.undine.item.ItemConfigParseException;
 import org.bitbucket.ucchy.undine.item.ItemConfigParser;
 import org.bitbucket.ucchy.undine.sender.MailSender;
-import org.bitbucket.ucchy.undine.sender.MailSenderBlock;
-import org.bitbucket.ucchy.undine.sender.MailSenderConsole;
-import org.bitbucket.ucchy.undine.tellraw.ClickEventType;
-import org.bitbucket.ucchy.undine.tellraw.MessageComponent;
-import org.bitbucket.ucchy.undine.tellraw.MessageParts;
-import org.bukkit.ChatColor;
 import org.bukkit.configuration.ConfigurationSection;
 import org.bukkit.configuration.file.YamlConfiguration;
 import org.bukkit.inventory.ItemStack;
@@ -37,11 +28,8 @@ import org.bukkit.inventory.ItemStack;
  */
 public class MailData implements Comparable<MailData> {
 
-    private static final String COMMAND = UndineCommand.COMMAND;
-
     public static final int MESSAGE_MAX_SIZE = 15;
     private static final int SUMMARY_MAX_SIZE = 40;
-    private static final int MESSAGE_ADD_SIZE = 3;
 
     // 編集中に設定される属性
     private List<MailSender> to;
@@ -378,7 +366,7 @@ public class MailData implements Comparable<MailData> {
      * @param to 宛先
      */
     public void setTo(int line, MailSender to) {
-        if ( this.to.size() == line ) {
+        if ( this.to.size() <= line ) {
             this.to.add(to);
         } else if ( this.to.size() > line ) {
             this.to.set(line, to);
@@ -388,6 +376,14 @@ public class MailData implements Comparable<MailData> {
         if ( isAllMail() ) {
             toGroups.remove(SpecialGroupAll.NAME);
         }
+    }
+
+    /**
+     * このメールの宛先を追加します。
+     * @param to 宛先
+     */
+    public void addTo(MailSender to) {
+        setTo(Integer.MAX_VALUE, to);
     }
 
     /**
@@ -445,6 +441,14 @@ public class MailData implements Comparable<MailData> {
     }
 
     /**
+     * このメールのメッセージに、1行追加します。
+     * @param message メッセージ
+     */
+    public void addMessage(String message) {
+        this.message.add(message);
+    }
+
+    /**
      * このメールのメッセージの、指定された行番号を削除します。
      * @param line 宛先番号（0から始まることに注意）
      */
@@ -494,7 +498,7 @@ public class MailData implements Comparable<MailData> {
             return;
         }
 
-        if ( this.toGroups.size() == line ) {
+        if ( this.toGroups.size() <= line ) {
             this.toGroups.add(group);
         } else if ( this.toGroups.size() > line ) {
             this.toGroups.set(line, group);
@@ -504,6 +508,14 @@ public class MailData implements Comparable<MailData> {
         if ( toGroups.contains(SpecialGroupAll.NAME) ) {
             toGroups.remove(SpecialGroupAll.NAME);
         }
+    }
+
+    /**
+     * このメールの宛先グループに、新しいグループを追加します。
+     * @param group グループ名
+     */
+    public void addToGroup(String group) {
+        setToGroup(Integer.MAX_VALUE, group);
     }
 
     /**
@@ -771,409 +783,8 @@ public class MailData implements Comparable<MailData> {
     }
 
     /**
-     * メールの詳細情報を表示する
-     * @param sender 表示するsender
-     */
-    public void displayDescription(MailSender sender) {
-
-        // 空行を挿入する
-        int lines = UndineMailer.getInstance().getUndineConfig().getUiEmptyLines();
-        for ( int i=0; i<lines; i++ ) {
-            sender.sendMessage("");
-        }
-
-        String num = isEditmode() ? Messages.get("Editmode") : index + "";
-        String fdate = isEditmode() ? null : getFormattedDate(date);
-
-        String parts = Messages.get("DetailHorizontalParts");
-        String pre = Messages.get("DetailVerticalParts");
-
-        String title = Messages.get("MailDetailTitle", "%number", num);
-        sender.sendMessage(parts + parts + " " + title + " " + parts + parts);
-
-        String todesc = joinToAndGroup();
-        String tonext = "";
-        if ( todesc.length() > 25 ) { // 宛先が長すぎる場合は、次の行に折り返す
-            tonext = todesc.substring(25);
-            todesc = todesc.substring(0, 25);
-        }
-        sender.sendMessage(pre + Messages.get("MailDetailFromToLine",
-                new String[]{"%from", "%to"},
-                new String[]{from.getName(), todesc}));
-        if ( tonext.length() > 0 ) {
-            sender.sendMessage(pre + "  " + ChatColor.WHITE + tonext);
-        }
-
-        if ( fdate != null ) {
-            sender.sendMessage(pre + Messages.get("MailDetailDateLine", "%date", fdate));
-        }
-        sender.sendMessage(pre + Messages.get("MailDetailMessageLine"));
-        for ( String m : message ) {
-            sender.sendMessage(pre + "  " + ChatColor.WHITE + Utility.replaceColorCode(m));
-        }
-
-        if ( attachments.size() > 0 ) {
-
-            MessageComponent msg = new MessageComponent();
-            msg.addText(pre + Messages.get("MailDetailAttachmentsLine"));
-            msg.addText(" ");
-
-            if ( !isEditmode() ) {
-                if ( !isAttachmentsCancelled && from.equals(sender) && !isAttachmentsOpened ) {
-                    // 未キャンセルで送信者の場合、
-                    // 受信者がボックスを一度も開いていないなら、キャンセルボタンを置く
-
-                    MessageParts button = new MessageParts(
-                            Messages.get("MailDetailAttachmentBoxCancel"),
-                            ChatColor.AQUA);
-                    button.setClickEvent(ClickEventType.RUN_COMMAND,
-                            COMMAND + " attach " + index + " cancel");
-                    button.addHoverText(Messages.get("MailDetailAttachmentBoxCancelToolTip"));
-                    msg.addParts(button);
-
-                } else if ( (!isAttachmentsCancelled && !from.equals(sender))
-                        || (isAttachmentsCancelled && from.equals(sender)) ) {
-                    // 未キャンセルで受信者の場合、または、
-                    // キャンセル済みで送信者の場合、オープンボタンを置く
-
-                    MessageParts button = new MessageParts(
-                            Messages.get("MailDetailAttachmentBox"), ChatColor.AQUA);
-                    button.setClickEvent(ClickEventType.RUN_COMMAND,
-                            COMMAND + " attach " + index);
-                    msg.addParts(button);
-
-                } else if ( isAttachmentsCancelled && !from.equals(sender) ) {
-                    // キャンセル済みで受信者の場合、キャンセルされた旨のラベルを出す
-
-                    if ( isAttachmentsRefused ) {
-                        msg.addText(Messages.get("MailDetailAttachmentBoxRefused"));
-                        if ( attachmentsRefusedReason != null ) {
-                            msg.addText("\n" + pre + "  " + ChatColor.WHITE
-                                    + attachmentsRefusedReason);
-                        }
-                    } else {
-                        msg.addText(Messages.get("MailDetailAttachmentBoxCancelled"));
-                    }
-                }
-            }
-
-            msg.send(sender);
-
-            for ( ItemStack i : attachments ) {
-                sender.sendMessage(pre + "  " + ChatColor.WHITE + getItemDesc(i));
-            }
-
-            if ( costMoney > 0 || costItem != null ) {
-                String costDesc = costMoney + "";
-                VaultEcoBridge eco = UndineMailer.getInstance().getVaultEco();
-                if ( eco != null ) {
-                    costDesc = eco.format(costMoney);
-                }
-
-                msg = new MessageComponent();
-                if ( costMoney > 0 ) {
-                    msg.addText(pre + Messages.get(
-                            "MailDetailAttachCostMoneyLine", "%fee", costDesc));
-                } else {
-                    msg.addText(pre + Messages.get(
-                            "MailDetailAttachCostItemLine", "%item", getItemDesc(costItem)));
-                }
-                if ( to.contains(sender) ) {
-                    msg.addText(" ");
-                    MessageParts refuseButton = new MessageParts(
-                            Messages.get("MailDetailAttachmentBoxRefuse"),
-                            ChatColor.AQUA);
-                    refuseButton.setClickEvent(
-                            ClickEventType.SUGGEST_COMMAND,
-                            UndineCommand.COMMAND + " attach " + index + " refuse ");
-                    refuseButton.addHoverText(
-                            Messages.get("MailDetailAttachmentBoxRefuseToolTip"));
-                    msg.addParts(refuseButton);
-                }
-                msg.send(sender);
-            }
-
-        } else if ( isAttachmentsCancelled ) {
-            // キャンセル済みの場合、キャンセルされた旨のラベルを出す
-
-            if ( isAttachmentsRefused ) {
-                sender.sendMessage(pre + Messages.get("MailDetailAttachmentsLine") + " "
-                        + ChatColor.WHITE + Messages.get("MailDetailAttachmentBoxRefused"));
-                if ( attachmentsRefusedReason != null ) {
-                    sender.sendMessage(pre + "  " + ChatColor.WHITE
-                            + attachmentsRefusedReason);
-                }
-            } else {
-                sender.sendMessage(pre + Messages.get("MailDetailAttachmentsLine") + " "
-                        + ChatColor.WHITE + Messages.get("MailDetailAttachmentBoxCancelled"));
-            }
-        }
-
-        sendPager(sender, index);
-    }
-
-    /**
-     * このメールの編集画面を表示する
-     * @param sender 表示するsender
-     */
-    public void displayEditmode(MailSender sender) {
-
-        // senderがコマブロなら何もしない
-        if ( sender instanceof MailSenderBlock ) {
-            return;
-        }
-
-        // senderがコンソールなら、詳細表示画面にリダイレクトする
-        if ( sender instanceof MailSenderConsole ) {
-            displayDescription(sender);
-            return;
-        }
-
-        // メッセージが3行に満たない場合は、この時点で空行を足しておく
-        while ( message.size() < MESSAGE_ADD_SIZE ) {
-            message.add("");
-        }
-
-        // 空行を挿入する
-        int lines = UndineMailer.getInstance().getUndineConfig().getUiEmptyLines();
-        for ( int i=0; i<lines; i++ ) {
-            sender.sendMessage("");
-        }
-
-        String parts = Messages.get("DetailHorizontalParts");
-        String pre = Messages.get("DetailVerticalParts");
-
-        String title = Messages.get("EditmodeTitle");
-        sender.sendMessage(parts + parts + " " + title + " " + parts + parts);
-
-        for ( int i=0; i<to.size(); i++ ) {
-            MessageComponent msg = new MessageComponent();
-            msg.addText(pre);
-            MessageParts buttonDelete = new MessageParts(
-                    Messages.get("EditmodeToDelete"), ChatColor.AQUA);
-            buttonDelete.setClickEvent(
-                    ClickEventType.RUN_COMMAND,
-                    COMMAND + " to delete " + (i+1));
-            buttonDelete.addHoverText(Messages.get("EditmodeToDeleteToolTip"));
-            msg.addParts(buttonDelete);
-            msg.addText(" ");
-            MessageParts button = new MessageParts(
-                    Messages.get("EditmodeTo"), ChatColor.AQUA);
-            button.setClickEvent(
-                    ClickEventType.SUGGEST_COMMAND,
-                    COMMAND + " to " + (i+1) + " " + to.get(i).getName());
-            button.addHoverText(Messages.get("EditmodeToToolTip"));
-            msg.addParts(button);
-            msg.addText(" ");
-            msg.addText(to.get(i).getName(), ChatColor.WHITE);
-            msg.send(sender);
-        }
-
-        UndineConfig config = UndineMailer.getInstance().getUndineConfig();
-
-        if ( to.size() < config.getMaxDestination() ) {
-            MessageComponent msg = new MessageComponent();
-            msg.addText(pre);
-
-            if ( !config.isEnablePlayerList() ) {
-                MessageParts button = new MessageParts(
-                        Messages.get("EditmodeToAdd"), ChatColor.AQUA);
-                button.setClickEvent(
-                        ClickEventType.SUGGEST_COMMAND,
-                        COMMAND + " to " + (to.size()+1) + " ");
-                msg.addParts(button);
-
-            } else {
-                MessageParts buttonAddress = new MessageParts(
-                        Messages.get("EditmodeToAddress"), ChatColor.AQUA);
-                buttonAddress.setClickEvent(
-                        ClickEventType.RUN_COMMAND,
-                        ListCommand.COMMAND_INDEX + " " + COMMAND + " to " + (to.size()+1));
-                msg.addParts(buttonAddress);
-
-            }
-
-            msg.send(sender);
-        }
-
-        for ( int i=0; i<toGroups.size(); i++ ) {
-            MessageComponent msg = new MessageComponent();
-            msg.addText(pre);
-            MessageParts buttonDelete = new MessageParts(
-                    Messages.get("EditmodeToDelete"), ChatColor.AQUA);
-            buttonDelete.setClickEvent(
-                    ClickEventType.RUN_COMMAND,
-                    COMMAND + " to group delete " + (i+1));
-            buttonDelete.addHoverText(Messages.get("EditmodeToDeleteToolTip"));
-            msg.addParts(buttonDelete);
-            msg.addText(" " + ChatColor.WHITE + Messages.get("EditmodeToGroup")
-                    + " " + toGroups.get(i), ChatColor.WHITE);
-            msg.send(sender);
-        }
-
-        if ( toGroups.size() < config.getMaxDestinationGroup() ) {
-            MessageComponent msg = new MessageComponent();
-            msg.addText(pre);
-            MessageParts button = new MessageParts(
-                    Messages.get("EditmodeToGroupAdd"), ChatColor.AQUA);
-            button.setClickEvent(
-                    ClickEventType.RUN_COMMAND,
-                    GroupCommand.COMMAND + " list 1 "
-                            + COMMAND + " to group " + (toGroups.size()+1));
-            msg.addParts(button);
-
-            msg.send(sender);
-        }
-
-        for ( int i=0; i<message.size(); i++ ) {
-            MessageComponent msg = new MessageComponent();
-            msg.addText(pre);
-            MessageParts buttonDelete = new MessageParts(
-                    Messages.get("EditmodeLineDelete"), ChatColor.AQUA);
-            buttonDelete.setClickEvent(
-                    ClickEventType.RUN_COMMAND,
-                    COMMAND + " message delete " + (i+1));
-            buttonDelete.addHoverText(Messages.get("EditmodeLineDeleteToolTip"));
-            msg.addParts(buttonDelete);
-            msg.addText(" ");
-            MessageParts buttonEdit = new MessageParts(
-                    "[" + (i+1) + ":]", ChatColor.AQUA);
-            buttonEdit.setClickEvent(
-                    ClickEventType.SUGGEST_COMMAND,
-                    COMMAND + " message " + (i+1) + " " + message.get(i));
-            buttonEdit.addHoverText(Messages.get("EditmodeLineEditToolTip"));
-            msg.addParts(buttonEdit);
-            msg.addText(" " + Utility.replaceColorCode(message.get(i)), ChatColor.WHITE);
-            msg.send(sender);
-        }
-
-        if ( message.size() < MESSAGE_MAX_SIZE ) {
-            int num = message.size() + MESSAGE_ADD_SIZE;
-            if ( num > MESSAGE_MAX_SIZE ) {
-                num = MESSAGE_MAX_SIZE;
-            }
-            MessageComponent msg = new MessageComponent();
-            msg.addText(pre);
-            MessageParts button = new MessageParts(
-                    Messages.get("EditmodeLineAdd"), ChatColor.AQUA);
-            button.setClickEvent(
-                    ClickEventType.RUN_COMMAND,
-                    COMMAND + " message " + num);
-            msg.addParts(button);
-            msg.send(sender);
-        }
-
-        if ( config.isEnableAttachment() ) {
-            MessageComponent msg = new MessageComponent();
-            msg.addText(pre);
-            MessageParts button = new MessageParts(
-                    Messages.get("EditmodeAttach"), ChatColor.AQUA);
-            button.setClickEvent(
-                    ClickEventType.RUN_COMMAND,
-                    COMMAND + " attach");
-            msg.addParts(button);
-            msg.addText(" ");
-            msg.addText(Messages.get("EditmodeAttachNum", "%num", attachments.size()));
-            msg.send(sender);
-
-            boolean isEnableCODMoney = (UndineMailer.getInstance().getVaultEco() != null)
-                    && config.isEnableCODMoney();
-            boolean isEnableCODItem = config.isEnableCODItem();
-
-            if ( attachments.size() > 0 && (isEnableCODMoney || isEnableCODItem) ) {
-
-                MessageComponent msgfee = new MessageComponent();
-                msgfee.addText(pre);
-
-                if ( costMoney == 0 && costItem == null ) {
-
-                    if ( isEnableCODMoney ) {
-                        MessageParts buttonFee = new MessageParts(
-                                Messages.get("EditmodeCostMoney"), ChatColor.AQUA);
-                        buttonFee.setClickEvent(
-                                ClickEventType.SUGGEST_COMMAND, COMMAND + " costmoney ");
-                        buttonFee.addHoverText(Messages.get("EditmodeCostMoneyToolTip"));
-                        msgfee.addParts(buttonFee);
-                    }
-
-                    if ( isEnableCODMoney && isEnableCODItem ) {
-                        msgfee.addText(" ");
-                    }
-
-                    if ( isEnableCODItem ) {
-                        MessageParts buttonItem = new MessageParts(
-                                Messages.get("EditmodeCostItem"), ChatColor.AQUA);
-                        buttonItem.setClickEvent(
-                                ClickEventType.SUGGEST_COMMAND, COMMAND + " costitem ");
-                        buttonItem.addHoverText(Messages.get("EditmodeCostItemToolTip"));
-                        msgfee.addParts(buttonItem);
-                    }
-
-                } else if ( costMoney > 0 ) {
-
-                    String costDesc = costMoney + "";
-                    VaultEcoBridge eco = UndineMailer.getInstance().getVaultEco();
-                    if ( eco != null ) {
-                        costDesc = eco.format(costMoney);
-                    }
-
-                    MessageParts buttonDelete = new MessageParts(
-                            Messages.get("EditmodeCostMoneyRemove"), ChatColor.AQUA);
-                    buttonDelete.setClickEvent(
-                            ClickEventType.RUN_COMMAND,
-                            COMMAND + " costmoney 0");
-                    buttonDelete.addHoverText(Messages.get("EditmodeCostMoneyRemoveToolTip"));
-                    msgfee.addParts(buttonDelete);
-                    MessageParts buttonFee = new MessageParts(
-                            Messages.get("EditmodeCostMoneyData", "%fee", costDesc),
-                            ChatColor.AQUA);
-                    buttonFee.setClickEvent(
-                            ClickEventType.SUGGEST_COMMAND,
-                            COMMAND + " costmoney " + costMoney);
-                    msgfee.addParts(buttonFee);
-
-                } else {
-
-                    String desc = getItemDesc(costItem);
-
-                    MessageParts buttonDelete = new MessageParts(
-                            Messages.get("EditmodeCostItemRemove"), ChatColor.AQUA);
-                    buttonDelete.setClickEvent(
-                            ClickEventType.RUN_COMMAND,
-                            COMMAND + " costitem remove");
-                    buttonDelete.addHoverText(Messages.get("EditmodeCostItemRemoveToolTip"));
-                    msgfee.addParts(buttonDelete);
-                    MessageParts buttonItem = new MessageParts(
-                            Messages.get("EditmodeCostItemData", "%item", desc),
-                            ChatColor.AQUA);
-                    buttonItem.setClickEvent(
-                            ClickEventType.SUGGEST_COMMAND,
-                            COMMAND + " costitem " + getItemDesc(costItem));
-                    msgfee.addParts(buttonItem);
-
-                }
-
-                msgfee.send(sender);
-            }
-        }
-
-        MessageComponent last = new MessageComponent();
-        last.addText(parts);
-        MessageParts sendButton = new MessageParts(
-                Messages.get("EditmodeSend"), ChatColor.AQUA);
-        sendButton.setClickEvent(ClickEventType.RUN_COMMAND, COMMAND + " send");
-        last.addParts(sendButton);
-        last.addText(parts);
-        MessageParts cancelButton = new MessageParts(
-                Messages.get("EditmodeCancel"), ChatColor.AQUA);
-        cancelButton.setClickEvent(ClickEventType.RUN_COMMAND, COMMAND + " cancel");
-        last.addParts(cancelButton);
-        last.addText(parts);
-        last.send(sender);
-    }
-
-    /**
-     * このメールのInbox用サマリー文字列を返す
+     * このメールのInbox用サマリー文字列を返す。
+     * "送信者 (送信日時) 1行目の内容"
      * @return サマリー
      */
     protected String getInboxSummary() {
@@ -1191,7 +802,8 @@ public class MailData implements Comparable<MailData> {
     }
 
     /**
-     * このメールのOutbox用サマリー文字列を返す
+     * このメールのOutbox用サマリー文字列を返す。
+     * "受信者 (送信日時) 1行目の内容"
      * @return サマリー
      */
     protected String getOutboxSummary() {
@@ -1235,147 +847,11 @@ public class MailData implements Comparable<MailData> {
     }
 
     /**
-     * アイテムを簡単な文字列表現にして返す
-     * @param item アイテム
-     * @return 文字列表現
-     */
-    private String getItemDesc(ItemStack item) {
-        String desc = item.getDurability() == 0 ? item.getType().toString() :
-                item.getType().toString() + ":" + item.getDurability();
-        if ( item.getAmount() == 1 ) return desc;
-        return desc + " * " + item.getAmount();
-    }
-
-    /**
      * 言語リソース設定に従ってフォーマットされた日時の文字列を取得します。
      * @param date フォーマットする日時
      * @return フォーマットされた文字列
      */
     private String getFormattedDate(Date date) {
         return new SimpleDateFormat(Messages.get("DateFormat")).format(date);
-    }
-
-    /**
-     * ページャーを対象プレイヤーに表示する
-     * @param sender 表示対象
-     * @param index 表示しようとしているメールのインデクス
-     */
-    private void sendPager(MailSender sender, int index) {
-
-        // メタデータが無いなら、ページャーを表示しない
-        String meta = sender.getStringMetadata(MailManager.MAILLIST_METAKEY);
-        if ( meta == null ||
-                (!meta.equals("inbox") && !meta.equals("outbox") && !meta.equals("unread")) ) {
-            sender.sendMessage(Messages.get("DetailLastLine"));
-            return;
-        }
-
-        // リストの取得
-        ArrayList<MailData> list;
-        if ( meta.equals("inbox") ) {
-            list = UndineMailer.getInstance().getMailManager().getInboxMails(sender);
-        } else if ( meta.equals("outbox") ) {
-            list = UndineMailer.getInstance().getMailManager().getOutboxMails(sender);
-        } else {
-            list = UndineMailer.getInstance().getMailManager().getUnreadMails(sender);
-        }
-
-        // ページ番号の取得
-        int page = getIndexOfMailList(index, list);
-
-        // 該当のメールがリストに含まれていないなら、ページャーを表示しない
-        if ( page == -1 ) {
-            sender.sendMessage(Messages.get("DetailLastLine"));
-            return;
-        }
-
-        String firstLabel = Messages.get("FirstPage");
-        String prevLabel = Messages.get("PrevPage");
-        String nextLabel = Messages.get("NextPage");
-        String lastLabel = Messages.get("LastPage");
-        String firstToolTip = Messages.get("FirstMailToolTip");
-        String prevToolTip = Messages.get("PrevMailToolTip");
-        String nextToolTip = Messages.get("NextMailToolTip");
-        String lastToolTip = Messages.get("LastMailToolTip");
-        String parts = Messages.get("DetailHorizontalParts");
-
-        MessageComponent msg = new MessageComponent();
-
-        msg.addText(parts + " ");
-
-        if ( !meta.equals("unread") ) {
-            String returnCommand = (meta.equals("inbox")) ? COMMAND + " inbox" : COMMAND + " outbox";
-            MessageParts returnButton = new MessageParts(
-                    Messages.get("Return"), ChatColor.AQUA);
-            returnButton.setClickEvent(ClickEventType.RUN_COMMAND, returnCommand);
-            returnButton.addHoverText(Messages.get("ReturnListToolTip"));
-            msg.addParts(returnButton);
-
-            msg.addText(" ");
-        }
-
-        if ( page > 0 ) {
-            int first = list.get(0).getIndex();
-            int prev = list.get(page - 1).getIndex();
-
-            MessageParts firstButton = new MessageParts(
-                    firstLabel, ChatColor.AQUA);
-            firstButton.setClickEvent(ClickEventType.RUN_COMMAND,
-                    COMMAND + " read " + first);
-            firstButton.addHoverText(firstToolTip);
-            msg.addParts(firstButton);
-
-            msg.addText(" ");
-
-            MessageParts prevButton = new MessageParts(
-                    prevLabel, ChatColor.AQUA);
-            prevButton.setClickEvent(ClickEventType.RUN_COMMAND,
-                    COMMAND + " read " + prev);
-            prevButton.addHoverText(prevToolTip);
-            msg.addParts(prevButton);
-
-        } else {
-            msg.addText(firstLabel + " " + prevLabel, ChatColor.WHITE);
-
-        }
-
-        msg.addText(" (" + (page + 1) + "/" + list.size() + ") ");
-
-        if ( page < (list.size() - 1) ) {
-            int next = list.get(page + 1).getIndex();
-            int last = list.get(list.size() - 1).getIndex();
-
-            MessageParts nextButton = new MessageParts(
-                    nextLabel, ChatColor.AQUA);
-            nextButton.setClickEvent(ClickEventType.RUN_COMMAND,
-                    COMMAND + " read " + next);
-            nextButton.addHoverText(nextToolTip);
-            msg.addParts(nextButton);
-
-            msg.addText(" ");
-
-            MessageParts lastButton = new MessageParts(
-                    lastLabel, ChatColor.AQUA);
-            lastButton.setClickEvent(ClickEventType.RUN_COMMAND,
-                    COMMAND + " read " + last);
-            lastButton.addHoverText(lastToolTip);
-            msg.addParts(lastButton);
-
-        } else {
-            msg.addText(nextLabel + " " + lastLabel, ChatColor.WHITE);
-        }
-
-        msg.addText(" " + parts);
-
-        msg.send(sender);
-    }
-
-    private int getIndexOfMailList(int index, ArrayList<MailData> list) {
-        for ( int i=0; i<list.size(); i++ ) {
-            if ( list.get(i).getIndex() == index ) {
-                return i;
-            }
-        }
-        return -1;
     }
 }

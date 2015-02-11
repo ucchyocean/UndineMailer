@@ -8,6 +8,7 @@ package org.bitbucket.ucchy.undine.command;
 import java.util.List;
 
 import org.bitbucket.ucchy.undine.MailManager;
+import org.bitbucket.ucchy.undine.Messages;
 import org.bitbucket.ucchy.undine.UndineMailer;
 import org.bitbucket.ucchy.undine.sender.MailSender;
 import org.bukkit.command.CommandSender;
@@ -59,6 +60,12 @@ public class UndineInboxCommand implements SubCommand {
      */
     @Override
     public void runCommand(CommandSender sender, String[] args) {
+
+        // MailManagerのロードが完了していないなら、エラーを表示して終了
+        if ( !manager.isLoaded() ) {
+            sender.sendMessage(Messages.get("ErrorCannotListInitializingYet"));
+            return;
+        }
 
         int page = 1;
         if ( args.length >= 2 && args[1].matches("[0-9]{1,9}") ) {

@@ -110,7 +110,7 @@ public class UndineMessageCommand implements SubCommand {
         }
 
         // 編集画面を表示する。
-        mail.displayEditmode(MailSender.getMailSender(sender));
+        manager.displayEditmode(MailSender.getMailSender(sender));
     }
 
     /**

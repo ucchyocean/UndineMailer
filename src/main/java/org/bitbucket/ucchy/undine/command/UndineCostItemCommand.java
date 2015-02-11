@@ -93,7 +93,7 @@ public class UndineCostItemCommand implements SubCommand {
             mail.setCostItem(null);
 
             // 編集画面を表示して終了する
-            mail.displayEditmode(MailSender.getMailSender(sender));
+            manager.displayEditmode(MailSender.getMailSender(sender));
             return;
         }
 
@@ -125,7 +125,7 @@ public class UndineCostItemCommand implements SubCommand {
         mail.setCostItem(item);
 
         // 編集画面を表示する。
-        mail.displayEditmode(MailSender.getMailSender(sender));
+        manager.displayEditmode(MailSender.getMailSender(sender));
     }
 
     /**

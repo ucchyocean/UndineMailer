@@ -8,6 +8,7 @@ package org.bitbucket.ucchy.undine;
 import java.io.File;
 import java.io.FilenameFilter;
 import java.io.IOException;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
@@ -15,9 +16,13 @@ import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 
+import org.bitbucket.ucchy.undine.command.GroupCommand;
+import org.bitbucket.ucchy.undine.command.ListCommand;
 import org.bitbucket.ucchy.undine.command.UndineCommand;
 import org.bitbucket.ucchy.undine.group.GroupData;
 import org.bitbucket.ucchy.undine.sender.MailSender;
+import org.bitbucket.ucchy.undine.sender.MailSenderBlock;
+import org.bitbucket.ucchy.undine.sender.MailSenderConsole;
 import org.bitbucket.ucchy.undine.tellraw.ClickEventType;
 import org.bitbucket.ucchy.undine.tellraw.MessageComponent;
 import org.bitbucket.ucchy.undine.tellraw.MessageParts;
@@ -25,6 +30,7 @@ import org.bukkit.ChatColor;
 import org.bukkit.configuration.ConfigurationSection;
 import org.bukkit.configuration.file.YamlConfiguration;
 import org.bukkit.entity.Player;
+import org.bukkit.inventory.ItemStack;
 import org.bukkit.scheduler.BukkitRunnable;
 
 /**
@@ -34,12 +40,15 @@ import org.bukkit.scheduler.BukkitRunnable;
 public class MailManager {
 
     protected static final String MAILLIST_METAKEY = "UndineMailList";
+    private static final String COMMAND = UndineCommand.COMMAND;
 
     private static final int PAGE_SIZE = 10;
+    private static final int MESSAGE_ADD_SIZE = 3;
 
     private ArrayList<MailData> mails;
     private HashMap<String, MailData> editmodeMails;
     private int nextIndex;
+    private boolean isLoaded;
 
     private UndineMailer parent;
 
@@ -48,8 +57,8 @@ public class MailManager {
      */
     public MailManager(UndineMailer parent) {
         this.parent = parent;
-        reload();
         restoreEditmodeMail();
+        reload();
     }
 
     /**
@@ -62,6 +71,8 @@ public class MailManager {
 
         new BukkitRunnable() {
             public void run() {
+
+                isLoaded = false;
                 mails = new ArrayList<MailData>();
                 nextIndex = 1;
 
@@ -81,10 +92,23 @@ public class MailManager {
                     }
                 }
 
+                isLoaded = true;
+
                 UndineMailer.getInstance().getLogger().info("Loading mail data async... Done.  Time: "
                         + (System.currentTimeMillis() - start) + "ms, Data: " + mails.size() + ".");
             }
         }.runTaskAsynchronously(UndineMailer.getInstance());
+    }
+
+    /**
+     * メールデータがロード完了したかどうか。
+     * UndineMailerは、保存されているメールデータをバックグラウンドで読み取ってロードするため、
+     * ロードが完了していないうちは、メールリストの参照、メールの送信、リロードができないので
+     * 注意してください。
+     * @return ロード完了したかどうか
+     */
+    public boolean isLoaded() {
+        return isLoaded;
     }
 
     /**
@@ -94,6 +118,7 @@ public class MailManager {
      */
     public MailData getMail(int index) {
 
+        if ( !isLoaded ) return null;
         for ( MailData m : mails ) {
             if ( m.getIndex() == index ) {
                 return m;
@@ -149,6 +174,14 @@ public class MailManager {
      * @param mail メール
      */
     public void sendNewMail(MailData mail) {
+
+        // ロードが完了していないうちは、メールを送信できないようにする
+        if ( !isLoaded ) {
+            UndineMailer.getInstance().getLogger().warning(
+                    "Because mailer has not yet been initialized, mailer dropped new mail.");
+            UndineMailer.getInstance().getLogger().warning(mail.getInboxSummary());
+            return;
+        }
 
         // 統合宛先を設定する。
         ArrayList<MailSender> to_total = new ArrayList<MailSender>();
@@ -230,6 +263,10 @@ public class MailManager {
      */
     public ArrayList<MailData> getInboxMails(MailSender sender) {
 
+        if ( !isLoaded ) {
+            return null;
+        }
+
         sender.setStringMetadata(MAILLIST_METAKEY, "inbox");
 
         ArrayList<MailData> box = new ArrayList<MailData>();
@@ -250,6 +287,10 @@ public class MailManager {
      * @return メールのリスト
      */
     public ArrayList<MailData> getUnreadMails(MailSender sender) {
+
+        if ( !isLoaded ) {
+            return null;
+        }
 
         sender.setStringMetadata(MAILLIST_METAKEY, "unread");
 
@@ -274,6 +315,10 @@ public class MailManager {
      */
     public ArrayList<MailData> getOutboxMails(MailSender sender) {
 
+        if ( !isLoaded ) {
+            return null;
+        }
+
         sender.setStringMetadata(MAILLIST_METAKEY, "outbox");
 
         ArrayList<MailData> box = new ArrayList<MailData>();
@@ -293,8 +338,13 @@ public class MailManager {
      */
     public void displayMail(MailSender sender, MailData mail) {
 
+        // ロード中の場合は、メールを表示できません
+        if ( !isLoaded ) {
+            return;
+        }
+
         // 指定されたsenderの画面にメールを表示する
-        mail.displayDescription(sender);
+        displayMailDescription(sender, mail);
 
         // 添付ボックスがからっぽになっているか、キャンセルされているなら、既読を付ける
         if ( mail.getAttachments().size() == 0 || mail.isAttachmentsCancelled() ) {
@@ -326,12 +376,14 @@ public class MailManager {
      */
     public void deleteMail(int index) {
 
-        MailData mail = getMail(index);
-        if ( mail != null ) {
-            mails.remove(mail);
+        if ( isLoaded ) {
+            MailData mail = getMail(index);
+            if ( mail != null ) {
+                mails.remove(mail);
+            }
         }
 
-        String filename = String.format("%1$08d.yml", mail.getIndex());
+        String filename = String.format("%1$08d.yml", index);
         File folder = parent.getMailFolder();
         File file = new File(folder, filename);
         if ( file.exists() ) {
@@ -343,6 +395,10 @@ public class MailManager {
      * 古いメールを削除する
      */
     protected void cleanup() {
+
+        if ( !isLoaded ) {
+            return;
+        }
 
         ArrayList<Integer> queue = new ArrayList<Integer>();
         int period = parent.getUndineConfig().getMailStorageTermDays();
@@ -404,6 +460,11 @@ public class MailManager {
      */
     public void displayInboxList(MailSender sender, int page) {
 
+        // ロード中の場合は、リストを表示しないようにする
+        if ( !isLoaded ) {
+            return;
+        }
+
         // 空行を挿入する
         for ( int i=0; i<parent.getUndineConfig().getUiEmptyLines(); i++ ) {
             sender.sendMessage("");
@@ -447,6 +508,11 @@ public class MailManager {
      */
     public void displayOutboxList(MailSender sender, int page) {
 
+        // ロード中の場合は、リストを表示しないようにする
+        if ( !isLoaded ) {
+            return;
+        }
+
         // 空行を挿入する
         for ( int i=0; i<parent.getUndineConfig().getUiEmptyLines(); i++ ) {
             sender.sendMessage("");
@@ -482,6 +548,11 @@ public class MailManager {
      * @param sender 表示対象
      */
     protected void displayUnreadOnJoin(MailSender sender) {
+
+        // ロード中の場合は、リストを表示しないようにする
+        if ( !isLoaded ) {
+            return;
+        }
 
         List<MailData> unread = getUnreadMails(sender);
 
@@ -551,6 +622,11 @@ public class MailManager {
      */
     public int getAttachBoxUsageCount(MailSender sender) {
 
+        // ロード中の場合は、Integer最大値を返す
+        if ( !isLoaded ) {
+            return Integer.MAX_VALUE;
+        }
+
         int count = 0;
         for ( MailData mail : mails ) {
             if ( mail.getFrom().equals(sender) && mail.getAttachments().size() > 0 ) {
@@ -558,6 +634,570 @@ public class MailManager {
             }
         }
         return count;
+    }
+
+    /**
+     * メールの詳細情報を表示する
+     * @param sender 表示先
+     * @param index 表示するメールのインデクス
+     */
+    public void displayMailDescription(MailSender sender, int index) {
+        MailData mail = getMail(index);
+        if ( mail == null ) return;
+        displayMailDescription(sender, mail);
+    }
+
+    /**
+     * メールの詳細情報を表示する
+     * @param sender 表示先
+     * @param mail 表示するメール
+     */
+    public void displayMailDescription(MailSender sender, MailData mail) {
+
+        // 空行を挿入する
+        int lines = UndineMailer.getInstance().getUndineConfig().getUiEmptyLines();
+        for ( int i=0; i<lines; i++ ) {
+            sender.sendMessage("");
+        }
+
+        String num = mail.isEditmode() ? Messages.get("Editmode") : mail.getIndex() + "";
+        String fdate = mail.isEditmode() ? null : getFormattedDate(mail.getDate());
+
+        String parts = Messages.get("DetailHorizontalParts");
+        String pre = Messages.get("DetailVerticalParts");
+
+        String title = Messages.get("MailDetailTitle", "%number", num);
+        sender.sendMessage(parts + parts + " " + title + " " + parts + parts);
+
+        String todesc = joinToAndGroup(mail);
+        String tonext = "";
+        if ( todesc.length() > 25 ) { // 宛先が長すぎる場合は、次の行に折り返す
+            tonext = todesc.substring(25);
+            todesc = todesc.substring(0, 25);
+        }
+        sender.sendMessage(pre + Messages.get("MailDetailFromToLine",
+                new String[]{"%from", "%to"},
+                new String[]{mail.getFrom().getName(), todesc}));
+        if ( tonext.length() > 0 ) {
+            sender.sendMessage(pre + "  " + ChatColor.WHITE + tonext);
+        }
+
+        if ( fdate != null ) {
+            sender.sendMessage(pre + Messages.get("MailDetailDateLine", "%date", fdate));
+        }
+        sender.sendMessage(pre + Messages.get("MailDetailMessageLine"));
+        for ( String m : mail.getMessage() ) {
+            sender.sendMessage(pre + "  " + ChatColor.WHITE + Utility.replaceColorCode(m));
+        }
+
+        if ( mail.getAttachments().size() > 0 ) {
+
+            MessageComponent msg = new MessageComponent();
+            msg.addText(pre + Messages.get("MailDetailAttachmentsLine"));
+            msg.addText(" ");
+
+            if ( !mail.isEditmode() ) {
+                if ( !mail.isAttachmentsCancelled() && !mail.isAttachmentsOpened()
+                        && mail.getFrom().equals(sender) ) {
+                    // 未キャンセルで送信者の場合、
+                    // 受信者がボックスを一度も開いていないなら、キャンセルボタンを置く
+
+                    MessageParts button = new MessageParts(
+                            Messages.get("MailDetailAttachmentBoxCancel"),
+                            ChatColor.AQUA);
+                    button.setClickEvent(ClickEventType.RUN_COMMAND,
+                            COMMAND + " attach " + mail.getIndex() + " cancel");
+                    button.addHoverText(Messages.get("MailDetailAttachmentBoxCancelToolTip"));
+                    msg.addParts(button);
+
+                } else if ( (!mail.isAttachmentsCancelled() && !mail.getFrom().equals(sender))
+                        || (mail.isAttachmentsCancelled() && mail.getFrom().equals(sender)) ) {
+                    // 未キャンセルで受信者の場合、または、
+                    // キャンセル済みで送信者の場合、オープンボタンを置く
+
+                    MessageParts button = new MessageParts(
+                            Messages.get("MailDetailAttachmentBox"), ChatColor.AQUA);
+                    button.setClickEvent(ClickEventType.RUN_COMMAND,
+                            COMMAND + " attach " + mail.getIndex());
+                    msg.addParts(button);
+
+                } else if ( mail.isAttachmentsCancelled() && !mail.getFrom().equals(sender) ) {
+                    // キャンセル済みで受信者の場合、キャンセルされた旨のラベルを出す
+
+                    if ( mail.isAttachmentsRefused() ) {
+                        msg.addText(Messages.get("MailDetailAttachmentBoxRefused"));
+                        if ( mail.getAttachmentsRefusedReason() != null ) {
+                            msg.addText("\n" + pre + "  " + ChatColor.WHITE
+                                    + mail.getAttachmentsRefusedReason());
+                        }
+                    } else {
+                        msg.addText(Messages.get("MailDetailAttachmentBoxCancelled"));
+                    }
+                }
+            }
+
+            msg.send(sender);
+
+            for ( ItemStack i : mail.getAttachments() ) {
+                sender.sendMessage(pre + "  " + ChatColor.WHITE + getItemDesc(i, true));
+            }
+
+            if ( mail.getCostMoney() > 0 || mail.getCostItem() != null ) {
+                String costDesc = mail.getCostMoney() + "";
+                VaultEcoBridge eco = UndineMailer.getInstance().getVaultEco();
+                if ( eco != null ) {
+                    costDesc = eco.format(mail.getCostMoney());
+                }
+
+                msg = new MessageComponent();
+                if ( mail.getCostMoney() > 0 ) {
+                    msg.addText(pre + Messages.get(
+                            "MailDetailAttachCostMoneyLine", "%fee", costDesc));
+                } else {
+                    msg.addText(pre + Messages.get(
+                            "MailDetailAttachCostItemLine", "%item",
+                            getItemDesc(mail.getCostItem(), true)));
+                }
+                if ( mail.getTo().contains(sender) ) {
+                    msg.addText(" ");
+                    MessageParts refuseButton = new MessageParts(
+                            Messages.get("MailDetailAttachmentBoxRefuse"),
+                            ChatColor.AQUA);
+                    refuseButton.setClickEvent(
+                            ClickEventType.SUGGEST_COMMAND,
+                            UndineCommand.COMMAND + " attach " + mail.getIndex() + " refuse ");
+                    refuseButton.addHoverText(
+                            Messages.get("MailDetailAttachmentBoxRefuseToolTip"));
+                    msg.addParts(refuseButton);
+                }
+                msg.send(sender);
+            }
+
+        } else if ( mail.isAttachmentsCancelled() ) {
+            // キャンセル済みの場合、キャンセルされた旨のラベルを出す
+
+            if ( mail.isAttachmentsRefused() ) {
+                sender.sendMessage(pre + Messages.get("MailDetailAttachmentsLine") + " "
+                        + ChatColor.WHITE + Messages.get("MailDetailAttachmentBoxRefused"));
+                if ( mail.getAttachmentsRefusedReason() != null ) {
+                    sender.sendMessage(pre + "  " + ChatColor.WHITE
+                            + mail.getAttachmentsRefusedReason());
+                }
+            } else {
+                sender.sendMessage(pre + Messages.get("MailDetailAttachmentsLine") + " "
+                        + ChatColor.WHITE + Messages.get("MailDetailAttachmentBoxCancelled"));
+            }
+        }
+
+        sendMailDescriptionPager(sender, mail.getIndex());
+    }
+
+    /**
+     * メールの編集画面を表示する
+     * @param sender 表示するsender
+     */
+    public void displayEditmode(MailSender sender) {
+
+        // senderがコマブロなら何もしない
+        if ( sender instanceof MailSenderBlock ) {
+            return;
+        }
+
+        // 編集中メールの作成
+        MailData mail = makeEditmodeMail(sender);
+
+        // senderがコンソールなら、詳細表示画面にリダイレクトする
+        if ( sender instanceof MailSenderConsole ) {
+            displayMailDescription(sender, mail);
+            return;
+        }
+
+        // メッセージが3行に満たない場合は、この時点で空行を足しておく
+        while ( mail.getMessage().size() < MESSAGE_ADD_SIZE ) {
+            mail.addMessage("");
+        }
+
+        // 空行を挿入する
+        int lines = UndineMailer.getInstance().getUndineConfig().getUiEmptyLines();
+        for ( int i=0; i<lines; i++ ) {
+            sender.sendMessage("");
+        }
+
+        String parts = Messages.get("DetailHorizontalParts");
+        String pre = Messages.get("DetailVerticalParts");
+
+        String title = Messages.get("EditmodeTitle");
+        sender.sendMessage(parts + parts + " " + title + " " + parts + parts);
+
+        for ( int i=0; i<mail.getTo().size(); i++ ) {
+            MessageComponent msg = new MessageComponent();
+            msg.addText(pre);
+            MessageParts buttonDelete = new MessageParts(
+                    Messages.get("EditmodeToDelete"), ChatColor.AQUA);
+            buttonDelete.setClickEvent(
+                    ClickEventType.RUN_COMMAND,
+                    COMMAND + " to delete " + (i+1));
+            buttonDelete.addHoverText(Messages.get("EditmodeToDeleteToolTip"));
+            msg.addParts(buttonDelete);
+            msg.addText(" ");
+            MessageParts button = new MessageParts(
+                    Messages.get("EditmodeTo"), ChatColor.AQUA);
+            button.setClickEvent(
+                    ClickEventType.SUGGEST_COMMAND,
+                    COMMAND + " to " + (i+1) + " " + mail.getTo().get(i).getName());
+            button.addHoverText(Messages.get("EditmodeToToolTip"));
+            msg.addParts(button);
+            msg.addText(" ");
+            msg.addText(mail.getTo().get(i).getName(), ChatColor.WHITE);
+            msg.send(sender);
+        }
+
+        UndineConfig config = UndineMailer.getInstance().getUndineConfig();
+
+        if ( mail.getTo().size() < config.getMaxDestination() ) {
+            MessageComponent msg = new MessageComponent();
+            msg.addText(pre);
+
+            if ( !config.isEnablePlayerList() ) {
+                MessageParts button = new MessageParts(
+                        Messages.get("EditmodeToAdd"), ChatColor.AQUA);
+                button.setClickEvent(
+                        ClickEventType.SUGGEST_COMMAND,
+                        COMMAND + " to " + (mail.getTo().size()+1) + " ");
+                msg.addParts(button);
+
+            } else {
+                MessageParts buttonAddress = new MessageParts(
+                        Messages.get("EditmodeToAddress"), ChatColor.AQUA);
+                buttonAddress.setClickEvent(
+                        ClickEventType.RUN_COMMAND,
+                        ListCommand.COMMAND_INDEX + " " + COMMAND
+                            + " to " + (mail.getTo().size()+1));
+                msg.addParts(buttonAddress);
+
+            }
+
+            msg.send(sender);
+        }
+
+        for ( int i=0; i<mail.getToGroups().size(); i++ ) {
+            MessageComponent msg = new MessageComponent();
+            msg.addText(pre);
+            MessageParts buttonDelete = new MessageParts(
+                    Messages.get("EditmodeToDelete"), ChatColor.AQUA);
+            buttonDelete.setClickEvent(
+                    ClickEventType.RUN_COMMAND,
+                    COMMAND + " to group delete " + (i+1));
+            buttonDelete.addHoverText(Messages.get("EditmodeToDeleteToolTip"));
+            msg.addParts(buttonDelete);
+            msg.addText(" " + ChatColor.WHITE + Messages.get("EditmodeToGroup")
+                    + " " + mail.getToGroups().get(i), ChatColor.WHITE);
+            msg.send(sender);
+        }
+
+        if ( mail.getToGroups().size() < config.getMaxDestinationGroup() ) {
+            MessageComponent msg = new MessageComponent();
+            msg.addText(pre);
+            MessageParts button = new MessageParts(
+                    Messages.get("EditmodeToGroupAdd"), ChatColor.AQUA);
+            button.setClickEvent(
+                    ClickEventType.RUN_COMMAND,
+                    GroupCommand.COMMAND + " list 1 "
+                            + COMMAND + " to group " + (mail.getToGroups().size()+1));
+            msg.addParts(button);
+
+            msg.send(sender);
+        }
+
+        for ( int i=0; i<mail.getMessage().size(); i++ ) {
+            MessageComponent msg = new MessageComponent();
+            msg.addText(pre);
+            MessageParts buttonDelete = new MessageParts(
+                    Messages.get("EditmodeLineDelete"), ChatColor.AQUA);
+            buttonDelete.setClickEvent(
+                    ClickEventType.RUN_COMMAND,
+                    COMMAND + " message delete " + (i+1));
+            buttonDelete.addHoverText(Messages.get("EditmodeLineDeleteToolTip"));
+            msg.addParts(buttonDelete);
+            msg.addText(" ");
+            MessageParts buttonEdit = new MessageParts(
+                    "[" + (i+1) + ":]", ChatColor.AQUA);
+            buttonEdit.setClickEvent(
+                    ClickEventType.SUGGEST_COMMAND,
+                    COMMAND + " message " + (i+1) + " " + mail.getMessage().get(i));
+            buttonEdit.addHoverText(Messages.get("EditmodeLineEditToolTip"));
+            msg.addParts(buttonEdit);
+            msg.addText(" " + Utility.replaceColorCode(mail.getMessage().get(i)), ChatColor.WHITE);
+            msg.send(sender);
+        }
+
+        if ( mail.getMessage().size() < MailData.MESSAGE_MAX_SIZE ) {
+            int num = mail.getMessage().size() + MESSAGE_ADD_SIZE;
+            if ( num > MailData.MESSAGE_MAX_SIZE ) {
+                num = MailData.MESSAGE_MAX_SIZE;
+            }
+            MessageComponent msg = new MessageComponent();
+            msg.addText(pre);
+            MessageParts button = new MessageParts(
+                    Messages.get("EditmodeLineAdd"), ChatColor.AQUA);
+            button.setClickEvent(
+                    ClickEventType.RUN_COMMAND,
+                    COMMAND + " message " + num);
+            msg.addParts(button);
+            msg.send(sender);
+        }
+
+        if ( config.isEnableAttachment() ) {
+            MessageComponent msg = new MessageComponent();
+            msg.addText(pre);
+            MessageParts button = new MessageParts(
+                    Messages.get("EditmodeAttach"), ChatColor.AQUA);
+            button.setClickEvent(
+                    ClickEventType.RUN_COMMAND,
+                    COMMAND + " attach");
+            msg.addParts(button);
+            msg.addText(" ");
+            msg.addText(Messages.get("EditmodeAttachNum", "%num", mail.getAttachments().size()));
+            msg.send(sender);
+
+            boolean isEnableCODMoney = (UndineMailer.getInstance().getVaultEco() != null)
+                    && config.isEnableCODMoney();
+            boolean isEnableCODItem = config.isEnableCODItem();
+
+            if ( mail.getAttachments().size() > 0 && (isEnableCODMoney || isEnableCODItem) ) {
+
+                MessageComponent msgfee = new MessageComponent();
+                msgfee.addText(pre);
+
+                if ( mail.getCostMoney() == 0 && mail.getCostItem() == null ) {
+
+                    if ( isEnableCODMoney ) {
+                        MessageParts buttonFee = new MessageParts(
+                                Messages.get("EditmodeCostMoney"), ChatColor.AQUA);
+                        buttonFee.setClickEvent(
+                                ClickEventType.SUGGEST_COMMAND, COMMAND + " costmoney ");
+                        buttonFee.addHoverText(Messages.get("EditmodeCostMoneyToolTip"));
+                        msgfee.addParts(buttonFee);
+                    }
+
+                    if ( isEnableCODMoney && isEnableCODItem ) {
+                        msgfee.addText(" ");
+                    }
+
+                    if ( isEnableCODItem ) {
+                        MessageParts buttonItem = new MessageParts(
+                                Messages.get("EditmodeCostItem"), ChatColor.AQUA);
+                        buttonItem.setClickEvent(
+                                ClickEventType.SUGGEST_COMMAND, COMMAND + " costitem ");
+                        buttonItem.addHoverText(Messages.get("EditmodeCostItemToolTip"));
+                        msgfee.addParts(buttonItem);
+                    }
+
+                } else if ( mail.getCostMoney() > 0 ) {
+
+                    String costDesc = mail.getCostMoney() + "";
+                    VaultEcoBridge eco = UndineMailer.getInstance().getVaultEco();
+                    if ( eco != null ) {
+                        costDesc = eco.format(mail.getCostMoney());
+                    }
+
+                    MessageParts buttonDelete = new MessageParts(
+                            Messages.get("EditmodeCostMoneyRemove"), ChatColor.AQUA);
+                    buttonDelete.setClickEvent(
+                            ClickEventType.RUN_COMMAND,
+                            COMMAND + " costmoney 0");
+                    buttonDelete.addHoverText(Messages.get("EditmodeCostMoneyRemoveToolTip"));
+                    msgfee.addParts(buttonDelete);
+                    MessageParts buttonFee = new MessageParts(
+                            Messages.get("EditmodeCostMoneyData", "%fee", costDesc),
+                            ChatColor.AQUA);
+                    buttonFee.setClickEvent(
+                            ClickEventType.SUGGEST_COMMAND,
+                            COMMAND + " costmoney " + mail.getCostMoney());
+                    msgfee.addParts(buttonFee);
+
+                } else {
+
+                    String desc = getItemDesc(mail.getCostItem(), true);
+
+                    MessageParts buttonDelete = new MessageParts(
+                            Messages.get("EditmodeCostItemRemove"), ChatColor.AQUA);
+                    buttonDelete.setClickEvent(
+                            ClickEventType.RUN_COMMAND,
+                            COMMAND + " costitem remove");
+                    buttonDelete.addHoverText(Messages.get("EditmodeCostItemRemoveToolTip"));
+                    msgfee.addParts(buttonDelete);
+                    MessageParts buttonItem = new MessageParts(
+                            Messages.get("EditmodeCostItemData", "%item", desc),
+                            ChatColor.AQUA);
+                    buttonItem.setClickEvent(
+                            ClickEventType.SUGGEST_COMMAND,
+                            COMMAND + " costitem " + getItemDesc(mail.getCostItem(), false));
+                    msgfee.addParts(buttonItem);
+
+                }
+
+                msgfee.send(sender);
+            }
+        }
+
+        MessageComponent last = new MessageComponent();
+        last.addText(parts);
+        MessageParts sendButton = new MessageParts(
+                Messages.get("EditmodeSend"), ChatColor.AQUA);
+        sendButton.setClickEvent(ClickEventType.RUN_COMMAND, COMMAND + " send");
+        last.addParts(sendButton);
+        last.addText(parts);
+        MessageParts cancelButton = new MessageParts(
+                Messages.get("EditmodeCancel"), ChatColor.AQUA);
+        cancelButton.setClickEvent(ClickEventType.RUN_COMMAND, COMMAND + " cancel");
+        last.addParts(cancelButton);
+        last.addText(parts);
+        last.send(sender);
+    }
+
+    /**
+     * メール詳細画面のページャーを対象プレイヤーに表示する
+     * @param sender 表示対象
+     * @param index 表示しようとしているメールのインデクス
+     */
+    private void sendMailDescriptionPager(MailSender sender, int index) {
+
+        // メタデータが無いなら、ページャーを表示しない
+        String meta = sender.getStringMetadata(MailManager.MAILLIST_METAKEY);
+        if ( meta == null ||
+                (!meta.equals("inbox") && !meta.equals("outbox") && !meta.equals("unread")) ) {
+            sender.sendMessage(Messages.get("DetailLastLine"));
+            return;
+        }
+
+        // リストの取得
+        ArrayList<MailData> list;
+        if ( meta.equals("inbox") ) {
+            list = UndineMailer.getInstance().getMailManager().getInboxMails(sender);
+        } else if ( meta.equals("outbox") ) {
+            list = UndineMailer.getInstance().getMailManager().getOutboxMails(sender);
+        } else {
+            list = UndineMailer.getInstance().getMailManager().getUnreadMails(sender);
+        }
+
+        // ページ番号の取得
+        int page = getIndexOfMailList(index, list);
+
+        // 該当のメールがリストに含まれていないなら、ページャーを表示しない
+        if ( page == -1 ) {
+            sender.sendMessage(Messages.get("DetailLastLine"));
+            return;
+        }
+
+        String firstLabel = Messages.get("FirstPage");
+        String prevLabel = Messages.get("PrevPage");
+        String nextLabel = Messages.get("NextPage");
+        String lastLabel = Messages.get("LastPage");
+        String firstToolTip = Messages.get("FirstMailToolTip");
+        String prevToolTip = Messages.get("PrevMailToolTip");
+        String nextToolTip = Messages.get("NextMailToolTip");
+        String lastToolTip = Messages.get("LastMailToolTip");
+        String parts = Messages.get("DetailHorizontalParts");
+
+        MessageComponent msg = new MessageComponent();
+
+        msg.addText(parts + " ");
+
+        if ( !meta.equals("unread") ) {
+            String returnCommand = (meta.equals("inbox")) ? COMMAND + " inbox" : COMMAND + " outbox";
+            MessageParts returnButton = new MessageParts(
+                    Messages.get("Return"), ChatColor.AQUA);
+            returnButton.setClickEvent(ClickEventType.RUN_COMMAND, returnCommand);
+            returnButton.addHoverText(Messages.get("ReturnListToolTip"));
+            msg.addParts(returnButton);
+
+            msg.addText(" ");
+        }
+
+        if ( page > 0 ) {
+            int first = list.get(0).getIndex();
+            int prev = list.get(page - 1).getIndex();
+
+            MessageParts firstButton = new MessageParts(
+                    firstLabel, ChatColor.AQUA);
+            firstButton.setClickEvent(ClickEventType.RUN_COMMAND,
+                    COMMAND + " read " + first);
+            firstButton.addHoverText(firstToolTip);
+            msg.addParts(firstButton);
+
+            msg.addText(" ");
+
+            MessageParts prevButton = new MessageParts(
+                    prevLabel, ChatColor.AQUA);
+            prevButton.setClickEvent(ClickEventType.RUN_COMMAND,
+                    COMMAND + " read " + prev);
+            prevButton.addHoverText(prevToolTip);
+            msg.addParts(prevButton);
+
+        } else {
+            msg.addText(firstLabel + " " + prevLabel, ChatColor.WHITE);
+
+        }
+
+        msg.addText(" (" + (page + 1) + "/" + list.size() + ") ");
+
+        if ( page < (list.size() - 1) ) {
+            int next = list.get(page + 1).getIndex();
+            int last = list.get(list.size() - 1).getIndex();
+
+            MessageParts nextButton = new MessageParts(
+                    nextLabel, ChatColor.AQUA);
+            nextButton.setClickEvent(ClickEventType.RUN_COMMAND,
+                    COMMAND + " read " + next);
+            nextButton.addHoverText(nextToolTip);
+            msg.addParts(nextButton);
+
+            msg.addText(" ");
+
+            MessageParts lastButton = new MessageParts(
+                    lastLabel, ChatColor.AQUA);
+            lastButton.setClickEvent(ClickEventType.RUN_COMMAND,
+                    COMMAND + " read " + last);
+            lastButton.addHoverText(lastToolTip);
+            msg.addParts(lastButton);
+
+        } else {
+            msg.addText(nextLabel + " " + lastLabel, ChatColor.WHITE);
+        }
+
+        msg.addText(" " + parts);
+
+        msg.send(sender);
+    }
+
+    /**
+     * 指定されたインデクスのメールが、リストの何番目にあるかを返す
+     * @param index インデクス
+     * @param list リスト
+     * @return 何番目にあるか。含まれていないなら-1が返されることに注意
+     */
+    private int getIndexOfMailList(int index, ArrayList<MailData> list) {
+        for ( int i=0; i<list.size(); i++ ) {
+            if ( list.get(i).getIndex() == index ) {
+                return i;
+            }
+        }
+        return -1;
+    }
+
+    /**
+     * アイテムを簡単な文字列表現にして返す
+     * @param item アイテム
+     * @param forDescription
+     * @return 文字列表現
+     */
+    private String getItemDesc(ItemStack item, boolean forDescription) {
+        String desc = item.getDurability() == 0 ? item.getType().toString() :
+                item.getType().toString() + ":" + item.getDurability();
+        if ( item.getAmount() == 1 ) return desc;
+        if ( forDescription ) return desc + " * " + item.getAmount();
+        return desc + " " + item.getAmount();
     }
 
     /**
@@ -668,5 +1308,37 @@ public class MailManager {
         msg.addText(" " + parts);
 
         msg.send(sender);
+    }
+
+    /**
+     * 言語リソース設定に従ってフォーマットされた日時の文字列を取得します。
+     * @param date フォーマットする日時
+     * @return フォーマットされた文字列
+     */
+    private String getFormattedDate(Date date) {
+        return new SimpleDateFormat(Messages.get("DateFormat")).format(date);
+    }
+
+    /**
+     * 宛先のリストを、コンマを使ってつなげる
+     * @param mail メール
+     * @return 繋がった文字列
+     */
+    private String joinToAndGroup(MailData mail) {
+
+        StringBuffer buffer = new StringBuffer();
+        for ( MailSender item : mail.getTo() ) {
+            if ( buffer.length() > 0 ) {
+                buffer.append(", ");
+            }
+            buffer.append(item.getName());
+        }
+        for ( String group : mail.getToGroups() ) {
+            if ( buffer.length() > 0 ) {
+                buffer.append(", ");
+            }
+            buffer.append(group);
+        }
+        return buffer.toString();
     }
 }

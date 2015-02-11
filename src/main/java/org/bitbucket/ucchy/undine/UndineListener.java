@@ -13,6 +13,7 @@ import org.bukkit.event.inventory.InventoryClickEvent;
 import org.bukkit.event.inventory.InventoryCloseEvent;
 import org.bukkit.event.inventory.InventoryDragEvent;
 import org.bukkit.event.player.PlayerJoinEvent;
+import org.bukkit.scheduler.BukkitRunnable;
 
 /**
  * Undineのリスナークラス
@@ -52,11 +53,20 @@ public class UndineListener implements Listener {
     @EventHandler
     public void onPlayerJoin(PlayerJoinEvent event) {
 
-        Player player = event.getPlayer();
-        MailSender sender = MailSender.getMailSender(player);
+        // MailManagerのロードが完了していないなら、何もしない
+        if ( !parent.getMailManager().isLoaded() ) {
+            return;
+        }
 
-        // 未読のメールを表示する
-        parent.getMailManager().displayUnreadOnJoin(sender);
+        Player player = event.getPlayer();
+        final MailSender sender = MailSender.getMailSender(player);
+
+        // 未読のメールを1秒後に表示する
+        new BukkitRunnable() {
+            public void run() {
+                parent.getMailManager().displayUnreadOnJoin(sender);
+            }
+        }.runTaskLaterAsynchronously(parent, 20);
     }
 
     /**

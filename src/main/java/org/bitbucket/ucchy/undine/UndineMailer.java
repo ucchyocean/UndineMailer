@@ -50,8 +50,8 @@ public class UndineMailer extends JavaPlugin {
         config = new UndineConfig(this);
 
         // マネージャを生成し、データをロードする
-        mailManager = new MailManager(this);
         groupManager = new GroupManager(this);
+        mailManager = new MailManager(this);
         boxManager = new AttachmentBoxManager(this);
 
         // VaultEcoをロード
@@ -211,8 +211,10 @@ public class UndineMailer extends JavaPlugin {
      * このプラグインの関連データをリロードする
      */
     public void reloadAll() {
-        mailManager.reload();
         groupManager.reload();
+        if ( mailManager.isLoaded() ) {
+            mailManager.reload();
+        }
         config.reloadConfig();
         Messages.reload(config.getLang());
     }

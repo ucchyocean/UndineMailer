@@ -33,6 +33,8 @@ ErrorInvalidAttachBoxWorld: '&cあなたのいるワールドは、アイテム�
 ErrorInvalidCommand: '&cこのコマンドは利用不可に設定されています。'
 ErrorAttachBoxCountExceed: '&cあなたは現在 %num個の添付ボックスを使用しており、制限数 %limitを超えているため、添付付きメールを送信することはできません。'
 ErrorCannotSendAttachMailToAll: '&c添付付きメールをAll宛に送信することはできません。'
+ErrorCannotListInitializingYet: '&cまだメールデータの初期化が完了していないため、メールリストを表示できません。'
+ErrorCannotSendInitializingYet: '&cまだメールデータの初期化が完了していないため、メールを送信できません。'
 
 ErrorInvalidGroupName: '&c%name はグループ名として使用できません。'
 ErrorGroupIsAlreadyExist: '&cグループ %name は既に存在するため使用できません。'

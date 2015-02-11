@@ -33,6 +33,8 @@ ErrorInvalidAttachBoxWorld: '&cIn this world, sending and receiving of items is 
 ErrorInvalidCommand: '&cThis command is invalid.'
 ErrorAttachBoxCountExceed: '&cYou are using %num attached boxes now, because it exceeds the limit %limit, you cannot send attachments with mail!'
 ErrorCannotSendAttachMailToAll: '&cYou cannot item attached mail to All group.'
+ErrorCannotListInitializingYet: '&cBecause mailer has not yet been initialized, cannot view the mail list.'
+ErrorCannotSendInitializingYet: '&cBecause mailer has not yet been initialized, cannot send new mail.'
 
 ErrorInvalidGroupName: '&c%name cannot be used as a group name.'
 ErrorGroupIsAlreadyExist: '&cGroup %name cannot be used because it already exists.'

@@ -147,7 +147,7 @@ public class UndineAttachCommand implements SubCommand {
             mail.getAttachments().add(item);
 
             // 編集画面を表示する。
-            mail.displayEditmode(MailSender.getMailSender(sender));
+            manager.displayEditmode(MailSender.getMailSender(sender));
 
             return;
 
@@ -172,7 +172,7 @@ public class UndineAttachCommand implements SubCommand {
             mail.getAttachments().clear();
 
             // 編集画面を表示する。
-            mail.displayEditmode(MailSender.getMailSender(sender));
+            manager.displayEditmode(MailSender.getMailSender(sender));
 
             return;
 
@@ -319,7 +319,7 @@ public class UndineAttachCommand implements SubCommand {
             parent.getMailManager().sendNewMail(reply);
 
             // 受信者側に、拒否した該当メールの詳細画面を開く
-            mail.displayDescription(ms);
+            manager.displayMailDescription(ms, mail);
 
             return;
         }

@@ -215,8 +215,8 @@ public class AttachmentBoxManager {
 
         // メール詳細を開く
         if ( player.isOnline() ) {
-            if ( index == 0 ) {
-                mail.displayEditmode(
+            if ( mail.isEditmode() ) {
+                parent.getMailManager().displayEditmode(
                         MailSender.getMailSender(player));
             } else {
                 parent.getMailManager().displayMail(

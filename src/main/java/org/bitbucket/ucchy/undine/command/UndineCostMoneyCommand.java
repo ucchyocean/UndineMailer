@@ -101,7 +101,7 @@ public class UndineCostMoneyCommand implements SubCommand {
         mail.setCostMoney(amount);
 
         // 編集画面を表示する。
-        mail.displayEditmode(MailSender.getMailSender(sender));
+        manager.displayEditmode(MailSender.getMailSender(sender));
     }
 
     /**

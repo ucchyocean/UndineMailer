@@ -7,7 +7,6 @@ package org.bitbucket.ucchy.undine.command;
 
 import java.util.List;
 
-import org.bitbucket.ucchy.undine.MailData;
 import org.bitbucket.ucchy.undine.MailManager;
 import org.bitbucket.ucchy.undine.UndineMailer;
 import org.bitbucket.ucchy.undine.sender.MailSender;
@@ -61,9 +60,8 @@ public class UndineWriteCommand implements SubCommand {
     @Override
     public void runCommand(CommandSender sender, String[] args) {
 
-        // 編集メールを取得して、編集画面を表示する。
-        MailData mail = manager.makeEditmodeMail(MailSender.getMailSender(sender));
-        mail.displayEditmode(MailSender.getMailSender(sender));
+        // 編集画面を表示する。
+        manager.displayEditmode(MailSender.getMailSender(sender));
     }
 
     /**
