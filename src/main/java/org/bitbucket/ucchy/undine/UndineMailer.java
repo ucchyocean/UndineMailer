@@ -50,8 +50,8 @@ public class UndineMailer extends JavaPlugin {
         config = new UndineConfig(this);
 
         // マネージャを生成し、データをロードする
-        groupManager = new GroupManager(this);
         mailManager = new MailManager(this);
+        groupManager = new GroupManager(this);
         boxManager = new AttachmentBoxManager(this);
 
         // VaultEcoをロード

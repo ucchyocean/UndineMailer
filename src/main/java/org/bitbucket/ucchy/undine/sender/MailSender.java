@@ -5,8 +5,7 @@
  */
 package org.bitbucket.ucchy.undine.sender;
 
-import java.util.UUID;
-
+import org.bitbucket.ucchy.undine.Utility;
 import org.bukkit.Bukkit;
 import org.bukkit.OfflinePlayer;
 import org.bukkit.command.BlockCommandSender;
@@ -159,8 +158,7 @@ public abstract class MailSender implements Comparable<MailSender> {
 
         // UUIDからの変換
         if ( nameOrUuid.startsWith("$") ) {
-            UUID id = UUID.fromString(nameOrUuid.substring(1));
-            return new MailSenderPlayer(Bukkit.getOfflinePlayer(id));
+            return new MailSenderPlayer(nameOrUuid);
         }
 
         // nameからの変換
@@ -169,7 +167,7 @@ public abstract class MailSender implements Comparable<MailSender> {
             return new MailSenderConsole(Bukkit.getConsoleSender());
         }
 
-        return MailSenderPlayer.fromName(name);
+        return new MailSenderPlayer(nameOrUuid);
     }
 
     /**
@@ -185,7 +183,12 @@ public abstract class MailSender implements Comparable<MailSender> {
         } else if ( sender instanceof ConsoleCommandSender ) {
             return new MailSenderConsole((ConsoleCommandSender)sender);
         } else if ( sender instanceof OfflinePlayer ) {
-            return new MailSenderPlayer((OfflinePlayer)sender);
+            OfflinePlayer player = (OfflinePlayer)sender;
+            if ( Utility.isCB178orLater() ) {
+                return new MailSenderPlayer("$" + player.getUniqueId().toString());
+            } else {
+                return new MailSenderPlayer(player.getName());
+            }
         }
         return null;
     }

@@ -35,7 +35,7 @@ import org.bukkit.inventory.ItemStack;
  * メールのデータ
  * @author ucchy
  */
-public class MailData {
+public class MailData implements Comparable<MailData> {
 
     private static final String COMMAND = UndineCommand.COMMAND;
 
@@ -742,6 +742,32 @@ public class MailData {
      */
     public boolean isAllMail() {
         return toGroups.contains(SpecialGroupAll.NAME);
+    }
+
+    /**
+     * インスタンス同士が同一かどうか。
+     * @param other 他のインスタンス
+     * @return 同一かどうか
+     * @see java.lang.Object#equals(java.lang.Object)
+     */
+    @Override
+    public boolean equals(Object other) {
+        if ( !(other instanceof MailData) ) return false;
+        return ((MailData)other).index == this.index;
+    }
+
+    /**
+     * インスタンス同士の比較を行う。このメソッドを実装しておくことで、
+     * Java8でのHashMapのキー挿入における高速化が期待できる（らしい）。
+     * @param other 他のインスタンス
+     * @return 比較結果
+     * @see java.lang.Comparable#compareTo(java.lang.Object)
+     */
+    @Override
+    public int compareTo(MailData other) {
+        if ( this.index > other.index ) return 1;
+        if ( this.index < other.index ) return -1;
+        return 0;
     }
 
     /**

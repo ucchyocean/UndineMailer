@@ -6,9 +6,9 @@
 package org.bitbucket.ucchy.undine.sender;
 
 import java.util.List;
+import java.util.UUID;
 
 import org.bitbucket.ucchy.undine.UndineMailer;
-import org.bitbucket.ucchy.undine.Utility;
 import org.bukkit.Bukkit;
 import org.bukkit.OfflinePlayer;
 import org.bukkit.command.CommandSender;
@@ -22,14 +22,15 @@ import org.bukkit.metadata.MetadataValue;
  */
 public class MailSenderPlayer extends MailSender {
 
-    private OfflinePlayer sender;
+    private String nameOrUuid;
+    private OfflinePlayer offline;
 
     /**
      * コンストラクタ
      * @param sender プレイヤー
      */
-    public MailSenderPlayer(OfflinePlayer sender) {
-        this.sender = sender;
+    public MailSenderPlayer(String nameOrUuid) {
+        this.nameOrUuid = nameOrUuid;
     }
 
     /**
@@ -38,7 +39,10 @@ public class MailSenderPlayer extends MailSender {
      */
     @Override
     public boolean isOnline() {
-        return sender.isOnline();
+        if ( offline == null ) {
+            offline = getOfflinePlayer();
+        }
+        return offline.isOnline();
     }
 
     /**
@@ -47,7 +51,10 @@ public class MailSenderPlayer extends MailSender {
      */
     @Override
     public boolean isValidDestination() {
-        return sender.hasPlayedBefore() || sender.isOnline();
+        if ( offline == null ) {
+            offline = getOfflinePlayer();
+        }
+        return offline.hasPlayedBefore() || offline.isOnline();
     }
 
     /**
@@ -57,7 +64,10 @@ public class MailSenderPlayer extends MailSender {
      */
     @Override
     public String getName() {
-        return sender.getName();
+        if ( offline == null ) {
+            offline = getOfflinePlayer();
+        }
+        return offline.getName();
     }
 
     /**
@@ -92,9 +102,16 @@ public class MailSenderPlayer extends MailSender {
      * @return OfflinePlayer
      * @see org.bitbucket.ucchy.undine.sender.MailSender#getOfflinePlayer()
      */
+    @SuppressWarnings("deprecation")
     @Override
     public OfflinePlayer getOfflinePlayer() {
-        return sender;
+        if ( offline != null ) return offline;
+        if ( nameOrUuid.startsWith("$") ) {
+            offline = Bukkit.getOfflinePlayer(UUID.fromString(nameOrUuid.substring(1)));
+        } else {
+            offline = Bukkit.getOfflinePlayer(nameOrUuid);
+        }
+        return offline;
     }
 
     /**
@@ -104,7 +121,10 @@ public class MailSenderPlayer extends MailSender {
      */
     @Override
     public Player getPlayer() {
-        return sender.getPlayer();
+        if ( offline == null ) {
+            offline = getOfflinePlayer();
+        }
+        return offline.getPlayer();
     }
 
     /**
@@ -144,7 +164,10 @@ public class MailSenderPlayer extends MailSender {
      */
     @Override
     public boolean isOp() {
-        return sender.isOp();
+        if ( offline == null ) {
+            offline = getOfflinePlayer();
+        }
+        return offline.isOp();
     }
 
     /**
@@ -155,10 +178,13 @@ public class MailSenderPlayer extends MailSender {
      */
     @Override
     public void setStringMetadata(String key, String value) {
-        if ( !sender.isOnline() ) {
+        if ( offline == null ) {
+            offline = getOfflinePlayer();
+        }
+        if ( !offline.isOnline() ) {
             return;
         }
-        sender.getPlayer().setMetadata(key,
+        offline.getPlayer().setMetadata(key,
                 new FixedMetadataValue(UndineMailer.getInstance(), value));
     }
 
@@ -170,10 +196,13 @@ public class MailSenderPlayer extends MailSender {
      */
     @Override
     public String getStringMetadata(String key) {
-        if ( !sender.isOnline() ) {
+        if ( offline == null ) {
+            offline = getOfflinePlayer();
+        }
+        if ( !offline.isOnline() ) {
             return null;
         }
-        List<MetadataValue> values = sender.getPlayer().getMetadata(key);
+        List<MetadataValue> values = offline.getPlayer().getMetadata(key);
         if ( values.size() == 0 ) {
             return null;
         }
@@ -188,10 +217,13 @@ public class MailSenderPlayer extends MailSender {
      */
     @Override
     public void setBooleanMetadata(String key, boolean value) {
-        if ( !sender.isOnline() ) {
+        if ( offline == null ) {
+            offline = getOfflinePlayer();
+        }
+        if ( !offline.isOnline() ) {
             return;
         }
-        sender.getPlayer().setMetadata(key,
+        offline.getPlayer().setMetadata(key,
                 new FixedMetadataValue(UndineMailer.getInstance(), value));
     }
 
@@ -203,10 +235,13 @@ public class MailSenderPlayer extends MailSender {
      */
     @Override
     public boolean getBooleanMetadata(String key) {
-        if ( !sender.isOnline() ) {
+        if ( offline == null ) {
+            offline = getOfflinePlayer();
+        }
+        if ( !offline.isOnline() ) {
             return false;
         }
-        List<MetadataValue> values = sender.getPlayer().getMetadata(key);
+        List<MetadataValue> values = offline.getPlayer().getMetadata(key);
         if ( values.size() == 0 ) {
             return false;
         }
@@ -225,38 +260,21 @@ public class MailSenderPlayer extends MailSender {
         if ( sender == null || !(sender instanceof OfflinePlayer) ) {
             return false;
         }
-        return this.sender.getName().equals(sender.getName());
+        OfflinePlayer player = (OfflinePlayer)sender;
+        if ( nameOrUuid.startsWith("$") ) {
+            return nameOrUuid.equals("$" + player.getUniqueId().toString());
+        } else {
+            return nameOrUuid.equals(player.getName());
+        }
     }
 
     /**
      * IDを返す
-     * @return CB178移行なら "$" + UUID を返す、CB175以前ならIDを返す
+     * @return CB178以降なら "$" + UUID を返す、CB175以前ならIDを返す
      * @see org.bitbucket.ucchy.undine.sender.MailSender#toString()
      */
     @Override
     public String toString() {
-        if ( Utility.isCB178orLater() ) {
-            return "$" + sender.getUniqueId().toString();
-        }
-        return sender.getName();
-    }
-
-    /**
-     * 名前からSenderを生成して返す
-     * @param name 名前
-     * @return Sender
-     */
-    public static MailSenderPlayer fromName(String name) {
-        @SuppressWarnings("deprecation")
-        OfflinePlayer player = Bukkit.getPlayerExact(name);
-        if ( player != null ) {
-            return new MailSenderPlayer(player);
-        }
-        @SuppressWarnings("deprecation")
-        OfflinePlayer offline = Bukkit.getOfflinePlayer(name);
-        if ( offline != null ) {
-            return new MailSenderPlayer(offline);
-        }
-        return null;
+        return nameOrUuid;
     }
 }

@@ -50,6 +50,10 @@ public class GroupManager {
      * 全データを再読み込みする
      */
     public void reload() {
+
+        UndineMailer.getInstance().getLogger().info("Loading group data... Start.");
+        long start = System.currentTimeMillis();
+
         File folder = parent.getGroupFolder();
         File[] files = folder.listFiles(new FilenameFilter() {
             public boolean accept(File dir, String name) {
@@ -66,6 +70,9 @@ public class GroupManager {
         // 特殊グループを追加する
         GroupData all = new SpecialGroupAll();
         groups.put(all.getName().toLowerCase(), all);
+
+        UndineMailer.getInstance().getLogger().info("Loading group data... Done.  Time: "
+                + (System.currentTimeMillis() - start) + "ms, Data: " + groups.size() + ".");
     }
 
     /**

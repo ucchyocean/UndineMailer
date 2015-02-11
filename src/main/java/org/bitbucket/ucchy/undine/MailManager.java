@@ -25,6 +25,7 @@ import org.bukkit.ChatColor;
 import org.bukkit.configuration.ConfigurationSection;
 import org.bukkit.configuration.file.YamlConfiguration;
 import org.bukkit.entity.Player;
+import org.bukkit.scheduler.BukkitRunnable;
 
 /**
  * メールデータマネージャ
@@ -56,24 +57,34 @@ public class MailManager {
      */
     protected void reload() {
 
-        mails = new ArrayList<MailData>();
-        nextIndex = 1;
+        UndineMailer.getInstance().getLogger().info("Loading mail data async... Start.");
+        final long start = System.currentTimeMillis();
 
-        File folder = parent.getMailFolder();
-        File[] files = folder.listFiles(new FilenameFilter() {
-            public boolean accept(File dir, String name) {
-                return name.endsWith(".yml");
+        new BukkitRunnable() {
+            public void run() {
+                mails = new ArrayList<MailData>();
+                nextIndex = 1;
+
+                File folder = parent.getMailFolder();
+                File[] files = folder.listFiles(new FilenameFilter() {
+                    public boolean accept(File dir, String name) {
+                        return name.endsWith(".yml");
+                    }
+                });
+
+                for ( File file : files ) {
+                    MailData data = MailData.load(file);
+                    mails.add(data);
+
+                    if ( nextIndex <= data.getIndex() ) {
+                        nextIndex = data.getIndex() + 1;
+                    }
+                }
+
+                UndineMailer.getInstance().getLogger().info("Loading mail data async... Done.  Time: "
+                        + (System.currentTimeMillis() - start) + "ms, Data: " + mails.size() + ".");
             }
-        });
-
-        for ( File file : files ) {
-            MailData data = MailData.load(file);
-            mails.add(data);
-
-            if ( nextIndex <= data.getIndex() ) {
-                nextIndex = data.getIndex() + 1;
-            }
-        }
+        }.runTaskAsynchronously(UndineMailer.getInstance());
     }
 
     /**
