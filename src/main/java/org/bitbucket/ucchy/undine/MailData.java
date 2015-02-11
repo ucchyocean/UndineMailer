@@ -672,6 +672,17 @@ public class MailData implements Comparable<MailData> {
     }
 
     /**
+     * 指定された名前のプレイヤーは、このメールの受信者かどうかを返す。
+     * @param sender sender
+     * @return 指定された名前がtoに含まれるかどうか
+     */
+    public boolean isRecipient(MailSender sender) {
+        if ( isAllMail() ) return true;
+        if ( toTotal != null ) return toTotal.contains(sender);
+        return to.contains(sender);
+    }
+
+    /**
      * このメールは編集中モードなのかどうかを返す
      * @return 編集中かどうか
      */

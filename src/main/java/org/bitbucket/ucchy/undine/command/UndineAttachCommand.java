@@ -327,14 +327,14 @@ public class UndineAttachCommand implements SubCommand {
         // 以下、添付ボックスのオープン処理
 
         // 開く権限が無い場合はエラーを表示して終了
-        if ( mail.getFrom().equals(ms) ) {
-            if ( !mail.isAttachmentsCancelled() ) {
-                player.sendMessage(Messages.get("ErrorNoneReadPermission"));
-                return;
-            }
-        } else if ( mail.getTo().contains(ms) ) {
+        if ( mail.isRecipient(ms) ) {
             if ( mail.isAttachmentsCancelled() ) {
                 player.sendMessage(Messages.get("ErrorAlreadyAttachCancelled"));
+                return;
+            }
+        } else if ( mail.getFrom().equals(ms) ) {
+            if ( !mail.isAttachmentsCancelled() ) {
+                player.sendMessage(Messages.get("ErrorNoneReadPermission"));
                 return;
             }
         }

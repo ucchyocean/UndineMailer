@@ -697,7 +697,19 @@ public class MailManager {
             msg.addText(" ");
 
             if ( !mail.isEditmode() ) {
-                if ( !mail.isAttachmentsCancelled() && !mail.isAttachmentsOpened()
+
+                if ( (!mail.isAttachmentsCancelled() && mail.isRecipient(sender))
+                        || (mail.isAttachmentsCancelled() && mail.getFrom().equals(sender)) ) {
+                    // 未キャンセルで受信者の場合、または、
+                    // キャンセル済みで送信者の場合、オープンボタンを置く
+
+                    MessageParts button = new MessageParts(
+                            Messages.get("MailDetailAttachmentBox"), ChatColor.AQUA);
+                    button.setClickEvent(ClickEventType.RUN_COMMAND,
+                            COMMAND + " attach " + mail.getIndex());
+                    msg.addParts(button);
+
+                } else if ( !mail.isAttachmentsCancelled() && !mail.isAttachmentsOpened()
                         && mail.getFrom().equals(sender) ) {
                     // 未キャンセルで送信者の場合、
                     // 受信者がボックスを一度も開いていないなら、キャンセルボタンを置く
@@ -708,17 +720,6 @@ public class MailManager {
                     button.setClickEvent(ClickEventType.RUN_COMMAND,
                             COMMAND + " attach " + mail.getIndex() + " cancel");
                     button.addHoverText(Messages.get("MailDetailAttachmentBoxCancelToolTip"));
-                    msg.addParts(button);
-
-                } else if ( (!mail.isAttachmentsCancelled() && !mail.getFrom().equals(sender))
-                        || (mail.isAttachmentsCancelled() && mail.getFrom().equals(sender)) ) {
-                    // 未キャンセルで受信者の場合、または、
-                    // キャンセル済みで送信者の場合、オープンボタンを置く
-
-                    MessageParts button = new MessageParts(
-                            Messages.get("MailDetailAttachmentBox"), ChatColor.AQUA);
-                    button.setClickEvent(ClickEventType.RUN_COMMAND,
-                            COMMAND + " attach " + mail.getIndex());
                     msg.addParts(button);
 
                 } else if ( mail.isAttachmentsCancelled() && !mail.getFrom().equals(sender) ) {
