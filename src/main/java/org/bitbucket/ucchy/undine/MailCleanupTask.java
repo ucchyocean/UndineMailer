@@ -33,10 +33,10 @@ public class MailCleanupTask extends BukkitRunnable {
     }
 
     /**
-     * タスクを開始する。処理は、開始された瞬間に1度実行され、以降は1時間ごとに実行される。
+     * タスクを開始する。処理は、1分後に1度実行され、以降は1時間ごとに実行される。
      */
     protected void startTask() {
         runTaskTimerAsynchronously(
-                UndineMailer.getInstance(), 0, 20 * 60 * 60);
+                UndineMailer.getInstance(), 20 * 60, 20 * 60 * 60);
     }
 }

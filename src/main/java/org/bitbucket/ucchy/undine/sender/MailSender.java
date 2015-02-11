@@ -165,6 +165,8 @@ public abstract class MailSender implements Comparable<MailSender> {
         String name = nameOrUuid;
         if ( name.equals("CONSOLE") ) {
             return new MailSenderConsole(Bukkit.getConsoleSender());
+        } else if ( name.equals("@") ) {
+            return new MailSenderBlock(null);
         }
 
         return new MailSenderPlayer(nameOrUuid);

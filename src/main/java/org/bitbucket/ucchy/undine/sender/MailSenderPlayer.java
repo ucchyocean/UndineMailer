@@ -9,6 +9,7 @@ import java.util.List;
 import java.util.UUID;
 
 import org.bitbucket.ucchy.undine.UndineMailer;
+import org.bitbucket.ucchy.undine.Utility;
 import org.bukkit.Bukkit;
 import org.bukkit.OfflinePlayer;
 import org.bukkit.command.CommandSender;
@@ -27,10 +28,22 @@ public class MailSenderPlayer extends MailSender {
 
     /**
      * コンストラクタ
-     * @param sender プレイヤー
+     * @param nameOrUuid プレイヤー名、または、"$"+UUID
      */
     public MailSenderPlayer(String nameOrUuid) {
         this.nameOrUuid = nameOrUuid;
+    }
+
+    /**
+     * コンストラクタ
+     * @param player プレイヤー
+     */
+    public MailSenderPlayer(OfflinePlayer player) {
+        if ( Utility.isCB178orLater() ) {
+            this.nameOrUuid = "$" + player.getUniqueId().toString();
+        } else {
+            this.nameOrUuid = player.getName();
+        }
     }
 
     /**
@@ -275,6 +288,11 @@ public class MailSenderPlayer extends MailSender {
      */
     @Override
     public String toString() {
+        if ( !nameOrUuid.startsWith("$") && Utility.isCB178orLater() ) {
+            @SuppressWarnings("deprecation")
+            OfflinePlayer player = Bukkit.getOfflinePlayer(nameOrUuid);
+            nameOrUuid = "$" + player.getUniqueId().toString();
+        }
         return nameOrUuid;
     }
 }

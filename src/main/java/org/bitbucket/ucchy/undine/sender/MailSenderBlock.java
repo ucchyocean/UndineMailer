@@ -58,6 +58,7 @@ public class MailSenderBlock extends MailSender {
      */
     @Override
     public String getName() {
+        if ( sender == null ) return "@";
         return sender.getName();
     }
 
@@ -68,6 +69,7 @@ public class MailSenderBlock extends MailSender {
      */
     @Override
     public String getDisplayName() {
+        if ( sender == null ) return "@";
         return sender.getName();
     }
 
@@ -108,28 +110,29 @@ public class MailSenderBlock extends MailSender {
      */
     @Override
     public String getWorldName() {
+        if ( sender == null ) return "";
         return sender.getBlock().getWorld().getName();
     }
 
     /**
      * 指定されたパーミッションノードの権限を持っているかどうかを取得する
      * @param node パーミッションノード
-     * @return 権限を持っているかどうか
+     * @return 常にtrue
      * @see org.bitbucket.ucchy.undine.sender.MailSender#hasPermission(java.lang.String)
      */
     @Override
     public boolean hasPermission(String node) {
-        return sender.hasPermission(node);
+        return true;
     }
 
     /**
      * OPかどうかを調べる
-     * @return OPかどうか
+     * @return 常にtrue
      * @see org.bitbucket.ucchy.undine.sender.MailSender#isOp()
      */
     @Override
     public boolean isOp() {
-        return sender.isOp();
+        return true;
     }
 
     /**
@@ -140,7 +143,8 @@ public class MailSenderBlock extends MailSender {
      */
     @Override
     public void setStringMetadata(String key, String value) {
-        if ( sender.getBlock() == null || sender.getBlock().getType() == Material.COMMAND ) {
+        if ( sender == null || sender.getBlock() == null
+                || sender.getBlock().getType() == Material.COMMAND ) {
             return;
         }
         sender.getBlock().setMetadata(key,
@@ -155,7 +159,8 @@ public class MailSenderBlock extends MailSender {
      */
     @Override
     public String getStringMetadata(String key) {
-        if ( sender.getBlock() == null || sender.getBlock().getType() == Material.COMMAND ) {
+        if ( sender == null || sender.getBlock() == null
+                || sender.getBlock().getType() == Material.COMMAND ) {
             return null;
         }
         List<MetadataValue> values = sender.getBlock().getMetadata(key);
@@ -173,7 +178,8 @@ public class MailSenderBlock extends MailSender {
      */
     @Override
     public void setBooleanMetadata(String key, boolean value) {
-        if ( sender.getBlock() == null || sender.getBlock().getType() == Material.COMMAND ) {
+        if ( sender == null || sender.getBlock() == null
+                || sender.getBlock().getType() == Material.COMMAND ) {
             return;
         }
         sender.getBlock().setMetadata(key,
@@ -188,7 +194,8 @@ public class MailSenderBlock extends MailSender {
      */
     @Override
     public boolean getBooleanMetadata(String key) {
-        if ( sender.getBlock() == null || sender.getBlock().getType() == Material.COMMAND ) {
+        if ( sender == null || sender.getBlock() == null
+                || sender.getBlock().getType() == Material.COMMAND ) {
             return false;
         }
         List<MetadataValue> values = sender.getBlock().getMetadata(key);
@@ -206,6 +213,7 @@ public class MailSenderBlock extends MailSender {
      */
     @Override
     public boolean equals(CommandSender sender) {
+        if ( sender == null ) return false;
         return this.sender.equals(sender);
     }
 
