@@ -3,7 +3,9 @@ pushd %~dp0
 
 echo ----- clean up -----
 if exist release rmdir /s /q release
+if errorlevel 1 goto errorend
 mkdir release
+if errorlevel 1 goto errorend
 
 echo ----- making release package for BukkitDev -----
 move /y pom.xml pom.xml.backup
