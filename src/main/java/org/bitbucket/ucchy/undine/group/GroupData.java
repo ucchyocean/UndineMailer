@@ -12,6 +12,7 @@ import java.util.List;
 
 import org.bitbucket.ucchy.undine.UndineMailer;
 import org.bitbucket.ucchy.undine.sender.MailSender;
+import org.bukkit.ChatColor;
 import org.bukkit.configuration.ConfigurationSection;
 import org.bukkit.configuration.file.YamlConfiguration;
 
@@ -189,6 +190,27 @@ public class GroupData {
     public boolean canBreakup(MailSender sender) {
         return permissionCheck(sender,
                 dissolutionMode, "undine.group.dissolution-all");
+    }
+
+    /**
+     * ホバー用のテキストを作成して返す
+     * @return ホバー用のテキスト
+     */
+    public String getHoverText() {
+        StringBuffer hover = new StringBuffer();
+        hover.append(ChatColor.GOLD + owner.getName() + ChatColor.WHITE);
+        ArrayList<MailSender> members = new ArrayList<MailSender>(this.members);
+        members.remove(owner);
+        for ( int j=0; j<5; j++ ) {
+            if ( members.size() <= j ) {
+                break;
+            }
+            hover.append("\n" + members.get(j).getName());
+        }
+        if ( members.size() - 5 > 0 ) {
+            hover.append("\n ... and " + (members.size() - 5) + " more ...");
+        }
+        return hover.toString();
     }
 
     /**

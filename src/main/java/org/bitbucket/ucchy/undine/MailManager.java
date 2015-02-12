@@ -983,6 +983,8 @@ public class MailManager {
         }
 
         for ( int i=0; i<mail.getToGroups().size(); i++ ) {
+            GroupData group = parent.getGroupManager().getGroup(mail.getToGroups().get(i));
+
             MessageComponent msg = new MessageComponent();
             msg.addText(pre);
             MessageParts buttonDelete = new MessageParts(
@@ -992,8 +994,13 @@ public class MailManager {
                     COMMAND + " to group delete " + (i+1));
             buttonDelete.addHoverText(Messages.get("EditmodeToDeleteToolTip"));
             msg.addParts(buttonDelete);
-            msg.addText(" " + ChatColor.WHITE + Messages.get("EditmodeToGroup")
-                    + " " + mail.getToGroups().get(i), ChatColor.WHITE);
+            msg.addText(" " + ChatColor.WHITE + Messages.get("EditmodeToGroup") + " ",
+                    ChatColor.WHITE);
+            MessageParts groupName = new MessageParts(mail.getToGroups().get(i), ChatColor.WHITE);
+            if ( group != null ) {
+                groupName.addHoverText(group.getHoverText());
+            }
+            msg.addParts(groupName);
             msg.send(sender);
         }
 

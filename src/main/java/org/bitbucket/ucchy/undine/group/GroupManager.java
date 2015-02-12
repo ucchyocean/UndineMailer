@@ -272,6 +272,7 @@ public class GroupManager {
                     new MessageParts("[" + group.getName() + "]", ChatColor.AQUA);
             button.setClickEvent(ClickEventType.RUN_COMMAND,
                     COMMAND + " detail " + group.getName());
+            button.addHoverText(group.getHoverText());
             msg.addParts(button);
 
             if ( group instanceof SpecialGroupAll ) {
@@ -341,6 +342,7 @@ public class GroupManager {
                     new MessageParts("[" + group.getName() + "]", ChatColor.AQUA);
             button.setClickEvent(ClickEventType.RUN_COMMAND,
                     next + " " + group.getName());
+            button.addHoverText(group.getHoverText());
             msg.addParts(button);
 
             if ( group instanceof SpecialGroupAll ) {
