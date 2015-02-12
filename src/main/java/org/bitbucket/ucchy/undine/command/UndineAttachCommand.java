@@ -191,7 +191,7 @@ public class UndineAttachCommand implements SubCommand {
 
             // 該当メールが存在しない場合、エラーを表示して終了
             if ( mail == null ) {
-                sender.sendMessage(Messages.get("ErrorInvalidIndex"));
+                sender.sendMessage(Messages.get("ErrorInvalidIndex", "%index", args[1]));
                 return;
             }
 

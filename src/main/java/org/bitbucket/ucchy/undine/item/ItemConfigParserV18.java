@@ -5,6 +5,9 @@
  */
 package org.bitbucket.ucchy.undine.item;
 
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.HashMap;
 import java.util.List;
 
 import org.bukkit.DyeColor;
@@ -33,10 +36,15 @@ public class ItemConfigParserV18 {
         if ( item.getType() == Material.BANNER ) {
 
             BannerMeta banner = (BannerMeta)item.getItemMeta();
-            banner.setBaseColor(getDyeColorFromString(section.getString("basecolor")));
+
+            if ( section.contains("basecolor") ) {
+                banner.setBaseColor(getDyeColorFromString(section.getString("basecolor")));
+            }
 
             if ( section.contains("patterns") ) {
                 ConfigurationSection psec = section.getConfigurationSection("patterns");
+
+                HashMap<Integer, Pattern> patterns = new HashMap<Integer, Pattern>();
 
                 for ( String name : psec.getKeys(false) ) {
 
@@ -49,7 +57,14 @@ public class ItemConfigParserV18 {
                     ConfigurationSection sub = psec.getConfigurationSection(name);
                     PatternType type = getPatternTypeFromString(sub.getString("type"));
                     DyeColor color = getDyeColorFromString(sub.getString("color"));
-                    banner.setPattern(index, new Pattern(color, type));
+                    patterns.put(index, new Pattern(color, type));
+                }
+
+                // 序数の低い方から順にaddする
+                ArrayList<Integer> indexes = new ArrayList<Integer>(patterns.keySet());
+                Collections.sort(indexes);
+                for ( int index : indexes ) {
+                    banner.addPattern(patterns.get(index));
                 }
             }
         }
@@ -68,7 +83,10 @@ public class ItemConfigParserV18 {
         if ( item.getType() == Material.BANNER ) {
 
             BannerMeta banner = (BannerMeta)item.getItemMeta();
-            section.set("basecolor", banner.getBaseColor().toString());
+
+            if ( banner.getBaseColor() != null ) {
+                section.set("basecolor", banner.getBaseColor().toString());
+            }
 
             List<Pattern> patterns = banner.getPatterns();
             if ( patterns.size() > 0 ) {
