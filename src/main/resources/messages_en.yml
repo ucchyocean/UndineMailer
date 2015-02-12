@@ -35,6 +35,10 @@ ErrorAttachBoxCountExceed: '&cYou are using %num attached boxes now, because it 
 ErrorCannotSendAttachMailToAll: '&cYou cannot item attached mail to All group.'
 ErrorCannotListInitializingYet: '&cBecause mailer has not yet been initialized, cannot view the mail list.'
 ErrorCannotSendInitializingYet: '&cBecause mailer has not yet been initialized, cannot send new mail.'
+ErrorAlreadyTrashed: '&cMail #%index is already in trash box.'
+ErrorNotTrashed: '&cMail #%index is not in trash box.'
+ErrorCannotDropBecauseUnread: '&cBecause Mail #%index is unread yet, you cannot move this mail.'
+ErrorCannotDropBecauseAttached: '&cBecause Mail #%index has attached item yet, you cannot move this mail.'
 
 ErrorInvalidGroupName: '&c%name cannot be used as a group name.'
 ErrorGroupIsAlreadyExist: '&cGroup %name cannot be used because it already exists.'
@@ -61,6 +65,8 @@ InformationItemDetail: '&7Item Information: &f%desc  &7Tradable?: &f%tradable'
 InformationMultiAttachConfirm: '&7You will send item attached mail to multiple destinations. This mail will be replicated %num mails to send. Are you sure?'
 InformationMultiAttachConfirmConsole: 'To send, run ''mail send attachconfirm'' command.'
 InformationAttachWasCanceledBySender: '&7Sender %sender canceled the attachment item box of mail #%num.'
+InformationTrashed: '&7Moved mail #%index to trash box.'
+InformationTrashRestored: '&7Restored mail #%index from trash box.'
 
 InformationMakeGroup: '&7Created a new group %name.'
 InformationDeleteGroup: '&7Deleted a group %name.'
@@ -85,6 +91,8 @@ MailDetailAttachmentBoxRefuseToolTip: 'Refuse to receive items, \nand send back 
 MailDetailAttachmentBoxRefused: 'Refused by recipient'
 MailDetailAttachCostMoneyLine: '  &cC.O.D. money to open box: &f%fee'
 MailDetailAttachCostItemLine: '  &cC.O.D. item to open box: &f%item'
+MailDetailTrash: '[Move this mail to trash box]'
+MailDetailTrashRestore: '[Restore this mail from trash box]'
 
 Editmode: 'EditMode'
 
@@ -137,6 +145,7 @@ ButtonCancel: '[Cancel]'
 
 InboxTitle: 'Inbox (Unread %unread)'
 OutboxTitle: 'Outbox'
+TrashboxTitle: 'Trashbox'
 
 Return: '[Return]'
 FirstPage: '[<<]'
@@ -201,8 +210,9 @@ DetailLastLine: '&7=============================='
 
 HelpTitle: 'UndineMailer Command Help'
 
-HelpCommand_inbox: '/mail [inbox]'
+HelpCommand_inbox: '/mail inbox'
 HelpCommand_outbox: '/mail outbox'
+HelpCommand_trash: '/mail trash'
 HelpCommand_text: '/mail text <to> <message>'
 HelpCommand_write: '/mail write'
 HelpCommand_item: '/mail item'
@@ -212,6 +222,7 @@ HelpCommand_reload: '/mail reload'
 
 HelpDescription_inbox: 'Check your inbox mails.'
 HelpDescription_outbox: 'Check your sent mails.'
+HelpDescription_trash: 'Check your trash box mails.'
 HelpDescription_text: 'Send simple text mail.'
 HelpDescription_write: 'Enter to mail creation mode.'
 HelpDescription_item: 'Show the detailed information of item in your hand.'

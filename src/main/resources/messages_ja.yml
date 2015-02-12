@@ -35,6 +35,10 @@ ErrorAttachBoxCountExceed: '&cあなたは現在 %num個の添付ボックスを
 ErrorCannotSendAttachMailToAll: '&c添付付きメールをAll宛に送信することはできません。'
 ErrorCannotListInitializingYet: '&cまだメールデータの初期化が完了していないため、メールリストを表示できません。'
 ErrorCannotSendInitializingYet: '&cまだメールデータの初期化が完了していないため、メールを送信できません。'
+ErrorAlreadyTrashed: '&cメール %index は、既にゴミ箱の中にあります。'
+ErrorNotTrashed: '&cメール %index は、ゴミ箱の中にありません。'
+ErrorCannotDropBecauseUnread: '&cメール %index は、未読のため移動することができません。'
+ErrorCannotDropBecauseAttached: '&cメール %index は、添付アイテムが残っているため移動することができません。'
 
 ErrorInvalidGroupName: '&c%name はグループ名として使用できません。'
 ErrorGroupIsAlreadyExist: '&cグループ %name は既に存在するため使用できません。'
@@ -61,6 +65,8 @@ InformationItemDetail: '&7アイテム情報: &f%desc  &7取引可能？: &f%tra
 InformationMultiAttachConfirm: '&7複数の宛先に添付付きメールを送信しようとしています。\nこのメールは、%num通に複製されて送信されます。よろしいですか？'
 InformationMultiAttachConfirmConsole: '送信する場合は、''mail send attachconfirm''を実行してください。'
 InformationAttachWasCanceledBySender: '&7メール#%num の添付アイテムが、送信者 %sender によりキャンセルされました。'
+InformationTrashed: '&7メール %index をゴミ箱へ移動しました。'
+InformationTrashRestored: '&7メール %index をゴミ箱から戻しました。'
 
 InformationMakeGroup: '&7新しいグループ %name を作成しました。'
 InformationDeleteGroup: '&7グループ %name を削除しました。'
@@ -85,6 +91,8 @@ MailDetailAttachmentBoxRefuseToolTip: '受け取りを拒否して、\n添付ア
 MailDetailAttachmentBoxRefused: '受信者により添付が受取拒否されました'
 MailDetailAttachCostMoneyLine: '  &c着払い料金: &f%fee'
 MailDetailAttachCostItemLine: '  &c着払いアイテム: &f%item'
+MailDetailTrash: '[このメールをゴミ箱に移動する]'
+MailDetailTrashRestore: '[このメールをゴミ箱から戻す]'
 
 Editmode: '編集中'
 
@@ -137,6 +145,7 @@ ButtonCancel: '[キャンセル]'
 
 InboxTitle: '受信箱 (未読 %unread通)'
 OutboxTitle: '送信箱'
+TrashboxTitle: 'ゴミ箱'
 
 Return: '[戻る]'
 FirstPage: '[<<]'
@@ -201,8 +210,9 @@ DetailLastLine: '&7=============================='
 
 HelpTitle: 'UndineMailerコマンドヘルプ'
 
-HelpCommand_inbox: '/mail [inbox]'
+HelpCommand_inbox: '/mail inbox'
 HelpCommand_outbox: '/mail outbox'
+HelpCommand_trash: '/mail trash'
 HelpCommand_text: '/mail text <to> <message>'
 HelpCommand_write: '/mail write'
 HelpCommand_item: '/mail item'
@@ -212,6 +222,7 @@ HelpCommand_reload: '/mail reload'
 
 HelpDescription_inbox: 'メール受信箱を開きます。'
 HelpDescription_outbox: 'メール送信箱を開きます。'
+HelpDescription_trash: 'ゴミ箱を開きます。'
 HelpDescription_text: '単純なテキスト1行のメールを送信します。'
 HelpDescription_write: 'メール編集画面を開きます。'
 HelpDescription_item: '手に持ったアイテムの詳細を画面に表示します。'

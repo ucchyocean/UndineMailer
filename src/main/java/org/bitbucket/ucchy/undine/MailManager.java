@@ -23,6 +23,7 @@ import org.bitbucket.ucchy.undine.group.GroupData;
 import org.bitbucket.ucchy.undine.sender.MailSender;
 import org.bitbucket.ucchy.undine.sender.MailSenderBlock;
 import org.bitbucket.ucchy.undine.sender.MailSenderConsole;
+import org.bitbucket.ucchy.undine.sender.MailSenderPlayer;
 import org.bitbucket.ucchy.undine.tellraw.ClickEventType;
 import org.bitbucket.ucchy.undine.tellraw.MessageComponent;
 import org.bitbucket.ucchy.undine.tellraw.MessageParts;
@@ -274,7 +275,9 @@ public class MailManager {
             if ( mail.isAllMail()
                     || (mail.getToTotal() != null && mail.getToTotal().contains(sender))
                     || mail.getTo().contains(sender) ) {
-                box.add(mail);
+                if ( !mail.isSetTrash(sender) ) {
+                    box.add(mail);
+                }
             }
         }
         sortNewer(box);
@@ -299,7 +302,7 @@ public class MailManager {
             if ( mail.isAllMail()
                     || (mail.getToTotal() != null && mail.getToTotal().contains(sender))
                     || mail.getTo().contains(sender) ) {
-                if ( !mail.isRead(sender) ) {
+                if ( !mail.isRead(sender) && !mail.isSetTrash(sender) ) {
                     box.add(mail);
                 }
             }
@@ -323,7 +326,30 @@ public class MailManager {
 
         ArrayList<MailData> box = new ArrayList<MailData>();
         for ( MailData mail : mails ) {
-            if ( mail.getFrom().equals(sender) ) {
+            if ( mail.getFrom().equals(sender) && !mail.isSetTrash(sender) ) {
+                box.add(mail);
+            }
+        }
+        sortNewer(box);
+        return box;
+    }
+
+    /**
+     * ゴミ箱フォルダのメールリストを取得する
+     * @param sender 取得する対象
+     * @return メールのリスト
+     */
+    public ArrayList<MailData> getTrashboxMails(MailSender sender) {
+
+        if ( !isLoaded ) {
+            return null;
+        }
+
+        sender.setStringMetadata(MAILLIST_METAKEY, "trashbox");
+
+        ArrayList<MailData> box = new ArrayList<MailData>();
+        for ( MailData mail : mails ) {
+            if ( mail.isRelatedWith(sender) && mail.isSetTrash(sender) ) {
                 box.add(mail);
             }
         }
@@ -576,6 +602,48 @@ public class MailManager {
     }
 
     /**
+     * 指定されたsenderに、Trashboxリストを表示する。
+     * @param sender 表示対象のsender
+     * @param page 表示するページ
+     */
+    public void displayTrashboxList(MailSender sender, int page) {
+
+        // ロード中の場合は、リストを表示しないようにする
+        if ( !isLoaded ) {
+            return;
+        }
+
+        // 空行を挿入する
+        for ( int i=0; i<parent.getUndineConfig().getUiEmptyLines(); i++ ) {
+            sender.sendMessage("");
+        }
+
+        String parts = Messages.get("ListHorizontalParts");
+        String pre = Messages.get("ListVerticalParts");
+
+        ArrayList<MailData> mails = getTrashboxMails(sender);
+        int max = (int)((mails.size() - 1) / PAGE_SIZE) + 1;
+
+        String title = Messages.get("TrashboxTitle");
+        sender.sendMessage(parts + parts + " " + title + " " + parts + parts);
+
+        for ( int i=0; i<PAGE_SIZE; i++ ) {
+
+            int index = (page - 1) * PAGE_SIZE + i;
+            if ( index < 0 || mails.size() <= index ) {
+                continue;
+            }
+
+            MailData mail = mails.get(index);
+            ChatColor color = ChatColor.GRAY;
+
+            sendMailLine(sender, pre, color + mail.getInboxSummary(), mail);
+        }
+
+        sendPager(sender, UndineCommand.COMMAND + " trash", page, max);
+    }
+
+    /**
      * 編集中メールをeditmails.ymlへ保存する
      */
     protected void storeEditmodeMail() {
@@ -787,6 +855,39 @@ public class MailManager {
             } else {
                 sender.sendMessage(pre + Messages.get("MailDetailAttachmentsLine") + " "
                         + ChatColor.WHITE + Messages.get("MailDetailAttachmentBoxCancelled"));
+            }
+        }
+
+        if ( sender instanceof MailSenderPlayer
+                && mail.isRelatedWith(sender) && !mail.isEditmode() ) {
+
+            if ( !mail.isSetTrash(sender) && mail.isRead(sender)
+                    && mail.getAttachments().size() == 0 ) {
+
+                MessageComponent msg = new MessageComponent();
+                msg.addText(pre);
+
+                MessageParts button = new MessageParts(
+                        Messages.get("MailDetailTrash"), ChatColor.AQUA);
+                button.setClickEvent(ClickEventType.RUN_COMMAND,
+                        COMMAND + " trash set " + mail.getIndex());
+                msg.addParts(button);
+
+                msg.send(sender);
+
+            } else if ( mail.isSetTrash(sender) ) {
+
+                MessageComponent msg = new MessageComponent();
+                msg.addText(pre);
+
+                MessageParts button = new MessageParts(
+                        Messages.get("MailDetailTrashRestore"), ChatColor.AQUA);
+                button.setClickEvent(ClickEventType.RUN_COMMAND,
+                        COMMAND + " trash restore " + mail.getIndex());
+                msg.addParts(button);
+
+                msg.send(sender);
+
             }
         }
 
@@ -1067,7 +1168,8 @@ public class MailManager {
         // メタデータが無いなら、ページャーを表示しない
         String meta = sender.getStringMetadata(MailManager.MAILLIST_METAKEY);
         if ( meta == null ||
-                (!meta.equals("inbox") && !meta.equals("outbox") && !meta.equals("unread")) ) {
+                (!meta.equals("inbox") && !meta.equals("outbox")
+                        && !meta.equals("unread") && !meta.equals("trash")) ) {
             sender.sendMessage(Messages.get("DetailLastLine"));
             return;
         }
@@ -1078,6 +1180,8 @@ public class MailManager {
             list = UndineMailer.getInstance().getMailManager().getInboxMails(sender);
         } else if ( meta.equals("outbox") ) {
             list = UndineMailer.getInstance().getMailManager().getOutboxMails(sender);
+        } else if ( meta.equals("trash") ) {
+            list = UndineMailer.getInstance().getMailManager().getTrashboxMails(sender);
         } else {
             list = UndineMailer.getInstance().getMailManager().getUnreadMails(sender);
         }

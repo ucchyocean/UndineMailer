@@ -40,6 +40,7 @@ public class UndineCommand implements TabExecutor {
         commands = new ArrayList<SubCommand>();
         commands.add(inboxCommand);
         commands.add(new UndineOutboxCommand(parent));
+        commands.add(new UndineTrashCommand(parent));
         commands.add(new UndineReadCommand(parent));
         commands.add(new UndineTextCommand(parent));
         commands.add(new UndineWriteCommand(parent));

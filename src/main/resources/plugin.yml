@@ -12,6 +12,7 @@ commands:
     usage: |
            /<command> inbox [page] - Check your inbox mails.
            /<command> outbox [page] - Check your sent mails.
+           /<command> trash [page] - Check your trash box mails.
            /<command> text <to> <message> - Send simple text mail.
            /<command> write - Enter to mail creation mode.
            /<command> item - Show the detailed information of item in your hand.
@@ -45,6 +46,9 @@ permissions:
     default: true
   undine.outbox:
     description: Permission of outbox command.
+    default: true
+  undine.trash:
+    description: Permission of trash command.
     default: true
   undine.read:
     description: Permission of read command.
@@ -162,6 +166,7 @@ permissions:
       undine.command: true
       undine.inbox: true
       undine.outbox: true
+      undine.trash: true
       undine.read: true
       undine.read-all: true
       undine.text: true

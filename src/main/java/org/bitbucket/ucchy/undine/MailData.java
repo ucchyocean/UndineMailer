@@ -44,6 +44,7 @@ public class MailData implements Comparable<MailData> {
     private int index;
     private List<MailSender> toTotal;
     private List<MailSender> readFlags;
+    private List<MailSender> trashFlags;
     private List<ItemStack> attachmentsOriginal;
     private boolean isAttachmentsOpened;
     private boolean isAttachmentsCancelled;
@@ -127,6 +128,7 @@ public class MailData implements Comparable<MailData> {
         this.costMoney = costMoney;
         this.costItem = costItem;
         this.readFlags = new ArrayList<MailSender>();
+        this.trashFlags = new ArrayList<MailSender>();
         this.isAttachmentsOpened = false;
         this.isAttachmentsCancelled = false;
         this.isAttachmentsRefused = false;
@@ -195,6 +197,12 @@ public class MailData implements Comparable<MailData> {
             flagList.add(t.toString());
         }
         section.set("readFlags", flagList);
+
+        ArrayList<String> trashList = new ArrayList<String>();
+        for ( MailSender t : trashFlags ) {
+            trashList.add(t.toString());
+        }
+        section.set("trashFlags", trashList);
 
         if ( attachmentsOriginal != null ) {
             ConfigurationSection sub = section.createSection("attachmentsOriginal");
@@ -287,6 +295,14 @@ public class MailData implements Comparable<MailData> {
             MailSender sender = MailSender.getMailSenderFromString(t);
             if ( sender != null ) {
                 data.readFlags.add(sender);
+            }
+        }
+
+        data.trashFlags = new ArrayList<MailSender>();
+        for ( String t : section.getStringList("trashFlags") ) {
+            MailSender sender = MailSender.getMailSenderFromString(t);
+            if ( sender != null ) {
+                data.trashFlags.add(sender);
             }
         }
 
@@ -577,6 +593,14 @@ public class MailData implements Comparable<MailData> {
     }
 
     /**
+     * このメールに削除フラグを付けた人のリストを取得します。
+     * @return 削除フラグをつけている人のリスト
+     */
+    public List<MailSender> getTrashFlags() {
+        return trashFlags;
+    }
+
+    /**
      * このメールの添付アイテムを受け取るのに必要な金額を取得します。
      * @return 受け取り金額
      */
@@ -656,6 +680,35 @@ public class MailData implements Comparable<MailData> {
     public void setReadFlag(MailSender sender) {
         if ( !readFlags.contains(sender) ) {
             readFlags.add(sender);
+        }
+    }
+
+    /**
+     * 指定した人が、このメールに削除マークをつけているかどうかを返します。
+     * @param sender
+     * @return 削除マークをつけているかどうか
+     */
+    public boolean isSetTrash(MailSender sender) {
+        return trashFlags.contains(sender);
+    }
+
+    /**
+     * 指定した人の削除マークを付ける
+     * @param sender
+     */
+    public void setTrashFlag(MailSender sender) {
+        if ( !trashFlags.contains(sender) ) {
+            trashFlags.add(sender);
+        }
+    }
+
+    /**
+     * 指定した人の削除マークを消す
+     * @param sender
+     */
+    public void removeTrashFlag(MailSender sender) {
+        if ( trashFlags.contains(sender) ) {
+            trashFlags.remove(sender);
         }
     }
 

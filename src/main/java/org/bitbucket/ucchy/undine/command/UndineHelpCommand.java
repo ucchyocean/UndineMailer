@@ -61,7 +61,7 @@ public class UndineHelpCommand implements SubCommand {
 
         // umailコマンドのヘルプ
         for ( String c : new String[]{
-                "inbox", "outbox", "text", "write",
+                "inbox", "outbox", "trash", "text", "write",
                 "item", "help", "reload"} ) {
 
             if ( !sender.hasPermission(PERMISSION_PREFIX + c) ) {
