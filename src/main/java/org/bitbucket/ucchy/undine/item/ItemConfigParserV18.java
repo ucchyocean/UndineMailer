@@ -67,6 +67,8 @@ public class ItemConfigParserV18 {
                     banner.addPattern(patterns.get(index));
                 }
             }
+
+            item.setItemMeta(banner);
         }
 
         return item;
