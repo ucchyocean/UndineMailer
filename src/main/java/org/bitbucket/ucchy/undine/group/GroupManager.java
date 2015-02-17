@@ -450,7 +450,13 @@ public class GroupManager {
             }
         }
 
-        sender.sendMessage(Messages.get("DetailLastLine"));
+        MessageComponent msg = new MessageComponent();
+        msg.addText(parts + parts + " ");
+        MessageParts button = new MessageParts(Messages.get("Return"), ChatColor.AQUA);
+        button.setClickEvent(ClickEventType.RUN_COMMAND, COMMAND + " list");
+        msg.addParts(button);
+        msg.addText(" " + parts + parts);
+        msg.send(sender);
     }
 
     /**
