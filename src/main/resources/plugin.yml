@@ -2,7 +2,7 @@ name: ${project.name}
 version: ${project.version}
 main: org.bitbucket.ucchy.undine.UndineMailer
 description: UndineMailer - Mail Plugin for ${release.lang}
-softdepend: [Vault]
+softdepend: [Vault,PermissionsEx]
 author: ucchy
 
 commands:

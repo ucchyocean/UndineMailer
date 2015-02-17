@@ -8,6 +8,8 @@ package org.bitbucket.ucchy.undine;
 import java.io.File;
 import java.util.List;
 
+import org.bitbucket.ucchy.undine.bridge.PermissionsExBridge;
+import org.bitbucket.ucchy.undine.bridge.VaultEcoBridge;
 import org.bitbucket.ucchy.undine.command.GroupCommand;
 import org.bitbucket.ucchy.undine.command.ListCommand;
 import org.bitbucket.ucchy.undine.command.UndineCommand;
@@ -38,6 +40,7 @@ public class UndineMailer extends JavaPlugin {
     private UndineConfig config;
 
     private VaultEcoBridge vaulteco;
+    private PermissionsExBridge pex;
 
     /**
      * プラグインが有効化されたときに呼び出されるメソッド
@@ -58,6 +61,12 @@ public class UndineMailer extends JavaPlugin {
         if ( getServer().getPluginManager().isPluginEnabled("Vault") ) {
             vaulteco = VaultEcoBridge.load(
                     getServer().getPluginManager().getPlugin("Vault"));
+        }
+
+        // PermissionsExをロード
+        if ( getServer().getPluginManager().isPluginEnabled("PermissionsEx") ) {
+            pex = PermissionsExBridge.load(
+                    getServer().getPluginManager().getPlugin("PermissionsEx"));
         }
 
         // メッセージをロードする
@@ -187,6 +196,14 @@ public class UndineMailer extends JavaPlugin {
      */
     public VaultEcoBridge getVaultEco() {
         return vaulteco;
+    }
+
+    /**
+     * PermissionsExへのアクセスブリッジを取得する
+     * @return PermissionsExBridge、ロードされていなければnullになる
+     */
+    public PermissionsExBridge getPex() {
+        return pex;
     }
 
     /**

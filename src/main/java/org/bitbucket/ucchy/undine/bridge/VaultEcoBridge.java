@@ -3,7 +3,7 @@
  * @license    LGPLv3
  * @copyright  Copyright ucchy 2015
  */
-package org.bitbucket.ucchy.undine;
+package org.bitbucket.ucchy.undine.bridge;
 
 import net.milkbowl.vault.Vault;
 import net.milkbowl.vault.economy.Economy;
@@ -33,17 +33,15 @@ public class VaultEcoBridge {
      * @return ロードしたbridgeのインスタンス
      */
     public static VaultEcoBridge load(Plugin plugin) {
-
-        if ( plugin instanceof Vault ) {
-            RegisteredServiceProvider<Economy> economyProvider =
-                    Bukkit.getServicesManager().getRegistration(Economy.class);
-            if ( economyProvider != null ) {
-                VaultEcoBridge bridge = new VaultEcoBridge();
-                bridge.eco = economyProvider.getProvider();
-                if ( bridge.eco.isEnabled() ) return bridge;
-            }
+        if ( plugin == null ) return null;
+        if ( !(plugin instanceof Vault) ) return null;
+        RegisteredServiceProvider<Economy> economyProvider =
+                Bukkit.getServicesManager().getRegistration(Economy.class);
+        if ( economyProvider != null ) {
+            VaultEcoBridge bridge = new VaultEcoBridge();
+            bridge.eco = economyProvider.getProvider();
+            if ( bridge.eco.isEnabled() ) return bridge;
         }
-
         return null;
     }
 
