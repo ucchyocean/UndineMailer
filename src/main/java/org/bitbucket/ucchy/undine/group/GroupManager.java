@@ -31,6 +31,7 @@ import org.bukkit.ChatColor;
 public class GroupManager {
 
     private static final String PEX_OPTION_FLAG = "recieve-mail";
+    private static final String PEX_OPTION_SENDMODE = "send-mode";
     private static final int PAGE_SIZE = 10;
 
     private static final String COMMAND = GroupCommand.COMMAND;
@@ -257,7 +258,11 @@ public class GroupManager {
         });
 
         // PermissionsExから動的にグループを取得して結合する
-        results.addAll(getPexGroups());
+        for ( GroupData group : getPexGroups() ) {
+            if ( group.canSend(sender) ) {
+                results.add(group);
+            }
+        }
 
         return results;
     }
@@ -797,7 +802,10 @@ public class GroupManager {
 
         pexGroupsCache = new HashMap<String, GroupData>();
         for ( String group : pex.getGroupNamesByBooleanOption(PEX_OPTION_FLAG) ) {
-            GroupData gd = new SpecialGroupPex(group);
+            GroupPermissionMode sendmode = GroupPermissionMode.getFromString(
+                    pex.getGroupOptionAsString(group, PEX_OPTION_SENDMODE),
+                    UndineMailer.getInstance().getUndineConfig().getSpecialGroupPexSendMode());
+            GroupData gd = new SpecialGroupPex(group, sendmode);
             results.add(gd);
             pexGroupsCache.put(gd.getName().toLowerCase(), gd);
         }

@@ -58,6 +58,18 @@ public class PermissionsExBridge {
     }
 
     /**
+     * グループのオプション値を、Stringとして取得する
+     * @param group グループ名
+     * @param option オプション名
+     * @return オプションの値
+     */
+    public String getGroupOptionAsString(String group, String option) {
+        PermissionGroup g = PermissionsEx.getPermissionManager().getGroup(group);
+        if ( g == null ) return null;
+        return g.getOption(option);
+    }
+
+    /**
      * 指定のオプション値がtrueになっているグループのグループ名を取得する
      * @param option オプション名
      * @return 指定のオプションが設定されているグループのグループ名一覧

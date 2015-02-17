@@ -89,6 +89,9 @@ public class UndineConfig {
     /** 特殊グループ All への送信権限 */
     private GroupPermissionMode specialGroupAllSendMode;
 
+    /** 特殊グループ PEX への送信権限 */
+    private GroupPermissionMode specialGroupPexSendMode;
+
     /** メールの保存期間（日数） */
     private int mailStorageTermDays;
 
@@ -162,6 +165,9 @@ public class UndineConfig {
         maxDestinationGroup = conf.getInt("maxDestinationGroup", 3);
         specialGroupAllSendMode = GroupPermissionMode.getFromString(
                 conf.getString("specialGroupAllSendMode"),
+                GroupPermissionMode.OP);
+        specialGroupPexSendMode = GroupPermissionMode.getFromString(
+                conf.getString("specialGroupPexSendMode"),
                 GroupPermissionMode.OP);
         mailStorageTermDays = conf.getInt("mailStorageTermDays", 30);
         mailSpamProtectionSeconds = conf.getInt("mailSpamProtectionSeconds", 15);
@@ -377,6 +383,13 @@ public class UndineConfig {
      */
     public GroupPermissionMode getSpecialGroupAllSendMode() {
         return specialGroupAllSendMode;
+    }
+
+    /**
+     * @return specialGroupPexSendMode
+     */
+    public GroupPermissionMode getSpecialGroupPexSendMode() {
+        return specialGroupPexSendMode;
     }
 
     /**

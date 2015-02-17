@@ -22,8 +22,9 @@ public class SpecialGroupPex extends GroupData {
     /**
      * コンストラクタ
      * @param name グループ名
+     * @param sendmode 送信権限
      */
-    public SpecialGroupPex(String name) {
+    public SpecialGroupPex(String name, GroupPermissionMode sendmode) {
         super(NAME_PREFIX + name);
         setOwner(new MailSenderDummy("PermissionsEx"));
         for ( String member : UndineMailer.getInstance().getPex().getGroupUsers(name) ) {
@@ -32,6 +33,7 @@ public class SpecialGroupPex extends GroupData {
                 addMember(sender);
             }
         }
+        setSendMode(sendmode);
     }
 
     /**
