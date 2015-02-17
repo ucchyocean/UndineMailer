@@ -130,7 +130,7 @@ EditmodeCancel: '[キャンセル]'
 
 EditmodeFeeInformation: '&7このメールの送信に、%fee かかります。'
 EditmodeFeeDetail: '&7(メール作成 %mail + アイテム添付 %item)'
-# EditmodeFeeDetail: '&7(メール作成 %mail + アイテム添付 %item + 着払い税 %cod)'
+EditmodeFeeDetailWithCODTax: '&7(メール作成 %mail + アイテム添付 %item + 着払い税 %cod)'
 EditmodeFeeConfirm: '&7送信してもよろしいですか？'
 EditmodeFeeResult: '&7%fee消費しました。(あなたの残金：%remain)'
 

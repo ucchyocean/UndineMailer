@@ -226,14 +226,24 @@ public class UndineSendCommand implements SubCommand {
             String sendfee = eco.format(mail.getTo().size() * config.getSendFee());
             String itemfee = eco.format(mail.getAttachments().size() * config.getAttachFee());
             String codfee = eco.format(0);
+            boolean needCodFee = false;
             if ( mail.getCostMoney() > 0 ) {
                 codfee = eco.format(mail.getCostMoney() * config.getCodMoneyTax() / 100);
+                needCodFee = true;
             } else if ( mail.getCostItem() != null ) {
                 codfee = eco.format(mail.getCostItem().getAmount() * config.getCodItemTax());
+                needCodFee = true;
             }
-            sender.sendMessage(Messages.get("EditmodeFeeDetail",
-                    new String[]{"%mail", "%item", "%cod"},
-                    new String[]{sendfee, itemfee, codfee}));
+
+            if ( !needCodFee ) {
+                sender.sendMessage(Messages.get("EditmodeFeeDetail",
+                        new String[]{"%mail", "%item"},
+                        new String[]{sendfee, itemfee}));
+            } else {
+                sender.sendMessage(Messages.get("EditmodeFeeDetailWithCODTax",
+                        new String[]{"%mail", "%item", "%cod"},
+                        new String[]{sendfee, itemfee, codfee}));
+            }
 
             if ( !eco.has(ms.getPlayer(), fee) ) {
                 // 残金が足りない
@@ -285,6 +295,13 @@ public class UndineSendCommand implements SubCommand {
         if ( parent.getVaultEco() == null ) return 0;
         UndineConfig config = parent.getUndineConfig();
         if ( !config.isEnableSendFee() ) return 0;
+
+        // 添付がないなら、着払い設定をクリアする。
+        if ( mail.getAttachments().size() == 0 ) {
+            mail.setCostMoney(0);
+            mail.setCostItem(null);
+        }
+
         double total = 0;
         total += mail.getTo().size() * config.getSendFee();
         total += mail.getAttachments().size() * config.getAttachFee();

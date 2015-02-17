@@ -129,8 +129,8 @@ EditmodeSend: '[Send]'
 EditmodeCancel: '[Cancel]'
 
 EditmodeFeeInformation: '&7You need %fee for sending this mail.'
-EditmodeFeeDetail: '&7(sending fee %mail + items fee %item)'
-# EditmodeFeeDetail: '&7(sending fee %mail + items fee %item + COD tax %cod)'
+EditmodeFeeDetail: '&7(mail fee %mail + attachment fee %item)'
+EditmodeFeeDetailWithCODTax: '&7(mail fee %mail + attachment fee %item + COD fee %cod)'
 EditmodeFeeConfirm: '&7Are you sure to send?'
 EditmodeFeeResult: '&7Costed %fee. (Balance: %remain)'
 
