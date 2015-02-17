@@ -26,7 +26,8 @@ public class SpecialGroupAll extends GroupData {
      * コンストラクタ
      */
     public SpecialGroupAll() {
-        super(NAME, MailSender.getMailSender(Bukkit.getConsoleSender()));
+        super(NAME);
+        setOwner(MailSender.getMailSender(Bukkit.getConsoleSender()));
         setSendMode(UndineMailer.getInstance().getUndineConfig().getSpecialGroupAllSendMode());
         setModifyMode(GroupPermissionMode.NEVER);
         setDissolutionMode(GroupPermissionMode.NEVER);
@@ -72,6 +73,6 @@ public class SpecialGroupAll extends GroupData {
      */
     @Override
     public String getHoverText() {
-        return ChatColor.GOLD +Messages.get("GroupSpecialAllMembers");
+        return ChatColor.GOLD + Messages.get("GroupSpecialAllMembers");
     }
 }

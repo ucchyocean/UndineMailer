@@ -13,6 +13,7 @@ import org.bitbucket.ucchy.undine.UndineMailer;
 import org.bitbucket.ucchy.undine.group.GroupData;
 import org.bitbucket.ucchy.undine.group.GroupManager;
 import org.bitbucket.ucchy.undine.group.GroupPermissionMode;
+import org.bitbucket.ucchy.undine.group.SpecialGroupPex;
 import org.bitbucket.ucchy.undine.sender.MailSender;
 import org.bitbucket.ucchy.undine.tellraw.ClickEventType;
 import org.bitbucket.ucchy.undine.tellraw.MessageComponent;
@@ -173,6 +174,10 @@ public class GroupCommand implements TabExecutor {
             sender.sendMessage(Messages.get("ErrorInvalidGroupName", "%name", name));
             return true;
         }
+        if ( name.toLowerCase().startsWith(SpecialGroupPex.NAME_PREFIX) ) {
+            sender.sendMessage(Messages.get("ErrorInvalidGroupName", "%name", name));
+            return true;
+        }
 
         // 既に存在するグループ名が指定された場合はエラーを表示して終了
         if ( manager.existGroupName(name) ) {
@@ -181,10 +186,11 @@ public class GroupCommand implements TabExecutor {
         }
 
         // グループ作成
-        manager.addGroup(new GroupData(name, MailSender.getMailSender(sender)));
+        GroupData group = new GroupData(name, ms);
+        manager.addGroup(group);
 
         // グループリスト表示
-        parent.getGroupManager().displayGroupList(MailSender.getMailSender(sender), 1);
+        parent.getGroupManager().displayGroupList(ms, 1);
 
         sender.sendMessage(Messages.get("InformationMakeGroup", "%name", name));
 

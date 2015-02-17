@@ -2,6 +2,7 @@ package org.bitbucket.ucchy.undine.bridge;
 
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Collections;
 
 import org.bukkit.plugin.Plugin;
 
@@ -70,6 +71,7 @@ public class PermissionsExBridge {
             }
             result.add(group.getName());
         }
+        Collections.sort(result);
         return result;
     }
 

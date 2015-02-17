@@ -52,11 +52,6 @@ public class UndineMailer extends JavaPlugin {
         // コンフィグをロードする
         config = new UndineConfig(this);
 
-        // マネージャを生成し、データをロードする
-        groupManager = new GroupManager(this);
-        mailManager = new MailManager(this);
-        boxManager = new AttachmentBoxManager(this);
-
         // VaultEcoをロード
         if ( getServer().getPluginManager().isPluginEnabled("Vault") ) {
             vaulteco = VaultEcoBridge.load(
@@ -68,6 +63,11 @@ public class UndineMailer extends JavaPlugin {
             pex = PermissionsExBridge.load(
                     getServer().getPluginManager().getPlugin("PermissionsEx"));
         }
+
+        // マネージャを生成し、データをロードする
+        groupManager = new GroupManager(this);
+        mailManager = new MailManager(this);
+        boxManager = new AttachmentBoxManager(this);
 
         // メッセージをロードする
         Messages.initialize(getFile(), getDataFolder(), getReleaseLang());

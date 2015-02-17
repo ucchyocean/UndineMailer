@@ -31,26 +31,34 @@ public class GroupData {
     private GroupPermissionMode dissolutionMode;
 
     /**
-     * コンストラクタ(引数なしは外から利用不可)
+     * コンストラクタ(データロード用)
      */
     private GroupData() {
         members = new ArrayList<MailSender>();
     }
 
     /**
-     * コンストラクタ
+     * コンストラクタ(継承クラス用)
      * @param name グループ名
-     * @param owner オーナー
      */
-    public GroupData(String name, MailSender owner) {
+    protected GroupData(String name) {
         this.name = name;
-        this.owner = owner;
         members = new ArrayList<MailSender>();
-        members.add(owner);
         sendMode = UndineMailer.getInstance().getUndineConfig().getSendModeDefault();
         modifyMode = UndineMailer.getInstance().getUndineConfig().getModifyModeDefault();
         dissolutionMode =
                 UndineMailer.getInstance().getUndineConfig().getDissolutionModeDefault();
+    }
+
+    /**
+     * コンストラクタ(新規作成用)
+     * @param name グループ名
+     * @param owner オーナー
+     */
+    public GroupData(String name, MailSender owner) {
+        this(name);
+        setOwner(owner);
+        addMember(owner);
     }
 
     /**
@@ -87,6 +95,14 @@ public class GroupData {
      */
     public MailSender getOwner() {
         return owner;
+    }
+
+    /**
+     * グループのオーナーを設定する
+     * @param owner
+     */
+    public void setOwner(MailSender owner) {
+        this.owner = owner;
     }
 
     /**

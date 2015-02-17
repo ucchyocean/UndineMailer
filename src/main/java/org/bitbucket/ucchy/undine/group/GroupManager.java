@@ -14,6 +14,7 @@ import java.util.HashMap;
 
 import org.bitbucket.ucchy.undine.Messages;
 import org.bitbucket.ucchy.undine.UndineMailer;
+import org.bitbucket.ucchy.undine.bridge.PermissionsExBridge;
 import org.bitbucket.ucchy.undine.command.GroupCommand;
 import org.bitbucket.ucchy.undine.command.ListCommand;
 import org.bitbucket.ucchy.undine.command.UndineCommand;
@@ -29,6 +30,7 @@ import org.bukkit.ChatColor;
  */
 public class GroupManager {
 
+    private static final String PEX_OPTION_FLAG = "recieve-mail";
     private static final int PAGE_SIZE = 10;
 
     private static final String COMMAND = GroupCommand.COMMAND;
@@ -36,6 +38,7 @@ public class GroupManager {
 
     private UndineMailer parent;
     private HashMap<String, GroupData> groups;
+    private HashMap<String, GroupData> pexGroupsCache;
 
     /**
      * コンストラクタ
@@ -109,6 +112,15 @@ public class GroupManager {
      */
     public GroupData getGroup(String name) {
         name = name.toLowerCase();
+
+        // PEXから取得する
+        if ( name.startsWith(SpecialGroupPex.NAME_PREFIX) && pexGroupsCache != null ) {
+            if ( pexGroupsCache.containsKey(name) ) {
+                return pexGroupsCache.get(name);
+            }
+        }
+
+        // グループから取得する
         if ( groups.containsKey(name) ) {
             return groups.get(name);
         }
@@ -246,6 +258,9 @@ public class GroupManager {
                 return o1.getName().compareToIgnoreCase(o2.getName());
             }
         });
+
+        // PermissionsExから動的にグループを取得して結合する
+        results.addAll(getPexGroups());
 
         return results;
     }
@@ -762,5 +777,28 @@ public class GroupManager {
         msg.addText(" " + parts);
 
         msg.send(sender);
+    }
+
+    /**
+     * PEXからグループを取得してGroupDataに変換して返す
+     * @return PEXからインポートされたグループ
+     */
+    private ArrayList<GroupData> getPexGroups() {
+
+        PermissionsExBridge pex = UndineMailer.getInstance().getPex();
+        ArrayList<GroupData> results = new ArrayList<GroupData>();
+
+        if ( pex == null ) {
+            return results;
+        }
+
+        pexGroupsCache = new HashMap<String, GroupData>();
+        for ( String group : pex.getGroupNamesByBooleanOption(PEX_OPTION_FLAG) ) {
+            GroupData gd = new SpecialGroupPex(group);
+            results.add(gd);
+            pexGroupsCache.put(gd.getName().toLowerCase(), gd);
+        }
+
+        return results;
     }
 }
