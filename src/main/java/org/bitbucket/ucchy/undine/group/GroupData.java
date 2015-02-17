@@ -12,6 +12,7 @@ import java.util.List;
 
 import org.bitbucket.ucchy.undine.UndineMailer;
 import org.bitbucket.ucchy.undine.sender.MailSender;
+import org.bitbucket.ucchy.undine.sender.MailSenderPlayer;
 import org.bukkit.ChatColor;
 import org.bukkit.configuration.ConfigurationSection;
 import org.bukkit.configuration.file.YamlConfiguration;
@@ -302,5 +303,26 @@ public class GroupData {
         default:
             return false;
         }
+    }
+
+    /**
+     * データのアップグレードを行う。
+     * @return アップグレードを実行したかどうか
+     */
+    protected boolean upgrade() {
+        boolean upgraded = false;
+        if ( owner instanceof MailSenderPlayer ) {
+            if ( ((MailSenderPlayer) owner).upgrade() ) {
+                upgraded = true;
+            }
+        }
+        for ( MailSender ms : members ) {
+            if ( ms instanceof MailSenderPlayer ) {
+                if ( ((MailSenderPlayer) ms).upgrade() ) {
+                    upgraded = true;
+                }
+            }
+        }
+        return upgraded;
     }
 }

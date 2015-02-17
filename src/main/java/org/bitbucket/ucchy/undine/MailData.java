@@ -18,6 +18,7 @@ import org.bitbucket.ucchy.undine.group.SpecialGroupAll;
 import org.bitbucket.ucchy.undine.item.ItemConfigParseException;
 import org.bitbucket.ucchy.undine.item.ItemConfigParser;
 import org.bitbucket.ucchy.undine.sender.MailSender;
+import org.bitbucket.ucchy.undine.sender.MailSenderPlayer;
 import org.bukkit.configuration.ConfigurationSection;
 import org.bukkit.configuration.file.YamlConfiguration;
 import org.bukkit.inventory.ItemStack;
@@ -26,7 +27,7 @@ import org.bukkit.inventory.ItemStack;
  * メールのデータ
  * @author ucchy
  */
-public class MailData implements Comparable<MailData> {
+public class MailData implements Comparable<MailData>, Cloneable {
 
     public static final int MESSAGE_MAX_SIZE = 15;
     private static final int SUMMARY_MAX_SIZE = 40;
@@ -821,18 +822,6 @@ public class MailData implements Comparable<MailData> {
     }
 
     /**
-     * インスタンス同士が同一かどうか。
-     * @param other 他のインスタンス
-     * @return 同一かどうか
-     * @see java.lang.Object#equals(java.lang.Object)
-     */
-    @Override
-    public boolean equals(Object other) {
-        if ( !(other instanceof MailData) ) return false;
-        return ((MailData)other).index == this.index;
-    }
-
-    /**
      * インスタンス同士の比較を行う。このメソッドを実装しておくことで、
      * Java8でのHashMapのキー挿入における高速化が期待できる（らしい）。
      * @param other 他のインスタンス
@@ -917,5 +906,47 @@ public class MailData implements Comparable<MailData> {
      */
     private String getFormattedDate(Date date) {
         return new SimpleDateFormat(Messages.get("DateFormat")).format(date);
+    }
+
+    /**
+     * データのアップグレードを行う。
+     * @return アップグレードを実行したかどうか
+     */
+    protected boolean upgrade() {
+        boolean upgraded = false;
+        for ( MailSender ms : to ) {
+            if ( ms instanceof MailSenderPlayer ) {
+                if ( ((MailSenderPlayer) ms).upgrade() ) {
+                    upgraded = true;
+                }
+            }
+        }
+        if ( from instanceof MailSenderPlayer ) {
+            if ( ((MailSenderPlayer) from).upgrade() ) {
+                upgraded = true;
+            }
+        }
+        for ( MailSender ms : toTotal ) {
+            if ( ms instanceof MailSenderPlayer ) {
+                if ( ((MailSenderPlayer) ms).upgrade() ) {
+                    upgraded = true;
+                }
+            }
+        }
+        for ( MailSender ms : readFlags ) {
+            if ( ms instanceof MailSenderPlayer ) {
+                if ( ((MailSenderPlayer) ms).upgrade() ) {
+                    upgraded = true;
+                }
+            }
+        }
+        for ( MailSender ms : trashFlags ) {
+            if ( ms instanceof MailSenderPlayer ) {
+                if ( ((MailSenderPlayer) ms).upgrade() ) {
+                    upgraded = true;
+                }
+            }
+        }
+        return upgraded;
     }
 }

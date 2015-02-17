@@ -5,6 +5,7 @@
  */
 package org.bitbucket.ucchy.undine.sender;
 
+import java.util.HashMap;
 import java.util.List;
 import java.util.UUID;
 
@@ -288,11 +289,49 @@ public class MailSenderPlayer extends MailSender {
      */
     @Override
     public String toString() {
-        if ( !nameOrUuid.startsWith("$") && Utility.isCB178orLater() ) {
-            @SuppressWarnings("deprecation")
-            OfflinePlayer player = Bukkit.getOfflinePlayer(nameOrUuid);
-            nameOrUuid = "$" + player.getUniqueId().toString();
-        }
         return nameOrUuid;
+    }
+
+    /**
+     * データのアップグレードを行う。
+     * @return アップグレードを実行したかどうか
+     */
+    public boolean upgrade() {
+
+        // CB1.7.5 以前なら、何もしない
+        if ( !Utility.isCB178orLater() ) return false;
+
+        // nameOrUuidが $ から始まる文字列なら、アップグレード済みなので何もしない
+        if ( nameOrUuid.startsWith("$") ) return false;
+
+        // nameOrUuidを、$ + UUID に変更する
+        String uuid = getUUID(nameOrUuid);
+        if ( uuid.equals("") ) return false;
+        nameOrUuid = "$" + uuid;
+        return true;
+    }
+
+    // アップグレード時に使用される、UUIDのキャッシュ
+    private static HashMap<String, String> uuidCache;
+
+    /**
+     * 指定された名前を持つプレイヤーのUUIDを取得する
+     * @param name プレイヤー名
+     * @return UUID（文字列表記）
+     */
+    private static String getUUID(String name) {
+        if ( uuidCache == null ) {
+            uuidCache = new HashMap<String, String>();
+        }
+        if ( !uuidCache.containsKey(name) ) {
+            @SuppressWarnings("deprecation")
+            OfflinePlayer player = Bukkit.getOfflinePlayer(name);
+            if ( player == null || player.getUniqueId() == null ) {
+                uuidCache.put(name, "");
+            } else {
+                uuidCache.put(name, player.getUniqueId().toString());
+            }
+        }
+        return uuidCache.get(name);
     }
 }

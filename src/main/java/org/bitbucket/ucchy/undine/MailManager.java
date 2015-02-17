@@ -93,10 +93,24 @@ public class MailManager {
                     }
                 }
 
-                isLoaded = true;
-
                 UndineMailer.getInstance().getLogger().info("Loading mail data async... Done.  Time: "
                         + (System.currentTimeMillis() - start) + "ms, Data: " + mails.size() + ".");
+
+                UndineMailer.getInstance().getLogger().info("Upgrading mail data async... Start.");
+                long upgradeStart = System.currentTimeMillis();
+
+                int total = 0;
+                for ( MailData mail : mails ) {
+                    if ( mail.upgrade() ) {
+                        saveMail(mail);
+                        total++;
+                    }
+                }
+
+                UndineMailer.getInstance().getLogger().info("Upgrading mail data async... Done.  Time: "
+                        + (System.currentTimeMillis() - upgradeStart) + "ms, Data: " + total + ".");
+
+                isLoaded = true;
             }
         }.runTaskAsynchronously(UndineMailer.getInstance());
     }
@@ -1452,5 +1466,9 @@ public class MailManager {
             buffer.append(group);
         }
         return buffer.toString();
+    }
+
+    protected void upgrade() {
+
     }
 }
