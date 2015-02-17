@@ -12,11 +12,11 @@ commands:
     usage: |
            /<command> inbox [page] - Check your inbox mails.
            /<command> outbox [page] - Check your sent mails.
-           /<command> trash [page] - Check your trash box mails.
+           /<command> trash [page] - Check your deleted mails.
            /<command> text <to> <message> - Send simple text mail.
            /<command> write - Enter to mail creation mode.
            /<command> item - Show the detailed information of item in your hand.
-           /<command> help - Show help messages.
+           /<command> help - Show the help menu.
            /<command> reload - Reload all of data.
     permission: undine.command
     permission-message: 'You don''t have a permission "<permission>".'
@@ -33,7 +33,7 @@ commands:
     description: Command of Mail group
     aliases: [ugroup]
     usage: |
-           /<command> - Show the group management menu page.
+           /<command> - Show the group management menu.
     permission: undine.group.command
     permission-message: 'You don''t have a permission "<permission>".'
 

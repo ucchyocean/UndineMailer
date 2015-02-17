@@ -63,7 +63,7 @@ public class UndineHelpCommand implements SubCommand {
         // umailコマンドのヘルプ
         for ( String c : new String[]{
                 "inbox", "outbox", "trash", "text", "write",
-                "item", "help", "reload"} ) {
+                "item", "reload"} ) {
 
             if ( !sender.hasPermission(PERMISSION_PREFIX + c) ) {
                 continue;
@@ -101,6 +101,22 @@ public class UndineHelpCommand implements SubCommand {
             msg.addParts(button);
 
             msg.addText(" " + ChatColor.WHITE + Messages.get("HelpDescription_group"));
+
+            msg.send(sender);
+        }
+
+        // helpコマンドのヘルプ
+        if ( sender.hasPermission(PERMISSION_PREFIX + "help") ) {
+            MessageComponent msg = new MessageComponent();
+            msg.addText(pre);
+
+            String l = "[" + Messages.get("HelpCommand_help") + "]";
+            MessageParts button = new MessageParts(l, ChatColor.AQUA);
+            button.setClickEvent(ClickEventType.RUN_COMMAND,
+                    UndineCommand.COMMAND + " help");
+            msg.addParts(button);
+
+            msg.addText(" " + ChatColor.WHITE + Messages.get("HelpDescription_help"));
 
             msg.send(sender);
         }
