@@ -68,7 +68,6 @@ public class MailManager {
      */
     protected void reload() {
 
-        UndineMailer.getInstance().getLogger().info("Loading mail data async... Start.");
         final long start = System.currentTimeMillis();
 
         new BukkitRunnable() {
@@ -94,10 +93,9 @@ public class MailManager {
                     }
                 }
 
-                UndineMailer.getInstance().getLogger().info("Loading mail data async... Done.  Time: "
+                UndineMailer.getInstance().getLogger().info("Async load mail data... Done. Time: "
                         + (System.currentTimeMillis() - start) + "ms, Data: " + mails.size() + ".");
 
-                UndineMailer.getInstance().getLogger().info("Upgrading mail data async... Start.");
                 long upgradeStart = System.currentTimeMillis();
 
                 int total = 0;
@@ -108,8 +106,10 @@ public class MailManager {
                     }
                 }
 
-                UndineMailer.getInstance().getLogger().info("Upgrading mail data async... Done.  Time: "
-                        + (System.currentTimeMillis() - upgradeStart) + "ms, Data: " + total + ".");
+                if ( total > 0 ) {
+                    UndineMailer.getInstance().getLogger().info("Async upgrade mail data... Done.  Time: "
+                            + (System.currentTimeMillis() - upgradeStart) + "ms, Data: " + total + ".");
+                }
 
                 isLoaded = true;
             }

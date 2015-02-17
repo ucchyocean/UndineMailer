@@ -54,7 +54,6 @@ public class GroupManager {
      */
     public void reload() {
 
-        UndineMailer.getInstance().getLogger().info("Loading group data... Start.");
         long start = System.currentTimeMillis();
 
         File folder = parent.getGroupFolder();
@@ -74,11 +73,7 @@ public class GroupManager {
         GroupData all = new SpecialGroupAll();
         groups.put(all.getName().toLowerCase(), all);
 
-        UndineMailer.getInstance().getLogger().info("Loading group data... Done.  Time: "
-                + (System.currentTimeMillis() - start) + "ms, Data: " + groups.size() + ".");
-
         // アップグレード処理
-        UndineMailer.getInstance().getLogger().info("Upgrading group data... Start.");
         start = System.currentTimeMillis();
 
         int total = 0;
@@ -89,8 +84,10 @@ public class GroupManager {
             }
         }
 
-        UndineMailer.getInstance().getLogger().info("Upgrading group data... Done.  Time: "
-                + (System.currentTimeMillis() - start) + "ms, Data: " + total + ".");
+        if ( total > 0 ) {
+            UndineMailer.getInstance().getLogger().info("Upgrade group data... Done.  Time: "
+                    + (System.currentTimeMillis() - start) + "ms, Data: " + total + ".");
+        }
     }
 
     /**
