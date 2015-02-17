@@ -288,8 +288,6 @@ public class MailManager {
             return null;
         }
 
-        sender.setStringMetadata(MAILLIST_METAKEY, "inbox");
-
         ArrayList<MailData> box = new ArrayList<MailData>();
         for ( MailData mail : mails ) {
             if ( mail.isAllMail()
@@ -315,8 +313,6 @@ public class MailManager {
             return null;
         }
 
-        sender.setStringMetadata(MAILLIST_METAKEY, "unread");
-
         ArrayList<MailData> box = new ArrayList<MailData>();
         for ( MailData mail : mails ) {
             if ( mail.isAllMail()
@@ -341,8 +337,6 @@ public class MailManager {
         if ( !isLoaded ) {
             return null;
         }
-
-        sender.setStringMetadata(MAILLIST_METAKEY, "outbox");
 
         ArrayList<MailData> box = new ArrayList<MailData>();
         for ( MailData mail : mails ) {
@@ -386,8 +380,6 @@ public class MailManager {
         if ( !isLoaded ) {
             return null;
         }
-
-        sender.setStringMetadata(MAILLIST_METAKEY, "trashbox");
 
         ArrayList<MailData> box = new ArrayList<MailData>();
         for ( MailData mail : mails ) {
@@ -567,6 +559,9 @@ public class MailManager {
         }
 
         sendPager(sender, UndineCommand.COMMAND + " inbox", page, max);
+
+        // 表示した人にメタデータを設定する
+        sender.setStringMetadata(MAILLIST_METAKEY, "inbox");
     }
 
     /**
@@ -609,6 +604,9 @@ public class MailManager {
         }
 
         sendPager(sender, UndineCommand.COMMAND + " outbox", page, max);
+
+        // 表示した人にメタデータを設定する
+        sender.setStringMetadata(MAILLIST_METAKEY, "outbox");
     }
 
     /**
@@ -641,6 +639,9 @@ public class MailManager {
             MailData mail = unread.get(i);
             sendMailLine(sender, pre, ChatColor.GOLD + mail.getInboxSummary(), mail);
         }
+
+        // 表示した人にメタデータを設定する
+        sender.setStringMetadata(MAILLIST_METAKEY, "unread");
     }
 
     /**
@@ -683,6 +684,9 @@ public class MailManager {
         }
 
         sendPager(sender, UndineCommand.COMMAND + " trash", page, max);
+
+        // 表示した人にメタデータを設定する
+        sender.setStringMetadata(MAILLIST_METAKEY, "trash");
     }
 
     /**
@@ -903,21 +907,8 @@ public class MailManager {
         if ( sender instanceof MailSenderPlayer
                 && mail.isRelatedWith(sender) && !mail.isEditmode() ) {
 
-            if ( !mail.isSetTrash(sender) && mail.isRead(sender)
-                    && mail.getAttachments().size() == 0 ) {
-
-                MessageComponent msg = new MessageComponent();
-                msg.addText(pre);
-
-                MessageParts button = new MessageParts(
-                        Messages.get("MailDetailTrash"), ChatColor.AQUA);
-                button.setClickEvent(ClickEventType.RUN_COMMAND,
-                        COMMAND + " trash set " + mail.getIndex());
-                msg.addParts(button);
-
-                msg.send(sender);
-
-            } else if ( mail.isSetTrash(sender) ) {
+            if ( mail.isSetTrash(sender) ) {
+                // ゴミ箱に入っているメールなら、Restoreボタンを表示する
 
                 MessageComponent msg = new MessageComponent();
                 msg.addText(pre);
@@ -930,6 +921,40 @@ public class MailManager {
 
                 msg.send(sender);
 
+            } else {
+                // 既に添付が1つもないメールなら、Deleteボタンを表示する
+                // 開いているのが受信者なら、Replyボタンを表示する
+
+                boolean attachNothing = (mail.getAttachments().size() == 0);
+                boolean isRecipient = mail.isRecipient(sender);
+
+                if ( attachNothing || isRecipient ) {
+
+                    MessageComponent msg = new MessageComponent();
+                    msg.addText(pre);
+
+                    if ( attachNothing ) {
+                        MessageParts button = new MessageParts(
+                                Messages.get("MailDetailTrash"), ChatColor.AQUA);
+                        button.setClickEvent(ClickEventType.RUN_COMMAND,
+                                COMMAND + " trash set " + mail.getIndex());
+                        msg.addParts(button);
+                    }
+
+                    if ( attachNothing && isRecipient ) {
+                        msg.addText(" ");
+                    }
+
+                    if ( isRecipient ) {
+                        MessageParts button = new MessageParts(
+                                Messages.get("MailDetailReply"), ChatColor.AQUA);
+                        button.setClickEvent(ClickEventType.RUN_COMMAND,
+                                COMMAND + " write " + mail.getFrom().getName());
+                        msg.addParts(button);
+                    }
+
+                    msg.send(sender);
+                }
             }
         }
 

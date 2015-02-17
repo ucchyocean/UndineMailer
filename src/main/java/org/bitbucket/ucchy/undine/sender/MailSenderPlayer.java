@@ -289,6 +289,7 @@ public class MailSenderPlayer extends MailSender {
      */
     @Override
     public String toString() {
+        upgrade();
         return nameOrUuid;
     }
 
