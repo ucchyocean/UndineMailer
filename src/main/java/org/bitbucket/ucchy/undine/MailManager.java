@@ -42,6 +42,7 @@ import org.bukkit.scheduler.BukkitRunnable;
 public class MailManager {
 
     protected static final String MAILLIST_METAKEY = "UndineMailList";
+    public static final String SENDTIME_METAKEY = "MailSendTime";
     private static final String COMMAND = UndineCommand.COMMAND;
 
     private static final int PAGE_SIZE = 10;
@@ -270,6 +271,10 @@ public class MailManager {
                 }
             }
         }
+
+        // 送った時刻を、メタデータに記録する
+        long time = System.currentTimeMillis();
+        mail.getFrom().setStringMetadata(SENDTIME_METAKEY, time + "");
     }
 
     /**

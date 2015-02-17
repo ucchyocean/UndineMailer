@@ -17,6 +17,7 @@ import org.bitbucket.ucchy.undine.bridge.VaultEcoBridge;
 import org.bitbucket.ucchy.undine.group.GroupData;
 import org.bitbucket.ucchy.undine.group.GroupManager;
 import org.bitbucket.ucchy.undine.sender.MailSender;
+import org.bitbucket.ucchy.undine.sender.MailSenderConsole;
 import org.bitbucket.ucchy.undine.sender.MailSenderPlayer;
 import org.bukkit.OfflinePlayer;
 import org.bukkit.command.CommandSender;
@@ -93,6 +94,15 @@ public class UndineTextCommand implements SubCommand {
             return;
         }
 
+        // スパム保護に引っかかるなら、エラーを表示して終了
+        MailSender ms = MailSender.getMailSender(sender);
+        long gap = getGapWithSpamProtectionMilliSeconds(ms);
+        if ( !(ms instanceof MailSenderConsole) && gap > 0 ) {
+            int remain = (int)(gap / 1000) + 1;
+            sender.sendMessage(Messages.get("ErrorCannotSendSpamMail", "%remain", remain));
+            return;
+        }
+
         // メッセージ本文
         StringBuffer message = new StringBuffer();
         for ( int i=2; i<args.length; i++ ) {
@@ -103,7 +113,6 @@ public class UndineTextCommand implements SubCommand {
         }
 
         // 宛先
-        MailSender ms = MailSender.getMailSender(sender);
         String[] dests = args[1].split(",");
         ArrayList<MailSender> targets = new ArrayList<MailSender>();
         ArrayList<GroupData> targetGroups = new ArrayList<GroupData>();
@@ -227,5 +236,18 @@ public class UndineTextCommand implements SubCommand {
         total += mail.getTo().size() * config.getSendFee();
         total += mail.getAttachments().size() * config.getAttachFee();
         return total;
+    }
+
+    /**
+     * 次のメールを送信するまでに必要なミリ秒を返す
+     * @param sender 送信者
+     * @return ミリ秒
+     */
+    private long getGapWithSpamProtectionMilliSeconds(MailSender sender) {
+        String value = sender.getStringMetadata(MailManager.SENDTIME_METAKEY);
+        if ( value == null ) return -1;
+        long prev = Long.parseLong(value);
+        long next = prev + config.getMailSpamProtectionSeconds() * 1000;
+        return next - System.currentTimeMillis();
     }
 }

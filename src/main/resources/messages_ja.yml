@@ -39,6 +39,7 @@ ErrorAlreadyTrashed: '&cメール %index は、既にゴミ箱の中にありま
 ErrorNotTrashed: '&cメール %index は、ゴミ箱の中にありません。'
 ErrorCannotDropBecauseUnread: '&cメール %index は、未読のため移動することができません。'
 ErrorCannotDropBecauseAttached: '&cメール %index は、添付アイテムが残っているため移動することができません。'
+ErrorCannotSendSpamMail: '&c連続してメールを送信することはできません。次のメールが送信可能になるまで、%remain秒必要です。'
 
 ErrorInvalidGroupName: '&c%name はグループ名として使用できません。'
 ErrorGroupIsAlreadyExist: '&cグループ %name は既に存在するため使用できません。'

@@ -92,6 +92,9 @@ public class UndineConfig {
     /** メールの保存期間（日数） */
     private int mailStorageTermDays;
 
+    /** メールスパム保護期間（秒） */
+    private int mailSpamProtectionSeconds;
+
     private UndineMailer parent;
 
     /**
@@ -161,6 +164,7 @@ public class UndineConfig {
                 conf.getString("specialGroupAllSendMode"),
                 GroupPermissionMode.OP);
         mailStorageTermDays = conf.getInt("mailStorageTermDays", 30);
+        mailSpamProtectionSeconds = conf.getInt("mailSpamProtectionSeconds", 15);
 
         // sendFeeは、マイナスが指定されていたら0に変更する
         if ( sendFee < 0 ) {
@@ -199,6 +203,11 @@ public class UndineConfig {
         // mailStorageTermDays は、マイナスが指定されていたら0に変更する
         if ( mailStorageTermDays < 0 ) {
             mailStorageTermDays = 0;
+        }
+
+        // mailSpamProtectionSeconds は、マイナスが指定されていたら0に変更する
+        if ( mailSpamProtectionSeconds < 0 ) {
+            mailSpamProtectionSeconds = 0;
         }
     }
 
@@ -375,6 +384,13 @@ public class UndineConfig {
      */
     public int getMailStorageTermDays() {
         return mailStorageTermDays;
+    }
+
+    /**
+     * @return mailSpamProtectionSeconds
+     */
+    public int getMailSpamProtectionSeconds() {
+        return mailSpamProtectionSeconds;
     }
 
 }
