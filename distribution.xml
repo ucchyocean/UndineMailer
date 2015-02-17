@@ -13,6 +13,7 @@
   <files>
     <file>
       <source>target/UndineMailer.jar</source>
+      <destName>plugins/UndineMailer.jar</destName>
     </file>
   </files>
 
