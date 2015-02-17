@@ -13,6 +13,7 @@ import org.bitbucket.ucchy.undine.Messages;
 import org.bitbucket.ucchy.undine.UndineMailer;
 import org.bitbucket.ucchy.undine.sender.MailSender;
 import org.bukkit.command.CommandSender;
+import org.bukkit.scheduler.BukkitRunnable;
 
 /**
  *
@@ -56,11 +57,12 @@ public class UndineTrashCommand implements SubCommand {
     /**
      * コマンドを実行します。
      * @param sender コマンド実行者
+     * @param label 実行時のラベル
      * @param args 実行時の引数
      * @see org.bitbucket.ucchy.undine.command.SubCommand#runCommand(org.bukkit.command.CommandSender, java.lang.String[])
      */
     @Override
-    public void runCommand(CommandSender sender, String[] args) {
+    public void runCommand(CommandSender sender, String label, String[] args) {
 
         // MailManagerのロードが完了していないなら、エラーを表示して終了
         if ( !manager.isLoaded() ) {
@@ -68,7 +70,7 @@ public class UndineTrashCommand implements SubCommand {
             return;
         }
 
-        MailSender ms = MailSender.getMailSender(sender);
+        final MailSender ms = MailSender.getMailSender(sender);
 
         if ( args.length >= 3 && args[1].equalsIgnoreCase("set") ) {
             // メールをゴミ箱に移動するコマンドの実行  /mail trash set <index>
@@ -154,6 +156,73 @@ public class UndineTrashCommand implements SubCommand {
             manager.saveMail(mail);
 
             sender.sendMessage(Messages.get("InformationTrashRestored", "%index", mail.getIndex()));
+            return;
+
+        } else if ( args.length >= 2 && args[1].equalsIgnoreCase("all") ) {
+            // 全てのメールをゴミ箱に移動するコマンドの実行  /mail trash all
+
+            // 確認コマンドを確認
+            if ( args.length >= 3 && args[2].equalsIgnoreCase("confirm") ) {
+
+                // ここから、非同期で処理を実行する
+                new BukkitRunnable() {
+                    public void run() {
+                        int total = 0;
+                        for ( MailData mail : manager.getInboxMails(ms) ) {
+                            if ( mail.isRead(ms) ) {
+                                mail.setTrashFlag(ms);
+                                manager.saveMail(mail);
+                                total++;
+                            }
+                        }
+                        for ( MailData mail : manager.getOutboxMails(ms) ) {
+                            if ( mail.isRead(ms) ) {
+                                mail.setTrashFlag(ms);
+                                manager.saveMail(mail);
+                                total++;
+                            }
+                        }
+                        ms.sendMessage(Messages.get("InformationTrashAllDone", "%num", total));
+                    }
+                }.runTaskAsynchronously(UndineMailer.getInstance());
+
+                return;
+            }
+
+            // 確認メッセージを表示
+            int total = manager.getRelatedMails(ms).size();
+            ms.sendMessage(Messages.get("InformationTrashAllNeedConfirmation",
+                    new String[]{"%num", "%command"},
+                    new String[]{total + "", label}));
+            return;
+
+        } else if ( args.length >= 2 && args[1].equalsIgnoreCase("restoreall") ) {
+            // 全てのメールをゴミ箱に移動するコマンドの実行  /mail trash restoreAll
+
+            // 確認コマンドを確認
+            if ( args.length >= 3 && args[2].equalsIgnoreCase("confirm") ) {
+
+                // ここから、非同期で処理を実行する
+                new BukkitRunnable() {
+                    public void run() {
+                        int total = 0;
+                        for ( MailData mail : manager.getTrashboxMails(ms) ) {
+                            mail.removeTrashFlag(ms);
+                            manager.saveMail(mail);
+                            total++;
+                        }
+                        ms.sendMessage(Messages.get("InformationRestoreAllDone", "%num", total));
+                    }
+                }.runTaskAsynchronously(UndineMailer.getInstance());
+
+                return;
+            }
+
+            // 確認メッセージを表示
+            int total = manager.getTrashboxMails(ms).size();
+            ms.sendMessage(Messages.get("InformationRestoreAllNeedConfirmation",
+                    new String[]{"%num", "%command"},
+                    new String[]{total + "", label}));
             return;
 
         }

@@ -70,7 +70,7 @@ public class UndineCommand implements TabExecutor {
 
         // 引数なしの場合は、inboxコマンドを実行
         if ( args.length == 0 ) {
-            inboxCommand.runCommand(sender, args);
+            inboxCommand.runCommand(sender, label, args);
             return true;
         }
 
@@ -86,7 +86,7 @@ public class UndineCommand implements TabExecutor {
                 }
 
                 // 実行
-                c.runCommand(sender, args);
+                c.runCommand(sender, label, args);
                 return true;
             }
         }
@@ -97,7 +97,7 @@ public class UndineCommand implements TabExecutor {
             return true;
         }
 
-        helpCommand.runCommand(sender, args);
+        helpCommand.runCommand(sender, label, args);
         return true;
     }
 

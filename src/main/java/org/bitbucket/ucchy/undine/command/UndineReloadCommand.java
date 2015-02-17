@@ -53,11 +53,12 @@ public class UndineReloadCommand implements SubCommand {
     /**
      * コマンドを実行します。
      * @param sender コマンド実行者
+     * @param label 実行時のラベル
      * @param args 実行時の引数
      * @see org.bitbucket.ucchy.undine.command.SubCommand#runCommand(org.bukkit.command.CommandSender, java.lang.String[])
      */
     @Override
-    public void runCommand(CommandSender sender, String[] args) {
+    public void runCommand(CommandSender sender, String label, String[] args) {
         // データをリロードする
         parent.reloadAll();
         sender.sendMessage(Messages.get("InformationReload"));

@@ -349,6 +349,28 @@ public class MailManager {
     }
 
     /**
+     * 関連メールのリストを取得する
+     * @param sender 取得する対象
+     * @return メールのリスト
+     */
+    public ArrayList<MailData> getRelatedMails(MailSender sender) {
+
+        if ( !isLoaded ) {
+            return null;
+        }
+
+        ArrayList<MailData> box = new ArrayList<MailData>();
+        for ( MailData mail : mails ) {
+            if ( mail.isRelatedWith(sender) && mail.isRead(sender)
+                    && !mail.isSetTrash(sender) ) {
+                box.add(mail);
+            }
+        }
+        sortNewer(box);
+        return box;
+    }
+
+    /**
      * ゴミ箱フォルダのメールリストを取得する
      * @param sender 取得する対象
      * @return メールのリスト

@@ -67,6 +67,10 @@ InformationMultiAttachConfirmConsole: '送信する場合は、''mail send attac
 InformationAttachWasCanceledBySender: '&7メール#%num の添付アイテムが、送信者 %sender によりキャンセルされました。'
 InformationTrashed: '&7メール %index をゴミ箱へ移動しました。'
 InformationTrashRestored: '&7メール %index をゴミ箱から戻しました。'
+InformationTrashAllNeedConfirmation: '&7あなたの送信済みメール/既読の受信済みメール%num通を、全てゴミ箱に移動します。実行するには、"/%command trash all confirm" コマンドを実行してください。'
+InformationTrashAllDone: '&7%num通のメールをゴミ箱へ移動しました。'
+InformationRestoreAllNeedConfirmation: '&7あなたのゴミ箱メール%num通を、全て受信箱/送信箱に移動します。実行するには、"/%command trash restoreall confirm" コマンドを実行してください。'
+InformationRestoreAllDone: '&7%num通のメールをゴミ箱から戻しました。'
 
 InformationMakeGroup: '&7新しいグループ %name を作成しました。'
 InformationDeleteGroup: '&7グループ %name を削除しました。'

@@ -30,9 +30,10 @@ public interface SubCommand {
     /**
      * コマンドを実行します。
      * @param sender コマンド実行者
+     * @param label 実行時のラベル
      * @param args 実行時の引数
      */
-    public void runCommand(CommandSender sender, String[] args);
+    public void runCommand(CommandSender sender, String label, String[] args);
 
     /**
      * TABキー補完を実行します。
