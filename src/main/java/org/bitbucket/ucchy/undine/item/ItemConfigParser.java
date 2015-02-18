@@ -6,6 +6,8 @@
 package org.bitbucket.ucchy.undine.item;
 
 import java.util.List;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 import org.bukkit.Bukkit;
 import org.bukkit.Color;
@@ -13,6 +15,7 @@ import org.bukkit.FireworkEffect;
 import org.bukkit.FireworkEffect.Builder;
 import org.bukkit.Material;
 import org.bukkit.configuration.ConfigurationSection;
+import org.bukkit.configuration.file.YamlConfiguration;
 import org.bukkit.enchantments.Enchantment;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.BookMeta;
@@ -261,26 +264,30 @@ public class ItemConfigParser {
                     effect.flicker(effect_sec.getBoolean("flicker", false));
                     effect.trail(effect_sec.getBoolean("trail", false));
 
-                    for ( String ckey :
-                            effect_sec.getConfigurationSection("colors").getKeys(false) ) {
+                    if ( effect_sec.contains("colors") ) {
+                        for ( String ckey :
+                                effect_sec.getConfigurationSection("colors").getKeys(false) ) {
 
-                        ConfigurationSection color_sec =
-                                effect_sec.getConfigurationSection("colors." + ckey);
-                        int red = color_sec.getInt("red", 255);
-                        int blue = color_sec.getInt("blue", 255);
-                        int green = color_sec.getInt("green", 255);
-                        effect.withColor(Color.fromBGR(blue, green, red));
+                            ConfigurationSection color_sec =
+                                    effect_sec.getConfigurationSection("colors." + ckey);
+                            int red = color_sec.getInt("red", 255);
+                            int blue = color_sec.getInt("blue", 255);
+                            int green = color_sec.getInt("green", 255);
+                            effect.withColor(Color.fromBGR(blue, green, red));
+                        }
                     }
 
-                    for ( String fkey :
-                            effect_sec.getConfigurationSection("fades").getKeys(false) ) {
+                    if ( effect_sec.contains("fades") ) {
+                        for ( String fkey :
+                                effect_sec.getConfigurationSection("fades").getKeys(false) ) {
 
-                        ConfigurationSection fade_sec =
-                                effect_sec.getConfigurationSection("fades." + fkey);
-                        int red = fade_sec.getInt("red", 255);
-                        int blue = fade_sec.getInt("blue", 255);
-                        int green = fade_sec.getInt("green", 255);
-                        effect.withFade(Color.fromBGR(blue, green, red));
+                            ConfigurationSection fade_sec =
+                                    effect_sec.getConfigurationSection("fades." + fkey);
+                            int red = fade_sec.getInt("red", 255);
+                            int blue = fade_sec.getInt("blue", 255);
+                            int green = fade_sec.getInt("green", 255);
+                            effect.withFade(Color.fromBGR(blue, green, red));
+                        }
                     }
 
                     meta.addEffect(effect.build());
@@ -378,7 +385,7 @@ public class ItemConfigParser {
             cleanupInvalidExtendedPotionFlag(item);
 
             Potion potion = Potion.fromItemStack(item);
-            section.set("potion_type", potion.getType());
+            section.set("potion_type", potion.getType().toString());
             section.set("potion_level", potion.getLevel());
             if ( potion.isSplash() ) {
                 section.set("splash", true);
@@ -452,6 +459,41 @@ public class ItemConfigParser {
         if ( isCB18orLater() ) {
             ItemConfigParserV18.addBannerInfoToSection(section, item);
         }
+    }
+
+    /**
+     * アイテムの情報を文字列表現で返す
+     * @param item アイテム
+     * @return 文字列表現
+     */
+    public static String getItemInfo(ItemStack item) {
+        YamlConfiguration config = new YamlConfiguration();
+        setItemToSection(config, item);
+        return decodeUnicode(config.saveToString());
+    }
+
+    /**
+     * Unicodeを含む文字列を復号化し、エスケープされた改行を除去する。
+     * @param source
+     * @return
+     */
+    private static String decodeUnicode(String source) {
+
+        // Unicode復号化
+        Pattern pattern = Pattern.compile("\\\\u([0-9a-f]{4})");
+        Matcher matcher = pattern.matcher(source);
+        String result = source;
+        while ( matcher.find() ) {
+            int code = Integer.parseInt(matcher.group(1), 16);
+            String replacement = new String(new int[]{code}, 0, 1);
+            result = matcher.replaceFirst(replacement);
+            matcher = pattern.matcher(result);
+        }
+
+        // エスケープされた改行文字の除去
+        result = result.replaceAll("\\\\\\n *", "");
+
+        return result;
     }
 
     /**

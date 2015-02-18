@@ -118,5 +118,5 @@ dissolutionModeDefault: OWNER
 specialGroupAllSendMode: OP
 
 # Default of sending permission mode of special group "PEX" (PermissionsEx group).
-# You can arrange this permission each groups by setting "mail-send-mode" option value.
+# You can arrange this permission each groups by setting "send-mode" option value.
 specialGroupPexSendMode: OP
