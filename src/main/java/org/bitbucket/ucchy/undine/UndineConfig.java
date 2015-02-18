@@ -120,7 +120,7 @@ public class UndineConfig {
 
         File file = new File(parent.getDataFolder(), "config.yml");
         if ( !file.exists() ) {
-            if ( parent.getReleaseLang().equals("ja") ) {
+            if ( UndineMailer.getDefaultLocaleLanguage().equals("ja") ) {
                 Utility.copyFileFromJar(
                         parent.getJarFile(), file, "config_ja.yml", false);
             } else {

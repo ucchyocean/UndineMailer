@@ -7,6 +7,7 @@ package org.bitbucket.ucchy.undine;
 
 import java.io.File;
 import java.util.List;
+import java.util.Locale;
 
 import org.bitbucket.ucchy.undine.bridge.PermissionsExBridge;
 import org.bitbucket.ucchy.undine.bridge.VaultEcoBridge;
@@ -70,7 +71,7 @@ public class UndineMailer extends JavaPlugin {
         boxManager = new AttachmentBoxManager(this);
 
         // メッセージをロードする
-        Messages.initialize(getFile(), getDataFolder(), getReleaseLang());
+        Messages.initialize(getFile(), getDataFolder(), getDefaultLocaleLanguage());
         Messages.reload(config.getLang());
 
         // コマンドクラスを作成する
@@ -215,13 +216,13 @@ public class UndineMailer extends JavaPlugin {
     }
 
     /**
-     * このプラグインのリリース先を返す
-     * @return en または ja (pom.xml の release.lang の内容が返される)
+     * 動作環境の言語設定を取得する。日本語環境なら ja、英語環境なら en が返される。
+     * @return 動作環境の言語
      */
-    protected String getReleaseLang() {
-        String[] descs = getDescription().getDescription().split(" ");
-        if ( descs.length <= 0 ) return "en";
-        return descs[descs.length - 1];
+    protected static String getDefaultLocaleLanguage() {
+        Locale locale = Locale.getDefault();
+        if ( locale == null ) return "en";
+        return locale.getLanguage();
     }
 
     /**
