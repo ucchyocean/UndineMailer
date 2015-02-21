@@ -57,7 +57,8 @@ ErrorInvalidPermissionType: '&cThe specified permission type %type is not correc
 ErrorInvalidPermissionValue: '&cThe specified permission value %value is not correct.'
 ErrorEveryonePermissionInvalid: '&cModify permission and dissolution permission can not be set to EVERYONE.'
 
-InformationReload: '&aAll data were reloaded.'
+InformationReloading: '&aReloading all mails and configs data...'
+InformationReload: '&aReload completed.'
 InformationYouGotMail: '&aYou got new mail from &7%from&a!'
 InformationYouSentMail: '&7Your mail has been sent.'
 InformationEditCancelled: '&7Cancelled to make mail.'

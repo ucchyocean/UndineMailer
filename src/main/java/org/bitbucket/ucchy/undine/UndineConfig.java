@@ -98,6 +98,9 @@ public class UndineConfig {
     /** メールスパム保護期間（秒） */
     private int mailSpamProtectionSeconds;
 
+    /** プレイヤーがログインした時に、未読一覧を表示するまでの時間（秒） */
+    private int loginNotificationDelaySeconds;
+
     private UndineMailer parent;
 
     /**
@@ -171,6 +174,7 @@ public class UndineConfig {
                 GroupPermissionMode.OP);
         mailStorageTermDays = conf.getInt("mailStorageTermDays", 30);
         mailSpamProtectionSeconds = conf.getInt("mailSpamProtectionSeconds", 15);
+        loginNotificationDelaySeconds = conf.getInt("loginNotificationDelaySeconds", 3);
 
         // sendFeeは、マイナスが指定されていたら0に変更する
         if ( sendFee < 0 ) {
@@ -214,6 +218,11 @@ public class UndineConfig {
         // mailSpamProtectionSeconds は、マイナスが指定されていたら0に変更する
         if ( mailSpamProtectionSeconds < 0 ) {
             mailSpamProtectionSeconds = 0;
+        }
+
+        // loginNotificationDelaySeconds は、マイナスが指定されていたら0に変更する
+        if ( loginNotificationDelaySeconds < 0 ) {
+            loginNotificationDelaySeconds = 0;
         }
     }
 
@@ -404,6 +413,13 @@ public class UndineConfig {
      */
     public int getMailSpamProtectionSeconds() {
         return mailSpamProtectionSeconds;
+    }
+
+    /**
+     * @return loginNotificationDelaySeconds
+     */
+    public int getLoginNotificationDelaySeconds() {
+        return loginNotificationDelaySeconds;
     }
 
 }

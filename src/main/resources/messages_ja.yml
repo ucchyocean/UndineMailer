@@ -57,6 +57,7 @@ ErrorInvalidPermissionType: '&c指定された権限タイプ %type は正しく
 ErrorInvalidPermissionValue: '&c指定された権限設定値 %value は正しくありません。'
 ErrorEveryonePermissionInvalid: '&c変更権限と解散権限は、EVERYONE に設定することはできません。'
 
+InformationReloading: '&a全てのメールデータと設定データを再読み込みしています...'
 InformationReload: '&aデータを再読み込みしました。'
 InformationYouGotMail: '&7%from &aさんから新しいメールが届きました!'
 InformationYouSentMail: '&7メールを送信しました。'

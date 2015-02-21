@@ -60,8 +60,8 @@ public class UndineReloadCommand implements SubCommand {
     @Override
     public void runCommand(CommandSender sender, String label, String[] args) {
         // データをリロードする
-        parent.reloadAll();
-        sender.sendMessage(Messages.get("InformationReload"));
+        sender.sendMessage(Messages.get("InformationReloading"));
+        parent.reloadAll(sender);
     }
 
     /**

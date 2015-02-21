@@ -227,11 +227,12 @@ public class UndineMailer extends JavaPlugin {
 
     /**
      * このプラグインの関連データをリロードする
+     * @param リロードが完了した時に、通知する先。通知が不要なら、nullでよい。
      */
-    public void reloadAll() {
+    public void reloadAll(CommandSender sender) {
         groupManager.reload();
         if ( mailManager.isLoaded() ) {
-            mailManager.reload();
+            mailManager.reload(sender);
         }
         config.reloadConfig();
         Messages.reload(config.getLang());

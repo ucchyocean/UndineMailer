@@ -61,12 +61,13 @@ public class UndineListener implements Listener {
         Player player = event.getPlayer();
         final MailSender sender = MailSender.getMailSender(player);
 
-        // 未読のメールを1秒後に表示する
+        // 未読のメールを遅れて表示する
+        int delay = parent.getUndineConfig().getLoginNotificationDelaySeconds();
         new BukkitRunnable() {
             public void run() {
                 parent.getMailManager().displayUnreadOnJoin(sender);
             }
-        }.runTaskLaterAsynchronously(parent, 20);
+        }.runTaskLaterAsynchronously(parent, delay * 20);
     }
 
     /**

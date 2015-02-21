@@ -29,6 +29,7 @@ import org.bitbucket.ucchy.undine.tellraw.ClickEventType;
 import org.bitbucket.ucchy.undine.tellraw.MessageComponent;
 import org.bitbucket.ucchy.undine.tellraw.MessageParts;
 import org.bukkit.ChatColor;
+import org.bukkit.command.CommandSender;
 import org.bukkit.configuration.ConfigurationSection;
 import org.bukkit.configuration.file.YamlConfiguration;
 import org.bukkit.entity.Player;
@@ -61,13 +62,14 @@ public class MailManager {
     public MailManager(UndineMailer parent) {
         this.parent = parent;
         restoreEditmodeMail();
-        reload();
+        reload(null);
     }
 
     /**
      * メールデータを再読込する
+     * @param リロードが完了した時に、通知する先。通知が不要なら、nullでよい。
      */
-    protected void reload() {
+    protected void reload(final CommandSender sender) {
 
         final long start = System.currentTimeMillis();
 
@@ -113,6 +115,10 @@ public class MailManager {
                 }
 
                 isLoaded = true;
+
+                if ( sender != null ) {
+                    sender.sendMessage(Messages.get("InformationReload"));
+                }
             }
         }.runTaskAsynchronously(UndineMailer.getInstance());
     }

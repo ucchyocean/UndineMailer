@@ -36,6 +36,9 @@ mailStorageTermDays: 30
 # 15秒の経過が必要になります。
 mailSpamProtectionSeconds: 15
 
+# プレイヤーがログインした時に、未読一覧を表示するまでの時間（秒）。
+loginNotificationDelaySeconds: 3
+
 # -------------------- アイテム添付設定 --------------------
 
 # メールにアイテムの添付を可能にするかどうか。

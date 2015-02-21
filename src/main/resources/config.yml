@@ -31,6 +31,9 @@ mailStorageTermDays: 30
 # If you set 15, players need 15 seconds, from sending a mail to sending next mail.
 mailSpamProtectionSeconds: 15
 
+# Mail notification delay seconds on player login.
+loginNotificationDelaySeconds: 3
+
 # -------------------- Attachment Item Box --------------------
 
 # Enable the attachment item box.
