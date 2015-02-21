@@ -1033,6 +1033,7 @@ public class MailManager {
                 button.setClickEvent(
                         ClickEventType.SUGGEST_COMMAND,
                         COMMAND + " to " + (mail.getTo().size()+1) + " ");
+                button.addHoverText(Messages.get("EditmodeToAddToolTip"));
                 msg.addParts(button);
 
             } else {
@@ -1097,7 +1098,7 @@ public class MailManager {
             msg.addParts(buttonDelete);
             msg.addText(" ");
             MessageParts buttonEdit = new MessageParts(
-                    "[" + (i+1) + ":]", ChatColor.AQUA);
+                    "[M" + (i+1) + "]", ChatColor.AQUA);
             buttonEdit.setClickEvent(
                     ClickEventType.SUGGEST_COMMAND,
                     COMMAND + " message " + (i+1) + " " + mail.getMessage().get(i));

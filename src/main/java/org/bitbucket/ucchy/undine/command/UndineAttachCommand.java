@@ -16,7 +16,6 @@ import org.bitbucket.ucchy.undine.UndineMailer;
 import org.bitbucket.ucchy.undine.bridge.VaultEcoBridge;
 import org.bitbucket.ucchy.undine.item.TradableMaterial;
 import org.bitbucket.ucchy.undine.sender.MailSender;
-import org.bitbucket.ucchy.undine.sender.MailSenderConsole;
 import org.bukkit.OfflinePlayer;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
@@ -308,13 +307,14 @@ public class UndineAttachCommand implements SubCommand {
             // 送信者側に新規メールで、アイテムを差し戻す
             MailData reply = new MailData();
             reply.setTo(0, mail.getFrom());
-            reply.setFrom(MailSenderConsole.getMailSenderConsole());
-            reply.setMessage(0, Messages.get(
+            reply.setFrom(ms);
+            reply.addMessage(Messages.get(
                     "BoxRefuseSenderResult",
                     new String[]{"%to", "%num"},
                     new String[]{ms.getName(), mail.getIndex() + ""}));
             if ( reason.toString().trim().length() > 0 ) {
-                reply.setMessage(1, reason.toString().trim());
+                reply.addMessage(Messages.get("BoxRefuseSenderResultReason")
+                        + reason.toString().trim());
             }
             reply.setAttachments(attachments);
             parent.getMailManager().sendNewMail(reply);
@@ -479,7 +479,7 @@ public class UndineAttachCommand implements SubCommand {
             // メールの送信元に送金
             MailData reply = new MailData();
             reply.setTo(0, mail.getFrom());
-            reply.setFrom(MailSenderConsole.getMailSenderConsole());
+            reply.setFrom(ms);
             reply.setMessage(0, Messages.get(
                     "BoxOpenCostItemSenderResult",
                     new String[]{"%to", "%material", "%amount"},

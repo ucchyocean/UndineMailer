@@ -458,11 +458,14 @@ public class MailData implements Comparable<MailData>, Cloneable {
     }
 
     /**
-     * このメールのメッセージに、1行追加します。
+     * このメールのメッセージに、指定した内容を追加します。
      * @param message メッセージ
      */
     public void addMessage(String message) {
-        this.message.add(message);
+        String[] lines = message.split("\n");
+        for ( String line : lines ) {
+            this.message.add(line);
+        }
     }
 
     /**
