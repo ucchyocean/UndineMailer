@@ -21,6 +21,7 @@ import org.bitbucket.ucchy.undine.sender.MailSenderPlayer;
 import org.bukkit.command.CommandSender;
 import org.bukkit.command.ConsoleCommandSender;
 import org.bukkit.entity.Player;
+import org.bukkit.inventory.ItemStack;
 
 /**
  * undine send コマンド
@@ -233,7 +234,12 @@ public class UndineSendCommand implements SubCommand {
             sender.sendMessage(Messages.get(
                     "EditmodeFeeInformation", "%fee", feeDisplay));
             String sendfee = eco.format(mail.getTo().size() * config.getSendFee());
-            String itemfee = eco.format(mail.getAttachments().size() * config.getAttachFee());
+            String itemfee;
+            if ( config.isAttachFeePerAmount() ) {
+                itemfee = eco.format(getItemAmount(mail.getAttachments()) * config.getAttachFee());
+            } else {
+                itemfee = eco.format(mail.getAttachments().size() * config.getAttachFee());
+            }
             String codfee = eco.format(0);
             boolean needCodFee = false;
             if ( mail.getCostMoney() > 0 ) {
@@ -313,7 +319,11 @@ public class UndineSendCommand implements SubCommand {
 
         double total = 0;
         total += mail.getTo().size() * config.getSendFee();
-        total += mail.getAttachments().size() * config.getAttachFee();
+        if ( config.isAttachFeePerAmount() ) {
+            total += getItemAmount(mail.getAttachments()) * config.getAttachFee();
+        } else {
+            total += mail.getAttachments().size() * config.getAttachFee();
+        }
         if ( mail.getCostMoney() > 0 ) {
             total += (mail.getCostMoney() * config.getCodMoneyTax() / 100);
         } else if ( mail.getCostItem() != null ) {
@@ -333,5 +343,20 @@ public class UndineSendCommand implements SubCommand {
         long prev = Long.parseLong(value);
         long next = prev + config.getMailSpamProtectionSeconds() * 1000;
         return next - System.currentTimeMillis();
+    }
+
+    /**
+     * アイテムの個数総数を返す
+     * @param items カウントする対象
+     * @return 個数総数
+     */
+    private int getItemAmount(List<ItemStack> items) {
+        int total = 0;
+        for ( ItemStack item : items ) {
+            if ( item != null ) {
+                total += item.getAmount();
+            }
+        }
+        return total;
     }
 }

@@ -21,6 +21,7 @@ import org.bitbucket.ucchy.undine.sender.MailSenderConsole;
 import org.bitbucket.ucchy.undine.sender.MailSenderPlayer;
 import org.bukkit.OfflinePlayer;
 import org.bukkit.command.CommandSender;
+import org.bukkit.inventory.ItemStack;
 
 /**
  * undine text コマンド
@@ -234,7 +235,11 @@ public class UndineTextCommand implements SubCommand {
         if ( !config.isEnableSendFee() ) return 0;
         double total = 0;
         total += mail.getTo().size() * config.getSendFee();
-        total += mail.getAttachments().size() * config.getAttachFee();
+        if ( config.isAttachFeePerAmount() ) {
+            total += getItemAmount(mail.getAttachments()) * config.getAttachFee();
+        } else {
+            total += mail.getAttachments().size() * config.getAttachFee();
+        }
         return total;
     }
 
@@ -249,5 +254,20 @@ public class UndineTextCommand implements SubCommand {
         long prev = Long.parseLong(value);
         long next = prev + config.getMailSpamProtectionSeconds() * 1000;
         return next - System.currentTimeMillis();
+    }
+
+    /**
+     * アイテムの個数総数を返す
+     * @param items カウントする対象
+     * @return 個数総数
+     */
+    private int getItemAmount(List<ItemStack> items) {
+        int total = 0;
+        for ( ItemStack item : items ) {
+            if ( item != null ) {
+                total += item.getAmount();
+            }
+        }
+        return total;
     }
 }

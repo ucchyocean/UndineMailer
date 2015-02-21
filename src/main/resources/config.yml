@@ -72,11 +72,14 @@ depositErrorOnUnmatch: true
 # Enable mail sending fee.
 enableSendFee: false
 
-# Sending fee per a mail.
+# Sending fee per a destination.
 sendFee: 10
 
 # Attaching fee per an item.
 attachFee: 10
+
+# Attaching fee is needed whether per the item amount, or per the item stack.
+attachFeePerAmount: false
 
 # COD money tax. Please specify parcentage.
 # If you set "codMoneyTax: 10", and one of player set $300 as COD,

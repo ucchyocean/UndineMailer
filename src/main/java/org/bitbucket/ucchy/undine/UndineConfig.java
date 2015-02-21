@@ -32,6 +32,9 @@ public class UndineConfig {
     /** 添付アイテムを1件付けるのに必要な料金 */
     private double attachFee;
 
+    /** 添付アイテム課金を、アイテム1個ごとにするかどうか */
+    private boolean attachFeePerAmount;
+
     /** 着払い料金に対する着払い税(パーセンテージ) */
     private int codMoneyTax;
 
@@ -141,6 +144,7 @@ public class UndineConfig {
         enableSendFee = conf.getBoolean("enableSendFee", false);
         sendFee = conf.getDouble("sendFee", 10);
         attachFee = conf.getDouble("attachFee", 10);
+        attachFeePerAmount = conf.getBoolean("attachFeePerAmount", false);
         codMoneyTax = conf.getInt("codMoneyTax", 0);
         codItemTax = conf.getDouble("codItemTax", 0);
         enableSendSelf = conf.getBoolean("enableSendSelf", false);
@@ -259,6 +263,13 @@ public class UndineConfig {
      */
     public double getAttachFee() {
         return attachFee;
+    }
+
+    /**
+     * @return attachFeePerAmount
+     */
+    public boolean isAttachFeePerAmount() {
+        return attachFeePerAmount;
     }
 
     /**
