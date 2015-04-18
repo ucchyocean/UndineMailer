@@ -115,6 +115,7 @@ public class UndineListener implements Listener {
         case PLACE_ALL:
         case PLACE_ONE:
         case PLACE_SOME:
+        case SWAP_WITH_CURSOR:
             if ( inside ) {
                 event.setCancelled(true);
             }
