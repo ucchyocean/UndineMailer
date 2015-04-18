@@ -6,10 +6,15 @@
 package org.bitbucket.ucchy.undine;
 
 import java.io.File;
+import java.util.ArrayList;
 import java.util.List;
 
 import org.bitbucket.ucchy.undine.group.GroupPermissionMode;
+import org.bitbucket.ucchy.undine.item.ItemConfigParseException;
+import org.bitbucket.ucchy.undine.item.ItemConfigParser;
+import org.bukkit.configuration.ConfigurationSection;
 import org.bukkit.configuration.file.FileConfiguration;
+import org.bukkit.inventory.ItemStack;
 
 /**
  * Undineコンフィグ管理クラス
@@ -104,6 +109,15 @@ public class UndineConfig {
     /** プレイヤーがログインした時に、未読一覧を表示するまでの時間（秒） */
     private int loginNotificationDelaySeconds;
 
+    /** ウェルカムメールを利用するかどうか。 */
+    private boolean useWelcomeMail;
+
+    /** 初接続のプレイヤーが接続してから、ウェルカムメールを送信するまでの時間（秒） */
+    private int welcomeMailDelaySeconds;
+
+    /** ウェルカムメールの添付アイテム */
+    private List<ItemStack> welcomeMailAttachments;
+
     private UndineMailer parent;
 
     /**
@@ -124,6 +138,7 @@ public class UndineConfig {
             parent.getDataFolder().mkdirs();
         }
 
+        // コンフィグファイルが無いなら生成する
         File file = new File(parent.getDataFolder(), "config.yml");
         if ( !file.exists() ) {
             if ( UndineMailer.getDefaultLocaleLanguage().equals("ja") ) {
@@ -179,6 +194,10 @@ public class UndineConfig {
         mailStorageTermDays = conf.getInt("mailStorageTermDays", 30);
         mailSpamProtectionSeconds = conf.getInt("mailSpamProtectionSeconds", 15);
         loginNotificationDelaySeconds = conf.getInt("loginNotificationDelaySeconds", 3);
+        useWelcomeMail = conf.getBoolean("useWelcomeMail", true);
+        welcomeMailDelaySeconds = conf.getInt("welcomeMailDelaySeconds", 30);
+        welcomeMailAttachments = getItemStackListFromConfig(
+                conf.getConfigurationSection("welcomeMailAttachments"));
 
         // sendFeeは、マイナスが指定されていたら0に変更する
         if ( sendFee < 0 ) {
@@ -228,6 +247,27 @@ public class UndineConfig {
         if ( loginNotificationDelaySeconds < 0 ) {
             loginNotificationDelaySeconds = 0;
         }
+    }
+
+    /**
+     * 指定されたコンフィグセクションから、アイテムスタックのリストを取得します。
+     * @param section コンフィグセクション
+     * @return アイテムスタックのリスト
+     */
+    private List<ItemStack> getItemStackListFromConfig(ConfigurationSection section) {
+
+        List<ItemStack> list = new ArrayList<ItemStack>();
+        if ( section == null ) return list;
+        for ( String name : section.getKeys(false) ) {
+            try {
+                ItemStack item = ItemConfigParser.getItemFromSection(
+                        section.getConfigurationSection(name));
+                list.add(item);
+            } catch (ItemConfigParseException e) {
+                e.printStackTrace();
+            }
+        }
+        return list;
     }
 
     /**
@@ -431,6 +471,27 @@ public class UndineConfig {
      */
     public int getLoginNotificationDelaySeconds() {
         return loginNotificationDelaySeconds;
+    }
+
+    /**
+     * @return useWelcomeMail
+     */
+    public boolean isUseWelcomeMail() {
+        return useWelcomeMail;
+    }
+
+    /**
+     * @return welcomeMailDelaySeconds
+     */
+    public int getWelcomeMailDelaySeconds() {
+        return welcomeMailDelaySeconds;
+    }
+
+    /**
+     * @return welcomeMailAttachments
+     */
+    public List<ItemStack> getWelcomeMailAttachments() {
+        return welcomeMailAttachments;
     }
 
 }

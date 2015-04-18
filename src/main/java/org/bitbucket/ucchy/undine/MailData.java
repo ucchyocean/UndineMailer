@@ -30,7 +30,7 @@ import org.bukkit.inventory.ItemStack;
 public class MailData implements Comparable<MailData>, Cloneable {
 
     public static final int MESSAGE_MAX_SIZE = 15;
-    private static final int SUMMARY_MAX_SIZE = 40;
+    private static final int SUMMARY_MAX_SIZE = 45;
 
     // 編集中に設定される属性
     private List<MailSender> to;
@@ -850,8 +850,8 @@ public class MailData implements Comparable<MailData>, Cloneable {
                 from.getName(), fdate, Utility.removeColorCode(message.get(0)));
 
         // 長すぎる場合は切る
-        if ( summary.length() > SUMMARY_MAX_SIZE ) {
-            summary = summary.substring(0, SUMMARY_MAX_SIZE) + "...";
+        if ( summary.length() > SUMMARY_MAX_SIZE + 2 ) {
+            summary = summary.substring(0, SUMMARY_MAX_SIZE) + "..";
         }
 
         return summary;
@@ -873,8 +873,8 @@ public class MailData implements Comparable<MailData>, Cloneable {
                 todesc, fdate, Utility.removeColorCode(message.get(0)));
 
         // 長すぎる場合は切る
-        if ( summary.length() > SUMMARY_MAX_SIZE ) {
-            summary = summary.substring(0, SUMMARY_MAX_SIZE) + "...";
+        if ( summary.length() > SUMMARY_MAX_SIZE + 2 ) {
+            summary = summary.substring(0, SUMMARY_MAX_SIZE) + "..";
         }
 
         return summary;

@@ -208,6 +208,8 @@ GroupReturnToMemberList: '[Return to group members list]'
 GroupSpecialAllSummary: 'All Players Group'
 GroupSpecialAllMembers: 'All Players'
 
+WelcomeMailBody: 'Click to open this mail.\n\nWelcome to server!\nIf you want to read mails, please run "/mail" command.\nIf you want to write mail, please run "/mail write" command.\nHave fun!'
+
 DateFormat: 'MM/dd/yyyy(E) HH:mm:ss'
 
 ListVerticalParts: '&7| '

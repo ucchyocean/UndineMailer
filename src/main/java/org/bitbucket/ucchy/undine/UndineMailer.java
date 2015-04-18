@@ -227,7 +227,7 @@ public class UndineMailer extends JavaPlugin {
 
     /**
      * このプラグインの関連データをリロードする
-     * @param リロードが完了した時に、通知する先。通知が不要なら、nullでよい。
+     * @param sender リロードが完了した時に、通知する先。通知が不要なら、nullでよい。
      */
     public void reloadAll(CommandSender sender) {
         groupManager.reload();

@@ -126,3 +126,32 @@ specialGroupAllSendMode: OP
 # Default of sending permission mode of special group "PEX" (PermissionsEx group).
 # You can arrange this permission each groups by setting "send-mode" option value.
 specialGroupPexSendMode: OP
+
+
+# -------------------- Welcome Mail --------------------
+# Welcome email is a mail sent to the player that was first connected to the server.
+# You can change the message of welcome mail, by changing WelcomeMailBody of messages_en.yml file.
+
+# Enable welcome mail.
+useWelcomeMail: true
+
+# Delay seconds to send welcome mail.
+welcomeMailDelaySeconds: 30
+
+# Attachment items of welcome mail.
+welcomeMailAttachments:
+  attachment1:
+    material: STONE_SPADE
+  attachment2:
+    material: STONE_PICKAXE
+  attachment3:
+    material: STONE_AXE
+  attachment4:
+    material: STONE_SWORD
+  attachment5:
+    material: TORCH
+    amount: 64
+  attachment6:
+    material: BREAD
+    amount: 16
+

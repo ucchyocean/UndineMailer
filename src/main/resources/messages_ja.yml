@@ -208,6 +208,8 @@ GroupReturnToMemberList: '[グループのメンバーリストに戻る]'
 GroupSpecialAllSummary: '全員宛てメールグループ'
 GroupSpecialAllMembers: '全てのプレイヤー'
 
+WelcomeMailBody: 'クリックで開きます。\n\nサーバーへようこそ！\nメールを読むには /mail コマンドを、\nメールを書くには /mail write コマンドを実行してくださいね！'
+
 DateFormat: 'yyyy/MM/dd(E) HH:mm:ss'
 
 ListVerticalParts: '&7| '
