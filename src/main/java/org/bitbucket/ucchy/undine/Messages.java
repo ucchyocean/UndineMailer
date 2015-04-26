@@ -38,6 +38,13 @@ public class Messages {
 
         // メッセージファイルをロード
         File file = new File(configFolder, filename);
+        if ( !file.exists() ) {
+            try {
+                defaultMessages.save(file);
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+        }
         resources = YamlConfiguration.loadConfiguration(file);
 
         // デフォルトメッセージをデフォルトとして足す。
@@ -125,6 +132,9 @@ public class Messages {
         try {
             jarFile = new JarFile(jar);
             ZipEntry zipEntry = jarFile.getEntry(String.format("messages_%s.yml", lang));
+            if ( zipEntry == null ) {
+                zipEntry = jarFile.getEntry(String.format("messages_en.yml", lang));
+            }
             InputStream inputStream = jarFile.getInputStream(zipEntry);
             BufferedReader reader =
                     new BufferedReader(new InputStreamReader(inputStream, "UTF-8"));
