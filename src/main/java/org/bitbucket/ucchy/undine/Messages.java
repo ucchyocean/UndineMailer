@@ -133,7 +133,7 @@ public class Messages {
             jarFile = new JarFile(jar);
             ZipEntry zipEntry = jarFile.getEntry(String.format("messages_%s.yml", lang));
             if ( zipEntry == null ) {
-                zipEntry = jarFile.getEntry(String.format("messages_en.yml", lang));
+                zipEntry = jarFile.getEntry("messages_en.yml");
             }
             InputStream inputStream = jarFile.getInputStream(zipEntry);
             BufferedReader reader =
