@@ -210,7 +210,7 @@ GroupSpecialAllMembers: '全てのプレイヤー'
 
 WelcomeMailBody: 'クリックで開きます。\n\nサーバーへようこそ！\nメールを読むには /mail コマンドを、\nメールを書くには /mail write コマンドを実行してくださいね！'
 
-DateFormat: 'yyyy/MM/dd(E) HH:mm:ss'
+DateFormat: 'MM/dd HH:mm'
 
 ListVerticalParts: '&7| '
 ListHorizontalParts: '&7-----'
