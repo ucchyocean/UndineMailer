@@ -932,7 +932,8 @@ public class MailManager {
                 // 開いているのが受信者なら、Replyボタンを表示する
 
                 boolean attachNothing = (mail.getAttachments().size() == 0);
-                boolean isRecipient = mail.isRecipient(sender);
+                boolean isRecipient = mail.isRecipient(sender)
+                        && !(mail.getFrom() instanceof MailSenderConsole);
 
                 if ( attachNothing || isRecipient ) {
 

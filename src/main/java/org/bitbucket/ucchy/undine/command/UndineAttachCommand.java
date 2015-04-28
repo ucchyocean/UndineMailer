@@ -16,6 +16,7 @@ import org.bitbucket.ucchy.undine.UndineMailer;
 import org.bitbucket.ucchy.undine.bridge.VaultEcoBridge;
 import org.bitbucket.ucchy.undine.item.TradableMaterial;
 import org.bitbucket.ucchy.undine.sender.MailSender;
+import org.bitbucket.ucchy.undine.sender.MailSenderConsole;
 import org.bukkit.OfflinePlayer;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
@@ -307,7 +308,7 @@ public class UndineAttachCommand implements SubCommand {
             // 送信者側に新規メールで、アイテムを差し戻す
             MailData reply = new MailData();
             reply.setTo(0, mail.getFrom());
-            reply.setFrom(ms);
+            reply.setFrom(MailSenderConsole.getMailSenderConsole());
             reply.addMessage(Messages.get(
                     "BoxRefuseSenderResult",
                     new String[]{"%to", "%num"},
