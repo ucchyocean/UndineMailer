@@ -15,9 +15,7 @@ import org.bitbucket.ucchy.undine.UndineMailer;
 import org.bitbucket.ucchy.undine.tellraw.ClickEventType;
 import org.bitbucket.ucchy.undine.tellraw.MessageComponent;
 import org.bitbucket.ucchy.undine.tellraw.MessageParts;
-import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
-import org.bukkit.OfflinePlayer;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandSender;
 import org.bukkit.command.TabExecutor;
@@ -71,7 +69,7 @@ public class ListCommand implements TabExecutor {
         // 以下の処理は非常に重いので、非同期処理で実行する。
         new BukkitRunnable() {
             public void run() {
-                ArrayList<String> names = getAllValidPlayerNames();
+                ArrayList<String> names = new ArrayList<String>(parent.getPlayerCache().keySet());
                 Collections.sort(names, new Comparator<String>() {
                     public int compare(String o1, String o2) {
                         return o1.compareToIgnoreCase(o2);
@@ -194,27 +192,6 @@ public class ListCommand implements TabExecutor {
     @Override
     public List<String> onTabComplete(CommandSender arg0, Command arg1, String arg2, String[] arg3) {
         return null;
-    }
-
-
-    /**
-     * 宛先として有効な全てのプレイヤー名を取得する
-     * @return 有効な宛先
-     */
-    private ArrayList<String> getAllValidPlayerNames() {
-        ArrayList<String> players = new ArrayList<String>();
-        for ( OfflinePlayer offline : Bukkit.getOfflinePlayers() ) {
-            @SuppressWarnings("deprecation")
-            OfflinePlayer player = Bukkit.getOfflinePlayer(offline.getName());
-            // NOTE: ↑よくわからないけれど、Bukkit.getOfflinePlayers()は不要な内容が
-            //         含まれていて、こうしないとゴミが消せない。
-            if ( player.hasPlayedBefore() || player.isOnline() ) {
-                if ( !players.contains(player.getName()) ) {
-                    players.add(player.getName());
-                }
-            }
-        }
-        return players;
     }
 
     /**

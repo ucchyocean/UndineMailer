@@ -6,6 +6,7 @@
 package org.bitbucket.ucchy.undine;
 
 import java.io.File;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Locale;
 
@@ -16,6 +17,7 @@ import org.bitbucket.ucchy.undine.command.ListCommand;
 import org.bitbucket.ucchy.undine.command.UndineCommand;
 import org.bitbucket.ucchy.undine.group.GroupManager;
 import org.bukkit.Bukkit;
+import org.bukkit.OfflinePlayer;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandSender;
 import org.bukkit.plugin.java.JavaPlugin;
@@ -33,6 +35,7 @@ public class UndineMailer extends JavaPlugin {
     private AttachmentBoxManager boxManager;
     private GroupManager groupManager;
     private MailCleanupTask cleanupTask;
+    private HashMap<String, OfflinePlayer> playerCache;
 
     private UndineCommand undineCommand;
     private ListCommand listCommand;
@@ -85,6 +88,12 @@ public class UndineMailer extends JavaPlugin {
 
         // リスナーの登録
         getServer().getPluginManager().registerEvents(new UndineListener(this), this);
+
+        // プレイヤーキャッシュの作成
+        playerCache = new HashMap<String, OfflinePlayer>();
+        if ( config.isEnablePlayerList() ) {
+            playerCache = getAllValidPlayerNames();
+        }
     }
 
     /**
@@ -226,6 +235,14 @@ public class UndineMailer extends JavaPlugin {
     }
 
     /**
+     * プレイヤーキャッシュを取得する
+     * @return プレイヤーキャッシュ
+     */
+    public HashMap<String, OfflinePlayer> getPlayerCache() {
+        return playerCache;
+    }
+
+    /**
      * このプラグインの関連データをリロードする
      * @param sender リロードが完了した時に、通知する先。通知が不要なら、nullでよい。
      */
@@ -236,6 +253,26 @@ public class UndineMailer extends JavaPlugin {
         }
         config.reloadConfig();
         Messages.reload(config.getLang());
+        playerCache = new HashMap<String, OfflinePlayer>();
+        if ( config.isEnablePlayerList() ) {
+            playerCache = getAllValidPlayerNames();
+        }
+    }
+
+    /**
+     * 宛先として有効な全てのプレイヤー名を取得する
+     * @return 有効な宛先
+     */
+    private HashMap<String, OfflinePlayer> getAllValidPlayerNames() {
+        HashMap<String, OfflinePlayer> players = new HashMap<String, OfflinePlayer>();
+        for ( OfflinePlayer player : Bukkit.getOfflinePlayers() ) {
+            if ( player.hasPlayedBefore() || player.isOnline() ) {
+                if ( !players.containsKey(player.getName()) ) {
+                    players.put(player.getName(), player);
+                }
+            }
+        }
+        return players;
     }
 
     /**

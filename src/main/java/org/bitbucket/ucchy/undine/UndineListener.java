@@ -58,13 +58,19 @@ public class UndineListener implements Listener {
     @EventHandler
     public void onPlayerJoin(PlayerJoinEvent event) {
 
-        // MailManagerのロードが完了していないなら、何もしない
+        Player player = event.getPlayer();
+        UndineConfig config = parent.getUndineConfig();
+
+        // プレイヤーリストが有効なら、プレイヤーキャッシュを更新する
+        if ( parent.getUndineConfig().isEnablePlayerList() ) {
+            parent.getPlayerCache().put(player.getName(), player);
+        }
+
+        // MailManagerのロードが完了していないなら、以降は何もしない
         if ( !parent.getMailManager().isLoaded() ) {
             return;
         }
 
-        Player player = event.getPlayer();
-        UndineConfig config = parent.getUndineConfig();
         final MailSender sender = MailSender.getMailSender(player);
 
         // 未読のメールを遅れて表示する
