@@ -240,3 +240,6 @@ HelpDescription_item: '手に持ったアイテムの詳細を画面に表示し
 HelpDescription_help: 'ヘルプメッセージを参照します。'
 HelpDescription_group: 'グループ管理画面を表示します。'
 HelpDescription_reload: 'データをリロードします。'
+
+Yes: 'はい'
+No: 'いいえ'

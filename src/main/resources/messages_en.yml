@@ -240,3 +240,6 @@ HelpDescription_item: 'Show the detailed information of item in your hand.'
 HelpDescription_help: 'Show the help menu.'
 HelpDescription_group: 'Show the group management menu.'
 HelpDescription_reload: 'Reload all of data.'
+
+Yes: 'Yes'
+No: 'No'
