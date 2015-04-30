@@ -5,17 +5,13 @@
  */
 package org.bitbucket.ucchy.undine.command;
 
-import java.util.ArrayList;
-
 import org.bitbucket.ucchy.undine.Messages;
 import org.bitbucket.ucchy.undine.sender.MailSender;
 import org.bitbucket.ucchy.undine.tellraw.ClickEventType;
 import org.bitbucket.ucchy.undine.tellraw.MessageComponent;
 import org.bitbucket.ucchy.undine.tellraw.MessageParts;
-import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.Material;
-import org.bukkit.OfflinePlayer;
 import org.bukkit.inventory.ItemStack;
 
 /**
@@ -47,20 +43,6 @@ public class UndineCommandUtil {
             item.setDurability(durability);
         }
         return item;
-    }
-
-    /**
-     * 宛先として有効な全てのプレイヤー名を取得する
-     * @return 有効な宛先
-     */
-    protected static ArrayList<OfflinePlayer> getAllValidPlayers() {
-        ArrayList<OfflinePlayer> players = new ArrayList<OfflinePlayer>();
-        for ( OfflinePlayer player : Bukkit.getOfflinePlayers() ) {
-            if ( player.hasPlayedBefore() || player.isOnline() ) {
-                players.add(player);
-            }
-        }
-        return players;
     }
 
     /**

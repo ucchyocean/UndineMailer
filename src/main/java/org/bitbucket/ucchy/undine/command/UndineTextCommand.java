@@ -19,7 +19,6 @@ import org.bitbucket.ucchy.undine.group.GroupManager;
 import org.bitbucket.ucchy.undine.sender.MailSender;
 import org.bitbucket.ucchy.undine.sender.MailSenderConsole;
 import org.bitbucket.ucchy.undine.sender.MailSenderPlayer;
-import org.bukkit.OfflinePlayer;
 import org.bukkit.command.CommandSender;
 import org.bukkit.inventory.ItemStack;
 
@@ -212,10 +211,10 @@ public class UndineTextCommand implements SubCommand {
             // オフラインプレイヤー名で補完する
             String arg = args[1].toLowerCase();
             ArrayList<String> candidates = new ArrayList<String>();
-            for ( OfflinePlayer player : UndineCommandUtil.getAllValidPlayers() ) {
-                if ( player.getName().toLowerCase().startsWith(arg)
-                        && !player.getName().equals(sender.getName())) {
-                    candidates.add(player.getName());
+            for ( String name : parent.getPlayerCache().keySet() ) {
+                if ( name.toLowerCase().startsWith(arg)
+                        && !name.equals(sender.getName())) {
+                    candidates.add(name);
                 }
             }
             return candidates;
