@@ -1,4 +1,10 @@
+# ${project.name} v${project.version}
+# @author     Androkai, ucchy
+# @license    LGPLv3
+# @copyright  Copyright ucchy 2015
+
 PermissionDeniedCommand: '&cDir fehlt die nötige Berechtigung.'
+
 ErrorRequireArgument: '&cBitte gib die nötigen Parameter (%param) mit an.'
 ErrorInvalidIndex: '&cDie angegebene Mail-Nummer %index ist ungültig.'
 ErrorNoneReadPermission: '&cDu darfst diese Mail nicht lesen.'
@@ -23,11 +29,9 @@ ErrorNoneCancelAttachPermission: '&cDu kannst keine Anhänge entfernen, weil du 
 ErrorNoneRefuseAttachPermission: '&cDu kannst keine Anhänge entfernen, weil du nicht der Emofänger dieser Mail bist.'
 ErrorAlreadyAttachCancelled: '&cDer Anhang wurde bereits entfernt.'
 ErrorAlreadyRecipientOpened: '&cDu kannst keine Anhänge entfernen, weil der Empfänger die Anhang-Box gerade offen hat.'
-ErrorInvalidAttachBoxWorld: '&cIn dieser Welt dürfen keine Anhänge angehangen oder abgerufen werden.
-  Öffne die Anhang-Box erneut, nachdem du eine andere Welt betreten hast.'
+ErrorInvalidAttachBoxWorld: '&cIn dieser Welt dürfen keine Anhänge angehangen oder abgerufen werden.\nÖffne die Anhang-Box erneut, nachdem du eine andere Welt betreten hast.'
 ErrorInvalidCommand: '&cDieser Befehl ist ungültig.'
-ErrorAttachBoxCountExceed: '&cDu nutzt derzeit %num Anhang-Boxen.
-  Da das Limit von %limit Boxen erreicht ist, kannst du keine weiten Anhänge erstellen.'
+ErrorAttachBoxCountExceed: '&cDu nutzt derzeit %num Anhang-Boxen.\nDa das Limit von %limit Boxen erreicht ist, kannst du keine weiten Anhänge erstellen.'
 ErrorCannotSendAttachMailToAll: '&cDu kannst keine Anhänge an die Gruppe All senden.'
 ErrorCannotListInitializingYet: '&cDie Mail-Liste kann nicht angezeigt werden, da der Mailer noch nicht eingerichtet wurde.'
 ErrorCannotSendInitializingYet: '&cEs können keine neuen Mails gesendet werden, da der Mailer noch nicht eingerichtet wurde.'
@@ -36,6 +40,7 @@ ErrorNotTrashed: '&cMail #%index befindet sich nicht im Papierkorb.'
 ErrorCannotDropBecauseUnread: '&cDu kannst Mail #%index nicht verschieben, weil sie noch nicht gelesen wurde.'
 ErrorCannotDropBecauseAttached: '&cDu kannst Mail #%index nicht verschieben, weil sie noch Item-Anhänge hat.'
 ErrorCannotSendSpamMail: '&cDu musst noch %remain Sekunden warten, bis du deine nächste Mail verschicken darfst.'
+
 ErrorInvalidGroupName: '&c%name kann nicht als Gruppenname genutzt werden.'
 ErrorGroupIsAlreadyExist: '&cDie Gruppe %name existiert bereits.'
 ErrorGroupNotExist: '&cDie Gruppe %name exisitiert nicht.'
@@ -51,6 +56,7 @@ ErrorGroupMemberLimitExceed: '&cDu kannst keine weiteren Mitglieder hinzufügen,
 ErrorInvalidPermissionType: '&cDie angegebene Berechtigung vom Typ %type ist ungültig.'
 ErrorInvalidPermissionValue: '&cDie angegebene Berechtigung vom Wert %value ist ungültig.'
 ErrorEveryonePermissionInvalid: '&cBearbeiten- und Löschen-Berechtigung kann nicht für JEDEN gesetzt werden.'
+
 InformationReloading: '&aLade alle Mail- und Config-Dateien neu ein...'
 InformationReload: '&aReload abgeschlossen.'
 InformationYouGotMail: '&aDu hast eine neue Mail von &7%from&a erhalten!'
@@ -58,25 +64,25 @@ InformationYouSentMail: '&7Deine Mail wurde versand.'
 InformationEditCancelled: '&7Mail-Erstellen abgebrochen.'
 InformationPlayerJoin: '&7Du hast %unread ungelesene Mails.'
 InformationItemDetail: '&7Item Information: &f%desc  &7Handelbar?: &f%tradable'
-InformationMultiAttachConfirm: '&7Du willst eine Mail mit Item-Anhang an mehrere Empfänger versenden.
-  Diese Mail wird %num mal vervielfacht werden. Bist du sicher?'
+InformationMultiAttachConfirm: '&7Du willst eine Mail mit Item-Anhang an mehrere Empfänger versenden.\nDiese Mail wird %num mal vervielfacht werden. Bist du sicher?'
 InformationMultiAttachConfirmConsole: Zum Senden nutze den ''/mail send attachconfirm'' Befehl.
 InformationAttachWasCanceledBySender: '&7Absender %sender hat den Inhalt der Anhang-Box der Mail #%num zurückgezogen.'
 InformationTrashed: '&7Mail #%index wurde in den Papierkorb verschoben.'
 InformationTrashRestored: '&7Mail #%index wurde aus deinem Papierkorb wiederhergestellt.'
-InformationTrashAllNeedConfirmation: '&7All deine gelesenen erhaltenen/gesendeten %num Mails werden in den Papierkorb verschoben.
-  Ist das OK? Dann bestätige dies bitte mit dem Befehl "/%command trash all confirm".'
+InformationTrashAllNeedConfirmation: '&7All deine gelesenen erhaltenen/gesendeten %num Mails werden in den Papierkorb verschoben.\nIst das OK? Dann bestätige dies bitte mit dem Befehl "/%command trash all confirm".'
 InformationTrashAllDone: '&7%num Mail(s) wurden in den Papierkorb verschoben.'
-InformationRestoreAllNeedConfirmation: '&7Alle %num Mail(s) aus deinem Papierkorb werden wiederhergestellt.
-  Ist das OK? Dann bestätige dies bitte mit dem Befehl "/%command trash restoreall confirm".'
+InformationRestoreAllNeedConfirmation: '&7Alle %num Mail(s) aus deinem Papierkorb werden wiederhergestellt.\nIst das OK? Dann bestätige dies bitte mit dem Befehl "/%command trash restoreall confirm".'
 InformationRestoreAllDone: '&7%num Mail(s) aus deinem Papierkorb wurden wiederhergestellt.'
+
 InformationMakeGroup: '&7Neue Gruppe %name wurde erstellt.'
 InformationDeleteGroup: '&7Gruppe %name wurde entfernt.'
 InformationDeleteGroupConfirm: '&7Die Gruppe %name wird dauerhaft gelöscht. Bist du sicher?'
 InformationGroupMemberAdd: '&7Spieler %player zur Gruppe %group hinzugefügt.'
 InformationGroupMemberRemove: '&7Spieler %player wurde aus der Gruppe %group entfernt.'
 InformationGroupSetPermission: '&7%type Berechtigung der Gruppe %name wurde zu %value geändert.'
+
 SummaryOpenThisMailToolTip: Öffne diese Mail
+
 MailDetailTitle: Mail (#%number)
 MailDetailFromToLine: '&cVon: &f%from  &cAn: &f%to'
 MailDetailDateLine: '&cDatum: &f%date'
@@ -94,7 +100,9 @@ MailDetailAttachCostItemLine: '  &cC.O.D. Item-Kosten, um Box zu öffnen: &f%ite
 MailDetailTrash: '[Löschen]'
 MailDetailTrashRestore: '[Nachricht wiederherstellen]'
 MailDetailReply: '[Antworten]'
+
 Editmode: Editier-Modus
+
 EditmodeTitle: Mail-Editor
 EditmodeToDelete: '[x]'
 EditmodeToDeleteToolTip: Entferne diesen Empfänger
@@ -123,11 +131,13 @@ EditmodeCostItemRemove: '[x]'
 EditmodeCostItemRemoveToolTip: Entferne C.O.D. Item-Kosten
 EditmodeSend: '[Senden]'
 EditmodeCancel: '[Abbrechen]'
+
 EditmodeFeeInformation: '&7Diese Mail kostet %fee Porto.'
 EditmodeFeeDetail: '&7(Mail-Porto: %mail + Gebüren für Anhänge: %item)'
 EditmodeFeeDetailWithCODTax: '&7(Mail-Porto: %mail + Gebüren für Anhänge: %item + COD Gebüren: %cod)'
 EditmodeFeeConfirm: '&7Möchtest du diese Mail trotzdem verschicken?'
 EditmodeFeeResult: '&7%fee Porto bezahlt. (Kontostand: %remain)'
+
 BoxOpenCostMoneyInformation: '&7Um die Anhang-Box zu öffnen, müssen %fee Gebüren bezahlt werden.'
 BoxOpenCostMoneyResult: '&7%fee Gebüren bezahlt. (Kontostand: %remain)'
 BoxOpenCostMoneySenderResult: '&7Du hast %fee für dein C.O.D. von %to erhalten. (Kontostand: %remain)'
@@ -135,13 +145,17 @@ BoxOpenCostItemInformation: '&7Du brauchst %amount %material(s), um die Anhang-B
 BoxOpenCostItemResult: '&7Costed %amount %material(s).'
 BoxOpenCostItemSenderResult: You got C.O.D. item %amount %material(s) from %to.
 BoxOpenCostConfirm: '&7Möchtest du das wirklich öffnen?'
+
 BoxRefuseSenderResult: 'Systemnachricht: %to hat das Angebot abgelehnt,\n  für Mail #%num und dessen Inhalt zu zahlen.'
 BoxRefuseSenderResultReason: 'Grund: '
+
 ButtonOK: '[OK]'
 ButtonCancel: '[Abbrechen]'
+
 InboxTitle: 'Posteingang (ungelesen: %unread)'
 OutboxTitle: Postausgang
 TrashboxTitle: Papierkorb
+
 Return: '[Zurück]'
 FirstPage: '[<<]'
 PrevPage: '[<]'
@@ -157,10 +171,13 @@ FirstMailToolTip: Erste Mail
 PrevMailToolTip: Vorherige Mail
 NextMailToolTip: Nächste Mail
 LastMailToolTip: Letzte Mail
+
 EditmodeBoxTitle: Anhang-Box (Bearbeiten-Modus)
 AttachmentBoxTitle: Anhang-Box (#%number)
+
 PlayerListIndexTitle: Player Name List Index
 PlayerListTitle: Player Name List (%pre)
+
 GroupListTitle: Gruppenliste (%num Gruppe/n)
 GroupDetailTitle: 'Gruppe "%name"'
 GroupListSummayLine: '&7Besitzer: &f%owner  &7Mitglieder: &f%num'
@@ -187,17 +204,23 @@ GroupPermEveryone: Jeder
 GroupPermChangeButton: '[%perm]'
 GroupDeleteGroup: '[Diese Gruppe löschen]'
 GroupReturnToMemberList: '[Zurück zur Mitgliederliste]'
+
 GroupSpecialAllSummary: Sondergruppe mit allen Spielern
 GroupSpecialAllMembers: Alle Spieler
+
 WelcomeMailBody: Klicke hier, um diese Mail zu öffnen.\n\nWillkommen auf unserem Server!\nWenn du deine Mails checken willst, nutze bitte den "/mail" Befehl.\nWenn du eine Mail schreiben willst, nutze den "/mail write" Befehl.\nViel Spaß!
+
 DateFormat: E, dd.MM.yyyy HH:mm:ss
+
 ListVerticalParts: '&7| '
 ListHorizontalParts: '&7-----'
 ListLastLine: '&7------------------------------'
 DetailVerticalParts: '&7# '
 DetailHorizontalParts: '&7====='
 DetailLastLine: '&7=============================='
+
 HelpTitle: UndineMailer Befehlsübersicht
+
 HelpCommand_inbox: /mail inbox
 HelpCommand_outbox: /mail outbox
 HelpCommand_trash: /mail trash
@@ -207,6 +230,7 @@ HelpCommand_item: /mail item
 HelpCommand_help: /mail help
 HelpCommand_group: /ugroup
 HelpCommand_reload: /mail reload
+
 HelpDescription_inbox: Zeige deinen Posteingang
 HelpDescription_outbox: Zeige deinen Postausgang
 HelpDescription_trash: Zeige deinen Papierkorb
@@ -216,3 +240,6 @@ HelpDescription_item: Zeige Informationen zum Item in deiner Hand
 HelpDescription_help: Zeige die Befehlsübersicht
 HelpDescription_group: Zeige die Gruppenverwaltungansicht
 HelpDescription_reload: Lade alle Dateien neu ein
+
+Yes: 'ja'
+No: 'keine'
