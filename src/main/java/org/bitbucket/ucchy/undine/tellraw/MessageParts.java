@@ -109,7 +109,7 @@ public class MessageParts {
     public String build() {
 
         ArrayList<String> items = new ArrayList<String>();
-        items.add("\"text\":\"" + text + "\"");
+        items.add("\"text\":\"" + text.replace("\"", "\\\"") + "\"");
         if ( color != null ) {
             items.add("\"color\":\"" + color.name().toLowerCase() + "\"");
         }
@@ -149,9 +149,9 @@ public class MessageParts {
         ArrayList<String> items = new ArrayList<String>();
         for ( MessageParts msg : hover ) {
             if ( msg.color == null ) {
-                items.add("{\"text\":\"" + msg.text + "\"}");
+                items.add("{\"text\":\"" + msg.text.replace("\"", "\\\"") + "\"}");
             } else {
-                items.add("{\"text\":\"" + msg.text + "\","
+                items.add("{\"text\":\"" + msg.text.replace("\"", "\\\"") + "\","
                         + "\"color\":\"" + msg.color.name().toLowerCase() + "\"}");
             }
         }
