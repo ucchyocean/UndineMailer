@@ -7,9 +7,12 @@ package org.bitbucket.ucchy.undine;
 
 import java.io.BufferedReader;
 import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
+import java.io.UnsupportedEncodingException;
 import java.util.jar.JarFile;
 import java.util.zip.ZipEntry;
 
@@ -45,7 +48,14 @@ public class Messages {
                 e.printStackTrace();
             }
         }
-        resources = YamlConfiguration.loadConfiguration(file);
+        try {
+            resources = YamlConfiguration.loadConfiguration(
+                    new InputStreamReader(new FileInputStream(file),"UTF-8"));
+        } catch (UnsupportedEncodingException e) {
+            e.printStackTrace();
+        } catch (FileNotFoundException e) {
+            e.printStackTrace();
+        }
 
         // デフォルトメッセージをデフォルトとして足す。
         resources.addDefaults(defaultMessages);
@@ -118,12 +128,16 @@ public class Messages {
         jar = _jar;
         configFolder = _configFolder;
 
+        if ( !configFolder.exists() ) {
+            configFolder.mkdirs();
+        }
+
         // コンフィグフォルダにメッセージファイルがまだ無いなら、コピーしておく
         for ( String filename : new String[]{
                 "messages_en.yml", "messages_ja.yml", "messages_de.yml"} ) {
             File file = new File(configFolder, filename);
             if ( !file.exists() ) {
-                Utility.copyFileFromJar(jar, file, filename, false);
+                Utility.copyFileFromJar(jar, file, filename, true);
             }
         }
 

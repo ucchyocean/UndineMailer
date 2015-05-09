@@ -74,7 +74,8 @@ public class UndineMailer extends JavaPlugin {
         boxManager = new AttachmentBoxManager(this);
 
         // メッセージをロードする
-        Messages.initialize(getFile(), getDataFolder(), getDefaultLocaleLanguage());
+        File langFolder = new File(getDataFolder(), "lang");
+        Messages.initialize(getFile(), langFolder, getDefaultLocaleLanguage());
         Messages.reload(config.getLang());
 
         // コマンドクラスを作成する

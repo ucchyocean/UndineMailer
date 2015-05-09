@@ -6,6 +6,7 @@
 package org.bitbucket.ucchy.undine;
 
 import java.io.File;
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -147,6 +148,15 @@ public class UndineConfig {
             } else {
                 Utility.copyFileFromJar(
                         parent.getJarFile(), file, "config.yml", false);
+                if ( !UndineMailer.getDefaultLocaleLanguage().equals("en") ) {
+                    try {
+                        YamlSetter setter = new YamlSetter(file);
+                        setter.setString("lang", UndineMailer.getDefaultLocaleLanguage());
+                        setter.save();
+                    } catch (IOException e) {
+                        e.printStackTrace();
+                    }
+                }
             }
         }
 
