@@ -48,14 +48,7 @@ public class Messages {
                 e.printStackTrace();
             }
         }
-        try {
-            resources = YamlConfiguration.loadConfiguration(
-                    new InputStreamReader(new FileInputStream(file),"UTF-8"));
-        } catch (UnsupportedEncodingException e) {
-            e.printStackTrace();
-        } catch (FileNotFoundException e) {
-            e.printStackTrace();
-        }
+        resources = loadUTF8YamlFile(file);
 
         // デフォルトメッセージをデフォルトとして足す。
         resources.addDefaults(defaultMessages);
@@ -174,6 +167,60 @@ public class Messages {
                 }
             }
         }
+    }
+
+    /**
+     * UTF8エンコードのYamlファイルから、内容をロードする。
+     * @param file ファイル
+     * @return ロードされたYamlデータ
+     */
+    private static YamlConfiguration loadUTF8YamlFile(File file) {
+
+        YamlConfiguration config = new YamlConfiguration();
+        BufferedReader reader = null;
+        try {
+            reader = new BufferedReader(
+                    new InputStreamReader(new FileInputStream(file),"UTF-8"));
+            String line;
+            while ( (line = reader.readLine()) != null ) {
+                if ( line.trim().startsWith("#") || !line.contains(":")) {
+                    continue;
+                }
+                String[] temp = line.split(":");
+                if ( temp.length < 2 ) {
+                    continue;
+                }
+                String key = temp[0].trim();
+                StringBuffer buffer = new StringBuffer();
+                for ( int i=1; i<temp.length; i++ ) {
+                    if ( buffer.length() > 0 ) {
+                        buffer.append(":");
+                    }
+                    buffer.append(temp[i]);
+                }
+                String value = buffer.toString().trim();
+                if ( value.startsWith("'") && value.endsWith("'") ) {
+                    value = value.substring(1, value.length() - 1);
+                }
+                value = value.replace("''", "'");
+                config.set(key, value);
+            }
+        } catch (UnsupportedEncodingException e) {
+            e.printStackTrace();
+        } catch (FileNotFoundException e) {
+            e.printStackTrace();
+        } catch (IOException e) {
+            e.printStackTrace();
+        } finally {
+            if ( reader != null ) {
+                try {
+                    reader.close();
+                } catch (IOException e) {
+                    // do nothing.
+                }
+            }
+        }
+        return config;
     }
 
     /**
