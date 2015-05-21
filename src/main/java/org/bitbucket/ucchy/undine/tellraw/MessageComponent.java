@@ -119,11 +119,9 @@ public class MessageComponent {
      * @return ビルドされたコマンド文字列
      */
     private String build(String name) {
-        return "tellraw "
-                + name
-                + " {\"text\":\"\",\"extra\":["
-                + buildJoin(parts)
-                + "]}";
+        return String.format(
+                "tellraw %s {\"text\":\"\",\"extra\":[%s]}",
+                name, buildJoin(parts));
     }
 
     private boolean sendCommand(Player player) {

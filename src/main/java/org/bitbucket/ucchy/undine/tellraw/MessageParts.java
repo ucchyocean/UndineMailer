@@ -119,7 +119,7 @@ public class MessageParts {
         if ( ctype != null ) {
             items.add("\"clickEvent\":"
                     + "{\"action\":\"" + ctype.toString() + "\","
-                            + "\"value\":\"" + cvalue + "\"}");
+                            + "\"value\":\"" + cvalue.replace("\"", "\\\"") + "\"}");
         }
         if ( hover.size() > 0 ) {
             items.add("\"hoverEvent\":"
