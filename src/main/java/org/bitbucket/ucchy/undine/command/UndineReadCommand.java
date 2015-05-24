@@ -67,6 +67,7 @@ public class UndineReadCommand implements SubCommand {
         // パラメータが足りない場合はエラーを表示して終了
         if ( args.length < 2 ) {
             sender.sendMessage(Messages.get("ErrorRequireArgument", "%param", "MailIndex"));
+            sender.sendMessage(Messages.get("InformationTipsReadCommandFail"));
             return;
         }
 

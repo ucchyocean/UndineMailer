@@ -81,6 +81,8 @@ InformationGroupMemberAdd: '&7Added Player %player to the members of the group %
 InformationGroupMemberRemove: '&7Removed Player %player from the members of the group %group.'
 InformationGroupSetPermission: '&7Set %type permission of Group %name to %value.'
 
+InformationTipsReadCommandFail: '&7TIPS: You can open mail by clicking blue numbers in mail list.'
+
 SummaryOpenThisMailToolTip: 'Open this mail'
 
 MailDetailTitle: 'Mail (#%number)'
@@ -210,7 +212,7 @@ GroupSpecialAllMembers: 'All Players'
 
 WelcomeMailBody: 'Click to open this mail.\n\nWelcome to server!\nIf you want to read mails, please run "/mail" command.\nIf you want to write mail, please run "/mail write" command.\nHave fun!'
 
-DateFormat: 'MM/dd HH:mm'
+DateFormat: 'MMM dd HH:mm'
 
 ListVerticalParts: '&7| '
 ListHorizontalParts: '&7-----'

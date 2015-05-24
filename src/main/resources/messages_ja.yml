@@ -81,6 +81,8 @@ InformationGroupMemberAdd: '&7プレイヤー %player を、グループ %group 
 InformationGroupMemberRemove: '&7プレイヤー %player を、グループ %group のメンバーから削除しました。'
 InformationGroupSetPermission: '&7グループ %name の %type 権限を %value にしました。'
 
+InformationTipsReadCommandFail: '&7TIPS: メールは、リスト内の青い番号をクリックすることでも読むことが可能です。'
+
 SummaryOpenThisMailToolTip: 'このメールを開く'
 
 MailDetailTitle: 'メール(#%number)'

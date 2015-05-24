@@ -65,7 +65,7 @@ InformationEditCancelled: '&7Mail-Erstellen abgebrochen.'
 InformationPlayerJoin: '&7Du hast %unread ungelesene Mails.'
 InformationItemDetail: '&7Item Information: &f%desc  &7Handelbar?: &f%tradable'
 InformationMultiAttachConfirm: '&7Du willst eine Mail mit Item-Anhang an mehrere Empfänger versenden.\nDiese Mail wird %num mal vervielfacht werden. Bist du sicher?'
-InformationMultiAttachConfirmConsole: Zum Senden nutze den ''/mail send attachconfirm'' Befehl.
+InformationMultiAttachConfirmConsole: 'Zum Senden nutze den ''/mail send attachconfirm'' Befehl.'
 InformationAttachWasCanceledBySender: '&7Absender %sender hat den Inhalt der Anhang-Box der Mail #%num zurückgezogen.'
 InformationTrashed: '&7Mail #%index wurde in den Papierkorb verschoben.'
 InformationTrashRestored: '&7Mail #%index wurde aus deinem Papierkorb wiederhergestellt.'
@@ -81,41 +81,43 @@ InformationGroupMemberAdd: '&7Spieler %player zur Gruppe %group hinzugefügt.'
 InformationGroupMemberRemove: '&7Spieler %player wurde aus der Gruppe %group entfernt.'
 InformationGroupSetPermission: '&7%type Berechtigung der Gruppe %name wurde zu %value geändert.'
 
-SummaryOpenThisMailToolTip: Öffne diese Mail
+InformationTipsReadCommandFail: '&7TIPS: Sie können E-Mail, indem Sie auf blauen Zahlen in Mail- Liste zu öffnen.'
 
-MailDetailTitle: Mail (#%number)
+SummaryOpenThisMailToolTip: 'Öffne diese Mail'
+
+MailDetailTitle: 'Mail (#%number)'
 MailDetailFromToLine: '&cVon: &f%from  &cAn: &f%to'
 MailDetailDateLine: '&cDatum: &f%date'
 MailDetailMessageLine: '&cNachricht:'
 MailDetailAttachmentsLine: '&cItem-Anhang:'
 MailDetailAttachmentBox: '[Anhang-Box öffnen]'
 MailDetailAttachmentBoxCancel: '[Item-Anhang abbrechen]'
-MailDetailAttachmentBoxCancelToolTip: Brich den Item-Versand ab.\nDer Empfänger kann diese dann nicht mehr entgegennehmen.
-MailDetailAttachmentBoxCancelled: vom Absender abgebrochen
+MailDetailAttachmentBoxCancelToolTip: 'Brich den Item-Versand ab.\nDer Empfänger kann diese dann nicht mehr entgegennehmen.'
+MailDetailAttachmentBoxCancelled: 'vom Absender abgebrochen'
 MailDetailAttachmentBoxRefuse: '[Ablehnen]'
 MailDetailAttachmentBoxRefuseToolTip: 'Lehne das Angebot ab und sende den Inhalt zum Absender zurück\nDu kannst optional einen Grund angeben.\nz.B.: \n&e/umail attach 1 refuse Viel zu teuer!'
-MailDetailAttachmentBoxRefused: Vom Empfänger abgelehnt
+MailDetailAttachmentBoxRefused: 'Vom Empfänger abgelehnt'
 MailDetailAttachCostMoneyLine: '  &cC.O.D. Geld-Kosten, um Box zu öffnen: &f%fee'
 MailDetailAttachCostItemLine: '  &cC.O.D. Item-Kosten, um Box zu öffnen: &f%item'
 MailDetailTrash: '[Löschen]'
 MailDetailTrashRestore: '[Nachricht wiederherstellen]'
 MailDetailReply: '[Antworten]'
 
-Editmode: Editier-Modus
+Editmode: 'Editier-Modus'
 
-EditmodeTitle: Mail-Editor
+EditmodeTitle: 'Mail-Editor'
 EditmodeToDelete: '[x]'
-EditmodeToDeleteToolTip: Entferne diesen Empfänger
+EditmodeToDeleteToolTip: 'Entferne diesen Empfänger'
 EditmodeTo: '[An]'
 EditmodeToGroup: '[Gruppe]'
-EditmodeToToolTip: Bearbeite diesen Empfänger
+EditmodeToToolTip: 'Bearbeite diesen Empfänger'
 EditmodeToAdd: '[Empfänger hinzufügen]'
 EditmodeToAddToolTip: 'Klicke hier, um einen weiteren Empfänger\nhinzuzufügen und schreibe dessen\nSpielernamen in das Chatfenster'
 EditmodeToAddress: '[Empfänger aus Spielerliste hinzufügen]'
 EditmodeToGroupAdd: '[Empfängergruppe hinzufügen]'
-EditmodeLineEditToolTip: Klicke hier, um eine Nachricht hinzuzufügen
+EditmodeLineEditToolTip: 'Klicke hier, um eine Nachricht hinzuzufügen'
 EditmodeLineDelete: '[x]'
-EditmodeLineDeleteToolTip: Lösche diese Nachricht
+EditmodeLineDeleteToolTip: 'Lösche diese Nachricht'
 EditmodeLineAdd: '[weitere Zeilen hinzufügen]'
 EditmodeAttach: '[Öffne Anhang-Box]'
 EditmodeAttachNum: 'Angehangene Items: %num'
@@ -123,12 +125,12 @@ EditmodeCostMoney: '[Setze C.O.D. Geld-Kosten]'
 EditmodeCostMoneyData: '[C.O.D. Geld-Kosten(%fee)]'
 EditmodeCostMoneyToolTip: 'z.B.: &e/umail costmoney 30'
 EditmodeCostMoneyRemove: '[x]'
-EditmodeCostMoneyRemoveToolTip: Entferne C.O.D. Geld-Kosten
+EditmodeCostMoneyRemoveToolTip: 'Entferne C.O.D. Geld-Kosten'
 EditmodeCostItem: '[Setze C.O.D. Item-Kosten]'
 EditmodeCostItemData: '[C.O.D. Item-Kosten(%item)]'
-EditmodeCostItemToolTip: Wenn du z.B. 5 Diamanten verlangen\nwillst, gib bitte folgendes ein:\n&e/umail costitem DIAMOND 5
+EditmodeCostItemToolTip: 'Wenn du z.B. 5 Diamanten verlangen\nwillst, gib bitte folgendes ein:\n&e/umail costitem DIAMOND 5'
 EditmodeCostItemRemove: '[x]'
-EditmodeCostItemRemoveToolTip: Entferne C.O.D. Item-Kosten
+EditmodeCostItemRemoveToolTip: 'Entferne C.O.D. Item-Kosten'
 EditmodeSend: '[Senden]'
 EditmodeCancel: '[Abbrechen]'
 
@@ -143,7 +145,7 @@ BoxOpenCostMoneyResult: '&7%fee Gebüren bezahlt. (Kontostand: %remain)'
 BoxOpenCostMoneySenderResult: '&7Du hast %fee für dein C.O.D. von %to erhalten. (Kontostand: %remain)'
 BoxOpenCostItemInformation: '&7Du brauchst %amount %material(s), um die Anhang-Box zu öffnen.'
 BoxOpenCostItemResult: '&7Costed %amount %material(s).'
-BoxOpenCostItemSenderResult: You got C.O.D. item %amount %material(s) from %to.
+BoxOpenCostItemSenderResult: 'You got C.O.D. item %amount %material(s) from %to.'
 BoxOpenCostConfirm: '&7Möchtest du das wirklich öffnen?'
 
 BoxRefuseSenderResult: 'Systemnachricht: %to hat das Angebot abgelehnt,\n  für Mail #%num und dessen Inhalt zu zahlen.'
@@ -153,32 +155,32 @@ ButtonOK: '[OK]'
 ButtonCancel: '[Abbrechen]'
 
 InboxTitle: 'Posteingang (ungelesen: %unread)'
-OutboxTitle: Postausgang
-TrashboxTitle: Papierkorb
+OutboxTitle: 'Postausgang'
+TrashboxTitle: 'Papierkorb'
 
 Return: '[Zurück]'
 FirstPage: '[<<]'
 PrevPage: '[<]'
 NextPage: '[>]'
 LastPage: '[>>]'
-ReturnToolTip: Zurück zum Index
-FirstPageToolTip: Erste Seite
-PrevPageToolTip: Vorherige Seite
-NextPageToolTip: Nächste Seite
-LastPageToolTip: Letzte Seite
-ReturnListToolTip: Zurück zur Liste
-FirstMailToolTip: Erste Mail
-PrevMailToolTip: Vorherige Mail
-NextMailToolTip: Nächste Mail
-LastMailToolTip: Letzte Mail
+ReturnToolTip: 'Zurück zum Index'
+FirstPageToolTip: 'Erste Seite'
+PrevPageToolTip: 'Vorherige Seite'
+NextPageToolTip: 'Nächste Seite'
+LastPageToolTip: 'Letzte Seite'
+ReturnListToolTip: 'Zurück zur Liste'
+FirstMailToolTip: 'Erste Mail'
+PrevMailToolTip: 'Vorherige Mail'
+NextMailToolTip: 'Nächste Mail'
+LastMailToolTip: 'Letzte Mail'
 
-EditmodeBoxTitle: Anhang-Box (Bearbeiten-Modus)
-AttachmentBoxTitle: Anhang-Box (#%number)
+EditmodeBoxTitle: 'Anhang-Box (Bearbeiten-Modus)'
+AttachmentBoxTitle: 'Anhang-Box (#%number)'
 
-PlayerListIndexTitle: Player Name List Index
-PlayerListTitle: Player Name List (%pre)
+PlayerListIndexTitle: 'Player Name List Index'
+PlayerListTitle: 'Player Name List (%pre)'
 
-GroupListTitle: Gruppenliste (%num Gruppe/n)
+GroupListTitle: 'Gruppenliste (%num Gruppe/n)'
 GroupDetailTitle: 'Gruppe "%name"'
 GroupListSummayLine: '&7Besitzer: &f%owner  &7Mitglieder: &f%num'
 GroupMakeNewGroup: '[Neue Gruppe anlegen]'
@@ -196,21 +198,21 @@ GroupSettingTitle: 'Einstellungen der Gruppe "%name"'
 GroupSendPerm: 'Berechtigung - Senden an diese Gruppe: '
 GroupModifyPerm: 'Berechtigung - Einstellungen/Mitglieder ändern: '
 GroupDissolutionPerm: 'Berechtigung - Gruppe löschen: '
-GroupPermNever: Niemand
-GroupPermOP: nur OP
-GroupPermOwner: nur Besitzer
-GroupPermMember: Mitglieder
-GroupPermEveryone: Jeder
+GroupPermNever: 'Niemand'
+GroupPermOP: 'nur OP'
+GroupPermOwner: 'nur Besitzer'
+GroupPermMember: 'Mitglieder'
+GroupPermEveryone: 'Jeder'
 GroupPermChangeButton: '[%perm]'
 GroupDeleteGroup: '[Diese Gruppe löschen]'
 GroupReturnToMemberList: '[Zurück zur Mitgliederliste]'
 
-GroupSpecialAllSummary: Sondergruppe mit allen Spielern
-GroupSpecialAllMembers: Alle Spieler
+GroupSpecialAllSummary: 'Sondergruppe mit allen Spielern'
+GroupSpecialAllMembers: 'Alle Spieler'
 
-WelcomeMailBody: Klicke hier, um diese Mail zu öffnen.\n\nWillkommen auf unserem Server!\nWenn du deine Mails checken willst, nutze bitte den "/mail" Befehl.\nWenn du eine Mail schreiben willst, nutze den "/mail write" Befehl.\nViel Spaß!
+WelcomeMailBody: 'Klicke hier, um diese Mail zu öffnen.\n\nWillkommen auf unserem Server!\nWenn du deine Mails checken willst, nutze bitte den "/mail" Befehl.\nWenn du eine Mail schreiben willst, nutze den "/mail write" Befehl.\nViel Spaß!'
 
-DateFormat: E, dd.MM.yyyy HH:mm:ss
+DateFormat: 'dd.MM HH:mm'
 
 ListVerticalParts: '&7| '
 ListHorizontalParts: '&7-----'
@@ -219,27 +221,27 @@ DetailVerticalParts: '&7# '
 DetailHorizontalParts: '&7====='
 DetailLastLine: '&7=============================='
 
-HelpTitle: UndineMailer Befehlsübersicht
+HelpTitle: 'UndineMailer Befehlsübersicht'
 
-HelpCommand_inbox: /mail inbox
-HelpCommand_outbox: /mail outbox
-HelpCommand_trash: /mail trash
-HelpCommand_text: /mail text <an> <Nachricht>
-HelpCommand_write: /mail write
-HelpCommand_item: /mail item
-HelpCommand_help: /mail help
-HelpCommand_group: /ugroup
-HelpCommand_reload: /mail reload
+HelpCommand_inbox: '/mail inbox'
+HelpCommand_outbox: '/mail outbox'
+HelpCommand_trash: '/mail trash'
+HelpCommand_text: '/mail text <an> <Nachricht>'
+HelpCommand_write: '/mail write'
+HelpCommand_item: '/mail item'
+HelpCommand_help: '/mail help'
+HelpCommand_group: '/ugroup'
+HelpCommand_reload: '/mail reload'
 
-HelpDescription_inbox: Zeige deinen Posteingang
-HelpDescription_outbox: Zeige deinen Postausgang
-HelpDescription_trash: Zeige deinen Papierkorb
-HelpDescription_text: Sende eine einfache Textnachricht
-HelpDescription_write: Schreibe eine neue Nachricht im Mail-Editor
-HelpDescription_item: Zeige Informationen zum Item in deiner Hand
-HelpDescription_help: Zeige die Befehlsübersicht
-HelpDescription_group: Zeige die Gruppenverwaltungansicht
-HelpDescription_reload: Lade alle Dateien neu ein
+HelpDescription_inbox: 'Zeige deinen Posteingang'
+HelpDescription_outbox: 'Zeige deinen Postausgang'
+HelpDescription_trash: 'Zeige deinen Papierkorb'
+HelpDescription_text: 'Sende eine einfache Textnachricht'
+HelpDescription_write: 'Schreibe eine neue Nachricht im Mail-Editor'
+HelpDescription_item: 'Zeige Informationen zum Item in deiner Hand'
+HelpDescription_help: 'Zeige die Befehlsübersicht'
+HelpDescription_group: 'Zeige die Gruppenverwaltungansicht'
+HelpDescription_reload: 'Lade alle Dateien neu ein'
 
 Yes: 'ja'
 No: 'keine'
