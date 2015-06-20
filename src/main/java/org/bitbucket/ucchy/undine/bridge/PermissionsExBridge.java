@@ -88,6 +88,26 @@ public class PermissionsExBridge {
     }
 
     /**
+     * 指定のオプション値がtrueになっているグループのグループ名を取得する
+     * @param options オプション名
+     * @return 指定のオプションが設定されているグループのグループ名一覧
+     */
+    public ArrayList<String> getGroupNamesByBooleanOption(ArrayList<String> options) {
+        ArrayList<String> result = new ArrayList<String>();
+        for ( PermissionGroup group : PermissionsEx.getPermissionManager().getGroupList() ) {
+            for ( String option : options ) {
+                String value = group.getOption(option);
+                if ( value != null && value.equals("true") ) {
+                    result.add(group.getName());
+                    break;
+                }
+            }
+        }
+        Collections.sort(result);
+        return result;
+    }
+
+    /**
      * 指定したグループのメンバーのプレイヤー名一覧を取得する
      * @param group グループ名
      * @return メンバーのプレイヤー名一覧

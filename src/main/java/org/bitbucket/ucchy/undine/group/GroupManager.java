@@ -30,7 +30,13 @@ import org.bukkit.ChatColor;
  */
 public class GroupManager {
 
-    private static final String PEX_OPTION_FLAG = "recieve-mail";
+    private static final ArrayList<String> PEX_OPTION_FLAGS;
+    static {
+        PEX_OPTION_FLAGS = new ArrayList<String>();
+        PEX_OPTION_FLAGS.add("recieve-mail");
+        PEX_OPTION_FLAGS.add("receive-mail");
+    }
+
     private static final String PEX_OPTION_SENDMODE = "send-mode";
     private static final int PAGE_SIZE = 10;
 
@@ -801,7 +807,7 @@ public class GroupManager {
         }
 
         pexGroupsCache = new HashMap<String, GroupData>();
-        for ( String group : pex.getGroupNamesByBooleanOption(PEX_OPTION_FLAG) ) {
+        for ( String group : pex.getGroupNamesByBooleanOption(PEX_OPTION_FLAGS) ) {
             GroupPermissionMode sendmode = GroupPermissionMode.getFromString(
                     pex.getGroupOptionAsString(group, PEX_OPTION_SENDMODE),
                     UndineMailer.getInstance().getUndineConfig().getSpecialGroupPexSendMode());
