@@ -31,6 +31,9 @@ public class GroupCommand implements TabExecutor {
 
     public static final String COMMAND = "/ugroup";
     public static final String PERMISSION = "undine.group";
+    public static final String PERMISSION_INFINITE_CREATE = PERMISSION + ".infinite-create";
+    public static final String PERMISSION_INFINITE_ADD_MEMBER = PERMISSION + ".infinite-add-member";
+
     private static final String[] COMMANDS = new String[]{
         "create", "delete", "list", "detail", "add", "remove", "perm"
     };
@@ -162,11 +165,13 @@ public class GroupCommand implements TabExecutor {
         MailSender ms = MailSender.getMailSender(sender);
 
         // 作成可能数を超えた場合はエラーを表示して終了
-        int num = manager.getOwnerGroupCount(ms);
-        int limit = parent.getUndineConfig().getMaxCreateGroup();
-        if ( num >= limit ) {
-            sender.sendMessage(Messages.get("ErrorGroupCreateLimitExceed", "%num", limit));
-            return true;
+        if ( !sender.hasPermission(PERMISSION_INFINITE_CREATE) ) {
+            int num = manager.getOwnerGroupCount(ms);
+            int limit = parent.getUndineConfig().getMaxCreateGroup();
+            if ( num >= limit ) {
+                sender.sendMessage(Messages.get("ErrorGroupCreateLimitExceed", "%num", limit));
+                return true;
+            }
         }
 
         // グループ名として使用できない場合はエラーを表示して終了
@@ -361,11 +366,13 @@ public class GroupCommand implements TabExecutor {
         MailSender target = MailSender.getMailSenderFromString(pname);
 
         // 追加可能数を超えた場合はエラーを表示して終了
-        int num = group.getMembers().size();
-        int limit = parent.getUndineConfig().getMaxGroupMember();
-        if ( num >= limit ) {
-            sender.sendMessage(Messages.get("ErrorGroupMemberLimitExceed", "%num", limit));
-            return true;
+        if ( !sender.hasPermission(PERMISSION_INFINITE_ADD_MEMBER) ) {
+            int num = group.getMembers().size();
+            int limit = parent.getUndineConfig().getMaxGroupMember();
+            if ( num >= limit ) {
+                sender.sendMessage(Messages.get("ErrorGroupMemberLimitExceed", "%num", limit));
+                return true;
+            }
         }
 
         // グループを編集する権限が無い場合はエラーを表示して終了

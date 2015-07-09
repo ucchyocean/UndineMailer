@@ -42,6 +42,8 @@ public class GroupManager {
 
     private static final String COMMAND = GroupCommand.COMMAND;
     private static final String PERMISSION = GroupCommand.PERMISSION;
+    private static final String PERMISSION_INFINITE_CREATE = GroupCommand.PERMISSION_INFINITE_CREATE;
+    private static final String PERMISSION_INFINITE_ADD_MEMBER = GroupCommand.PERMISSION_INFINITE_ADD_MEMBER;
 
     private UndineMailer parent;
     private HashMap<String, GroupData> groups;
@@ -211,7 +213,7 @@ public class GroupManager {
      * @return 新規にグループを作成できるかどうか
      */
     public boolean canMakeNewGroup(MailSender sender) {
-        if ( sender.hasPermission(PERMISSION + ".infinite-create") ) return true;
+        if ( sender.hasPermission(PERMISSION_INFINITE_CREATE) ) return true;
         if ( !sender.hasPermission(PERMISSION + ".create") ) return false;
         int num = getOwnerGroupCount(sender);
         int limit = parent.getUndineConfig().getMaxCreateGroup();
@@ -536,7 +538,9 @@ public class GroupManager {
         }
 
         // メンバー追加ボタンと、設定ボタンを置く
-        if ( group.getMembers().size() < parent.getUndineConfig().getMaxGroupMember() ) {
+        if ( group.getMembers().size() < parent.getUndineConfig().getMaxGroupMember()
+                || sender.hasPermission(PERMISSION_INFINITE_ADD_MEMBER) ) {
+
             MessageComponent msg = new MessageComponent();
             msg.addText(pre);
 
