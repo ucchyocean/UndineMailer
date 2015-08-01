@@ -198,6 +198,11 @@ public class MailManager {
      */
     public void sendNewMail(MailData mail) {
 
+        // メールデータの本文が1行も無いときは、ここで1行追加を行う。
+        if ( mail.getMessage().size() == 0 ) {
+            mail.addMessage("");
+        }
+
         // ロードが完了していないうちは、メールを送信できないようにする
         if ( !isLoaded ) {
             UndineMailer.getInstance().getLogger().warning(
