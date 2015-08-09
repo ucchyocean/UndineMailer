@@ -5,7 +5,6 @@
  */
 package org.bitbucket.ucchy.undine.bridge;
 
-import net.milkbowl.vault.Vault;
 import net.milkbowl.vault.economy.Economy;
 import net.milkbowl.vault.economy.EconomyResponse;
 
@@ -34,7 +33,6 @@ public class VaultEcoBridge {
      */
     public static VaultEcoBridge load(Plugin plugin) {
         if ( plugin == null ) return null;
-        if ( !(plugin instanceof Vault) ) return null;
         RegisteredServiceProvider<Economy> economyProvider =
                 Bukkit.getServicesManager().getRegistration(Economy.class);
         if ( economyProvider != null ) {
