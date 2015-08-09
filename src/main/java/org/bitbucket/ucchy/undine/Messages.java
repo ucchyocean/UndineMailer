@@ -148,13 +148,14 @@ public class Messages {
                     new BufferedReader(new InputStreamReader(inputStream, "UTF-8"));
             String line;
             while ( (line = reader.readLine()) != null ) {
-                if ( line.contains(":") && !line.startsWith("#") ) {
-                    String key = line.substring(0, line.indexOf(":")).trim();
-                    String value = line.substring(line.indexOf(":") + 1).trim();
-                    if ( value.startsWith("'") && value.endsWith("'") )
-                        value = value.substring(1, value.length()-1);
-                    defaultMessages.set(key, value);
+                if ( line.startsWith("#") || !line.contains(":") ) {
+                    continue;
                 }
+                String key = line.substring(0, line.indexOf(":")).trim();
+                String value = line.substring(line.indexOf(":") + 1).trim();
+                if ( value.startsWith("'") && value.endsWith("'") )
+                    value = value.substring(1, value.length()-1);
+                defaultMessages.set(key, value);
             }
         } catch (IOException e) {
             e.printStackTrace();
@@ -183,22 +184,11 @@ public class Messages {
                     new InputStreamReader(new FileInputStream(file),"UTF-8"));
             String line;
             while ( (line = reader.readLine()) != null ) {
-                if ( line.trim().startsWith("#") || !line.contains(":")) {
+                if ( line.startsWith("#") || !line.contains(":") ) {
                     continue;
                 }
-                String[] temp = line.split(":");
-                if ( temp.length < 2 ) {
-                    continue;
-                }
-                String key = temp[0].trim();
-                StringBuffer buffer = new StringBuffer();
-                for ( int i=1; i<temp.length; i++ ) {
-                    if ( buffer.length() > 0 ) {
-                        buffer.append(":");
-                    }
-                    buffer.append(temp[i]);
-                }
-                String value = buffer.toString().trim();
+                String key = line.substring(0, line.indexOf(":")).trim();
+                String value = line.substring(line.indexOf(":") + 1).trim();
                 if ( value.startsWith("'") && value.endsWith("'") ) {
                     value = value.substring(1, value.length() - 1);
                 }

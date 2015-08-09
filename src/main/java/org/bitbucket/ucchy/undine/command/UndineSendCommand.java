@@ -129,23 +129,34 @@ public class UndineSendCommand implements SubCommand {
                 return;
             }
 
-            // All宛てのメールで添付付きは、権限があっても送信できないので、エラーを表示する
-            if ( mail.isAllMail() ) {
-                sender.sendMessage(Messages.get("ErrorCannotSendAttachMailToAll"));
-                return;
-            }
-
             // 宛先を調べる
             ArrayList<MailSender> to_total = new ArrayList<MailSender>();
-            for ( MailSender t : mail.getTo() ) {
-                if ( !to_total.contains(t) ) {
-                    to_total.add(t);
+
+            if ( mail.isAllMail() ) {
+
+                // All宛てのメールで添付付きは、プレイヤーキャッシュが完了していないなら送れない
+                if ( !parent.isPlayerCacheLoaded() ) {
+                    sender.sendMessage(Messages.get("ErrorCannotSendAttachMailToAllBecauseCacheLoading"));
+                    return;
                 }
-            }
-            for ( GroupData group : mail.getToGroupsConv() ) {
-                for ( MailSender t : group.getMembers() ) {
+
+                for ( MailSender t : parent.getPlayerCache().values() ) {
                     if ( !to_total.contains(t) ) {
                         to_total.add(t);
+                    }
+                }
+
+            } else {
+                for ( MailSender t : mail.getTo() ) {
+                    if ( !to_total.contains(t) ) {
+                        to_total.add(t);
+                    }
+                }
+                for ( GroupData group : mail.getToGroupsConv() ) {
+                    for ( MailSender t : group.getMembers() ) {
+                        if ( !to_total.contains(t) ) {
+                            to_total.add(t);
+                        }
                     }
                 }
             }

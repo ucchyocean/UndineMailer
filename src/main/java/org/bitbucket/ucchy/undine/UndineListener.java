@@ -61,10 +61,8 @@ public class UndineListener implements Listener {
         Player player = event.getPlayer();
         UndineConfig config = parent.getUndineConfig();
 
-        // プレイヤーリストが有効なら、プレイヤーキャッシュを更新する
-        if ( parent.getUndineConfig().isEnablePlayerList() ) {
-            parent.getPlayerCache().put(player.getName(), player);
-        }
+        // プレイヤーキャッシュを更新する
+        parent.getPlayerCache().put(player.getName(), MailSender.getMailSender(player));
 
         // MailManagerのロードが完了していないなら、以降は何もしない
         if ( !parent.getMailManager().isLoaded() ) {

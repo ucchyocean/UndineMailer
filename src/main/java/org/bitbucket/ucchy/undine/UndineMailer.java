@@ -16,11 +16,14 @@ import org.bitbucket.ucchy.undine.command.GroupCommand;
 import org.bitbucket.ucchy.undine.command.ListCommand;
 import org.bitbucket.ucchy.undine.command.UndineCommand;
 import org.bitbucket.ucchy.undine.group.GroupManager;
+import org.bitbucket.ucchy.undine.sender.MailSender;
+import org.bitbucket.ucchy.undine.sender.MailSenderPlayer;
 import org.bukkit.Bukkit;
 import org.bukkit.OfflinePlayer;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandSender;
 import org.bukkit.plugin.java.JavaPlugin;
+import org.bukkit.scheduler.BukkitRunnable;
 
 /**
  * UndineMailer メール送受信システムプラグイン
@@ -35,7 +38,8 @@ public class UndineMailer extends JavaPlugin {
     private AttachmentBoxManager boxManager;
     private GroupManager groupManager;
     private MailCleanupTask cleanupTask;
-    private HashMap<String, OfflinePlayer> playerCache;
+    private HashMap<String, MailSender> playerCache;
+    private boolean isPlayerCacheLoaded;
 
     private UndineCommand undineCommand;
     private ListCommand listCommand;
@@ -91,10 +95,7 @@ public class UndineMailer extends JavaPlugin {
         getServer().getPluginManager().registerEvents(new UndineListener(this), this);
 
         // プレイヤーキャッシュの作成
-        playerCache = new HashMap<String, OfflinePlayer>();
-        if ( config.isEnablePlayerList() ) {
-            playerCache = getAllValidPlayerNames();
-        }
+        checkAllValidPlayerNamesAsync();
     }
 
     /**
@@ -239,7 +240,7 @@ public class UndineMailer extends JavaPlugin {
      * プレイヤーキャッシュを取得する
      * @return プレイヤーキャッシュ
      */
-    public HashMap<String, OfflinePlayer> getPlayerCache() {
+    public HashMap<String, MailSender> getPlayerCache() {
         return playerCache;
     }
 
@@ -254,26 +255,41 @@ public class UndineMailer extends JavaPlugin {
         }
         config.reloadConfig();
         Messages.reload(config.getLang());
-        playerCache = new HashMap<String, OfflinePlayer>();
-        if ( config.isEnablePlayerList() ) {
-            playerCache = getAllValidPlayerNames();
-        }
+
+        checkAllValidPlayerNamesAsync();
     }
 
     /**
      * 宛先として有効な全てのプレイヤー名を取得する
      * @return 有効な宛先
      */
-    private HashMap<String, OfflinePlayer> getAllValidPlayerNames() {
-        HashMap<String, OfflinePlayer> players = new HashMap<String, OfflinePlayer>();
-        for ( OfflinePlayer player : Bukkit.getOfflinePlayers() ) {
-            if ( player.hasPlayedBefore() || player.isOnline() ) {
-                if ( !players.containsKey(player.getName()) ) {
-                    players.put(player.getName(), player);
+    private void checkAllValidPlayerNamesAsync() {
+
+        final long start = System.currentTimeMillis();
+        isPlayerCacheLoaded = false;
+
+        new BukkitRunnable() {
+            public void run() {
+                playerCache = new HashMap<String, MailSender>();
+                for ( OfflinePlayer player : Bukkit.getOfflinePlayers() ) {
+                    MailSender ms = MailSenderPlayer.getMailSenderFromString(player.getName());
+                    if ( ms != null && ms.isValidDestination() ) {
+                        playerCache.put(player.getName(), ms);
+                    }
                 }
+                UndineMailer.getInstance().getLogger().info("Async load offline player data... Done. Time: "
+                        + (System.currentTimeMillis() - start) + "ms, Data: " + playerCache.size() + ".");
+                isPlayerCacheLoaded = true;
             }
-        }
-        return players;
+        }.runTaskAsynchronously(this);
+    }
+
+    /**
+     * プレイヤーキャッシュがロードされているかどうかを返す
+     * @return プレイヤーキャッシュがロードされているかどうか
+     */
+    public boolean isPlayerCacheLoaded() {
+        return isPlayerCacheLoaded;
     }
 
     /**

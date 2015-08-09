@@ -32,7 +32,7 @@ ErrorAlreadyRecipientOpened: '&c既に受信者がボックスを開いたため
 ErrorInvalidAttachBoxWorld: '&cあなたのいるワールドは、アイテムの送受信が禁止されています。別のワールドに移動してから、添付ボックスを開いてください。'
 ErrorInvalidCommand: '&cこのコマンドは利用不可に設定されています。'
 ErrorAttachBoxCountExceed: '&cあなたは現在 %num個の添付ボックスを使用しており、制限数 %limitを超えているため、添付付きメールを送信することはできません。'
-ErrorCannotSendAttachMailToAll: '&c添付付きメールをAll宛に送信することはできません。'
+ErrorCannotSendAttachMailToAllBecauseCacheLoading: '&c現在、プレイヤーキャッシュデータの準備が完了していないので、添付付きメールをAll宛に送信することはできません。しばらく待ってから再実行してください。'
 ErrorCannotListInitializingYet: '&cまだメールデータの初期化が完了していないため、メールリストを表示できません。'
 ErrorCannotSendInitializingYet: '&cまだメールデータの初期化が完了していないため、メールを送信できません。'
 ErrorAlreadyTrashed: '&cメール %index は、既にゴミ箱の中にあります。'

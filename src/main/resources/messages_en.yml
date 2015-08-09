@@ -32,7 +32,7 @@ ErrorAlreadyRecipientOpened: '&cBecause recipient had opened box, you cannot can
 ErrorInvalidAttachBoxWorld: '&cIn this world, sending and receiving of items is prohibited. After you move to a different world, please open the attached box.'
 ErrorInvalidCommand: '&cThis command is invalid.'
 ErrorAttachBoxCountExceed: '&cYou are using %num attached boxes now, because it exceeds the limit %limit, you cannot send attachments with mail!'
-ErrorCannotSendAttachMailToAll: '&cYou cannot item attached mail to All group.'
+ErrorCannotSendAttachMailToAllBecauseCacheLoading: '&cSince the preparation of the players cache data has not been completed, you cannot send attachments with Mail to All. Please try again after waiting for a while.'
 ErrorCannotListInitializingYet: '&cBecause mailer has not yet been initialized, cannot view the mail list.'
 ErrorCannotSendInitializingYet: '&cBecause mailer has not yet been initialized, cannot send new mail.'
 ErrorAlreadyTrashed: '&cMail #%index is already in trash box.'

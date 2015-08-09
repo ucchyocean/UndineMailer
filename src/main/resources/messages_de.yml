@@ -32,7 +32,7 @@ ErrorAlreadyRecipientOpened: '&cDu kannst keine Anhänge entfernen, weil der Emp
 ErrorInvalidAttachBoxWorld: '&cIn dieser Welt dürfen keine Anhänge angehangen oder abgerufen werden.\nÖffne die Anhang-Box erneut, nachdem du eine andere Welt betreten hast.'
 ErrorInvalidCommand: '&cDieser Befehl ist ungültig.'
 ErrorAttachBoxCountExceed: '&cDu nutzt derzeit %num Anhang-Boxen.\nDa das Limit von %limit Boxen erreicht ist, kannst du keine weiten Anhänge erstellen.'
-ErrorCannotSendAttachMailToAll: '&cDu kannst keine Anhänge an die Gruppe All senden.'
+ErrorCannotSendAttachMailToAllBecauseCacheLoading: '&cDa die Vorbereitung der Spieler Cache-Daten noch nicht abgeschlossen ist, können Sie keine Anhänge zu versenden mit Mail an alle. Bitte versuchen Sie es nach einer Wartezeit für eine Weile.'
 ErrorCannotListInitializingYet: '&cDie Mail-Liste kann nicht angezeigt werden, da der Mailer noch nicht eingerichtet wurde.'
 ErrorCannotSendInitializingYet: '&cEs können keine neuen Mails gesendet werden, da der Mailer noch nicht eingerichtet wurde.'
 ErrorAlreadyTrashed: '&cMail #%index befindet sich bereits im Papierkorb.'
