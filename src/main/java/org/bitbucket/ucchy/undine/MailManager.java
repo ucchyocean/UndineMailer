@@ -1533,8 +1533,4 @@ public class MailManager {
         }
         return buffer.toString();
     }
-
-    protected void upgrade() {
-
-    }
 }
