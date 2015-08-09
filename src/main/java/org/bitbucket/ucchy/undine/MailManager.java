@@ -1297,7 +1297,14 @@ public class MailManager {
         msg.addText(parts + " ");
 
         if ( !meta.equals("unread") ) {
-            String returnCommand = (meta.equals("inbox")) ? COMMAND + " inbox" : COMMAND + " outbox";
+            String returnCommand;
+            if ( meta.equals("outbox") ) {
+                returnCommand = COMMAND + " outbox";
+            } else if ( meta.equals("trash") ) {
+                returnCommand = COMMAND + " trash";
+            } else {
+                returnCommand = COMMAND + " inbox";
+            }
             MessageParts returnButton = new MessageParts(
                     Messages.get("Return"), ChatColor.AQUA);
             returnButton.setClickEvent(ClickEventType.RUN_COMMAND, returnCommand);
