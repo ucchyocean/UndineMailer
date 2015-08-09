@@ -10,6 +10,7 @@ import java.util.List;
 
 import org.bitbucket.ucchy.undine.Messages;
 import org.bitbucket.ucchy.undine.UndineMailer;
+import org.bitbucket.ucchy.undine.Utility;
 import org.bitbucket.ucchy.undine.group.GroupData;
 import org.bitbucket.ucchy.undine.group.GroupManager;
 import org.bitbucket.ucchy.undine.group.GroupPermissionMode;
@@ -22,6 +23,7 @@ import org.bukkit.ChatColor;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandSender;
 import org.bukkit.command.TabExecutor;
+import org.bukkit.entity.Player;
 
 /**
  * groupコマンド
@@ -35,7 +37,7 @@ public class GroupCommand implements TabExecutor {
     public static final String PERMISSION_INFINITE_ADD_MEMBER = PERMISSION + ".infinite-add-member";
 
     private static final String[] COMMANDS = new String[]{
-        "create", "delete", "list", "detail", "add", "remove", "perm"
+        "create", "delete", "list", "detail", "add", "addalllogin", "remove", "perm"
     };
 
     private UndineMailer parent;
@@ -71,6 +73,8 @@ public class GroupCommand implements TabExecutor {
             return doDetailCommand(sender, command, label, args);
         } else if ( args[0].equalsIgnoreCase("add") ) {
             return doAddCommand(sender, command, label, args);
+        } else if ( args[0].equalsIgnoreCase("addalllogin") ) {
+            return doAddAllLoginCommand(sender, command, label, args);
         } else if ( args[0].equalsIgnoreCase("remove") ) {
             return doRemoveCommand(sender, command, label, args);
         } else if ( args[0].equalsIgnoreCase("perm") ) {
@@ -102,15 +106,18 @@ public class GroupCommand implements TabExecutor {
         } else if ( args.length == 2 &&
                 ( args[0].equalsIgnoreCase("delete")
                         || args[0].equalsIgnoreCase("add")
+                        || args[0].equalsIgnoreCase("addalllogin")
                         || args[0].equalsIgnoreCase("remove") ) ) {
             // delete、add、removeコマンドの2つ目は、
             // 変更権限を持っているグループ名で補完する
 
-            if ( !sender.hasPermission(PERMISSION + ".delete") ) {
+            if ( !sender.hasPermission(PERMISSION + "." + args[0].toLowerCase()) ) {
                 return new ArrayList<String>();
             }
 
             MailSender ms = MailSender.getMailSender(sender);
+            boolean isAdd = args[0].equalsIgnoreCase("add")
+                    || args[0].equalsIgnoreCase("addalllogin");
 
             // グループ名で補完する
             String arg = args[1].toLowerCase();
@@ -118,8 +125,12 @@ public class GroupCommand implements TabExecutor {
             ArrayList<String> candidates = new ArrayList<String>();
             for ( GroupData group : groups ) {
                 String name = group.getName().toLowerCase();
-                if ( name.startsWith(arg) && group.canBreakup(ms) ) {
-                    candidates.add(group.getName());
+                if ( name.startsWith(arg) ) {
+                    if ( isAdd && group.canModify(ms) ) {
+                        candidates.add(group.getName());
+                    } else if ( !isAdd && group.canBreakup(ms) ) {
+                        candidates.add(group.getName());
+                    }
                 }
             }
             return candidates;
@@ -404,6 +415,80 @@ public class GroupCommand implements TabExecutor {
                 Messages.get("InformationGroupMemberAdd",
                         new String[]{"%player", "%group"},
                         new String[]{pname, gname}));
+
+        return true;
+    }
+
+    private boolean doAddAllLoginCommand(CommandSender sender, Command command2, String label, String[] args) {
+
+        // パーミッション確認
+        if  ( !sender.hasPermission(PERMISSION + ".addalllogin") ) {
+            sender.sendMessage(Messages.get("PermissionDeniedCommand"));
+            return true;
+        }
+
+        // パラメータが足りない場合はエラーを表示して終了
+        if ( args.length < 2 ) {
+            sender.sendMessage(Messages.get("ErrorRequireArgument", "%param", "GroupName"));
+            return true;
+        }
+
+        String gname = args[1];
+        GroupManager manager = parent.getGroupManager();
+
+        // 存在しないグループ名が指定された場合はエラーを表示して終了
+        if ( !manager.existGroupName(gname) ) {
+            sender.sendMessage(Messages.get("ErrorGroupNotExist", "%name", gname));
+            return true;
+        }
+
+        GroupData group = manager.getGroup(gname);
+        MailSender ms = MailSender.getMailSender(sender);
+
+        // グループを編集する権限が無い場合はエラーを表示して終了
+        if ( !group.canModify(ms) ) {
+            sender.sendMessage(Messages.get("ErrorGroupModifyNotPermission", "%name", gname));
+            return true;
+        }
+
+        int count = 0;
+
+        for ( Player player : Utility.getOnlinePlayers() ) {
+
+            // 追加可能数を超えた場合はエラーを表示して終了
+            if ( !sender.hasPermission(PERMISSION_INFINITE_ADD_MEMBER) ) {
+                int num = group.getMembers().size();
+                int limit = parent.getUndineConfig().getMaxGroupMember();
+                if ( num >= limit ) {
+                    sender.sendMessage(Messages.get("ErrorGroupMemberLimitExceed", "%num", limit));
+                    break;
+                }
+            }
+
+            MailSender target = MailSender.getMailSender(player);
+
+            // 既に追加されているなら次へ
+            if ( group.getMembers().contains(target) ) {
+                continue;
+            }
+
+            // メンバーを追加する
+            group.addMember(target);
+            count++;
+        }
+
+        // 1人以上追加されたなら、グループを保存する
+        if ( count > 0 ) {
+            manager.saveGroupData(group);
+        }
+
+        // グループ編集画面を表示
+        manager.displayGroupDetailModifyMode(ms, group, 1);
+
+        sender.sendMessage(
+                Messages.get("InformationGroupMemberAddAllLogin",
+                        new String[]{"%num", "%group"},
+                        new String[]{count + "", gname}));
 
         return true;
     }

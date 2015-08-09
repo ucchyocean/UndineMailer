@@ -124,6 +124,9 @@ permissions:
   undine.group.add:
     description: Permission of group add command.
     default: true
+  undine.group.addalllogin:
+    description: Permission of group addAllLogin command.
+    default: true
   undine.group.remove:
     description: Permission of group remove command.
     default: true
@@ -152,6 +155,7 @@ permissions:
       undine.group.list: true
       undine.group.detail: true
       undine.group.add: true
+      undine.group.addalllogin: true
       undine.group.remove: true
       undine.group.perm: true
       undine.group.infinite-create: true

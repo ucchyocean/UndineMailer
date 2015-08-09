@@ -562,6 +562,17 @@ public class GroupManager {
             }
 
             msg.send(sender);
+
+            msg = new MessageComponent();
+            msg.addText(pre);
+
+            MessageParts addall = new MessageParts(Messages.get("GroupAddMemberAllLogin"), ChatColor.AQUA);
+            addall.setClickEvent(
+                    ClickEventType.RUN_COMMAND,
+                    COMMAND + " addalllogin " + group.getName());
+            msg.addParts(addall);
+
+            msg.send(sender);
         }
 
         MessageComponent msg = new MessageComponent();
