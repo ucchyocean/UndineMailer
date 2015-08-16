@@ -100,6 +100,7 @@ MailDetailAttachmentBoxRefuseToolTip: 'Refuse to receive items, \nand send back 
 MailDetailAttachmentBoxRefused: 'Refused by recipient'
 MailDetailAttachCostMoneyLine: '  &cC.O.D. money to open box: &f%fee'
 MailDetailAttachCostItemLine: '  &cC.O.D. item to open box: &f%item'
+MailDetailAttachmentsOriginalLine: '&cAttached Items (original):'
 MailDetailTrash: '[Delete]'
 MailDetailTrashRestore: '[Restore from trash]'
 MailDetailReply: '[Reply]'

@@ -100,6 +100,7 @@ MailDetailAttachmentBoxRefuseToolTip: 'Lehne das Angebot ab und sende den Inhalt
 MailDetailAttachmentBoxRefused: 'Vom Empfänger abgelehnt'
 MailDetailAttachCostMoneyLine: '  &cC.O.D. Geld-Kosten, um Box zu öffnen: &f%fee'
 MailDetailAttachCostItemLine: '  &cC.O.D. Item-Kosten, um Box zu öffnen: &f%item'
+MailDetailAttachmentsOriginalLine: '&cItem-Anhang (original):'
 MailDetailTrash: '[Löschen]'
 MailDetailTrashRestore: '[Nachricht wiederherstellen]'
 MailDetailReply: '[Antworten]'

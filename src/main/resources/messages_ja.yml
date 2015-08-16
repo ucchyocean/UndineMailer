@@ -100,6 +100,7 @@ MailDetailAttachmentBoxRefuseToolTip: '受け取りを拒否して、\n添付ア
 MailDetailAttachmentBoxRefused: '受信者により添付が受取拒否されました'
 MailDetailAttachCostMoneyLine: '  &c着払い料金: &f%fee'
 MailDetailAttachCostItemLine: '  &c着払いアイテム: &f%item'
+MailDetailAttachmentsOriginalLine: '&c送信時の添付アイテム:'
 MailDetailTrash: '[ゴミ箱に移動する]'
 MailDetailTrashRestore: '[ゴミ箱から戻す]'
 MailDetailReply: '[返信する]'

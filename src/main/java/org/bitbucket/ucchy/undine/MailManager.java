@@ -915,6 +915,18 @@ public class MailManager {
             }
         }
 
+        if ( !mail.isEditmode() && mail.getAttachmentsOriginal() != null
+                && mail.getAttachmentsOriginal().size() > 0 && mail.getFrom().equals(sender) ) {
+            // 添付アイテムオリジナルがあり、表示先が送信者なら、元の添付アイテムを表示する。
+
+            sender.sendMessage(pre + Messages.get("MailDetailAttachmentsOriginalLine"));
+
+            for ( ItemStack i : mail.getAttachmentsOriginal() ) {
+                sender.sendMessage(pre + "  " + ChatColor.WHITE + getItemDesc(i, true));
+            }
+
+        }
+
         if ( sender instanceof MailSenderPlayer
                 && mail.isRelatedWith(sender) && !mail.isEditmode() ) {
 
