@@ -42,6 +42,7 @@ ErrorCannotDropBecauseAttached: '&cメール %index は、添付アイテムが�
 ErrorCannotSendSpamMail: '&c連続してメールを送信することはできません。次のメールが送信可能になるまで、%remain秒必要です。'
 ErrorPlayerCacheIncomplete: '&cプレイヤーのキャッシュが完了していないため、AllConnected宛てメールが作成できません。しばらく待ってから送信してください。'
 ErrorCannotFoundLocation: '&c指定されたメールには送信地点が記録されていないためテレポートできません。'
+ErrorProhibitItemAttached: '&cアイテム %material の添付は禁止されています。'
 
 ErrorInvalidGroupName: '&c%name はグループ名として使用できません。'
 ErrorGroupIsAlreadyExist: '&cグループ %name は既に存在するため使用できません。'

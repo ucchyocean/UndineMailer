@@ -57,6 +57,13 @@ maxAttachmentBoxCount: 3
 # 受信したメールの添付ボックスを開くことができなくなります。
 disableWorldsToOpenAttachBox: []
 
+# メールに添付することができないアイテムを指定します。
+# 例えば prohibitItemsToAttach: [GOLDEN_APPLE, QUARTZ_BLOCK] と設定すると、
+# 金リンゴとクオーツブロックが添付できなくなります。
+# 指定可能なアイテム名は、下記のURLを参考にしてください。
+# https://github.com/ucchyocean/UndineMailer/blob/master/src/main/java/org/bitbucket/ucchy/undine/item/TradableMaterial.java#L16-L357
+prohibitItemsToAttach: []
+
 # -------------------- 着払い設定 --------------------
 
 # 経済プラグインの通貨を利用して、着払い料金を設定可能とするかどうか。

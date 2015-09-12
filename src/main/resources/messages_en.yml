@@ -42,6 +42,7 @@ ErrorCannotDropBecauseAttached: '&cBecause Mail #%index has attached item yet, y
 ErrorCannotSendSpamMail: '&cYou cannot send mail in succession. Until the next mail is to be sent, you need %remain seconds.'
 ErrorPlayerCacheIncomplete: '&cSince the players cache has not been completed, you cannot send AllConnected addressed mail. Please send after waiting for a while.'
 ErrorCannotFoundLocation: '&cYou cannot teleport for transmission point is not recorded to the specified mail.'
+ErrorProhibitItemAttached: '&cItem %material is prohibited to attach.'
 
 ErrorInvalidGroupName: '&c%name cannot be used as a group name.'
 ErrorGroupIsAlreadyExist: '&cGroup %name cannot be used because it already exists.'

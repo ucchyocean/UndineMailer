@@ -8,8 +8,10 @@ package org.bitbucket.ucchy.undine;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.bitbucket.ucchy.undine.item.TradableMaterial;
 import org.bitbucket.ucchy.undine.sender.MailSender;
 import org.bitbucket.ucchy.undine.sender.MailSenderConsole;
+import org.bukkit.Material;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
@@ -108,33 +110,83 @@ public class UndineListener implements Listener {
 
         Player player = (Player)event.getWhoClicked();
 
-        // 添付アイテムボックスのインベントリでなければ、何もしない
-        if ( !parent.getBoxManager().isOpeningAttachBox(player) ) return;
+        if ( parent.getBoxManager().isOpeningAttachBox(player) ) {
+            // 添付ボックスのアイテム処理
 
-        int size = event.getInventory().getSize();
-        boolean inside = (event.getRawSlot() < size);
+            int size = event.getInventory().getSize();
+            boolean inside = (event.getRawSlot() < size);
 
-        // 添付ボックス内へのアイテム配置を禁止する(取り出し専用にする)
-        switch ( event.getAction() ) {
-        case PLACE_ALL:
-        case PLACE_ONE:
-        case PLACE_SOME:
-        case SWAP_WITH_CURSOR:
-            if ( inside ) {
-                event.setCancelled(true);
+            // 添付ボックス内へのアイテム配置を禁止する(取り出し専用にする)
+            switch ( event.getAction() ) {
+            case PLACE_ALL:
+            case PLACE_ONE:
+            case PLACE_SOME:
+            case SWAP_WITH_CURSOR:
+                if ( inside ) {
+                    event.setCancelled(true);
+                }
+                return;
+            case MOVE_TO_OTHER_INVENTORY:
+                if ( !inside ) {
+                    event.setCancelled(true);
+                }
+                return;
+            case HOTBAR_SWAP:
+            case HOTBAR_MOVE_AND_READD:
+                ItemStack hotbar = player.getInventory().getItem(event.getHotbarButton());
+                if ( hotbar.getType() != Material.AIR ) {
+                    event.setCancelled(true);
+                }
+                return;
+            default:
+                return;
             }
-            return;
-        case MOVE_TO_OTHER_INVENTORY:
-            if ( !inside ) {
-                event.setCancelled(true);
+
+        } else if ( parent.getBoxManager().isOpeningEditmodeBox(player) ) {
+            // 編集メールの添付ボックスのアイテム処理
+
+            List<TradableMaterial> disables
+                = parent.getUndineConfig().getProhibitItemsToAttach();
+
+            // 禁止アイテムが設定されていないなら何もしない
+            if ( disables.size() == 0 ) {
+                return;
             }
-            return;
-        case HOTBAR_SWAP:
-        case HOTBAR_MOVE_AND_READD:
-            event.setCancelled(true);
-            return;
-        default:
-            return;
+
+            int size = event.getInventory().getSize();
+            boolean inside = (event.getRawSlot() < size);
+
+            // 添付ボックス内へのアイテム配置を禁止する
+            switch ( event.getAction() ) {
+            case PLACE_ALL:
+            case PLACE_ONE:
+            case PLACE_SOME:
+            case SWAP_WITH_CURSOR:
+                if ( inside && isDisableItem(event.getCursor() ) ) {
+                    event.setCancelled(true);
+                    player.sendMessage(Messages.get("ErrorProhibitItemAttached",
+                            "%material", event.getCursor().getType().toString()));
+                }
+                return;
+            case MOVE_TO_OTHER_INVENTORY:
+                if ( !inside && isDisableItem(event.getCurrentItem()) ) {
+                    event.setCancelled(true);
+                    player.sendMessage(Messages.get("ErrorProhibitItemAttached",
+                            "%material", event.getCurrentItem().getType().toString()));
+                }
+                return;
+            case HOTBAR_SWAP:
+            case HOTBAR_MOVE_AND_READD:
+                ItemStack hotbar = player.getInventory().getItem(event.getHotbarButton());
+                if ( isDisableItem(hotbar) ) {
+                    event.setCancelled(true);
+                    player.sendMessage(Messages.get("ErrorProhibitItemAttached",
+                            "%material", hotbar.getType().toString()));
+                }
+                return;
+            default:
+                return;
+            }
         }
     }
 
@@ -147,15 +199,43 @@ public class UndineListener implements Listener {
 
         Player player = (Player)event.getWhoClicked();
 
-        // 添付アイテムボックスのインベントリでなければ、何もしない
-        if ( !parent.getBoxManager().isOpeningAttachBox(player) ) return;
+        if ( parent.getBoxManager().isOpeningAttachBox(player) ) {
+            // 添付ボックスのアイテム処理
 
-        // 添付ボックス内へのアイテム配置を禁止する(取り出し専用にする)
-        int size = event.getInventory().getSize();
-        for ( int i : event.getRawSlots() ) {
-            if ( i < size ) {
-                event.setCancelled(true);
+            // 添付ボックス内へのアイテム配置を禁止する(取り出し専用にする)
+            int size = event.getInventory().getSize();
+            for ( int i : event.getRawSlots() ) {
+                if ( i < size ) {
+                    event.setCancelled(true);
+                    return;
+                }
+            }
+
+        } else if ( parent.getBoxManager().isOpeningEditmodeBox(player) ) {
+            // 編集メールの添付ボックスのアイテム処理
+
+            List<TradableMaterial> disables
+                = parent.getUndineConfig().getProhibitItemsToAttach();
+
+            // 禁止アイテムが設定されていないなら何もしない
+            if ( disables.size() == 0 ) {
                 return;
+            }
+
+            // 禁止アイテムに関する操作でなければ何もしない
+            if ( !isDisableItem(event.getOldCursor()) ) {
+                return;
+            }
+
+            // 添付ボックス内へのアイテム配置を禁止する
+            int size = event.getInventory().getSize();
+            for ( int i : event.getRawSlots() ) {
+                if ( i < size ) {
+                    event.setCancelled(true);
+                    player.sendMessage(Messages.get("ErrorProhibitItemAttached",
+                            "%material", event.getOldCursor().getType().toString()));
+                    return;
+                }
             }
         }
     }
@@ -171,5 +251,20 @@ public class UndineListener implements Listener {
             list.add(item.clone());
         }
         return list;
+    }
+
+    /**
+     * 指定されたアイテムが添付禁止かどうかを判断する
+     * @param item アイテム
+     * @return 添付禁止かどうか
+     */
+    private boolean isDisableItem(ItemStack item) {
+        if ( item == null || item.getType() == Material.AIR ) return false;
+        for ( TradableMaterial mat : parent.getUndineConfig().getProhibitItemsToAttach() ) {
+            if ( mat.isSameMaterial(item.getType()) ) {
+                return true;
+            }
+        }
+        return false;
     }
 }

@@ -167,6 +167,17 @@ public class AttachmentBoxManager {
     }
 
     /**
+     * 指定したプレイヤーが、編集メールの添付ボックスを開いている状態かどうかを返す
+     * @param player プレイヤー
+     * @return 編集メールの添付ボックスを開いているかどうか
+     * （送信済みメールのボックスを含まない）
+     */
+    protected boolean isOpeningEditmodeBox(Player player) {
+        return indexCache.containsKey(player)
+                && indexCache.get(player) == 0;
+    }
+
+    /**
      * 指定されたプレイヤーが開いていた添付ボックスを、メールと同期する
      * @param player プレイヤー
      */
@@ -202,6 +213,7 @@ public class AttachmentBoxManager {
             inv.addItem(item);
         }
 
+        // ArrayListへ再配置
         ArrayList<ItemStack> array = new ArrayList<ItemStack>();
         for ( ItemStack item : inv.getContents() ) {
             if ( item != null && item.getType() != Material.AIR ) {

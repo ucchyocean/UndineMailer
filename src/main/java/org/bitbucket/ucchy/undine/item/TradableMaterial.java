@@ -369,6 +369,13 @@ public enum TradableMaterial {
      * @return TradableMaterial
      */
     public static TradableMaterial getMaterial(String name) {
+
+        // 数字で指定された場合は、アイテムIDとして処理する
+        if ( name.matches("[0-9]+") ) {
+            return getFromId(Integer.parseInt(name));
+        }
+
+        // 同じ名前を探して返す
         for ( TradableMaterial m : values() ) {
             if ( m.toString().equalsIgnoreCase(name) ) {
                 return m;
@@ -401,6 +408,15 @@ public enum TradableMaterial {
      */
     public static boolean isTradable(Material material) {
         return (convertFromMaterial(material) != null);
+    }
+
+    /**
+     * 指定されたMaterialが、このTradableMaterialと一致するものかどうかを返す。
+     * @param material マテリアル
+     * @return 一致するかどうか
+     */
+    public boolean isSameMaterial(Material material) {
+        return this.toString().equals(material.toString());
     }
 
     /**

@@ -42,6 +42,7 @@ ErrorCannotDropBecauseAttached: '&cDu kannst Mail #%index nicht verschieben, wei
 ErrorCannotSendSpamMail: '&cDu musst noch %remain Sekunden warten, bis du deine nächste Mail verschicken darfst.'
 ErrorPlayerCacheIncomplete: '&cDa der Player -Cache noch nicht abgeschlossen ist, können Sie nicht erstellt werden AllConnected adressierte Post. Bitte senden Sie nach einer Wartezeit für eine Weile.'
 ErrorCannotFoundLocation: '&cSie können nicht teleportieren zur Übertragung Punkt ist nicht auf die angegebene E-Mail aufgezeichnet.'
+ErrorProhibitItemAttached: '&cArtikel %material angebracht ist untersagt.'
 
 ErrorInvalidGroupName: '&c%name kann nicht als Gruppenname genutzt werden.'
 ErrorGroupIsAlreadyExist: '&cDie Gruppe %name existiert bereits.'
