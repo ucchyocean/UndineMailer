@@ -7,6 +7,7 @@ package org.bitbucket.ucchy.undine.sender;
 
 import org.bitbucket.ucchy.undine.Utility;
 import org.bukkit.Bukkit;
+import org.bukkit.Location;
 import org.bukkit.OfflinePlayer;
 import org.bukkit.command.BlockCommandSender;
 import org.bukkit.command.CommandSender;
@@ -66,6 +67,12 @@ public abstract class MailSender implements Comparable<MailSender> {
      * @return ワールド名
      */
     public abstract String getWorldName();
+
+    /**
+     * 発言者が今いる地点を取得する
+     * @return 地点
+     */
+    public abstract Location getLocation();
 
     /**
      * 指定されたパーミッションノードの権限を持っているかどうかを取得する

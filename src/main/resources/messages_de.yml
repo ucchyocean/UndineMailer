@@ -41,6 +41,7 @@ ErrorCannotDropBecauseUnread: '&cDu kannst Mail #%index nicht verschieben, weil 
 ErrorCannotDropBecauseAttached: '&cDu kannst Mail #%index nicht verschieben, weil sie noch Item-Anhänge hat.'
 ErrorCannotSendSpamMail: '&cDu musst noch %remain Sekunden warten, bis du deine nächste Mail verschicken darfst.'
 ErrorPlayerCacheIncomplete: '&cDa der Player -Cache noch nicht abgeschlossen ist, können Sie nicht erstellt werden AllConnected adressierte Post. Bitte senden Sie nach einer Wartezeit für eine Weile.'
+ErrorCannotFoundLocation: '&cSie können nicht teleportieren zur Übertragung Punkt ist nicht auf die angegebene E-Mail aufgezeichnet.'
 
 ErrorInvalidGroupName: '&c%name kann nicht als Gruppenname genutzt werden.'
 ErrorGroupIsAlreadyExist: '&cDie Gruppe %name existiert bereits.'
@@ -74,6 +75,7 @@ InformationTrashAllNeedConfirmation: '&7All deine gelesenen erhaltenen/gesendete
 InformationTrashAllDone: '&7%num Mail(s) wurden in den Papierkorb verschoben.'
 InformationRestoreAllNeedConfirmation: '&7Alle %num Mail(s) aus deinem Papierkorb werden wiederhergestellt.\nIst das OK? Dann bestätige dies bitte mit dem Befehl "/%command trash restoreall confirm".'
 InformationRestoreAllDone: '&7%num Mail(s) aus deinem Papierkorb wurden wiederhergestellt.'
+InformationTeleported: '&aSie wurden an die Übertragungsstelle des Mail %index teleportiert.'
 
 InformationMakeGroup: '&7Neue Gruppe %name wurde erstellt.'
 InformationDeleteGroup: '&7Gruppe %name wurde entfernt.'
@@ -105,6 +107,7 @@ MailDetailAttachmentsOriginalLine: '&cItem-Anhang (original):'
 MailDetailTrash: '[Löschen]'
 MailDetailTrashRestore: '[Nachricht wiederherstellen]'
 MailDetailReply: '[Antworten]'
+MailDetailTeleport: '[Teleport zum Übertragungspunkt dieser Mail]'
 
 Editmode: 'Editier-Modus'
 

@@ -8,6 +8,7 @@ package org.bitbucket.ucchy.undine.sender;
 import java.util.HashMap;
 
 import org.bukkit.Bukkit;
+import org.bukkit.Location;
 import org.bukkit.OfflinePlayer;
 import org.bukkit.command.CommandSender;
 import org.bukkit.command.ConsoleCommandSender;
@@ -109,6 +110,16 @@ public class MailSenderConsole extends MailSender {
     @Override
     public String getWorldName() {
         return "-";
+    }
+
+    /**
+     * 発言者が今いる地点を取得する
+     * @return 常にnullが返される。
+     * @see org.bitbucket.ucchy.undine.sender.MailSender#getLocation()
+     */
+    @Override
+    public Location getLocation() {
+        return null;
     }
 
     /**

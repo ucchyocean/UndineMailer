@@ -5,6 +5,7 @@
  */
 package org.bitbucket.ucchy.undine.sender;
 
+import org.bukkit.Location;
 import org.bukkit.OfflinePlayer;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
@@ -82,6 +83,16 @@ public class MailSenderDummy extends MailSender {
      */
     @Override
     public String getWorldName() {
+        return null;
+    }
+
+    /**
+     * 発言者が今いる地点を取得する
+     * @return 常にnullが返される。
+     * @see org.bitbucket.ucchy.undine.sender.MailSender#getLocation()
+     */
+    @Override
+    public Location getLocation() {
         return null;
     }
 

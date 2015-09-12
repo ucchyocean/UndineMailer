@@ -95,6 +95,9 @@ permissions:
   undine.item:
     description: Permission of item command.
     default: true
+  undine.teleport:
+    description: Permission of teleporting to the location of sending.
+    default: op
   undine.help:
     description: Permission of help command.
     default: true
@@ -186,6 +189,7 @@ permissions:
       undine.send: true
       undine.cancel: true
       undine.item: true
+      undine.teleport: true
       undine.help: true
       undine.reload: true
       undine.list: true

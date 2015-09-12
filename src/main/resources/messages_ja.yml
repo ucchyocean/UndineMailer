@@ -41,6 +41,7 @@ ErrorCannotDropBecauseUnread: '&cメール %index は、未読のため移動す
 ErrorCannotDropBecauseAttached: '&cメール %index は、添付アイテムが残っているため移動することができません。'
 ErrorCannotSendSpamMail: '&c連続してメールを送信することはできません。次のメールが送信可能になるまで、%remain秒必要です。'
 ErrorPlayerCacheIncomplete: '&cプレイヤーのキャッシュが完了していないため、AllConnected宛てメールが作成できません。しばらく待ってから送信してください。'
+ErrorCannotFoundLocation: '&c指定されたメールには送信地点が記録されていないためテレポートできません。'
 
 ErrorInvalidGroupName: '&c%name はグループ名として使用できません。'
 ErrorGroupIsAlreadyExist: '&cグループ %name は既に存在するため使用できません。'
@@ -74,6 +75,7 @@ InformationTrashAllNeedConfirmation: '&7あなたの送信済みメール/既読
 InformationTrashAllDone: '&7%num通のメールをゴミ箱へ移動しました。'
 InformationRestoreAllNeedConfirmation: '&7あなたのゴミ箱メール%num通を、全て受信箱/送信箱に移動します。実行するには、"/%command trash restoreall confirm" コマンドを実行してください。'
 InformationRestoreAllDone: '&7%num通のメールをゴミ箱から戻しました。'
+InformationTeleported: '&aメール %index の送信地点にテレポートしました。'
 
 InformationMakeGroup: '&7新しいグループ %name を作成しました。'
 InformationDeleteGroup: '&7グループ %name を削除しました。'
@@ -105,6 +107,7 @@ MailDetailAttachmentsOriginalLine: '&c送信時の添付アイテム:'
 MailDetailTrash: '[ゴミ箱に移動する]'
 MailDetailTrashRestore: '[ゴミ箱から戻す]'
 MailDetailReply: '[返信する]'
+MailDetailTeleport: '[このメールの送信地点へテレポートする]'
 
 Editmode: '編集中'
 

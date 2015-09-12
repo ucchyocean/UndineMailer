@@ -12,6 +12,7 @@ import java.util.UUID;
 import org.bitbucket.ucchy.undine.UndineMailer;
 import org.bitbucket.ucchy.undine.Utility;
 import org.bukkit.Bukkit;
+import org.bukkit.Location;
 import org.bukkit.OfflinePlayer;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
@@ -153,6 +154,20 @@ public class MailSenderPlayer extends MailSender {
             return player.getWorld().getName();
         }
         return "-";
+    }
+
+    /**
+     * 発言者が今いる地点を取得する
+     * @return 地点
+     * @see org.bitbucket.ucchy.undine.sender.MailSender#getLocation()
+     */
+    @Override
+    public Location getLocation() {
+        Player player = getPlayer();
+        if ( player != null ) {
+            return player.getLocation();
+        }
+        return null;
     }
 
     /**

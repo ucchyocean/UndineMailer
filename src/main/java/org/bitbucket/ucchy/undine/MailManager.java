@@ -45,6 +45,7 @@ public class MailManager {
     protected static final String MAILLIST_METAKEY = "UndineMailList";
     public static final String SENDTIME_METAKEY = "MailSendTime";
     private static final String COMMAND = UndineCommand.COMMAND;
+    private static final String PERMISSION_TELEPORT = "undine.teleport";
 
     private static final int PAGE_SIZE = 10;
     private static final int MESSAGE_ADD_SIZE = 3;
@@ -233,6 +234,9 @@ public class MailManager {
 
         // 送信時間を設定する
         mail.setDate(new Date());
+
+        // 送信地点を設定する
+        mail.setLocation(mail.getFrom().getLocation());
 
         // オリジナルの添付ファイルを記録する
         mail.makeAttachmentsOriginal();
@@ -980,6 +984,22 @@ public class MailManager {
                     msg.send(sender);
                 }
             }
+        }
+
+        if ( !mail.isEditmode() && mail.getLocation() != null
+                && sender instanceof MailSenderPlayer
+                && sender.hasPermission(PERMISSION_TELEPORT) ) {
+
+            MessageComponent msg = new MessageComponent();
+            msg.addText(pre);
+
+            MessageParts button = new MessageParts(
+                    Messages.get("MailDetailTeleport"), ChatColor.AQUA);
+            button.setClickEvent(ClickEventType.RUN_COMMAND,
+                    COMMAND + " teleport " + mail.getIndex());
+            msg.addParts(button);
+
+            msg.send(sender);
         }
 
         sendMailDescriptionPager(sender, mail.getIndex());

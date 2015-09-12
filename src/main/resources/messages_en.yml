@@ -41,6 +41,7 @@ ErrorCannotDropBecauseUnread: '&cBecause Mail #%index is unread yet, you cannot 
 ErrorCannotDropBecauseAttached: '&cBecause Mail #%index has attached item yet, you cannot move this mail.'
 ErrorCannotSendSpamMail: '&cYou cannot send mail in succession. Until the next mail is to be sent, you need %remain seconds.'
 ErrorPlayerCacheIncomplete: '&cSince the players cache has not been completed, you cannot send AllConnected addressed mail. Please send after waiting for a while.'
+ErrorCannotFoundLocation: '&cYou cannot teleport for transmission point is not recorded to the specified mail.'
 
 ErrorInvalidGroupName: '&c%name cannot be used as a group name.'
 ErrorGroupIsAlreadyExist: '&cGroup %name cannot be used because it already exists.'
@@ -74,6 +75,7 @@ InformationTrashAllNeedConfirmation: '&7All of your readed received/sent %num ma
 InformationTrashAllDone: '&7Moved %num mail(s) to trash box.'
 InformationRestoreAllNeedConfirmation: '&7All of your trash box %num mail(s) will be restored from trash box. If OK, please run the additional command "/%command trash restoreall confirm".'
 InformationRestoreAllDone: '&7Restored %num mail(s) from trash box.'
+InformationTeleported: '&aYou were teleported to the transmission point of the mail %index.'
 
 InformationMakeGroup: '&7Created a new group %name.'
 InformationDeleteGroup: '&7Deleted a group %name.'
@@ -105,6 +107,7 @@ MailDetailAttachmentsOriginalLine: '&cAttached Items (original):'
 MailDetailTrash: '[Delete]'
 MailDetailTrashRestore: '[Restore from trash]'
 MailDetailReply: '[Reply]'
+MailDetailTeleport: '[Teleport to the location of sending this mail]'
 
 Editmode: 'EditMode'
 

@@ -19,6 +19,9 @@ import org.bitbucket.ucchy.undine.item.ItemConfigParseException;
 import org.bitbucket.ucchy.undine.item.ItemConfigParser;
 import org.bitbucket.ucchy.undine.sender.MailSender;
 import org.bitbucket.ucchy.undine.sender.MailSenderPlayer;
+import org.bukkit.Bukkit;
+import org.bukkit.Location;
+import org.bukkit.World;
 import org.bukkit.configuration.ConfigurationSection;
 import org.bukkit.configuration.file.YamlConfiguration;
 import org.bukkit.inventory.ItemStack;
@@ -52,6 +55,7 @@ public class MailData implements Comparable<MailData>, Cloneable {
     private boolean isAttachmentsRefused;
     private String attachmentsRefusedReason;
     private Date date;
+    private Location location;
 
     /**
      * コンストラクタ
@@ -218,6 +222,16 @@ public class MailData implements Comparable<MailData>, Cloneable {
             section.set("date", date.getTime());
         }
 
+        if ( location != null ) {
+            ConfigurationSection locSec = section.createSection("location");
+            locSec.set("world", location.getWorld().getName());
+            locSec.set("x", location.getX());
+            locSec.set("y", location.getY());
+            locSec.set("z", location.getZ());
+            locSec.set("yaw", location.getYaw());
+            locSec.set("pitch", location.getPitch());
+        }
+
         section.set("isAttachmentsCancelled", isAttachmentsCancelled);
         section.set("isAttachmentsRefused", isAttachmentsRefused);
         section.set("attachmentsRefusedReason", attachmentsRefusedReason);
@@ -325,6 +339,19 @@ public class MailData implements Comparable<MailData>, Cloneable {
 
         if ( section.contains("date") ) {
             data.date = new Date(section.getLong("date"));
+        }
+
+        if ( section.contains("location") && section.contains("location.world") ) {
+            ConfigurationSection locSec = section.getConfigurationSection("location");
+            World world = Bukkit.getWorld(locSec.getString("world"));
+            if ( world != null ) {
+                double x = locSec.getDouble("x");
+                double y = locSec.getDouble("y");
+                double z = locSec.getDouble("z");
+                double yaw = locSec.getDouble("yaw");
+                double pitch = locSec.getDouble("pitch");
+                data.location = new Location(world, x, y, z, (float)yaw, (float)pitch);
+            }
         }
 
         data.isAttachmentsCancelled = section.getBoolean("isAttachmentsCancelled", false);
@@ -650,6 +677,22 @@ public class MailData implements Comparable<MailData>, Cloneable {
      */
     protected void setDate(Date date) {
         this.date = date;
+    }
+
+    /**
+     * このメールが送信された地点を取得します。
+     * @return 送信地点
+     */
+    public Location getLocation() {
+        return location;
+    }
+
+    /**
+     * このメールの送信地点を設定します（メール送信時に自動で割り当てられます）。
+     * @param location 送信地点
+     */
+    public void setLocation(Location location) {
+        this.location = location;
     }
 
     /**

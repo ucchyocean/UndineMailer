@@ -8,6 +8,7 @@ package org.bitbucket.ucchy.undine.sender;
 import java.util.List;
 
 import org.bitbucket.ucchy.undine.UndineMailer;
+import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.OfflinePlayer;
 import org.bukkit.command.BlockCommandSender;
@@ -110,8 +111,19 @@ public class MailSenderBlock extends MailSender {
      */
     @Override
     public String getWorldName() {
-        if ( sender == null ) return "";
+        if ( sender == null || sender.getBlock() == null ) return "";
         return sender.getBlock().getWorld().getName();
+    }
+
+    /**
+     * 発言者が今いる地点を取得する
+     * @return 地点
+     * @see org.bitbucket.ucchy.undine.sender.MailSender#getLocation()
+     */
+    @Override
+    public Location getLocation() {
+        if ( sender == null || sender.getBlock() == null ) return null;
+        return sender.getBlock().getLocation();
     }
 
     /**

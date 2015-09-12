@@ -53,6 +53,7 @@ public class UndineCommand implements TabExecutor {
         commands.add(new UndineCancelCommand(parent));
         commands.add(helpCommand);
         commands.add(new UndineItemCommand());
+        commands.add(new UndineTeleportCommand(parent));
         commands.add(new UndineReloadCommand(parent));
 
         commandNames = new ArrayList<String>();
