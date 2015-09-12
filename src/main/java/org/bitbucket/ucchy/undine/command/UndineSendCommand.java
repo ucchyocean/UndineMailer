@@ -15,6 +15,7 @@ import org.bitbucket.ucchy.undine.UndineConfig;
 import org.bitbucket.ucchy.undine.UndineMailer;
 import org.bitbucket.ucchy.undine.bridge.VaultEcoBridge;
 import org.bitbucket.ucchy.undine.group.GroupData;
+import org.bitbucket.ucchy.undine.group.SpecialGroupAllConnected;
 import org.bitbucket.ucchy.undine.sender.MailSender;
 import org.bitbucket.ucchy.undine.sender.MailSenderConsole;
 import org.bitbucket.ucchy.undine.sender.MailSenderPlayer;
@@ -115,6 +116,13 @@ public class UndineSendCommand implements SubCommand {
             sender.sendMessage(Messages.get("ErrorAttachBoxCountExceed",
                     new String[]{"%num", "%limit"},
                     new String[]{manager.getAttachBoxUsageCount(ms) + "", config.getMaxAttachmentBoxCount() + ""}));
+            return;
+        }
+
+        // 宛先にAllConnectedが含まれていて、PlayerCacheのロードが完了していない場合は、エラーを表示して終了
+        if ( mail.getToGroups().contains(SpecialGroupAllConnected.NAME)
+                && !parent.isPlayerCacheLoaded() ) {
+            sender.sendMessage(Messages.get("ErrorPlayerCacheIncomplete"));
             return;
         }
 

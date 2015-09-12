@@ -40,6 +40,7 @@ ErrorNotTrashed: '&cMail #%index is not in trash box.'
 ErrorCannotDropBecauseUnread: '&cBecause Mail #%index is unread yet, you cannot move this mail.'
 ErrorCannotDropBecauseAttached: '&cBecause Mail #%index has attached item yet, you cannot move this mail.'
 ErrorCannotSendSpamMail: '&cYou cannot send mail in succession. Until the next mail is to be sent, you need %remain seconds.'
+ErrorPlayerCacheIncomplete: '&cSince the players cache has not been completed, you cannot send AllConnected addressed mail. Please send after waiting for a while.'
 
 ErrorInvalidGroupName: '&c%name cannot be used as a group name.'
 ErrorGroupIsAlreadyExist: '&cGroup %name cannot be used because it already exists.'

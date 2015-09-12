@@ -40,6 +40,7 @@ ErrorNotTrashed: '&cMail #%index befindet sich nicht im Papierkorb.'
 ErrorCannotDropBecauseUnread: '&cDu kannst Mail #%index nicht verschieben, weil sie noch nicht gelesen wurde.'
 ErrorCannotDropBecauseAttached: '&cDu kannst Mail #%index nicht verschieben, weil sie noch Item-Anhänge hat.'
 ErrorCannotSendSpamMail: '&cDu musst noch %remain Sekunden warten, bis du deine nächste Mail verschicken darfst.'
+ErrorPlayerCacheIncomplete: '&cDa der Player -Cache noch nicht abgeschlossen ist, können Sie nicht erstellt werden AllConnected adressierte Post. Bitte senden Sie nach einer Wartezeit für eine Weile.'
 
 ErrorInvalidGroupName: '&c%name kann nicht als Gruppenname genutzt werden.'
 ErrorGroupIsAlreadyExist: '&cDie Gruppe %name existiert bereits.'
