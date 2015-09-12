@@ -101,6 +101,12 @@ public class UndineConfig {
     /** 特殊グループ PEX への送信権限 */
     private GroupPermissionMode specialGroupPexSendMode;
 
+    /** 特殊グループ AllConnected への送信権限 */
+    private GroupPermissionMode specialGroupAllConnectedSendMode;
+
+    /** 特殊グループ AllLogin への送信権限 */
+    private GroupPermissionMode specialGroupAllLoginSendMode;
+
     /** メールの保存期間（日数） */
     private int mailStorageTermDays;
 
@@ -200,6 +206,12 @@ public class UndineConfig {
                 GroupPermissionMode.OP);
         specialGroupPexSendMode = GroupPermissionMode.getFromString(
                 conf.getString("specialGroupPexSendMode"),
+                GroupPermissionMode.OP);
+        specialGroupAllConnectedSendMode = GroupPermissionMode.getFromString(
+                conf.getString("specialGroupAllConnectedSendMode"),
+                GroupPermissionMode.OP);
+        specialGroupAllLoginSendMode = GroupPermissionMode.getFromString(
+                conf.getString("specialGroupAllLoginSendMode"),
                 GroupPermissionMode.OP);
         mailStorageTermDays = conf.getInt("mailStorageTermDays", 30);
         mailSpamProtectionSeconds = conf.getInt("mailSpamProtectionSeconds", 15);
@@ -460,6 +472,20 @@ public class UndineConfig {
      */
     public GroupPermissionMode getSpecialGroupPexSendMode() {
         return specialGroupPexSendMode;
+    }
+
+    /**
+     * @return specialGroupAllConnectedSendMode
+     */
+    public GroupPermissionMode getSpecialGroupAllConnectedSendMode() {
+        return specialGroupAllConnectedSendMode;
+    }
+
+    /**
+     * @return specialGroupAllLoginSendMode
+     */
+    public GroupPermissionMode getSpecialGroupAllLoginSendMode() {
+        return specialGroupAllLoginSendMode;
     }
 
     /**

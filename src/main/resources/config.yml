@@ -127,6 +127,12 @@ specialGroupAllSendMode: OP
 # You can arrange this permission each groups by setting "send-mode" option value.
 specialGroupPexSendMode: OP
 
+# Sending permission mode of special group "AllConnected" (all connected players without newcomers).
+specialGroupAllConnectedSendMode: OP
+
+# Sending permission mode of special group "AllLogin" (all connecting players).
+specialGroupAllLoginSendMode: OP
+
 
 # -------------------- Welcome Mail --------------------
 # Welcome email is a mail sent to the player that was first connected to the server.

@@ -211,7 +211,9 @@ GroupDeleteGroup: '[Diese Gruppe löschen]'
 GroupReturnToMemberList: '[Zurück zur Mitgliederliste]'
 
 GroupSpecialAllSummary: 'Sondergruppe mit allen Spielern'
-GroupSpecialAllMembers: 'Alle Spieler'
+GroupSpecialAllMembers: 'Alle Spieler, einschließlich der neuen Ankömmlinge'
+GroupSpecialAllConnectedMembers: 'Alle Spieler, die verbunden war'
+GroupSpecialAllLoginMembers: 'Alle Spieler, die derzeit angeschlossen'
 
 WelcomeMailBody: 'Klicke hier, um diese Mail zu öffnen.\n\nWillkommen auf unserem Server!\nWenn du deine Mails checken willst, nutze bitte den "/mail" Befehl.\nWenn du eine Mail schreiben willst, nutze den "/mail write" Befehl.\nViel Spaß!'
 

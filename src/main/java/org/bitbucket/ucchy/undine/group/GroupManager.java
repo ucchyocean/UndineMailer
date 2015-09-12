@@ -81,6 +81,10 @@ public class GroupManager {
         // 特殊グループを追加する
         GroupData all = new SpecialGroupAll();
         groups.put(all.getName().toLowerCase(), all);
+        GroupData allConnected = new SpecialGroupAllConnected();
+        groups.put(allConnected.getName().toLowerCase(), allConnected);
+        GroupData allLogin = new SpecialGroupAllLogin();
+        groups.put(allLogin.getName().toLowerCase(), allLogin);
 
         // アップグレード処理
         start = System.currentTimeMillis();

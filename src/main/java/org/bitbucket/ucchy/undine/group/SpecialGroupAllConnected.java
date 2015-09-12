@@ -8,44 +8,42 @@ package org.bitbucket.ucchy.undine.group;
 import java.io.File;
 import java.util.ArrayList;
 
+import org.bitbucket.ucchy.undine.Messages;
 import org.bitbucket.ucchy.undine.UndineMailer;
 import org.bitbucket.ucchy.undine.sender.MailSender;
-import org.bitbucket.ucchy.undine.sender.MailSenderDummy;
+import org.bukkit.Bukkit;
+import org.bukkit.ChatColor;
 
 /**
- * PEXからインポートされたグループ
+ * 特殊グループ AllConnected
  * @author ucchy
  */
-public class SpecialGroupPex extends GroupData {
+public class SpecialGroupAllConnected extends GroupData {
 
-    public static final String NAME_PREFIX = "(pex)";
+    public static final String NAME = "AllConnected";
 
     /**
      * コンストラクタ
-     * @param name グループ名
-     * @param sendmode 送信権限
      */
-    public SpecialGroupPex(String name, GroupPermissionMode sendmode) {
-        super(NAME_PREFIX + name);
-        setOwner(new MailSenderDummy("PermissionsEx"));
-        for ( String member : UndineMailer.getInstance().getPex().getGroupUsers(name) ) {
-            MailSender sender = MailSender.getMailSenderFromString(member);
-            if ( sender.isValidDestination() ) {
-                addMember(sender);
-            }
-        }
-        setSendMode(sendmode);
+    protected SpecialGroupAllConnected() {
+        super(NAME);
+        setOwner(MailSender.getMailSender(Bukkit.getConsoleSender()));
+        setSendMode(UndineMailer.getInstance().getUndineConfig().getSpecialGroupAllConnectedSendMode());
+        setModifyMode(GroupPermissionMode.NEVER);
+        setDissolutionMode(GroupPermissionMode.NEVER);
     }
 
     /**
      * グループのメンバーを取得する
      * @see org.bitbucket.ucchy.undine.group.GroupData#getMembers()
-     * @deprecated このメソッドは期待した結果とは違う結果を返します。
      */
     @Override
-    @Deprecated
     public ArrayList<MailSender> getMembers() {
-        return super.getMembers();
+        ArrayList<MailSender> members = new ArrayList<MailSender>();
+        for ( MailSender sender : UndineMailer.getInstance().getPlayerCache().values() ) {
+            members.add(sender);
+        }
+        return members;
     }
 
     /**
@@ -53,12 +51,10 @@ public class SpecialGroupPex extends GroupData {
      * @param sender
      * @return メンバーかどうか
      * @see org.bitbucket.ucchy.undine.group.GroupData#isMember(org.bitbucket.ucchy.undine.sender.MailSender)
-     * @deprecated このメソッドは期待した結果とは違う結果を返します。
      */
     @Override
-    @Deprecated
     public boolean isMember(MailSender sender) {
-        return true; // 常にtrueを返す
+        return UndineMailer.getInstance().getPlayerCache().containsValue(sender);
     }
 
     /**
@@ -71,5 +67,15 @@ public class SpecialGroupPex extends GroupData {
     @Deprecated
     protected void saveToFile(File file) {
         // do nothing.
+    }
+
+    /**
+     * ホバー用のテキストを作成して返す
+     * @return ホバー用のテキスト
+     * @see org.bitbucket.ucchy.undine.group.GroupData#getHoverText()
+     */
+    @Override
+    public String getHoverText() {
+        return ChatColor.GOLD + Messages.get("GroupSpecialAllConnectedMembers");
     }
 }

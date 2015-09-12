@@ -211,9 +211,11 @@ GroupDeleteGroup: '[グループを解散する]'
 GroupReturnToMemberList: '[グループのメンバーリストに戻る]'
 
 GroupSpecialAllSummary: '全員宛てメールグループ'
-GroupSpecialAllMembers: '全てのプレイヤー'
+GroupSpecialAllMembers: 'これから接続するプレイヤーを含む全てのプレイヤー'
+GroupSpecialAllConnectedMembers: '接続したことがある全てのプレイヤー'
+GroupSpecialAllLoginMembers: '現在接続中の全てのプレイヤー'
 
-WelcomeMailBody: 'クリックで開きます。\n\nサーバーへようこそ！\nメールを読むには /mail コマンドを、\nメールを書くには /mail write コマンドを実行してくださいね！'
+WelcomeMailBody: '←番号をクリックで開きます。\n\nサーバーへようこそ！\nメールを読むには /mail コマンドを、\nメールを書くには /mail write コマンドを実行してくださいね！'
 
 DateFormat: 'MM/dd HH:mm'
 

@@ -211,9 +211,11 @@ GroupDeleteGroup: '[Break-up this group]'
 GroupReturnToMemberList: '[Return to group members list]'
 
 GroupSpecialAllSummary: 'All Players Group'
-GroupSpecialAllMembers: 'All Players'
+GroupSpecialAllMembers: 'All players including new comers'
+GroupSpecialAllConnectedMembers: 'All players that had connected'
+GroupSpecialAllLoginMembers: 'All players currently connected'
 
-WelcomeMailBody: 'Click to open this mail.\n\nWelcome to server!\nIf you want to read mails, please run "/mail" command.\nIf you want to write mail, please run "/mail write" command.\nHave fun!'
+WelcomeMailBody: 'Click number to open this mail.\n\nWelcome to server!\nIf you want to read mails, please run "/mail" command.\nIf you want to write mail, please run "/mail write" command.\nHave fun!'
 
 DateFormat: 'MMM dd HH:mm'
 

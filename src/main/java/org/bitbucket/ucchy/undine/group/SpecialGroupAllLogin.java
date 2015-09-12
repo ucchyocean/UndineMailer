@@ -10,25 +10,28 @@ import java.util.ArrayList;
 
 import org.bitbucket.ucchy.undine.Messages;
 import org.bitbucket.ucchy.undine.UndineMailer;
+import org.bitbucket.ucchy.undine.Utility;
 import org.bitbucket.ucchy.undine.sender.MailSender;
+import org.bitbucket.ucchy.undine.sender.MailSenderPlayer;
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
+import org.bukkit.entity.Player;
 
 /**
- * 特殊グループ all
+ * 特殊グループ AllLogin
  * @author ucchy
  */
-public class SpecialGroupAll extends GroupData {
+public class SpecialGroupAllLogin extends GroupData {
 
-    public static final String NAME = "All";
+    public static final String NAME = "AllLogin";
 
     /**
      * コンストラクタ
      */
-    public SpecialGroupAll() {
+    protected SpecialGroupAllLogin() {
         super(NAME);
         setOwner(MailSender.getMailSender(Bukkit.getConsoleSender()));
-        setSendMode(UndineMailer.getInstance().getUndineConfig().getSpecialGroupAllSendMode());
+        setSendMode(UndineMailer.getInstance().getUndineConfig().getSpecialGroupAllLoginSendMode());
         setModifyMode(GroupPermissionMode.NEVER);
         setDissolutionMode(GroupPermissionMode.NEVER);
     }
@@ -36,12 +39,14 @@ public class SpecialGroupAll extends GroupData {
     /**
      * グループのメンバーを取得する
      * @see org.bitbucket.ucchy.undine.group.GroupData#getMembers()
-     * @deprecated このメソッドは期待した結果とは違う結果を返します。
      */
     @Override
-    @Deprecated
     public ArrayList<MailSender> getMembers() {
-        return super.getMembers();
+        ArrayList<MailSender> members = new ArrayList<MailSender>();
+        for ( Player player : Utility.getOnlinePlayers() ) {
+            members.add(MailSender.getMailSender(player));
+        }
+        return members;
     }
 
     /**
@@ -52,7 +57,7 @@ public class SpecialGroupAll extends GroupData {
      */
     @Override
     public boolean isMember(MailSender sender) {
-        return true; // 常にtrueを返す
+        return (sender instanceof MailSenderPlayer && sender.isOnline());
     }
 
     /**
@@ -74,6 +79,6 @@ public class SpecialGroupAll extends GroupData {
      */
     @Override
     public String getHoverText() {
-        return ChatColor.GOLD + Messages.get("GroupSpecialAllMembers");
+        return ChatColor.GOLD + Messages.get("GroupSpecialAllLoginMembers");
     }
 }

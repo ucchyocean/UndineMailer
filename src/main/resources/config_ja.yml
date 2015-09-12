@@ -142,6 +142,14 @@ specialGroupAllSendMode: OP
 # グループごとに細かくSendModeを指定することが可能です。詳しくはフォーラムを参照してください。
 specialGroupPexSendMode: OP
 
+# 特殊グループ AllConnected (サーバーに接続したことのある全プレイヤーへのメールが送信できるグループ) への
+# 送信権限を指定します。
+specialGroupAllConnectedSendMode: OP
+
+# 特殊グループ AllLogin (サーバーに接続中の全プレイヤーへのメールが送信できるグループ) への
+# 送信権限を指定します。
+specialGroupAllLoginSendMode: OP
+
 # -------------------- ウェルカムメール設定 --------------------
 # ウェルカムメールは、サーバーに初接続したプレイヤーに送られるメールです。
 # ウェルカムメールのメール本文は、messages_ja.yml ファイルの WelcomeMailBody という項目で設定できます。
