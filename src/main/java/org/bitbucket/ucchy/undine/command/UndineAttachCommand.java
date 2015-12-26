@@ -339,6 +339,11 @@ public class UndineAttachCommand implements SubCommand {
                 player.sendMessage(Messages.get("ErrorNoneReadPermission"));
                 return;
             }
+        } else {
+            if ( !ms.hasPermission("undine.read-all") ) {
+                player.sendMessage(Messages.get("ErrorNoneReadPermission"));
+                return;
+            }
         }
 
         // 添付ボックス利用不可のワールドにいるなら、エラーを表示して終了
