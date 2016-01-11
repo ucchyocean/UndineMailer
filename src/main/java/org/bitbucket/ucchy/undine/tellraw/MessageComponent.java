@@ -7,12 +7,14 @@ package org.bitbucket.ucchy.undine.tellraw;
 
 import java.util.ArrayList;
 
+import org.bitbucket.ucchy.undine.UndineMailer;
 import org.bitbucket.ucchy.undine.sender.MailSender;
 import org.bitbucket.ucchy.undine.sender.MailSenderPlayer;
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
+import org.bukkit.scheduler.BukkitRunnable;
 
 /**
  * tellrawメッセージコンポーネント
@@ -67,9 +69,14 @@ public class MessageComponent {
      * 相手がプレイヤーならtellrawコマンドで、コンソールならプレーンなテキストデータで送る。
      * @param sender 送信先
      */
-    public void send(MailSender sender) {
+    public void send(final MailSender sender) {
         if ( sender instanceof MailSenderPlayer && sender.isOnline() ) {
-            sendCommand(sender.getPlayer());
+            // Commands aren't thread safe
+            new BukkitRunnable() {
+                public void run() {
+                    sendCommand(sender.getPlayer());
+                }
+            }.runTask(UndineMailer.getInstance());
         } else {
             sender.sendMessage(buildPlain());
         }
