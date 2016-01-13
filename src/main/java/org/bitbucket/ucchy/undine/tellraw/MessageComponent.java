@@ -69,9 +69,14 @@ public class MessageComponent {
      * 相手がプレイヤーならtellrawコマンドで、コンソールならプレーンなテキストデータで送る。
      * @param sender 送信先
      */
-    public void send(MailSender sender) {
+    public void send(final MailSender sender) {
         if ( sender instanceof MailSenderPlayer && sender.isOnline() ) {
-            sendCommand(sender.getPlayer());
+            // Commands aren't thread safe
+            new BukkitRunnable() {
+                public void run() {
+                    sendCommand(sender.getPlayer());
+                }
+            }.runTask(UndineMailer.getInstance());
         } else {
             sender.sendMessage(buildPlain());
         }
