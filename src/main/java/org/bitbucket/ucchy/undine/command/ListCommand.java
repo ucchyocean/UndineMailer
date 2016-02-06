@@ -19,7 +19,6 @@ import org.bukkit.ChatColor;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandSender;
 import org.bukkit.command.TabExecutor;
-import org.bukkit.scheduler.BukkitRunnable;
 
 /**
  * listコマンド
@@ -66,122 +65,117 @@ public class ListCommand implements TabExecutor {
             return true;
         }
 
-        // 以下の処理は非常に重いので、非同期処理で実行する。
-        new BukkitRunnable() {
-            public void run() {
-                ArrayList<String> names = new ArrayList<String>(parent.getPlayerCache().keySet());
-                Collections.sort(names, new Comparator<String>() {
-                    public int compare(String o1, String o2) {
-                        return o1.compareToIgnoreCase(o2);
-                    }
-                });
+        // 以下、プレイヤーリスト表示処理
+        ArrayList<String> names = new ArrayList<String>(parent.getPlayerCache().keySet());
+        Collections.sort(names, new Comparator<String>() {
+            public int compare(String o1, String o2) {
+                return o1.compareToIgnoreCase(o2);
+            }
+        });
 
-                String parts = Messages.get("ListHorizontalParts");
-                String pre = Messages.get("ListVerticalParts");
+        String parts = Messages.get("ListHorizontalParts");
+        String pre = Messages.get("ListVerticalParts");
 
-                // 空行を挿入する
-                for ( int i=0; i<parent.getUndineConfig().getUiEmptyLines(); i++ ) {
-                    sender.sendMessage("");
-                }
+        // 空行を挿入する
+        for ( int i=0; i<parent.getUndineConfig().getUiEmptyLines(); i++ ) {
+            sender.sendMessage("");
+        }
 
 
-                if ( label.equalsIgnoreCase("uindex") ) {
-                    // インデクスの表示
+        if ( label.equalsIgnoreCase("uindex") ) {
+            // インデクスの表示
 
-                    String next = "";
-                    for ( int i=0; i<args.length; i++ ) {
-                        next += " " + args[i];
-                    }
-
-                    ArrayList<String> indexes = new ArrayList<String>();
-                    for ( String name : names ) {
-                        String p = name.substring(0, 1).toUpperCase();
-                        if ( !indexes.contains(p) ) indexes.add(p);
-                    }
-
-                    String title = Messages.get("PlayerListIndexTitle");
-                    sender.sendMessage(parts + parts + " " + title + " " + parts + parts);
-
-                    int linenum = (int)((indexes.size() - 1) / 10) + 1;
-                    for ( int line=0; line<linenum; line++ ) {
-
-                        MessageComponent msg = new MessageComponent();
-                        msg.addText(pre);
-
-                        for ( int i=0; i<10; i++ ) {
-                            int index = line * 10 + i;
-                            if ( index >= indexes.size() ) break;
-                            String p = indexes.get(index);
-                            MessageParts button = new MessageParts("[" + p + "]",  ChatColor.AQUA);
-                            button.setClickEvent(ClickEventType.RUN_COMMAND,
-                                    COMMAND_LIST + " " + p + " 1" + next);
-                            msg.addParts(button);
-                            msg.addText(" ");
-                        }
-
-                        msg.send(sender);
-                    }
-
-                    String returnCommand = (next.startsWith(" " + UndineCommand.COMMAND))
-                            ? UndineCommand.COMMAND + " write"
-                            : next.trim().replace("add", "detail");
-
-                    MessageComponent msg = new MessageComponent();
-                    msg.addText(parts + parts + " ");
-                    MessageParts button = new MessageParts(Messages.get("Return"), ChatColor.AQUA);
-                    button.setClickEvent(ClickEventType.RUN_COMMAND, returnCommand);
-                    msg.addParts(button);
-                    msg.addText(" " + parts + parts);
-                    msg.send(sender);
-
-                    return;
-                }
-
-
-                // プレイヤーリストの表示
-
-                String prefix = args[0];
-                String next = "";
-                int page = 1;
-                if ( args.length >= 2 && args[1].matches("[0-9]{1,5}") ) {
-                    page = Integer.parseInt(args[1]);
-
-                    for ( int i=2; i<args.length; i++ ) {
-                        next += " " + args[i];
-                    }
-                }
-
-                ArrayList<String> list = new ArrayList<String>();
-                for ( String n : names ) {
-                    if ( n.toUpperCase().startsWith(prefix) ) list.add(n);
-                }
-                int max = (int)((list.size() - 1) / PAGE_SIZE) + 1;
-
-                String title = Messages.get("PlayerListTitle", "%pre", prefix);
-                sender.sendMessage(parts + parts + " " + title + " " + parts + parts);
-
-                for ( int i=0; i<PAGE_SIZE; i++ ) {
-
-                    int index = (page - 1) * PAGE_SIZE + i;
-                    if ( index < 0 || list.size() <= index ) {
-                        continue;
-                    }
-
-                    String name = list.get(index);
-                    MessageComponent msg = new MessageComponent();
-                    msg.addText(pre);
-                    MessageParts button = new MessageParts("[" + name + "]", ChatColor.AQUA);
-                    if ( next.length() > 0 ) {
-                        button.setClickEvent(ClickEventType.RUN_COMMAND, next.trim() + " " + name);
-                    }
-                    msg.addParts(button);
-                    msg.send(sender);
-                }
-
-                sendPager(sender, COMMAND_LIST + " " + prefix, page, max, next);
+            String next = "";
+            for ( int i=0; i<args.length; i++ ) {
+                next += " " + args[i];
             }
 
-        }.runTaskAsynchronously(UndineMailer.getInstance());
+            ArrayList<String> indexes = new ArrayList<String>();
+            for ( String name : names ) {
+                String p = name.substring(0, 1).toUpperCase();
+                if ( !indexes.contains(p) ) indexes.add(p);
+            }
+
+            String title = Messages.get("PlayerListIndexTitle");
+            sender.sendMessage(parts + parts + " " + title + " " + parts + parts);
+
+            int linenum = (int)((indexes.size() - 1) / 10) + 1;
+            for ( int line=0; line<linenum; line++ ) {
+
+                MessageComponent msg = new MessageComponent();
+                msg.addText(pre);
+
+                for ( int i=0; i<10; i++ ) {
+                    int index = line * 10 + i;
+                    if ( index >= indexes.size() ) break;
+                    String p = indexes.get(index);
+                    MessageParts button = new MessageParts("[" + p + "]",  ChatColor.AQUA);
+                    button.setClickEvent(ClickEventType.RUN_COMMAND,
+                            COMMAND_LIST + " " + p + " 1" + next);
+                    msg.addParts(button);
+                    msg.addText(" ");
+                }
+
+                msg.send(sender);
+            }
+
+            String returnCommand = (next.startsWith(" " + UndineCommand.COMMAND))
+                    ? UndineCommand.COMMAND + " write"
+                    : next.trim().replace("add", "detail");
+
+            MessageComponent msg = new MessageComponent();
+            msg.addText(parts + parts + " ");
+            MessageParts button = new MessageParts(Messages.get("Return"), ChatColor.AQUA);
+            button.setClickEvent(ClickEventType.RUN_COMMAND, returnCommand);
+            msg.addParts(button);
+            msg.addText(" " + parts + parts);
+            msg.send(sender);
+
+            return true;
+        }
+
+
+        // プレイヤーリストの表示
+
+        String prefix = args[0];
+        String next = "";
+        int page = 1;
+        if ( args.length >= 2 && args[1].matches("[0-9]{1,5}") ) {
+            page = Integer.parseInt(args[1]);
+
+            for ( int i=2; i<args.length; i++ ) {
+                next += " " + args[i];
+            }
+        }
+
+        ArrayList<String> list = new ArrayList<String>();
+        for ( String n : names ) {
+            if ( n.toUpperCase().startsWith(prefix) ) list.add(n);
+        }
+        int max = (int)((list.size() - 1) / PAGE_SIZE) + 1;
+
+        String title = Messages.get("PlayerListTitle", "%pre", prefix);
+        sender.sendMessage(parts + parts + " " + title + " " + parts + parts);
+
+        for ( int i=0; i<PAGE_SIZE; i++ ) {
+
+            int index = (page - 1) * PAGE_SIZE + i;
+            if ( index < 0 || list.size() <= index ) {
+                continue;
+            }
+
+            String name = list.get(index);
+            MessageComponent msg = new MessageComponent();
+            msg.addText(pre);
+            MessageParts button = new MessageParts("[" + name + "]", ChatColor.AQUA);
+            if ( next.length() > 0 ) {
+                button.setClickEvent(ClickEventType.RUN_COMMAND, next.trim() + " " + name);
+            }
+            msg.addParts(button);
+            msg.send(sender);
+        }
+
+        sendPager(sender, COMMAND_LIST + " " + prefix, page, max, next);
 
         return true;
     }

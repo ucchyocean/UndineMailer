@@ -79,7 +79,7 @@ public class UndineListener implements Listener {
             public void run() {
                 parent.getMailManager().displayUnreadOnJoin(sender);
             }
-        }.runTaskLaterAsynchronously(parent, delay * 20);
+        }.runTaskLater(parent, delay * 20);
 
         // 新規プレイヤーの場合は、ウェルカムメールを送る
         if ( !player.hasPlayedBefore() && config.isUseWelcomeMail() ) {
@@ -97,7 +97,7 @@ public class UndineListener implements Listener {
                 public void run() {
                     parent.getMailManager().sendNewMail(mail);
                 }
-            }.runTaskLaterAsynchronously(parent, welcomeDelay * 20);
+            }.runTaskLater(parent, welcomeDelay * 20);
         }
     }
 
