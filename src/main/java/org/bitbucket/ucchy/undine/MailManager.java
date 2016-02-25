@@ -28,6 +28,7 @@ import org.bitbucket.ucchy.undine.sender.MailSenderPlayer;
 import org.bitbucket.ucchy.undine.tellraw.ClickEventType;
 import org.bitbucket.ucchy.undine.tellraw.MessageComponent;
 import org.bitbucket.ucchy.undine.tellraw.MessageParts;
+import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.command.CommandSender;
 import org.bukkit.configuration.ConfigurationSection;
@@ -866,7 +867,7 @@ public class MailManager {
                 }
             }
 
-            msg.send(sender);
+            sendMessageComponent(msg, sender);
 
             for ( ItemStack i : mail.getAttachments() ) {
                 sender.sendMessage(pre + "  " + ChatColor.WHITE + getItemDesc(i, true));
@@ -900,7 +901,7 @@ public class MailManager {
                             Messages.get("MailDetailAttachmentBoxRefuseToolTip"));
                     msg.addParts(refuseButton);
                 }
-                msg.send(sender);
+                sendMessageComponent(msg, sender);
             }
 
         } else if ( mail.isAttachmentsCancelled() ) {
@@ -946,7 +947,7 @@ public class MailManager {
                         COMMAND + " trash restore " + mail.getIndex());
                 msg.addParts(button);
 
-                msg.send(sender);
+                sendMessageComponent(msg, sender);
 
             } else {
                 // 既に添付が1つもないメールなら、Deleteボタンを表示する
@@ -981,7 +982,7 @@ public class MailManager {
                         msg.addParts(button);
                     }
 
-                    msg.send(sender);
+                    sendMessageComponent(msg, sender);
                 }
             }
         }
@@ -999,7 +1000,7 @@ public class MailManager {
                     COMMAND + " teleport " + mail.getIndex());
             msg.addParts(button);
 
-            msg.send(sender);
+            sendMessageComponent(msg, sender);
         }
 
         sendMailDescriptionPager(sender, mail.getIndex());
@@ -1062,7 +1063,7 @@ public class MailManager {
             msg.addParts(button);
             msg.addText(" ");
             msg.addText(mail.getTo().get(i).getName(), ChatColor.WHITE);
-            msg.send(sender);
+            sendMessageComponent(msg, sender);
         }
 
         UndineConfig config = UndineMailer.getInstance().getUndineConfig();
@@ -1091,7 +1092,7 @@ public class MailManager {
 
             }
 
-            msg.send(sender);
+            sendMessageComponent(msg, sender);
         }
 
         for ( int i=0; i<mail.getToGroups().size(); i++ ) {
@@ -1113,7 +1114,7 @@ public class MailManager {
                 groupName.addHoverText(group.getHoverText());
             }
             msg.addParts(groupName);
-            msg.send(sender);
+            sendMessageComponent(msg, sender);
         }
 
         if ( mail.getToGroups().size() < config.getMaxDestinationGroup() ) {
@@ -1127,7 +1128,7 @@ public class MailManager {
                             + COMMAND + " to group " + (mail.getToGroups().size()+1));
             msg.addParts(button);
 
-            msg.send(sender);
+            sendMessageComponent(msg, sender);
         }
 
         for ( int i=0; i<mail.getMessage().size(); i++ ) {
@@ -1149,7 +1150,7 @@ public class MailManager {
             buttonEdit.addHoverText(Messages.get("EditmodeLineEditToolTip"));
             msg.addParts(buttonEdit);
             msg.addText(" " + Utility.replaceColorCode(mail.getMessage().get(i)), ChatColor.WHITE);
-            msg.send(sender);
+            sendMessageComponent(msg, sender);
         }
 
         if ( mail.getMessage().size() < MailData.MESSAGE_MAX_SIZE ) {
@@ -1165,7 +1166,7 @@ public class MailManager {
                     ClickEventType.RUN_COMMAND,
                     COMMAND + " message " + num);
             msg.addParts(button);
-            msg.send(sender);
+            sendMessageComponent(msg, sender);
         }
 
         if ( config.isEnableAttachment() ) {
@@ -1179,7 +1180,7 @@ public class MailManager {
             msg.addParts(button);
             msg.addText(" ");
             msg.addText(Messages.get("EditmodeAttachNum", "%num", mail.getAttachments().size()));
-            msg.send(sender);
+            sendMessageComponent(msg, sender);
 
             boolean isEnableCODMoney = (UndineMailer.getInstance().getVaultEco() != null)
                     && config.isEnableCODMoney();
@@ -1258,7 +1259,7 @@ public class MailManager {
 
                 }
 
-                msgfee.send(sender);
+                sendMessageComponent(msgfee, sender);
             }
         }
 
@@ -1274,7 +1275,7 @@ public class MailManager {
         cancelButton.setClickEvent(ClickEventType.RUN_COMMAND, COMMAND + " cancel");
         last.addParts(cancelButton);
         last.addText(parts);
-        last.send(sender);
+        sendMessageComponent(last, sender);
     }
 
     /**
@@ -1399,7 +1400,7 @@ public class MailManager {
 
         msg.addText(" " + parts);
 
-        msg.send(sender);
+        sendMessageComponent(msg, sender);
     }
 
     /**
@@ -1469,7 +1470,7 @@ public class MailManager {
 
         msg.addText(summary);
 
-        msg.send(sender);
+        sendMessageComponent(msg, sender);
     }
 
     /**
@@ -1538,7 +1539,7 @@ public class MailManager {
 
         msg.addText(" " + parts);
 
-        msg.send(sender);
+        sendMessageComponent(msg, sender);
     }
 
     /**
@@ -1571,5 +1572,18 @@ public class MailManager {
             buffer.append(group);
         }
         return buffer.toString();
+    }
+
+    /**
+     * 指定されたメッセージコンポーネントを、指定されたMailSenderに送信する。
+     * @param msg メッセージコンポーネント
+     * @param sender 送信先
+     */
+    private void sendMessageComponent(MessageComponent msg, MailSender sender) {
+        if ( sender instanceof MailSenderPlayer && sender.isOnline() ) {
+            msg.send(sender.getPlayer());
+        } else if ( sender instanceof MailSenderConsole ) {
+            msg.send(Bukkit.getConsoleSender());
+        }
     }
 }

@@ -7,8 +7,6 @@ package org.bitbucket.ucchy.undine.tellraw;
 
 import java.util.ArrayList;
 
-import org.bitbucket.ucchy.undine.sender.MailSender;
-import org.bitbucket.ucchy.undine.sender.MailSenderPlayer;
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.command.CommandSender;
@@ -60,19 +58,6 @@ public class MessageComponent {
      */
     public void addParts(MessageParts parts) {
         this.parts.add(parts);
-    }
-
-    /**
-     * 指定されたsenderに、このコンポーネントを送信する。
-     * 相手がプレイヤーならtellrawコマンドで、コンソールならプレーンなテキストデータで送る。
-     * @param sender 送信先
-     */
-    public void send(MailSender sender) {
-        if ( sender instanceof MailSenderPlayer && sender.isOnline() ) {
-            sendCommand(sender.getPlayer());
-        } else {
-            sender.sendMessage(buildPlain());
-        }
     }
 
     /**

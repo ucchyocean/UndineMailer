@@ -19,9 +19,12 @@ import org.bitbucket.ucchy.undine.command.GroupCommand;
 import org.bitbucket.ucchy.undine.command.ListCommand;
 import org.bitbucket.ucchy.undine.command.UndineCommand;
 import org.bitbucket.ucchy.undine.sender.MailSender;
+import org.bitbucket.ucchy.undine.sender.MailSenderConsole;
+import org.bitbucket.ucchy.undine.sender.MailSenderPlayer;
 import org.bitbucket.ucchy.undine.tellraw.ClickEventType;
 import org.bitbucket.ucchy.undine.tellraw.MessageComponent;
 import org.bitbucket.ucchy.undine.tellraw.MessageParts;
+import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 
 /**
@@ -327,7 +330,7 @@ public class GroupManager {
                         new String[]{group.getOwner().getName(), group.getMembers().size() + ""}));
             }
 
-            msg.send(sender);
+            sendMessageComponent(msg, sender);
         }
 
         if ( canMakeNewGroup(sender) ) {
@@ -341,7 +344,7 @@ public class GroupManager {
             button.addHoverText(Messages.get("GroupMakeNewGroupToolTip"));
             msg.addParts(button);
 
-            msg.send(sender);
+            sendMessageComponent(msg, sender);
         }
 
         sendPager(sender, COMMAND + " list", "", page, max,
@@ -397,7 +400,7 @@ public class GroupManager {
                         new String[]{group.getOwner().getName(), group.getMembers().size() + ""}));
             }
 
-            msg.send(sender);
+            sendMessageComponent(msg, sender);
         }
 
         if ( canMakeNewGroup(sender) ) {
@@ -409,7 +412,7 @@ public class GroupManager {
             button.addHoverText(Messages.get("GroupMakeNewGroupToolTipForSelection"));
             msg.addParts(button);
 
-            msg.send(sender);
+            sendMessageComponent(msg, sender);
         }
 
         sendPager(sender, COMMAND + " list", " " + next, page, max,
@@ -473,7 +476,7 @@ public class GroupManager {
         button.setClickEvent(ClickEventType.RUN_COMMAND, COMMAND + " list");
         msg.addParts(button);
         msg.addText(" " + parts + parts);
-        msg.send(sender);
+        sendMessageComponent(msg, sender);
     }
 
     /**
@@ -538,7 +541,7 @@ public class GroupManager {
 
             msg.addText(member.getName());
 
-            msg.send(sender);
+            sendMessageComponent(msg, sender);
         }
 
         // メンバー追加ボタンと、設定ボタンを置く
@@ -565,7 +568,7 @@ public class GroupManager {
                 msg.addParts(addAddress);
             }
 
-            msg.send(sender);
+            sendMessageComponent(msg, sender);
 
             msg = new MessageComponent();
             msg.addText(pre);
@@ -576,7 +579,7 @@ public class GroupManager {
                     COMMAND + " addalllogin " + group.getName());
             msg.addParts(addall);
 
-            msg.send(sender);
+            sendMessageComponent(msg, sender);
         }
 
         MessageComponent msg = new MessageComponent();
@@ -588,7 +591,7 @@ public class GroupManager {
                 COMMAND + " detail " + group.getName() + " setting");
         msg.addParts(setting);
 
-        msg.send(sender);
+        sendMessageComponent(msg, sender);
 
         sendPager(sender, COMMAND + " detail " + group.getName(), "",
                 page, max, Messages.get("DetailHorizontalParts"),
@@ -624,7 +627,7 @@ public class GroupManager {
                 (mode != GroupPermissionMode.OWNER),
                 (mode != GroupPermissionMode.MEMBER),
                 (mode != GroupPermissionMode.EVERYONE), true);
-        msgSend.send(sender);
+        sendMessageComponent(msgSend, sender);
 
         mode = group.getModifyMode();
         sender.sendMessage(pre + Messages.get("GroupModifyPerm")
@@ -637,7 +640,7 @@ public class GroupManager {
                 (mode != GroupPermissionMode.OWNER),
                 (mode != GroupPermissionMode.MEMBER),
                 false, false);
-        msgMod.send(sender);
+        sendMessageComponent(msgMod, sender);
 
         mode = group.getDissolutionMode();
         sender.sendMessage(pre + Messages.get("GroupDissolutionPerm")
@@ -650,7 +653,7 @@ public class GroupManager {
                 (mode != GroupPermissionMode.OWNER),
                 (mode != GroupPermissionMode.MEMBER),
                 false, false);
-        msgDis.send(sender);
+        sendMessageComponent(msgDis, sender);
 
         if ( group.canBreakup(sender) ) {
             MessageComponent msg = new MessageComponent();
@@ -661,7 +664,7 @@ public class GroupManager {
                     ClickEventType.RUN_COMMAND,
                     COMMAND + " delete " + group.getName());
             msg.addParts(breakup);
-            msg.send(sender);
+            sendMessageComponent(msg, sender);
         }
 
         MessageComponent msg = new MessageComponent();
@@ -672,7 +675,7 @@ public class GroupManager {
                 ClickEventType.RUN_COMMAND,
                 COMMAND + " detail " + group.getName());
         msg.addParts(breakup);
-        msg.send(sender);
+        sendMessageComponent(msg, sender);
 
         sender.sendMessage(Messages.get("DetailLastLine"));
     }
@@ -809,7 +812,7 @@ public class GroupManager {
 
         msg.addText(" " + parts);
 
-        msg.send(sender);
+        sendMessageComponent(msg, sender);
     }
 
     /**
@@ -836,5 +839,18 @@ public class GroupManager {
         }
 
         return results;
+    }
+
+    /**
+     * 指定されたメッセージコンポーネントを、指定されたMailSenderに送信する。
+     * @param msg メッセージコンポーネント
+     * @param sender 送信先
+     */
+    private void sendMessageComponent(MessageComponent msg, MailSender sender) {
+        if ( sender instanceof MailSenderPlayer && sender.isOnline() ) {
+            msg.send(sender.getPlayer());
+        } else if ( sender instanceof MailSenderConsole ) {
+            msg.send(Bukkit.getConsoleSender());
+        }
     }
 }
