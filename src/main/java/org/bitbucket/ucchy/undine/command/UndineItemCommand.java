@@ -8,6 +8,7 @@ package org.bitbucket.ucchy.undine.command;
 import java.util.List;
 
 import org.bitbucket.ucchy.undine.Messages;
+import org.bitbucket.ucchy.undine.Utility;
 import org.bitbucket.ucchy.undine.item.TradableMaterial;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
@@ -58,7 +59,7 @@ public class UndineItemCommand implements SubCommand {
             return;
         }
 
-        ItemStack hand = ((Player)sender).getItemInHand();
+        ItemStack hand = getItemInHand((Player)sender);
         if ( hand == null ) return;
 
         // 情報表示
@@ -80,5 +81,19 @@ public class UndineItemCommand implements SubCommand {
     @Override
     public List<String> tabComplete(CommandSender sender, String[] args) {
         return null;
+    }
+
+    /**
+     * 指定したプレイヤーが手に持っているアイテムを返す
+     * @param player プレイヤー
+     * @return 手に持っているアイテム
+     */
+    @SuppressWarnings("deprecation")
+    private ItemStack getItemInHand(Player player) {
+        if ( Utility.isCB19orLater() ) {
+            return player.getInventory().getItemInMainHand();
+        } else {
+            return player.getItemInHand();
+        }
     }
 }

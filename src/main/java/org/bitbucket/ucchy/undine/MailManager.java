@@ -89,12 +89,14 @@ public class MailManager {
                     }
                 });
 
-                for ( File file : files ) {
-                    MailData data = MailData.load(file);
-                    mails.add(data);
+                if ( files != null ) {
+                    for ( File file : files ) {
+                        MailData data = MailData.load(file);
+                        mails.add(data);
 
-                    if ( nextIndex <= data.getIndex() ) {
-                        nextIndex = data.getIndex() + 1;
+                        if ( nextIndex <= data.getIndex() ) {
+                            nextIndex = data.getIndex() + 1;
+                        }
                     }
                 }
 

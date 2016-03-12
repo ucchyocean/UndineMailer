@@ -76,9 +76,12 @@ public class GroupManager {
         });
 
         groups = new HashMap<String, GroupData>();
-        for ( File f : files ) {
-            GroupData group = GroupData.loadFromFile(f);
-            groups.put(group.getName().toLowerCase(), group);
+
+        if ( files != null ) {
+            for ( File f : files ) {
+                GroupData group = GroupData.loadFromFile(f);
+                groups.put(group.getName().toLowerCase(), group);
+            }
         }
 
         // 特殊グループを追加する
