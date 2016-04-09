@@ -38,14 +38,7 @@ public class VaultEcoBridge {
         if ( economyProvider != null ) {
             VaultEcoBridge bridge = new VaultEcoBridge();
             bridge.eco = economyProvider.getProvider();
-
-            try {
-                if ( bridge.eco.isEnabled() ) return bridge;
-            } catch (Exception e) {
-                // 他のプラグイン内で発生したエラーは握りつぶす。(see issue #46)
-                //e.printStackTrace();
-                return bridge;
-            }
+            return bridge;
         }
         return null;
     }
