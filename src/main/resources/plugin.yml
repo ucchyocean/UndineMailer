@@ -74,6 +74,12 @@ permissions:
   undine.attach-infinity:
     description: Permission of infinity use of attachment box.
     default: op
+  undine.attach-sendmail:
+    description: Permission of opening the attachment box of send mail.
+    default: true
+  undine.attach-inboxmail:
+    description: Permission of opening the attachment box of inbox mail.
+    default: true
   undine.command-attach:
     description: Permission of adding attachment items by using command.
     default: op
@@ -182,6 +188,8 @@ permissions:
       undine.message: true
       undine.attach: true
       undine.attach-infinity: true
+      undine.attach-sendmail: true
+      undine.attach-inboxmail: true
       undine.command-attach: true
       undine.multiple-attach: true
       undine.costmoney: true

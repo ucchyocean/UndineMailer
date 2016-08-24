@@ -32,6 +32,8 @@ public class UndineAttachCommand implements SubCommand {
     private static final String NAME = "attach";
     private static final String NODE = "undine." + NAME;
     private static final String NODE_COMMAND_ATTACH = "undine.command-attach";
+    private static final String NODE_ATTACH_SENDMAIL = "undine.attach-sendmail";
+    private static final String NODE_ATTACH_INBOXMAIL = "undine.attach-inboxmail";
     private static final String COMMAND = UndineCommand.COMMAND;
 
     private UndineMailer parent;
@@ -86,6 +88,12 @@ public class UndineAttachCommand implements SubCommand {
             // ゲーム内からの実行でない場合はエラーを表示して終了する
             if ( !(sender instanceof Player) ) {
                 sender.sendMessage(Messages.get("ErrorInGameCommand"));
+                return;
+            }
+
+            // パーミッション確認
+            if  ( !sender.hasPermission(NODE_ATTACH_SENDMAIL) ) {
+                sender.sendMessage(Messages.get("PermissionDeniedCommand"));
                 return;
             }
 
@@ -183,6 +191,12 @@ public class UndineAttachCommand implements SubCommand {
             // ゲーム内からの実行でない場合はエラーを表示して終了する
             if ( !(sender instanceof Player) ) {
                 sender.sendMessage(Messages.get("ErrorInGameCommand"));
+                return;
+            }
+
+            // パーミッション確認
+            if  ( !sender.hasPermission(NODE_ATTACH_INBOXMAIL) ) {
+                sender.sendMessage(Messages.get("PermissionDeniedCommand"));
                 return;
             }
 

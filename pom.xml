@@ -2,7 +2,7 @@
   <modelVersion>4.0.0</modelVersion>
   <groupId>org.bitbucket.ucchy</groupId>
   <artifactId>UndineMailer</artifactId>
-  <version>1.6.4</version>
+  <version>1.6.5</version>
 
   <licenses>
     <license>
@@ -98,7 +98,7 @@
     <dependency>
       <groupId>org.bukkit</groupId>
       <artifactId>bukkit</artifactId>
-      <version>1.9-R0.1-SNAPSHOT</version>
+      <version>1.10.2-R0.1-SNAPSHOT</version>
     </dependency>
     <dependency>
       <groupId>net.milkbowl.vault</groupId>
@@ -108,9 +108,9 @@
     <dependency>
       <groupId>ru.tehkode</groupId>
       <artifactId>PermissionsEx</artifactId>
-      <version>1.23.3</version>
+      <version>1.23.4</version>
       <scope>system</scope>
-      <systemPath>${basedir}/lib/PermissionsEx-1.23.3.jar</systemPath>
+      <systemPath>${basedir}/lib/PermissionsEx-1.23.4.jar</systemPath>
     </dependency>
     <dependency>
       <groupId>junit</groupId>

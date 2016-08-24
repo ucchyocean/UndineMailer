@@ -47,6 +47,9 @@ public class MailManager {
     public static final String SENDTIME_METAKEY = "MailSendTime";
     private static final String COMMAND = UndineCommand.COMMAND;
     private static final String PERMISSION_TELEPORT = "undine.teleport";
+    private static final String PERMISSION_ATTACH = "undine.attach";
+    private static final String PERMISSION_ATTACH_SENDMAIL = "undine.attach-sendmail";
+    private static final String PERMISSION_ATTACH_INBOXMAIL = "undine.attach-inboxmail";
 
     private static final int PAGE_SIZE = 10;
     private static final int MESSAGE_ADD_SIZE = 3;
@@ -835,24 +838,31 @@ public class MailManager {
                     // 未キャンセルで受信者の場合、または、
                     // キャンセル済みで送信者の場合、オープンボタンを置く
 
-                    MessageParts button = new MessageParts(
-                            Messages.get("MailDetailAttachmentBox"), ChatColor.AQUA);
-                    button.setClickEvent(ClickEventType.RUN_COMMAND,
-                            COMMAND + " attach " + mail.getIndex());
-                    msg.addParts(button);
+                    if ( sender.hasPermission(PERMISSION_ATTACH) &&
+                            sender.hasPermission(PERMISSION_ATTACH_INBOXMAIL) ) {
+
+                        MessageParts button = new MessageParts(
+                                Messages.get("MailDetailAttachmentBox"), ChatColor.AQUA);
+                        button.setClickEvent(ClickEventType.RUN_COMMAND,
+                                COMMAND + " attach " + mail.getIndex());
+                        msg.addParts(button);
+                    }
 
                 } else if ( !mail.isAttachmentsCancelled() && !mail.isAttachmentsOpened()
                         && mail.getFrom().equals(sender) ) {
                     // 未キャンセルで送信者の場合、
                     // 受信者がボックスを一度も開いていないなら、キャンセルボタンを置く
 
-                    MessageParts button = new MessageParts(
-                            Messages.get("MailDetailAttachmentBoxCancel"),
-                            ChatColor.AQUA);
-                    button.setClickEvent(ClickEventType.RUN_COMMAND,
-                            COMMAND + " attach " + mail.getIndex() + " cancel");
-                    button.addHoverText(Messages.get("MailDetailAttachmentBoxCancelToolTip"));
-                    msg.addParts(button);
+                    if ( sender.hasPermission(PERMISSION_ATTACH) ) {
+
+                        MessageParts button = new MessageParts(
+                                Messages.get("MailDetailAttachmentBoxCancel"),
+                                ChatColor.AQUA);
+                        button.setClickEvent(ClickEventType.RUN_COMMAND,
+                                COMMAND + " attach " + mail.getIndex() + " cancel");
+                        button.addHoverText(Messages.get("MailDetailAttachmentBoxCancelToolTip"));
+                        msg.addParts(button);
+                    }
 
                 } else if ( mail.isAttachmentsCancelled() && !mail.getFrom().equals(sender) ) {
                     // キャンセル済みで受信者の場合、キャンセルされた旨のラベルを出す
@@ -1171,7 +1181,11 @@ public class MailManager {
             sendMessageComponent(msg, sender);
         }
 
-        if ( config.isEnableAttachment() ) {
+        boolean senderHasPermissionOfOpenAttachBox =
+                sender.hasPermission(PERMISSION_ATTACH) &&
+                sender.hasPermission(PERMISSION_ATTACH_SENDMAIL);
+
+        if ( config.isEnableAttachment() && senderHasPermissionOfOpenAttachBox ) {
             MessageComponent msg = new MessageComponent();
             msg.addText(pre);
             MessageParts button = new MessageParts(
