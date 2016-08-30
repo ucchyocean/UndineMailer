@@ -152,7 +152,7 @@ permissions:
     description: Permission of modification all groups.
     default: op
   undine.group.dissolution-all:
-    description: Permission of break-up groups.
+    description: Permission of break-up all groups.
     default: op
 
   undine.group.*:

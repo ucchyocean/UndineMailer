@@ -1129,7 +1129,8 @@ public class MailManager {
             sendMessageComponent(msg, sender);
         }
 
-        if ( mail.getToGroups().size() < config.getMaxDestinationGroup() ) {
+        if ( sender.hasPermission(GroupCommand.PERMISSION + ".list") &&
+                mail.getToGroups().size() < config.getMaxDestinationGroup() ) {
             MessageComponent msg = new MessageComponent();
             msg.addText(pre);
             MessageParts button = new MessageParts(
