@@ -3,6 +3,7 @@
   <groupId>org.bitbucket.ucchy</groupId>
   <artifactId>UndineMailer</artifactId>
   <version>1.6.6</version>
+  <description></description>
 
   <licenses>
     <license>
@@ -20,12 +21,13 @@
     <repository>
       <id>internal.repo</id>
       <name>Temporary Staging Repository</name>
-      <url>file://${project.build.directory}/mvn-repo</url>
+      <url>file://${basedir}/../mvn-repo</url>
     </repository>
   </distributionManagement>
 
   <build>
     <finalName>${project.artifactId}</finalName>
+    <defaultGoal>clean javadoc:jar source:jar deploy</defaultGoal>
     <resources>
       <resource>
         <directory>src/main/resources</directory>
@@ -36,7 +38,7 @@
       <plugin>
         <groupId>org.apache.maven.plugins</groupId>
         <artifactId>maven-compiler-plugin</artifactId>
-        <version>2.3.2</version>
+        <version>3.5.1</version>
         <configuration>
           <source>1.6</source>
           <target>1.6</target>
@@ -44,8 +46,25 @@
       </plugin>
       <plugin>
         <groupId>org.apache.maven.plugins</groupId>
+        <artifactId>maven-javadoc-plugin</artifactId>
+        <version>2.10.4</version>
+        <configuration>
+          <source>1.6</source>
+          <encoding>UTF-8</encoding>
+          <docencoding>UTF-8</docencoding>
+          <charset>UTF-8</charset>
+          <show>public</show>
+          <nohelp>true</nohelp>
+          <links>
+            <link>http://docs.oracle.com/javase/6/docs/api/</link>
+            <link>https://hub.spigotmc.org/javadocs/bukkit/</link>
+          </links>
+        </configuration>
+      </plugin>
+      <plugin>
+        <groupId>org.apache.maven.plugins</groupId>
         <artifactId>maven-assembly-plugin</artifactId>
-        <version>2.2.1</version>
+        <version>2.6</version>
         <configuration>
           <finalName>${project.artifactId}-${project.version}</finalName>
           <descriptors>
@@ -66,31 +85,19 @@
 
   <repositories>
     <repository>
-      <id>bukkit-repo</id>
-      <name>Craft Bukkit Maven Repository</name>
-      <url>http://repo.bukkit.org/content/groups/public</url>
+      <id>spigot-repo</id>
+      <name>Spigot Maven Repository</name>
+      <url>https://hub.spigotmc.org/nexus/content/groups/public</url>
     </repository>
     <repository>
       <id>vault-repo</id>
       <name>Vault Repository</name>
       <url>http://nexus.hc.to/content/repositories/pub_releases</url>
     </repository>
-    <!--
     <repository>
       <id>pex-repo</id>
       <name>PermissionsEx Repository</name>
-      <url>http://pex-repo.zachsthings.com</url>
-    </repository>
-    <repository>
-      <id>pex-repo-alt</id>
-      <name>PermissionsEx Alternative Repository</name>
       <url>http://pex-repo.aoeu.xyz</url>
-    </repository>
-    -->
-    <repository>
-      <id>spigot-repo</id>
-      <name>Spigot Maven Repository</name>
-      <url>https://hub.spigotmc.org/nexus/content/groups/public</url>
     </repository>
   </repositories>
 
@@ -103,14 +110,20 @@
     <dependency>
       <groupId>net.milkbowl.vault</groupId>
       <artifactId>VaultAPI</artifactId>
-      <version>1.5</version>
+      <version>1.6</version>
+      <optional>true</optional>
     </dependency>
     <dependency>
       <groupId>ru.tehkode</groupId>
       <artifactId>PermissionsEx</artifactId>
-      <version>1.23.4</version>
-      <scope>system</scope>
-      <systemPath>${basedir}/lib/PermissionsEx-1.23.4.jar</systemPath>
+      <version>1.23.1</version>
+      <optional>true</optional>
+      <exclusions>
+        <exclusion>
+          <groupId>net.gravitydevelopment.updater</groupId>
+          <artifactId>updater</artifactId>
+        </exclusion>
+      </exclusions>
     </dependency>
     <dependency>
       <groupId>junit</groupId>
