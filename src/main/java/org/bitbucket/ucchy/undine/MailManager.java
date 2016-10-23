@@ -1156,7 +1156,7 @@ public class MailManager {
             msg.addParts(buttonDelete);
             msg.addText(" ");
             MessageParts buttonEdit = new MessageParts(
-                    "[M" + (i+1) + "]", ChatColor.AQUA);
+                    Messages.get("EditmodeLineEdit", "%num", i+1), ChatColor.AQUA);
             buttonEdit.setClickEvent(
                     ClickEventType.SUGGEST_COMMAND,
                     COMMAND + " message " + (i+1) + " " + mail.getMessage().get(i));
@@ -1293,6 +1293,11 @@ public class MailManager {
         last.addParts(cancelButton);
         last.addText(parts);
         sendMessageComponent(last, sender);
+
+        // メッセージがすべて空行の場合は、TIPSを表示する(see issue #90)
+        if ( areMessagesEmpty(mail) ) {
+            sender.sendMessage(Messages.get("EditmodeTipsMessage"));
+        }
     }
 
     /**
@@ -1602,5 +1607,19 @@ public class MailManager {
         } else if ( sender instanceof MailSenderConsole ) {
             msg.send(Bukkit.getConsoleSender());
         }
+    }
+
+    /**
+     * 指定されたメールのメッセージがすべて空行かどうかを判定する。
+     * @param mail メール
+     * @return すべてのメッセージが空行かどうか
+     */
+    private boolean areMessagesEmpty(MailData mail) {
+        for ( String line : mail.getMessage() ) {
+            if ( line != null && !line.trim().equals("") ) {
+                return false;
+            }
+        }
+        return true;
     }
 }
