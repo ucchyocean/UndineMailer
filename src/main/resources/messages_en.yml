@@ -86,7 +86,7 @@ InformationGroupMemberAddAllLogin: '&7Added %num player(s) to the members of the
 InformationGroupMemberRemove: '&7Removed Player %player from the members of the group %group.'
 InformationGroupSetPermission: '&7Set %type permission of Group %name to %value.'
 
-InformationTipsReadCommandFail: '&7TIPS: You can open mail by clicking blue numbers in mail list.'
+InformationTipsReadCommandFail: '&7TIP: You can open mail by clicking blue numbers in mail list.'
 
 SummaryOpenThisMailToolTip: 'Open this mail'
 
@@ -141,7 +141,7 @@ EditmodeCostItemRemove: '[x]'
 EditmodeCostItemRemoveToolTip: 'Remove C.O.D. item'
 EditmodeSend: '[Send]'
 EditmodeCancel: '[Cancel]'
-EditmodeTipsMessage: '&7TIPS: Click the [M1] to edit this line.'
+EditmodeTipsMessage: '&7TIP: Click the [M1] to add your message to this line.'
 
 EditmodeFeeInformation: '&7You need %fee for sending this mail.'
 EditmodeFeeDetail: '&7(mail fee %mail + attachment fee %item)'
