@@ -92,7 +92,9 @@ public class UndineAttachCommand implements SubCommand {
             }
 
             // パーミッション確認
-            if  ( !sender.hasPermission(NODE_ATTACH_SENDMAIL) ) {
+            // 設定で添付不可にしている場合も拒否する(see issue #93)
+            if  ( !sender.hasPermission(NODE_ATTACH_SENDMAIL)
+                    || !config.isEnableAttachment() ) {
                 sender.sendMessage(Messages.get("PermissionDeniedCommand"));
                 return;
             }
@@ -195,7 +197,9 @@ public class UndineAttachCommand implements SubCommand {
             }
 
             // パーミッション確認
-            if  ( !sender.hasPermission(NODE_ATTACH_INBOXMAIL) ) {
+            // 設定で添付不可にしている場合も拒否する(see issue #93)
+            if  ( !sender.hasPermission(NODE_ATTACH_INBOXMAIL)
+                    || !config.isEnableAttachment() ) {
                 sender.sendMessage(Messages.get("PermissionDeniedCommand"));
                 return;
             }
