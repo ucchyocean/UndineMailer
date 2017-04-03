@@ -15,8 +15,6 @@ import java.util.List;
 import org.bitbucket.ucchy.undine.group.GroupData;
 import org.bitbucket.ucchy.undine.group.GroupManager;
 import org.bitbucket.ucchy.undine.group.SpecialGroupAll;
-import org.bitbucket.ucchy.undine.item.ItemConfigParseException;
-import org.bitbucket.ucchy.undine.item.ItemConfigParser;
 import org.bitbucket.ucchy.undine.sender.MailSender;
 import org.bitbucket.ucchy.undine.sender.MailSenderPlayer;
 import org.bukkit.Bukkit;
@@ -25,6 +23,9 @@ import org.bukkit.World;
 import org.bukkit.configuration.ConfigurationSection;
 import org.bukkit.configuration.file.YamlConfiguration;
 import org.bukkit.inventory.ItemStack;
+
+import com.github.ucchyocean.itemconfig.ItemConfigParseException;
+import com.github.ucchyocean.itemconfig.ItemConfigParser;
 
 /**
  * メールのデータ

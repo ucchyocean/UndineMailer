@@ -8,7 +8,6 @@ package org.bitbucket.ucchy.undine;
 import java.util.ArrayList;
 import java.util.List;
 
-import org.bitbucket.ucchy.undine.item.ItemConfigParserV111;
 import org.bitbucket.ucchy.undine.item.TradableMaterial;
 import org.bitbucket.ucchy.undine.sender.MailSender;
 import org.bitbucket.ucchy.undine.sender.MailSenderConsole;
@@ -22,6 +21,8 @@ import org.bukkit.event.inventory.InventoryDragEvent;
 import org.bukkit.event.player.PlayerJoinEvent;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.scheduler.BukkitRunnable;
+
+import com.github.ucchyocean.itemconfig.ItemConfigParserV111;
 
 /**
  * Undineのリスナークラス

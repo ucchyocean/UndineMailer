@@ -11,12 +11,13 @@ import java.util.ArrayList;
 import java.util.List;
 
 import org.bitbucket.ucchy.undine.group.GroupPermissionMode;
-import org.bitbucket.ucchy.undine.item.ItemConfigParseException;
-import org.bitbucket.ucchy.undine.item.ItemConfigParser;
 import org.bitbucket.ucchy.undine.item.TradableMaterial;
 import org.bukkit.configuration.ConfigurationSection;
 import org.bukkit.configuration.file.FileConfiguration;
 import org.bukkit.inventory.ItemStack;
+
+import com.github.ucchyocean.itemconfig.ItemConfigParseException;
+import com.github.ucchyocean.itemconfig.ItemConfigParser;
 
 /**
  * Undineコンフィグ管理クラス
