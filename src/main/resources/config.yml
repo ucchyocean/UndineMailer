@@ -54,7 +54,7 @@ disableWorldsToOpenAttachBox: []
 # For example, the following setting makes that gold apple and quartz block will not be attached.
 #   prohibitItemsToAttach: [GOLDEN_APPLE, QUARTZ_BLOCK]
 # Possible item name, please see the following URL as a reference.
-# https://github.com/ucchyocean/UndineMailer/blob/master/src/main/java/org/bitbucket/ucchy/undine/item/TradableMaterial.java#L16-L357
+# https://github.com/ucchyocean/UndineMailer/blob/master/src/main/java/org/bitbucket/ucchy/undine/item/TradableMaterial.java#L19-L462
 prohibitItemsToAttach: []
 
 # -------------------- C.O.D. Setting --------------------

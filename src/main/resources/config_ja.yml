@@ -61,7 +61,7 @@ disableWorldsToOpenAttachBox: []
 # 例えば prohibitItemsToAttach: [GOLDEN_APPLE, QUARTZ_BLOCK] と設定すると、
 # 金リンゴとクオーツブロックが添付できなくなります。
 # 指定可能なアイテム名は、下記のURLを参考にしてください。
-# https://github.com/ucchyocean/UndineMailer/blob/master/src/main/java/org/bitbucket/ucchy/undine/item/TradableMaterial.java#L16-L357
+# https://github.com/ucchyocean/UndineMailer/blob/master/src/main/java/org/bitbucket/ucchy/undine/item/TradableMaterial.java#L19-L462
 prohibitItemsToAttach: []
 
 # -------------------- 着払い設定 --------------------
