@@ -25,9 +25,6 @@ import org.bitbucket.ucchy.undine.sender.MailSender;
 import org.bitbucket.ucchy.undine.sender.MailSenderBlock;
 import org.bitbucket.ucchy.undine.sender.MailSenderConsole;
 import org.bitbucket.ucchy.undine.sender.MailSenderPlayer;
-import org.bitbucket.ucchy.undine.tellraw.ClickEventType;
-import org.bitbucket.ucchy.undine.tellraw.MessageComponent;
-import org.bitbucket.ucchy.undine.tellraw.MessageParts;
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.command.CommandSender;
@@ -36,6 +33,10 @@ import org.bukkit.configuration.file.YamlConfiguration;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.scheduler.BukkitRunnable;
+
+import com.github.ucchyocean.messaging.tellraw.ClickEventType;
+import com.github.ucchyocean.messaging.tellraw.MessageComponent;
+import com.github.ucchyocean.messaging.tellraw.MessageParts;
 
 /**
  * メールデータマネージャ
@@ -860,7 +861,7 @@ public class MailManager {
                                 ChatColor.AQUA);
                         button.setClickEvent(ClickEventType.RUN_COMMAND,
                                 COMMAND + " attach " + mail.getIndex() + " cancel");
-                        button.addHoverText(Messages.get("MailDetailAttachmentBoxCancelToolTip"));
+                        button.setHoverText(Messages.get("MailDetailAttachmentBoxCancelToolTip"));
                         msg.addParts(button);
                     }
 
@@ -909,7 +910,7 @@ public class MailManager {
                     refuseButton.setClickEvent(
                             ClickEventType.SUGGEST_COMMAND,
                             UndineCommand.COMMAND + " attach " + mail.getIndex() + " refuse ");
-                    refuseButton.addHoverText(
+                    refuseButton.setHoverText(
                             Messages.get("MailDetailAttachmentBoxRefuseToolTip"));
                     msg.addParts(refuseButton);
                 }
@@ -1063,7 +1064,7 @@ public class MailManager {
             buttonDelete.setClickEvent(
                     ClickEventType.RUN_COMMAND,
                     COMMAND + " to delete " + (i+1));
-            buttonDelete.addHoverText(Messages.get("EditmodeToDeleteToolTip"));
+            buttonDelete.setHoverText(Messages.get("EditmodeToDeleteToolTip"));
             msg.addParts(buttonDelete);
             msg.addText(" ");
             MessageParts button = new MessageParts(
@@ -1071,7 +1072,7 @@ public class MailManager {
             button.setClickEvent(
                     ClickEventType.SUGGEST_COMMAND,
                     COMMAND + " to " + (i+1) + " " + mail.getTo().get(i).getName());
-            button.addHoverText(Messages.get("EditmodeToToolTip"));
+            button.setHoverText(Messages.get("EditmodeToToolTip"));
             msg.addParts(button);
             msg.addText(" ");
             msg.addText(mail.getTo().get(i).getName(), ChatColor.WHITE);
@@ -1090,7 +1091,7 @@ public class MailManager {
                 button.setClickEvent(
                         ClickEventType.SUGGEST_COMMAND,
                         COMMAND + " to " + (mail.getTo().size()+1) + " ");
-                button.addHoverText(Messages.get("EditmodeToAddToolTip"));
+                button.setHoverText(Messages.get("EditmodeToAddToolTip"));
                 msg.addParts(button);
 
             } else {
@@ -1117,13 +1118,13 @@ public class MailManager {
             buttonDelete.setClickEvent(
                     ClickEventType.RUN_COMMAND,
                     COMMAND + " to group delete " + (i+1));
-            buttonDelete.addHoverText(Messages.get("EditmodeToDeleteToolTip"));
+            buttonDelete.setHoverText(Messages.get("EditmodeToDeleteToolTip"));
             msg.addParts(buttonDelete);
             msg.addText(" " + ChatColor.WHITE + Messages.get("EditmodeToGroup") + " ",
                     ChatColor.WHITE);
             MessageParts groupName = new MessageParts(mail.getToGroups().get(i), ChatColor.WHITE);
             if ( group != null ) {
-                groupName.addHoverText(group.getHoverText());
+                groupName.setHoverText(group.getHoverText());
             }
             msg.addParts(groupName);
             sendMessageComponent(msg, sender);
@@ -1152,7 +1153,7 @@ public class MailManager {
             buttonDelete.setClickEvent(
                     ClickEventType.RUN_COMMAND,
                     COMMAND + " message delete " + (i+1));
-            buttonDelete.addHoverText(Messages.get("EditmodeLineDeleteToolTip"));
+            buttonDelete.setHoverText(Messages.get("EditmodeLineDeleteToolTip"));
             msg.addParts(buttonDelete);
             msg.addText(" ");
             MessageParts buttonEdit = new MessageParts(
@@ -1160,7 +1161,7 @@ public class MailManager {
             buttonEdit.setClickEvent(
                     ClickEventType.SUGGEST_COMMAND,
                     COMMAND + " message " + (i+1) + " " + mail.getMessage().get(i));
-            buttonEdit.addHoverText(Messages.get("EditmodeLineEditToolTip"));
+            buttonEdit.setHoverText(Messages.get("EditmodeLineEditToolTip"));
             msg.addParts(buttonEdit);
             msg.addText(" " + Utility.replaceColorCode(mail.getMessage().get(i)), ChatColor.WHITE);
             sendMessageComponent(msg, sender);
@@ -1215,7 +1216,7 @@ public class MailManager {
                                 Messages.get("EditmodeCostMoney"), ChatColor.AQUA);
                         buttonFee.setClickEvent(
                                 ClickEventType.SUGGEST_COMMAND, COMMAND + " costmoney ");
-                        buttonFee.addHoverText(Messages.get("EditmodeCostMoneyToolTip"));
+                        buttonFee.setHoverText(Messages.get("EditmodeCostMoneyToolTip"));
                         msgfee.addParts(buttonFee);
                     }
 
@@ -1228,7 +1229,7 @@ public class MailManager {
                                 Messages.get("EditmodeCostItem"), ChatColor.AQUA);
                         buttonItem.setClickEvent(
                                 ClickEventType.SUGGEST_COMMAND, COMMAND + " costitem ");
-                        buttonItem.addHoverText(Messages.get("EditmodeCostItemToolTip"));
+                        buttonItem.setHoverText(Messages.get("EditmodeCostItemToolTip"));
                         msgfee.addParts(buttonItem);
                     }
 
@@ -1245,7 +1246,7 @@ public class MailManager {
                     buttonDelete.setClickEvent(
                             ClickEventType.RUN_COMMAND,
                             COMMAND + " costmoney 0");
-                    buttonDelete.addHoverText(Messages.get("EditmodeCostMoneyRemoveToolTip"));
+                    buttonDelete.setHoverText(Messages.get("EditmodeCostMoneyRemoveToolTip"));
                     msgfee.addParts(buttonDelete);
                     MessageParts buttonFee = new MessageParts(
                             Messages.get("EditmodeCostMoneyData", "%fee", costDesc),
@@ -1264,7 +1265,7 @@ public class MailManager {
                     buttonDelete.setClickEvent(
                             ClickEventType.RUN_COMMAND,
                             COMMAND + " costitem remove");
-                    buttonDelete.addHoverText(Messages.get("EditmodeCostItemRemoveToolTip"));
+                    buttonDelete.setHoverText(Messages.get("EditmodeCostItemRemoveToolTip"));
                     msgfee.addParts(buttonDelete);
                     MessageParts buttonItem = new MessageParts(
                             Messages.get("EditmodeCostItemData", "%item", desc),
@@ -1363,7 +1364,7 @@ public class MailManager {
             MessageParts returnButton = new MessageParts(
                     Messages.get("Return"), ChatColor.AQUA);
             returnButton.setClickEvent(ClickEventType.RUN_COMMAND, returnCommand);
-            returnButton.addHoverText(Messages.get("ReturnListToolTip"));
+            returnButton.setHoverText(Messages.get("ReturnListToolTip"));
             msg.addParts(returnButton);
 
             msg.addText(" ");
@@ -1377,7 +1378,7 @@ public class MailManager {
                     firstLabel, ChatColor.AQUA);
             firstButton.setClickEvent(ClickEventType.RUN_COMMAND,
                     COMMAND + " read " + first);
-            firstButton.addHoverText(firstToolTip);
+            firstButton.setHoverText(firstToolTip);
             msg.addParts(firstButton);
 
             msg.addText(" ");
@@ -1386,7 +1387,7 @@ public class MailManager {
                     prevLabel, ChatColor.AQUA);
             prevButton.setClickEvent(ClickEventType.RUN_COMMAND,
                     COMMAND + " read " + prev);
-            prevButton.addHoverText(prevToolTip);
+            prevButton.setHoverText(prevToolTip);
             msg.addParts(prevButton);
 
         } else {
@@ -1404,7 +1405,7 @@ public class MailManager {
                     nextLabel, ChatColor.AQUA);
             nextButton.setClickEvent(ClickEventType.RUN_COMMAND,
                     COMMAND + " read " + next);
-            nextButton.addHoverText(nextToolTip);
+            nextButton.setHoverText(nextToolTip);
             msg.addParts(nextButton);
 
             msg.addText(" ");
@@ -1413,7 +1414,7 @@ public class MailManager {
                     lastLabel, ChatColor.AQUA);
             lastButton.setClickEvent(ClickEventType.RUN_COMMAND,
                     COMMAND + " read " + last);
-            lastButton.addHoverText(lastToolTip);
+            lastButton.setHoverText(lastToolTip);
             msg.addParts(lastButton);
 
         } else {
@@ -1485,7 +1486,7 @@ public class MailManager {
         button.setClickEvent(
                 ClickEventType.RUN_COMMAND,
                 UndineCommand.COMMAND + " read " + mail.getIndex());
-        button.addHoverText(Messages.get("SummaryOpenThisMailToolTip"));
+        button.setHoverText(Messages.get("SummaryOpenThisMailToolTip"));
         msg.addParts(button);
 
         msg.addText((mail.getAttachments().size() > 0) ? "*" : " ");
@@ -1522,7 +1523,7 @@ public class MailManager {
             MessageParts firstButton = new MessageParts(
                     firstLabel, ChatColor.AQUA);
             firstButton.setClickEvent(ClickEventType.RUN_COMMAND, commandPre + " 1");
-            firstButton.addHoverText(firstToolTip);
+            firstButton.setHoverText(firstToolTip);
             msg.addParts(firstButton);
 
             msg.addText(" ");
@@ -1530,7 +1531,7 @@ public class MailManager {
             MessageParts prevButton = new MessageParts(
                     prevLabel, ChatColor.AQUA);
             prevButton.setClickEvent(ClickEventType.RUN_COMMAND, commandPre + " " + (page - 1));
-            prevButton.addHoverText(prevToolTip);
+            prevButton.setHoverText(prevToolTip);
             msg.addParts(prevButton);
 
         } else {
@@ -1544,7 +1545,7 @@ public class MailManager {
             MessageParts nextButton = new MessageParts(
                     nextLabel, ChatColor.AQUA);
             nextButton.setClickEvent(ClickEventType.RUN_COMMAND, commandPre + " " + (page + 1));
-            nextButton.addHoverText(nextToolTip);
+            nextButton.setHoverText(nextToolTip);
             msg.addParts(nextButton);
 
             msg.addText(" ");
@@ -1552,7 +1553,7 @@ public class MailManager {
             MessageParts lastButton = new MessageParts(
                     lastLabel, ChatColor.AQUA);
             lastButton.setClickEvent(ClickEventType.RUN_COMMAND, commandPre + " " + max);
-            lastButton.addHoverText(lastToolTip);
+            lastButton.setHoverText(lastToolTip);
             msg.addParts(lastButton);
 
         } else {

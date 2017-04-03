@@ -9,13 +9,14 @@ import org.bitbucket.ucchy.undine.Messages;
 import org.bitbucket.ucchy.undine.sender.MailSender;
 import org.bitbucket.ucchy.undine.sender.MailSenderConsole;
 import org.bitbucket.ucchy.undine.sender.MailSenderPlayer;
-import org.bitbucket.ucchy.undine.tellraw.ClickEventType;
-import org.bitbucket.ucchy.undine.tellraw.MessageComponent;
-import org.bitbucket.ucchy.undine.tellraw.MessageParts;
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.Material;
 import org.bukkit.inventory.ItemStack;
+
+import com.github.ucchyocean.messaging.tellraw.ClickEventType;
+import com.github.ucchyocean.messaging.tellraw.MessageComponent;
+import com.github.ucchyocean.messaging.tellraw.MessageParts;
 
 /**
  * コマンド実行関連のユーティリティクラス

@@ -63,6 +63,26 @@
       </plugin>
       <plugin>
         <groupId>org.apache.maven.plugins</groupId>
+        <artifactId>maven-shade-plugin</artifactId>
+        <version>2.4</version>
+        <executions>
+          <execution>
+            <phase>package</phase>
+            <goals>
+              <goal>shade</goal>
+            </goals>
+            <configuration>
+              <artifactSet>
+                <includes>
+                  <include>com.github.ucchyocean:MessagingUtility</include>
+                </includes>
+              </artifactSet>
+            </configuration>
+          </execution>
+        </executions>
+      </plugin>
+      <plugin>
+        <groupId>org.apache.maven.plugins</groupId>
         <artifactId>maven-assembly-plugin</artifactId>
         <version>2.6</version>
         <configuration>
@@ -99,6 +119,11 @@
       <name>PermissionsEx Repository</name>
       <url>http://pex-repo.aoeu.xyz</url>
     </repository>
+    <repository>
+      <id>ucchy-github</id>
+      <name>ucchy github repository</name>
+      <url>https://raw.github.com/ucchyocean/mvn-repo/master</url>
+    </repository>
   </repositories>
 
   <dependencies>
@@ -106,6 +131,7 @@
       <groupId>org.bukkit</groupId>
       <artifactId>bukkit</artifactId>
       <version>1.11.2-R0.1-SNAPSHOT</version>
+      <optional>true</optional>
     </dependency>
     <dependency>
       <groupId>net.milkbowl.vault</groupId>
@@ -124,6 +150,12 @@
           <artifactId>updater</artifactId>
         </exclusion>
       </exclusions>
+    </dependency>
+    <dependency>
+      <groupId>com.github.ucchyocean</groupId>
+      <artifactId>MessagingUtility</artifactId>
+      <version>0.0.1</version>
+      <optional>true</optional>
     </dependency>
     <dependency>
       <groupId>junit</groupId>
