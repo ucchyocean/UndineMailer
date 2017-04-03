@@ -43,6 +43,7 @@ ErrorCannotSendSpamMail: '&cDu musst noch %remain Sekunden warten, bis du deine 
 ErrorPlayerCacheIncomplete: '&cDa die Generierung des Spieler-Cache noch nicht abgeschlossen ist, kannst du momentan noch keine Mails an alle bisher vorhanden Spieler senden. Bitte versuche es später noch einmal.'
 ErrorCannotFoundLocation: '&cDu konntest nicht teleportiert werden, da der Übertragungspunkt der angegeben Mail nicht aufgezeichnet wurde.'
 ErrorProhibitItemAttached: '&cDas Anhängen von %material ist nicht erlaubt.'
+ErrorContainsProhibitItemInShulkerbox: '&cShulkerBox enthält verbotene Gegenstände.'
 
 ErrorInvalidGroupName: '&c%name kann nicht als Gruppenname genutzt werden.'
 ErrorGroupIsAlreadyExist: '&cDie Gruppe %name existiert bereits.'

@@ -43,6 +43,7 @@ ErrorCannotSendSpamMail: '&c連続してメールを送信することはでき�
 ErrorPlayerCacheIncomplete: '&cプレイヤーのキャッシュが完了していないため、AllConnected宛てメールが作成できません。しばらく待ってから送信してください。'
 ErrorCannotFoundLocation: '&c指定されたメールには送信地点が記録されていないためテレポートできません。'
 ErrorProhibitItemAttached: '&cアイテム %material の添付は禁止されています。'
+ErrorContainsProhibitItemInShulkerbox: '&cShulkerBox内に、添付禁止のアイテムが含まれています。'
 
 ErrorInvalidGroupName: '&c%name はグループ名として使用できません。'
 ErrorGroupIsAlreadyExist: '&cグループ %name は既に存在するため使用できません。'

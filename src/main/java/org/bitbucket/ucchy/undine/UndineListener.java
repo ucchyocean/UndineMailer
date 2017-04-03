@@ -8,6 +8,7 @@ package org.bitbucket.ucchy.undine;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.bitbucket.ucchy.undine.item.ItemConfigParserV111;
 import org.bitbucket.ucchy.undine.item.TradableMaterial;
 import org.bitbucket.ucchy.undine.sender.MailSender;
 import org.bitbucket.ucchy.undine.sender.MailSenderConsole;
@@ -162,17 +163,27 @@ public class UndineListener implements Listener {
             case PLACE_ONE:
             case PLACE_SOME:
             case SWAP_WITH_CURSOR:
-                if ( inside && isDisableItem(event.getCursor() ) ) {
-                    event.setCancelled(true);
-                    player.sendMessage(Messages.get("ErrorProhibitItemAttached",
-                            "%material", event.getCursor().getType().toString()));
+                if ( inside ) {
+                    if ( isDisableItem(event.getCursor()) ) {
+                        event.setCancelled(true);
+                        player.sendMessage(Messages.get("ErrorProhibitItemAttached",
+                                "%material", event.getCursor().getType().toString()));
+                    } else if ( containsDisableItemInShulkerBox(event.getCursor()) ) {
+                        event.setCancelled(true);
+                        player.sendMessage(Messages.get("ErrorContainsProhibitItemInShulkerbox"));
+                    }
                 }
                 return;
             case MOVE_TO_OTHER_INVENTORY:
-                if ( !inside && isDisableItem(event.getCurrentItem()) ) {
-                    event.setCancelled(true);
-                    player.sendMessage(Messages.get("ErrorProhibitItemAttached",
-                            "%material", event.getCurrentItem().getType().toString()));
+                if ( !inside ) {
+                    if ( isDisableItem(event.getCurrentItem()) ) {
+                        event.setCancelled(true);
+                        player.sendMessage(Messages.get("ErrorProhibitItemAttached",
+                                "%material", event.getCurrentItem().getType().toString()));
+                    } else if ( containsDisableItemInShulkerBox(event.getCurrentItem()) ) {
+                        event.setCancelled(true);
+                        player.sendMessage(Messages.get("ErrorContainsProhibitItemInShulkerbox"));
+                    }
                 }
                 return;
             case HOTBAR_SWAP:
@@ -182,6 +193,9 @@ public class UndineListener implements Listener {
                     event.setCancelled(true);
                     player.sendMessage(Messages.get("ErrorProhibitItemAttached",
                             "%material", hotbar.getType().toString()));
+                } else if ( containsDisableItemInShulkerBox(hotbar) ) {
+                    event.setCancelled(true);
+                    player.sendMessage(Messages.get("ErrorContainsProhibitItemInShulkerbox"));
                 }
                 return;
             default:
@@ -223,7 +237,8 @@ public class UndineListener implements Listener {
             }
 
             // 禁止アイテムに関する操作でなければ何もしない
-            if ( !isDisableItem(event.getOldCursor()) ) {
+            boolean isShulkerboxContainsDisableItem = containsDisableItemInShulkerBox(event.getOldCursor());
+            if ( !isDisableItem(event.getOldCursor()) && !isShulkerboxContainsDisableItem ) {
                 return;
             }
 
@@ -232,8 +247,12 @@ public class UndineListener implements Listener {
             for ( int i : event.getRawSlots() ) {
                 if ( i < size ) {
                     event.setCancelled(true);
-                    player.sendMessage(Messages.get("ErrorProhibitItemAttached",
-                            "%material", event.getOldCursor().getType().toString()));
+                    if ( !isShulkerboxContainsDisableItem ) {
+                        player.sendMessage(Messages.get("ErrorProhibitItemAttached",
+                                "%material", event.getOldCursor().getType().toString()));
+                    } else {
+                        player.sendMessage(Messages.get("ErrorContainsProhibitItemInShulkerbox"));
+                    }
                     return;
                 }
             }
@@ -265,6 +284,28 @@ public class UndineListener implements Listener {
                 return true;
             }
         }
+        return false;
+    }
+
+    /**
+     * シャルカーボックスの中に、添付禁止のアイテムを含んでいるかどうかを判断する
+     * @param item シャルカーボックス
+     * @return 指定されたアイテムがシャルカーボックスであり、添付禁止のアイテムを含んでいる場合に、trueを返す
+     */
+    private boolean containsDisableItemInShulkerBox(ItemStack item) {
+
+        // シャルカーボックスでないならfalseを返す
+        if ( !Utility.isCB111orLater() || !ItemConfigParserV111.isShulkerBox(item) ) return false;
+
+        // シャルカーボックスの内容をチェックする see issue #96
+        if ( Utility.isCB111orLater() && ItemConfigParserV111.isShulkerBox(item) ) {
+            List<Material> list = TradableMaterial.convertToMaterialList(
+                    parent.getUndineConfig().getProhibitItemsToAttach());
+            if ( ItemConfigParserV111.containsMaterialsInShulkerBox(list, item) ) {
+                return true;
+            }
+        }
+
         return false;
     }
 }
