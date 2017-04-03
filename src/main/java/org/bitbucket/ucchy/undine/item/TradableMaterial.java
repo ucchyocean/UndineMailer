@@ -5,6 +5,9 @@
  */
 package org.bitbucket.ucchy.undine.item;
 
+import java.util.ArrayList;
+import java.util.List;
+
 import org.bukkit.Material;
 
 /**
@@ -225,6 +228,28 @@ public enum TradableMaterial {
     COMMAND_REPEATING(210),
     COMMAND_CHAIN(211),
 //    FROSTED_ICE(212),
+    MAGMA(213),
+    NETHER_WART_BLOCK(214),
+    RED_NETHER_BRICK(215),
+    BONE_BLOCK(216),
+//    STRUCTURE_VOID(217),
+    OBSERVER(218),
+    WHITE_SHULKER_BOX(219),
+    ORANGE_SHULKER_BOX(220),
+    MAGENTA_SHULKER_BOX(221),
+    LIGHT_BLUE_SHULKER_BOX(222),
+    YELLOW_SHULKER_BOX(223),
+    LIME_SHULKER_BOX(224),
+    PINK_SHULKER_BOX(225),
+    GRAY_SHULKER_BOX(226),
+    SILVER_SHULKER_BOX(227),
+    CYAN_SHULKER_BOX(228),
+    PURPLE_SHULKER_BOX(229),
+    BLUE_SHULKER_BOX(230),
+    BROWN_SHULKER_BOX(231),
+    GREEN_SHULKER_BOX(232),
+    RED_SHULKER_BOX(233),
+    BLACK_SHULKER_BOX(234),
 //    STRUCTURE_BLOCK(255),
     // ----- Item Separator -----
     IRON_SPADE(256),
@@ -420,6 +445,9 @@ public enum TradableMaterial {
     BOAT_JUNGLE(446),
     BOAT_ACACIA(447),
     BOAT_DARK_OAK(448),
+    TOTEM(449),
+    SHULKER_SHELL(450),
+    IRON_NUGGET(452),
     GOLD_RECORD(2256),
     GREEN_RECORD(2257),
     RECORD_3(2258),
@@ -467,6 +495,14 @@ public enum TradableMaterial {
      */
     public Material convertToMaterial() {
         return Material.getMaterial(this.toString());
+    }
+
+    public static List<Material> convertToMaterialList(List<TradableMaterial> list) {
+        List<Material> results = new ArrayList<Material>();
+        for ( TradableMaterial tm : list ) {
+            results.add(tm.convertToMaterial());
+        }
+        return results;
     }
 
     /**
