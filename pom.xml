@@ -2,7 +2,7 @@
   <modelVersion>4.0.0</modelVersion>
   <groupId>org.bitbucket.ucchy</groupId>
   <artifactId>UndineMailer</artifactId>
-  <version>1.8.0</version>
+  <version>1.8.1</version>
   <description></description>
 
   <licenses>
@@ -131,7 +131,7 @@
     <dependency>
       <groupId>org.bukkit</groupId>
       <artifactId>bukkit</artifactId>
-      <version>1.12-R0.1-SNAPSHOT</version>
+      <version>1.12.2-R0.1-SNAPSHOT</version>
       <optional>true</optional>
     </dependency>
     <dependency>

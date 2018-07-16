@@ -508,7 +508,16 @@ public class UndineAttachCommand implements SubCommand {
                     "BoxOpenCostItemSenderResult",
                     new String[]{"%to", "%material", "%amount"},
                     new String[]{ms.getName(), fee.getType().toString(), fee.getAmount() + ""}));
+
+            // アイテムをのスタック状態を規定の個数に整理する。
+            // see issue #99.
+            int stackSize = fee.getType().getMaxStackSize();
+            while ( fee.getAmount() > stackSize ) {
+                reply.addAttachment(new ItemStack(fee.getType(), stackSize));
+                fee.setAmount(fee.getAmount() - stackSize);
+            }
             reply.addAttachment(fee);
+
             parent.getMailManager().sendNewMail(reply);
 
             // 着払いをnullに設定して保存
