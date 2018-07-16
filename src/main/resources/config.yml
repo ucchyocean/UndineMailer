@@ -34,6 +34,9 @@ mailSpamProtectionSeconds: 15
 # Mail notification delay seconds on player login.
 loginNotificationDelaySeconds: 3
 
+# Validate destination on sending mail.
+validateDestination: true
+
 # -------------------- Attachment Item Box --------------------
 
 # Enable the attachment item box.

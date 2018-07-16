@@ -69,7 +69,12 @@ public class MailSenderPlayer extends MailSender {
         if ( offline == null ) {
             offline = getOfflinePlayer();
         }
-        return offline.hasPlayedBefore() || offline.isOnline();
+
+        if ( UndineMailer.getInstance().getUndineConfig().isValidateDestination() ) {
+            return offline.hasPlayedBefore() || offline.isOnline();
+        } else {
+            return offline != null;
+        }
     }
 
     /**
