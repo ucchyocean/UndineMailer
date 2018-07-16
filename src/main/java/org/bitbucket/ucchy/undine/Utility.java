@@ -45,6 +45,7 @@ public class Utility {
         FileOutputStream fos = null;
         BufferedReader reader = null;
         BufferedWriter writer = null;
+        JarFile jar = null;
 
         File parent = targetFile.getParentFile();
         if ( !parent.exists() ) {
@@ -52,7 +53,7 @@ public class Utility {
         }
 
         try {
-            JarFile jar = new JarFile(jarFile);
+            jar = new JarFile(jarFile);
             ZipEntry zipEntry = jar.getEntry(sourceFilePath);
             is = jar.getInputStream(zipEntry);
 
@@ -117,6 +118,13 @@ public class Utility {
             if ( is != null ) {
                 try {
                     is.close();
+                } catch (IOException e) {
+                    // do nothing.
+                }
+            }
+            if ( jar != null ) {
+                try {
+                    jar.close();
                 } catch (IOException e) {
                     // do nothing.
                 }
