@@ -146,6 +146,8 @@
       <artifactId>PermissionsEx</artifactId>
       <version>1.23.1</version>
       <optional>true</optional>
+      <scope>system</scope>
+      <systemPath>${project.basedir}/lib/PermissionsEx-1.23.1.jar</systemPath>
       <exclusions>
         <exclusion>
           <groupId>net.gravitydevelopment.updater</groupId>
