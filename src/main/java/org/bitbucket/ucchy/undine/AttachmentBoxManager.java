@@ -43,12 +43,13 @@ public class AttachmentBoxManager {
      * @param player プレイヤー
      * @param インベントリ名
      */
-    private String displayEditmodeBox(Player player) {
+    private void displayEditmodeBox(Player player) {
 
         // 既に、該当プレイヤーの編集中ボックスインベントリがある場合は、そちらを表示する
         if ( editmodeBoxes.containsKey(player) ) {
             player.openInventory(editmodeBoxes.get(player));
-            return editmodeBoxes.get(player).getName();
+            return;
+            //return editmodeBoxes.get(player).getName();
         }
 
         // 添付ボックスの作成
@@ -71,7 +72,7 @@ public class AttachmentBoxManager {
 
         editmodeBoxes.put(player, box);
         player.openInventory(box);
-        return box.getName();
+        //return box.getName();
     }
 
     /**
@@ -105,12 +106,13 @@ public class AttachmentBoxManager {
      * @param mail メール
      * @param インベントリ名
      */
-    private String displayAttachmentBox(Player player, MailData mail) {
+    private void displayAttachmentBox(Player player, MailData mail) {
 
         // 既に、該当メールの添付ボックスインベントリがある場合は、そちらを表示する
         if ( attachmentBoxes.containsKey(mail.getIndex()) ) {
             player.openInventory(attachmentBoxes.get(mail.getIndex()));
-            return attachmentBoxes.get(mail.getIndex()).getName();
+            return;
+            //return attachmentBoxes.get(mail.getIndex()).getName();
         }
 
         // 添付ボックスの作成
@@ -134,7 +136,7 @@ public class AttachmentBoxManager {
         // 指定されたplayerの画面に添付ボックスを表示する
         player.openInventory(box);
 
-        return box.getName();
+        //return box.getName();
     }
 
     /**

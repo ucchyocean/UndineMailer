@@ -27,19 +27,14 @@ public class UndineCommandUtil {
     /**
      * アイテム表記から、ItemStackを作成して返す
      * @param desc アイテム表記
-     * （マテリアル名、または、アイテムID。コロンを付けた後にデータ値を指定することも可能。
-     *   例：WOOL, WOOL:3, 35, 35:6 ）
+     * （マテリアル名。コロンを付けた後にデータ値を指定することも可能。
+     *   例：WOOL, WOOL:3）
      * @return ItemStack
      */
     protected static ItemStack getItemStackFromDescription(String desc) {
         String[] descs = desc.split(":");
         if ( descs.length <= 0 ) return null;
         Material material = Material.getMaterial(descs[0].toUpperCase());
-        if ( material == null && descs[0].matches("[0-9]{1,5}") ) {
-            @SuppressWarnings("deprecation")
-            Material m = Material.getMaterial(Integer.parseInt(descs[0]));
-            material = m;
-        }
         if ( material == null ) return null;
         ItemStack item = new ItemStack(material);
         if ( descs.length >= 2 && descs[1].matches("[0-9]{1,5}") ) {
