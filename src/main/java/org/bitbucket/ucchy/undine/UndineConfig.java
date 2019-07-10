@@ -11,7 +11,6 @@ import java.util.ArrayList;
 import java.util.List;
 
 import org.bitbucket.ucchy.undine.group.GroupPermissionMode;
-import org.bitbucket.ucchy.undine.item.TradableMaterial;
 import org.bukkit.configuration.ConfigurationSection;
 import org.bukkit.configuration.file.FileConfiguration;
 import org.bukkit.inventory.ItemStack;
@@ -56,7 +55,7 @@ public class UndineConfig {
     private List<String> disableWorldsToOpenAttachBox;
 
     /** 添付ボックスに添付できないようにするアイテム */
-    private List<TradableMaterial> prohibitItemsToAttach;
+    private List<String> prohibitItemsToAttach;
 
     /** 着払い料金を使用するかどうか */
     private boolean enableCODMoney;
@@ -230,13 +229,7 @@ public class UndineConfig {
         welcomeMailAttachments = getItemStackListFromConfig(
                 conf.getConfigurationSection("welcomeMailAttachments"));
 
-        prohibitItemsToAttach = new ArrayList<TradableMaterial>();
-        for ( String name : conf.getStringList("prohibitItemsToAttach") ) {
-            TradableMaterial material = TradableMaterial.getMaterial(name);
-            if ( material != null ) {
-                prohibitItemsToAttach.add(material);
-            }
-        }
+        prohibitItemsToAttach = conf.getStringList("prohibitItemsToAttach");
 
         // sendFeeは、マイナスが指定されていたら0に変更する
         if ( sendFee < 0 ) {
@@ -382,7 +375,7 @@ public class UndineConfig {
     /**
      * @return prohibitItemsToAttach
      */
-    public List<TradableMaterial> getProhibitItemsToAttach() {
+    public List<String> getProhibitItemsToAttach() {
         return prohibitItemsToAttach;
     }
 

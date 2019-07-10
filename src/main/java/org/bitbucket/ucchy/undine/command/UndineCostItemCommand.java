@@ -13,8 +13,8 @@ import org.bitbucket.ucchy.undine.MailManager;
 import org.bitbucket.ucchy.undine.Messages;
 import org.bitbucket.ucchy.undine.UndineConfig;
 import org.bitbucket.ucchy.undine.UndineMailer;
-import org.bitbucket.ucchy.undine.item.TradableMaterial;
 import org.bitbucket.ucchy.undine.sender.MailSender;
+import org.bukkit.Material;
 import org.bukkit.command.CommandSender;
 import org.bukkit.inventory.ItemStack;
 
@@ -106,10 +106,10 @@ public class UndineCostItemCommand implements SubCommand {
         }
 
         // 取引可能な種類のアイテムでないなら、エラーを表示して終了
-        if ( !TradableMaterial.isTradable(item.getType()) ) {
-            sender.sendMessage(Messages.get("ErrorInvalidCostItem", "%item", args[1]));
-            return;
-        }
+//        if ( !TradableMaterial.isTradable(item.getType()) ) {
+//            sender.sendMessage(Messages.get("ErrorInvalidCostItem", "%item", args[1]));
+//            return;
+//        }
 
         // アイテムと料金を両方設定しようとしたら、エラーを表示して終了
         if ( mail.getCostMoney() > 0 ) {
@@ -143,7 +143,7 @@ public class UndineCostItemCommand implements SubCommand {
             // costitemコマンドの2つ目は、マテリアル名で補完する
             String arg = args[1].toUpperCase();
             ArrayList<String> candidates = new ArrayList<String>();
-            for ( TradableMaterial material : TradableMaterial.values() ) {
+            for ( Material material : Material.values() ) {
                 if ( material.toString().startsWith(arg) ) {
                     candidates.add(material.toString());
                 }

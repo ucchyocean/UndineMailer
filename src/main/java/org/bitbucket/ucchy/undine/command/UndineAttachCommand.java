@@ -14,7 +14,6 @@ import org.bitbucket.ucchy.undine.Messages;
 import org.bitbucket.ucchy.undine.UndineConfig;
 import org.bitbucket.ucchy.undine.UndineMailer;
 import org.bitbucket.ucchy.undine.bridge.VaultEcoBridge;
-import org.bitbucket.ucchy.undine.item.TradableMaterial;
 import org.bitbucket.ucchy.undine.sender.MailSender;
 import org.bitbucket.ucchy.undine.sender.MailSenderConsole;
 import org.bukkit.OfflinePlayer;
@@ -144,10 +143,10 @@ public class UndineAttachCommand implements SubCommand {
             }
 
             // 取引可能な種類のアイテムでないなら、エラーを表示して終了
-            if ( !TradableMaterial.isTradable(item.getType()) ) {
-                sender.sendMessage(Messages.get("ErrorInvalidItem", "%item", args[2]));
-                return;
-            }
+//            if ( !TradableMaterial.isTradable(item.getType()) ) {
+//                sender.sendMessage(Messages.get("ErrorInvalidItem", "%item", args[2]));
+//                return;
+//            }
 
             // 個数も指定されている場合は、個数を反映する
             if ( args.length >= 4 && args[3].matches("[0-9]{1,9}") ) {

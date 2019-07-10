@@ -9,7 +9,6 @@ import java.util.List;
 
 import org.bitbucket.ucchy.undine.Messages;
 import org.bitbucket.ucchy.undine.Utility;
-import org.bitbucket.ucchy.undine.item.TradableMaterial;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
@@ -64,11 +63,11 @@ public class UndineItemCommand implements SubCommand {
 
         // 情報表示
         String description = UndineCommandUtil.getItemDesc(hand);
-        String isTradable = TradableMaterial.isTradable(hand.getType())
-                ? Messages.get("Yes") : Messages.get("No");
+//        String isTradable = TradableMaterial.isTradable(hand.getType())
+//                ? Messages.get("Yes") : Messages.get("No");
         sender.sendMessage(Messages.get("InformationItemDetail",
                 new String[]{"%desc", "%tradable"},
-                new String[]{description, isTradable}));
+                new String[]{description, Messages.get("Yes")}));
     }
 
     /**

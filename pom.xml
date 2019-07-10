@@ -2,7 +2,7 @@
   <modelVersion>4.0.0</modelVersion>
   <groupId>org.bitbucket.ucchy</groupId>
   <artifactId>UndineMailer</artifactId>
-  <version>1.9.0</version>
+  <version>1.9.1</version>
   <description></description>
 
   <licenses>
@@ -164,7 +164,7 @@
     <dependency>
       <groupId>com.github.ucchyocean</groupId>
       <artifactId>ItemConfigUtility</artifactId>
-      <version>0.0.4</version>
+      <version>0.0.5</version>
       <optional>true</optional>
     </dependency>
     <dependency>

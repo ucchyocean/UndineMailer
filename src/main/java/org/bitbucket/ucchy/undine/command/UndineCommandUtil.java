@@ -75,8 +75,9 @@ public class UndineCommandUtil {
      * @return 文字列表現
      */
     protected static String getItemDesc(ItemStack item) {
-        return item.getDurability() == 0 ? item.getType().toString() :
-                item.getType().toString() + ":" + item.getDurability();
+//        return item.getDurability() == 0 ? item.getType().toString() :
+//                item.getType().toString() + ":" + item.getDurability();
+        return item.serialize().toString();
     }
 
     /**

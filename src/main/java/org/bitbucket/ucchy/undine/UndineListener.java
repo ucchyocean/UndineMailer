@@ -8,7 +8,6 @@ package org.bitbucket.ucchy.undine;
 import java.util.ArrayList;
 import java.util.List;
 
-import org.bitbucket.ucchy.undine.item.TradableMaterial;
 import org.bitbucket.ucchy.undine.sender.MailSender;
 import org.bitbucket.ucchy.undine.sender.MailSenderConsole;
 import org.bukkit.Material;
@@ -147,7 +146,7 @@ public class UndineListener implements Listener {
         } else if ( parent.getBoxManager().isOpeningEditmodeBox(player) ) {
             // 編集メールの添付ボックスのアイテム処理
 
-            List<TradableMaterial> disables
+            List<String> disables
                 = parent.getUndineConfig().getProhibitItemsToAttach();
 
             // 禁止アイテムが設定されていないなら何もしない
@@ -229,7 +228,7 @@ public class UndineListener implements Listener {
         } else if ( parent.getBoxManager().isOpeningEditmodeBox(player) ) {
             // 編集メールの添付ボックスのアイテム処理
 
-            List<TradableMaterial> disables
+            List<String> disables
                 = parent.getUndineConfig().getProhibitItemsToAttach();
 
             // 禁止アイテムが設定されていないなら何もしない
@@ -280,8 +279,8 @@ public class UndineListener implements Listener {
      */
     private boolean isDisableItem(ItemStack item) {
         if ( item == null || item.getType() == Material.AIR ) return false;
-        for ( TradableMaterial mat : parent.getUndineConfig().getProhibitItemsToAttach() ) {
-            if ( mat.isSameMaterial(item.getType()) ) {
+        for ( String mat : parent.getUndineConfig().getProhibitItemsToAttach() ) {
+            if ( mat.equals(item.getType().toString()) ) {
                 return true;
             }
         }
@@ -300,9 +299,9 @@ public class UndineListener implements Listener {
 
         // シャルカーボックスの内容をチェックする see issue #96
         if ( Utility.isCB111orLater() && ItemConfigParserV111.isShulkerBox(item) ) {
-            List<Material> list = TradableMaterial.convertToMaterialList(
-                    parent.getUndineConfig().getProhibitItemsToAttach());
-            if ( ItemConfigParserV111.containsMaterialsInShulkerBox(list, item) ) {
+
+            if ( ItemConfigParserV111.containsMaterialStringInShulkerBox(
+                    parent.getUndineConfig().getProhibitItemsToAttach(), item) ) {
                 return true;
             }
         }
