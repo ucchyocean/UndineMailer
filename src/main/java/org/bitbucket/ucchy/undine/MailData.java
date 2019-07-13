@@ -287,7 +287,7 @@ public class MailData implements Comparable<MailData>, Cloneable {
                 ConfigurationSection sub = section.getConfigurationSection("attachments." + name);
                 try {
                     ItemStack item = ItemConfigParser.getItemFromSection(sub);
-                    data.attachments.add(item);
+                    if (item != null) data.attachments.add(item);
                 } catch (ItemConfigParseException e) {
                     e.printStackTrace();
                 }

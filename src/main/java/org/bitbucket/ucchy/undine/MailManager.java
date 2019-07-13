@@ -1448,6 +1448,7 @@ public class MailManager {
      * @return 文字列表現
      */
     private String getItemDesc(ItemStack item, boolean forDescription) {
+        if (item == null) return "null";
         String desc = item.getDurability() == 0 ? item.getType().toString() :
                 item.getType().toString() + ":" + item.getDurability();
         if ( item.getAmount() == 1 ) return desc;
