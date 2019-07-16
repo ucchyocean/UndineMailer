@@ -173,7 +173,7 @@ welcomeMailDelaySeconds: 30
 # ウェルカムメールの添付アイテム設定です。
 welcomeMailAttachments:
   attachment1:
-    material: STONE_SPADE
+    material: STONE_SHOVEL
   attachment2:
     material: STONE_PICKAXE
   attachment3:

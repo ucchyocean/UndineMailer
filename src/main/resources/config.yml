@@ -157,7 +157,7 @@ welcomeMailDelaySeconds: 30
 # Attachment items of welcome mail.
 welcomeMailAttachments:
   attachment1:
-    material: STONE_SPADE
+    material: STONE_SHOVEL
   attachment2:
     material: STONE_PICKAXE
   attachment3:

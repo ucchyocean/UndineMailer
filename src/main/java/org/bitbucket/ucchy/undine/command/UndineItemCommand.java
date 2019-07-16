@@ -63,7 +63,7 @@ public class UndineItemCommand implements SubCommand {
 
         // 情報表示
         String description = UndineCommandUtil.getItemDesc(hand);
-        String isTradable = Messages.get("Yes");
+        String isTradable = Messages.get("Yes"); // すべてのアイテムが取引可能
         sender.sendMessage(Messages.get("InformationItemDetail",
                 new String[]{"%desc", "%tradable"},
                 new String[]{description, isTradable}));
