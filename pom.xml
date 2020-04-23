@@ -2,7 +2,7 @@
   <modelVersion>4.0.0</modelVersion>
   <groupId>org.bitbucket.ucchy</groupId>
   <artifactId>UndineMailer</artifactId>
-  <version>1.9.2</version>
+  <version>1.10.0</version>
   <description></description>
 
   <licenses>
@@ -75,12 +75,27 @@
               <goal>shade</goal>
             </goals>
             <configuration>
+              <createDependencyReducedPom>false</createDependencyReducedPom>
+              <minimizeJar>true</minimizeJar>
               <artifactSet>
                 <includes>
+                  <include>at.pcgamingfreaks:PluginLib</include>
                   <include>com.github.ucchyocean:MessagingUtility</include>
                   <include>com.github.ucchyocean:ItemConfigUtility</include>
                 </includes>
               </artifactSet>
+              <filters>
+                <filter>
+                  <artifact>at.pcgamingfreaks:PluginLib</artifact>
+                  <excludes>
+                    <exclude>**/*.yml</exclude>
+                    <exclude>**/*.xml</exclude>
+                    <exclude>**/*.txt</exclude>
+                    <exclude>**/*.html</exclude>
+                    <exclude>LICENSE</exclude>
+                  </excludes>
+                </filter>
+              </filters>
             </configuration>
           </execution>
         </executions>
@@ -121,6 +136,11 @@
       <url>http://pex-repo.aoeu.xyz</url>
     </repository>
     <repository>
+      <id>pcgf-repo</id>
+      <name>PCGF PluginLib Repository</name>
+      <url>https://repo.pcgamingfreaks.at/repository/everything</url>
+    </repository>
+    <repository>
       <id>ucchy-github</id>
       <name>ucchy github repository</name>
       <url>https://raw.github.com/ucchyocean/mvn-repo/master</url>
@@ -131,7 +151,7 @@
     <dependency>
       <groupId>org.bukkit</groupId>
       <artifactId>bukkit</artifactId>
-      <version>1.14.2-R0.1-SNAPSHOT</version>
+      <version>1.15.2-R0.1-SNAPSHOT</version>
       <optional>true</optional>
     </dependency>
     <dependency>
@@ -154,6 +174,11 @@
           <artifactId>updater</artifactId>
         </exclusion>
       </exclusions>
+    </dependency>
+    <dependency>
+      <groupId>at.pcgamingfreaks</groupId>
+      <artifactId>PluginLib</artifactId>
+      <version>1.0.23-SNAPSHOT</version>
     </dependency>
     <dependency>
       <groupId>com.github.ucchyocean</groupId>
