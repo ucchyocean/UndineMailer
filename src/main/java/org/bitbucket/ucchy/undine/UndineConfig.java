@@ -120,9 +120,6 @@ public class UndineConfig {
     /** プレイヤーがログインした時に、未読一覧を表示するまでの時間（秒） */
     private int loginNotificationDelaySeconds;
 
-    /** メールの宛先にしていされたプレイヤー名の有効性をチェックするかどうか */
-    private boolean validateDestination;
-
     /** ウェルカムメールを利用するかどうか。 */
     private boolean useWelcomeMail;
 
@@ -223,7 +220,6 @@ public class UndineConfig {
         mailStorageTermDays = conf.getInt("mailStorageTermDays", 30);
         mailSpamProtectionSeconds = conf.getInt("mailSpamProtectionSeconds", 15);
         loginNotificationDelaySeconds = conf.getInt("loginNotificationDelaySeconds", 3);
-        validateDestination = conf.getBoolean("validateDestination", true);
         useWelcomeMail = conf.getBoolean("useWelcomeMail", true);
         welcomeMailDelaySeconds = conf.getInt("welcomeMailDelaySeconds", 30);
         welcomeMailAttachments = getItemStackListFromConfig(
@@ -546,12 +542,4 @@ public class UndineConfig {
     public List<ItemStack> getWelcomeMailAttachments() {
         return welcomeMailAttachments;
     }
-
-    /**
-     * @return validateDestination
-     */
-    public boolean isValidateDestination() {
-        return validateDestination;
-    }
-
 }
