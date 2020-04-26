@@ -135,7 +135,7 @@ public class UndineListener implements Listener {
             case HOTBAR_SWAP:
             case HOTBAR_MOVE_AND_READD:
                 ItemStack hotbar = player.getInventory().getItem(event.getHotbarButton());
-                if ( hotbar.getType() != Material.AIR ) {
+                if ( hotbar != null && hotbar.getType() != Material.AIR ) {
                     event.setCancelled(true);
                 }
                 return;
@@ -164,11 +164,12 @@ public class UndineListener implements Listener {
             case PLACE_SOME:
             case SWAP_WITH_CURSOR:
                 if ( inside ) {
-                    if ( isDisableItem(event.getCursor()) ) {
+                    ItemStack cursor = event.getCursor();
+                    if ( cursor != null && isDisableItem(cursor) ) {
                         event.setCancelled(true);
                         player.sendMessage(Messages.get("ErrorProhibitItemAttached",
-                                "%material", event.getCursor().getType().toString()));
-                    } else if ( containsDisableItemInShulkerBox(event.getCursor()) ) {
+                                "%material", cursor.getType().toString()));
+                    } else if ( cursor != null && containsDisableItemInShulkerBox(cursor) ) {
                         event.setCancelled(true);
                         player.sendMessage(Messages.get("ErrorContainsProhibitItemInShulkerbox"));
                     }
@@ -176,11 +177,12 @@ public class UndineListener implements Listener {
                 return;
             case MOVE_TO_OTHER_INVENTORY:
                 if ( !inside ) {
-                    if ( isDisableItem(event.getCurrentItem()) ) {
+                    ItemStack current = event.getCurrentItem();
+                    if ( current != null && isDisableItem(current) ) {
                         event.setCancelled(true);
                         player.sendMessage(Messages.get("ErrorProhibitItemAttached",
-                                "%material", event.getCurrentItem().getType().toString()));
-                    } else if ( containsDisableItemInShulkerBox(event.getCurrentItem()) ) {
+                                "%material", current.getType().toString()));
+                    } else if ( current != null && containsDisableItemInShulkerBox(current) ) {
                         event.setCancelled(true);
                         player.sendMessage(Messages.get("ErrorContainsProhibitItemInShulkerbox"));
                     }

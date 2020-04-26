@@ -31,15 +31,15 @@ public class PlayerUuidCache {
         long start = System.currentTimeMillis();
 
         File folder = UndineMailer.getInstance().getCacheFolder();
-
-        for ( File file : folder.listFiles() ) {
-
-            if ( !file.getName().endsWith(".yml") ) {
-                continue;
+        File[] children =  folder.listFiles();
+        if ( children != null ) {
+            for ( File file : children ) {
+                if ( !file.getName().endsWith(".yml") ) {
+                    continue;
+                }
+                PlayerUuidCacheData cache = PlayerUuidCacheData.load(file);
+                puc.caches.put(cache.getName(), cache);
             }
-
-            PlayerUuidCacheData cache = PlayerUuidCacheData.load(file);
-            puc.caches.put(cache.getName(), cache);
         }
 
         UndineMailer.getInstance().getLogger().info("Load offline player data from cache... Done. Time: "
@@ -61,15 +61,18 @@ public class PlayerUuidCache {
                 HashMap<String, PlayerUuidCacheData> temp = new HashMap<String, PlayerUuidCacheData>();
                 for ( OfflinePlayer player : Bukkit.getOfflinePlayers() ) {
 
+                    String name = player.getName();
+                    if ( name == null ) continue;
+
                     String uuid = null;
-                    if ( caches.containsKey(player.getName()) ) {
-                        PlayerUuidCacheData data = caches.get(player.getName());
+                    if ( caches.containsKey(name) ) {
+                        PlayerUuidCacheData data = caches.get(name);
                         uuid = PCGFPluginLibBridge.getUUIDFromName(data.getName(), onlineMode, data.getLastKnownDate());
                     } else {
-                        uuid = PCGFPluginLibBridge.getUUIDFromName(player.getName(), onlineMode, null);
+                        uuid = PCGFPluginLibBridge.getUUIDFromName(name, onlineMode, null);
                     }
-                    PlayerUuidCacheData newData = new PlayerUuidCacheData(player.getName(), uuid, new Date());
-                    temp.put(player.getName(), newData);
+                    PlayerUuidCacheData newData = new PlayerUuidCacheData(name, uuid, new Date());
+                    temp.put(name, newData);
                     newData.save();
                 }
 

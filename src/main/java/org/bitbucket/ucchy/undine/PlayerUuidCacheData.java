@@ -14,8 +14,6 @@ import org.bukkit.configuration.file.YamlConfiguration;
  */
 public class PlayerUuidCacheData {
 
-    private static SimpleDateFormat format;
-
     private String name;
     private String uuid;
     private Date lastKnownDate;
@@ -34,40 +32,49 @@ public class PlayerUuidCacheData {
 
     public static PlayerUuidCacheData load(File file) {
 
-        if ( format == null ) {
-            format = new SimpleDateFormat("yyyyMMdd");
-        }
-
         YamlConfiguration conf = YamlConfiguration.loadConfiguration(file);
         String name = conf.getString("name");
         String uuid = conf.getString("uuid");
-        Date date = null;
-        try {
-            date = format.parse(conf.getString("lastKnownDate"));
-        } catch (ParseException e) {
-            // do nothing.
-        }
+        Date date = parseDate(conf.getString("lastKnownDate"));
 
         return new PlayerUuidCacheData(name, uuid, date);
     }
 
     public void save() {
 
-        if ( format == null ) {
-            format = new SimpleDateFormat("yyyyMMdd");
-        }
-
         File folder = UndineMailer.getInstance().getCacheFolder();
         YamlConfiguration conf = new YamlConfiguration();
         conf.set("name", name);
         conf.set("uuid", uuid);
-        conf.set("lastKnownDate", format.format(lastKnownDate));
+        conf.set("lastKnownDate", formatDate(lastKnownDate));
 
         try {
             conf.save(new File(folder, uuid + ".yml"));
         } catch (IOException e) {
             e.printStackTrace();
         }
+    }
+
+    private static Date parseDate(String src) {
+
+        if ( src == null ) return null;
+
+        SimpleDateFormat format = new SimpleDateFormat("yyyyMMdd");
+
+        try {
+            return format.parse(src);
+        } catch (ParseException e) {
+            // do nothing.
+        }
+        return null;
+    }
+
+    private String formatDate(Date date) {
+
+        if ( date == null ) return null;
+
+        SimpleDateFormat format = new SimpleDateFormat("yyyyMMdd");
+        return format.format(date);
     }
 
     /**

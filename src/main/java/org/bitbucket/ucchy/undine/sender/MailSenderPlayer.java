@@ -207,10 +207,11 @@ public class MailSenderPlayer extends MailSender {
         if ( offline == null ) {
             offline = getOfflinePlayer();
         }
-        if ( !offline.isOnline() ) {
+        Player player = offline.getPlayer();
+        if ( !offline.isOnline() || player == null ) {
             return;
         }
-        offline.getPlayer().setMetadata(key,
+        player.setMetadata(key,
                 new FixedMetadataValue(UndineMailer.getInstance(), value));
     }
 
@@ -225,10 +226,11 @@ public class MailSenderPlayer extends MailSender {
         if ( offline == null ) {
             offline = getOfflinePlayer();
         }
-        if ( !offline.isOnline() ) {
+        Player player = offline.getPlayer();
+        if ( !offline.isOnline() || player == null ) {
             return null;
         }
-        List<MetadataValue> values = offline.getPlayer().getMetadata(key);
+        List<MetadataValue> values = player.getMetadata(key);
         if ( values.size() == 0 ) {
             return null;
         }
@@ -246,10 +248,11 @@ public class MailSenderPlayer extends MailSender {
         if ( offline == null ) {
             offline = getOfflinePlayer();
         }
-        if ( !offline.isOnline() ) {
+        Player player = offline.getPlayer();
+        if ( !offline.isOnline() || player == null ) {
             return;
         }
-        offline.getPlayer().setMetadata(key,
+        player.setMetadata(key,
                 new FixedMetadataValue(UndineMailer.getInstance(), value));
     }
 
@@ -264,10 +267,11 @@ public class MailSenderPlayer extends MailSender {
         if ( offline == null ) {
             offline = getOfflinePlayer();
         }
-        if ( !offline.isOnline() ) {
+        Player player = offline.getPlayer();
+        if ( !offline.isOnline() || player == null ) {
             return false;
         }
-        List<MetadataValue> values = offline.getPlayer().getMetadata(key);
+        List<MetadataValue> values = player.getMetadata(key);
         if ( values.size() == 0 ) {
             return false;
         }
