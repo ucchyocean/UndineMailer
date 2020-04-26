@@ -13,37 +13,53 @@ public class PCGFPluginLibBridgeTest extends TestCase {
 
     public void testGetUUID() {
 
+        String myName = "ucchy";
+        String myUuid = "9603ae84-5be8-40af-af14-a62ed0f14a29";
+
         long timeStart = System.currentTimeMillis();
-        String uuid = PCGFPluginLibBridge.getUUIDFromName("ucchy", true, null);
+        String uuid = PCGFPluginLibBridge.getUUIDFromName(myName, true, true, null);
         System.out.println("ucchy uuid is " + uuid + ". Time : " + (System.currentTimeMillis() - timeStart));
-        assertTrue("9603ae845be840afaf14a62ed0f14a29".equals(uuid));
+        assertTrue(myUuid.equals(uuid));
 
         timeStart = System.currentTimeMillis();
-        String uuid2 = PCGFPluginLibBridge.getUUIDFromName("ucchy", true, new Date());
+        String uuid2 = PCGFPluginLibBridge.getUUIDFromName(myName, true, true, new Date());
         System.out.println("ucchy uuid is " + uuid2 + ". Time : " + (System.currentTimeMillis() - timeStart));
-        assertTrue("9603ae845be840afaf14a62ed0f14a29".equals(uuid2));
+        assertTrue(myUuid.equals(uuid2));
 
         Date date29DaysBefore = new Date(System.currentTimeMillis() - 1000L*24*3600* 29);
         timeStart = System.currentTimeMillis();
-        String uuid6 = PCGFPluginLibBridge.getUUIDFromName("ucchy", true, date29DaysBefore);
+        String uuid6 = PCGFPluginLibBridge.getUUIDFromName(myName, true, true, date29DaysBefore);
         System.out.println("ucchy uuid is " + uuid6 + ". Time : " + (System.currentTimeMillis() - timeStart));
-        assertTrue("9603ae845be840afaf14a62ed0f14a29".equals(uuid6));
+        assertTrue(myUuid.equals(uuid6));
 
         Date date35DaysBefore = new Date(System.currentTimeMillis() - 1000L*24*3600* 35);
         timeStart = System.currentTimeMillis();
-        String uuid3 = PCGFPluginLibBridge.getUUIDFromName("ucchy", true, date35DaysBefore);
+        String uuid3 = PCGFPluginLibBridge.getUUIDFromName(myName, true, true, date35DaysBefore);
         System.out.println("ucchy uuid is " + uuid3 + ". Time : " + (System.currentTimeMillis() - timeStart));
-        assertTrue("9603ae845be840afaf14a62ed0f14a29".equals(uuid3));
+        assertTrue(myUuid.equals(uuid3));
 
         Date date70DaysBefore = new Date(System.currentTimeMillis() - 1000L*24*3600* 70);
         timeStart = System.currentTimeMillis();
-        String uuid4 = PCGFPluginLibBridge.getUUIDFromName("ucchy", true, date70DaysBefore);
+        String uuid4 = PCGFPluginLibBridge.getUUIDFromName(myName, true, true, date70DaysBefore);
         System.out.println("ucchy uuid is " + uuid4 + ". Time : " + (System.currentTimeMillis() - timeStart));
-        assertTrue("9603ae845be840afaf14a62ed0f14a29".equals(uuid4));
+        assertTrue(myUuid.equals(uuid4));
 
         timeStart = System.currentTimeMillis();
-        String uuid5 = PCGFPluginLibBridge.getUUIDFromName("ucchy", true, new Date());
+        String uuid5 = PCGFPluginLibBridge.getUUIDFromName(myName, true, true, new Date());
         System.out.println("ucchy uuid is " + uuid5 + ". Time : " + (System.currentTimeMillis() - timeStart));
-        assertTrue("9603ae845be840afaf14a62ed0f14a29".equals(uuid5));
+        assertTrue(myUuid.equals(uuid5));
+
+
+        timeStart = System.currentTimeMillis();
+        String name1 = PCGFPluginLibBridge.getNameFromUUID(myUuid);
+        System.out.println(myUuid + " is " + name1 + ". Time : " + (System.currentTimeMillis() - timeStart));
+        assertTrue(myName.equals(name1));
+
+        /* MavenビルドでExceptionが記録されて邪魔なので、コメントアウト
+        timeStart = System.currentTimeMillis();
+        String name2 = PCGFPluginLibBridge.getNameFromUUID("aiueo");
+        System.out.println("aiueo is " + name2 + ". Time : " + (System.currentTimeMillis() - timeStart));
+        assertTrue("<unknown>".equals(name2));
+        */
     }
 }

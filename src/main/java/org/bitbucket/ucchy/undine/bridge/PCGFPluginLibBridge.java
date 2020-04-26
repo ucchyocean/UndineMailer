@@ -11,6 +11,7 @@ import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import at.pcgamingfreaks.UUIDConverter;
+import at.pcgamingfreaks.UUIDConverter.NameChange;
 
 /**
  * PCGFPluginLibへアクセスするためのブリッジクラス<br/>
@@ -19,11 +20,16 @@ import at.pcgamingfreaks.UUIDConverter;
  */
 public class PCGFPluginLibBridge {
 
-    public static String getUUIDFromName(@NotNull String name, boolean onlineMode, @Nullable Date lastKnownDate) {
-        return UUIDConverter.getUUIDFromName(name, onlineMode, lastKnownDate);
+    public static String getUUIDFromName(@NotNull String name, boolean onlineMode, boolean withSeparators, @Nullable Date lastKnownDate) {
+        return UUIDConverter.getUUIDFromName(name, onlineMode, withSeparators, lastKnownDate);
     }
 
     public static String getNameFromUUID(@NotNull String uuid) {
-        return UUIDConverter.getNameFromUUID(uuid);
+
+        // NOTE: UUIDConverter.getNameFromUUID(uuid) の方は、不正なUUIDを指定するとNullPointerExceptionを起こす問題があるので、
+        //       UUIDConverter.getNamesFromUUID(uuid) を呼び出すようにしている。
+        NameChange[] names = UUIDConverter.getNamesFromUUID(uuid);
+        if ( names == null ) return "-unknown-";
+        return names[names.length - 1].name;
     }
 }

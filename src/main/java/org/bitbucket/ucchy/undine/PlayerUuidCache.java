@@ -68,13 +68,15 @@ public class PlayerUuidCache {
                     PlayerUuidCacheData data = null;
                     if ( caches.containsKey(name) ) {
                         data = caches.get(name);
-                        uuid = PCGFPluginLibBridge.getUUIDFromName(data.getName(), onlineMode, data.getLastKnownDate());
-                        if ( !data.getUuid().equals(uuid) || isBefore30Days(data.getLastKnownDate()) ) {
+                        if ( isBefore30Days(data.getLastKnownDate()) ) {
+                            uuid = PCGFPluginLibBridge.getUUIDFromName(name, onlineMode, true, new Date(0));
+                            if ( uuid == null ) continue;
                             data = new PlayerUuidCacheData(name, uuid, new Date());
                             data.save();
                         }
                     } else {
-                        uuid = PCGFPluginLibBridge.getUUIDFromName(name, onlineMode, null);
+                        uuid = PCGFPluginLibBridge.getUUIDFromName(name, onlineMode, true, new Date(0));
+                        if ( uuid == null ) continue;
                         data = new PlayerUuidCacheData(name, uuid, new Date());
                         data.save();
                     }
@@ -141,14 +143,16 @@ public class PlayerUuidCache {
         PlayerUuidCacheData data = null;
         if ( caches.containsKey(name) ) {
             data = caches.get(name);
-            uuid = PCGFPluginLibBridge.getUUIDFromName(data.getName(), onlineMode, data.getLastKnownDate());
-            if ( !data.getUuid().equals(uuid) || isBefore30Days(data.getLastKnownDate()) ) {
+            if ( isBefore30Days(data.getLastKnownDate()) ) {
+                uuid = PCGFPluginLibBridge.getUUIDFromName(name, onlineMode, true, new Date(0));
+                if ( uuid == null ) return null;
                 data = new PlayerUuidCacheData(name, uuid, new Date());
                 caches.put(name, data);
                 data.save();
             }
         } else {
-            uuid = PCGFPluginLibBridge.getUUIDFromName(name, onlineMode, null);
+            uuid = PCGFPluginLibBridge.getUUIDFromName(name, onlineMode, true, new Date(0));
+            if ( uuid == null ) return null;
             data = new PlayerUuidCacheData(name, uuid, new Date());
             caches.put(name, data);
             data.save();
