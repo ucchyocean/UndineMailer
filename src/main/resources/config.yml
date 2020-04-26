@@ -34,6 +34,9 @@ mailSpamProtectionSeconds: 15
 # Mail notification delay seconds on player login.
 loginNotificationDelaySeconds: 3
 
+# UUID online mode.
+uuidOnlineMode: true
+
 # -------------------- Attachment Item Box --------------------
 
 # Enable the attachment item box.

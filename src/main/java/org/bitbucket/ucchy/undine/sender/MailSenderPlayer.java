@@ -19,6 +19,8 @@ import org.bukkit.entity.Player;
 import org.bukkit.metadata.FixedMetadataValue;
 import org.bukkit.metadata.MetadataValue;
 
+import at.pcgamingfreaks.UUIDConverter;
+
 /**
  * プレイヤー
  * @author ucchy
@@ -41,11 +43,10 @@ public class MailSenderPlayer extends MailSender {
      * @param player プレイヤー
      */
     public MailSenderPlayer(OfflinePlayer player) {
-        if ( Utility.isCB178orLater() ) {
-            this.nameOrUuid = "$" + player.getUniqueId().toString();
-        } else {
-            this.nameOrUuid = player.getName();
-        }
+
+        // PluginLib経由でUUIDを取得する
+        String uuid = UUIDConverter.getUUIDFromName(player.getName(), true);
+        this.nameOrUuid = "$" + uuid;
     }
 
     /**
@@ -341,12 +342,13 @@ public class MailSenderPlayer extends MailSender {
             uuidCache = new HashMap<String, String>();
         }
         if ( !uuidCache.containsKey(name) ) {
-            @SuppressWarnings("deprecation")
-            OfflinePlayer player = Bukkit.getOfflinePlayer(name);
-            if ( player == null || player.getUniqueId() == null ) {
+
+            // PluginLib経由でUUIDを取得する
+            String uuid = UUIDConverter.getUUIDFromName(name, true);
+            if ( uuid == null ) {
                 uuidCache.put(name, "");
             } else {
-                uuidCache.put(name, player.getUniqueId().toString());
+                uuidCache.put(name, uuid);
             }
         }
         return uuidCache.get(name);

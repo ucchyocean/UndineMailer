@@ -22,7 +22,7 @@ import org.bukkit.scheduler.BukkitRunnable;
  */
 public class PlayerNameCache {
 
-    private static final String FILENAME = "playercache.yml";
+    private static final String FILENAME = "playerUuidCache.yml";
     private HashMap<String, MailSender> playerCache;
     private boolean isPlayerCacheLoaded;
 

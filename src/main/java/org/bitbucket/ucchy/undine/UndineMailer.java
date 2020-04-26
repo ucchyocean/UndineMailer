@@ -30,6 +30,7 @@ public class UndineMailer extends JavaPlugin {
 
     private static final String MAIL_FOLDER = "mail";
     private static final String GROUP_FOLDER = "group";
+    private static final String CACHE_FOLDER = "cache";
 
     private MailManager mailManager;
     private AttachmentBoxManager boxManager;
@@ -163,6 +164,18 @@ public class UndineMailer extends JavaPlugin {
      */
     public File getGroupFolder() {
         File folder = new File(getDataFolder(), GROUP_FOLDER);
+        if ( !folder.exists() ) {
+            folder.mkdirs();
+        }
+        return folder;
+    }
+
+    /**
+     * キャッシュデータを格納するフォルダを返す
+     * @return キャッシュデータ格納フォルダ
+     */
+    public File getCacheFolder() {
+        File folder = new File(getDataFolder(), CACHE_FOLDER);
         if ( !folder.exists() ) {
             folder.mkdirs();
         }

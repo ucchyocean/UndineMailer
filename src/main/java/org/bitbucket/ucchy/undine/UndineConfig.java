@@ -129,6 +129,9 @@ public class UndineConfig {
     /** ウェルカムメールの添付アイテム */
     private List<ItemStack> welcomeMailAttachments;
 
+    /** UUIDのオンラインモード */
+    private boolean uuidOnlineMode;
+
     private UndineMailer parent;
 
     /**
@@ -226,6 +229,8 @@ public class UndineConfig {
                 conf.getConfigurationSection("welcomeMailAttachments"));
 
         prohibitItemsToAttach = conf.getStringList("prohibitItemsToAttach");
+
+        uuidOnlineMode = conf.getBoolean("uuidOnlineMode", true);
 
         // sendFeeは、マイナスが指定されていたら0に変更する
         if ( sendFee < 0 ) {
@@ -541,5 +546,12 @@ public class UndineConfig {
      */
     public List<ItemStack> getWelcomeMailAttachments() {
         return welcomeMailAttachments;
+    }
+
+    /**
+     * @return uuidOnlineMode
+     */
+    public boolean isUuidOnlineMode() {
+        return uuidOnlineMode;
     }
 }
