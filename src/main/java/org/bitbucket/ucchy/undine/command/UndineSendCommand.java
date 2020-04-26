@@ -148,10 +148,8 @@ public class UndineSendCommand implements SubCommand {
                     return;
                 }
 
-                for ( MailSender t : parent.getPlayerCache().values() ) {
-                    if ( !to_total.contains(t) ) {
-                        to_total.add(t);
-                    }
+                for ( String uuid : parent.getPlayerUuids() ) {
+                    to_total.add(new MailSenderPlayer("$" + uuid));
                 }
 
             } else {

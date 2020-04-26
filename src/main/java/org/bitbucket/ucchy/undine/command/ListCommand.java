@@ -67,7 +67,7 @@ public class ListCommand implements TabExecutor {
         }
 
         // 以下、プレイヤーリスト表示処理
-        ArrayList<String> names = new ArrayList<String>(parent.getPlayerCache().keySet());
+        ArrayList<String> names = new ArrayList<String>(parent.getPlayerNames());
         Collections.sort(names, new Comparator<String>() {
             public int compare(String o1, String o2) {
                 return o1.compareToIgnoreCase(o2);

@@ -31,6 +31,7 @@ public class UndineCommandUtil {
      *   例：WOOL, WOOL:3）
      * @return ItemStack
      */
+    @SuppressWarnings("deprecation")
     protected static ItemStack getItemStackFromDescription(String desc) {
         String[] descs = desc.split(":");
         if ( descs.length <= 0 ) return null;

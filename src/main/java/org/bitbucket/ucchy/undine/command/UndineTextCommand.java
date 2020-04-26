@@ -211,7 +211,7 @@ public class UndineTextCommand implements SubCommand {
             // オフラインプレイヤー名で補完する
             String arg = args[1].toLowerCase();
             ArrayList<String> candidates = new ArrayList<String>();
-            for ( String name : parent.getPlayerCache().keySet() ) {
+            for ( String name : parent.getPlayerNames() ) {
                 if ( name.toLowerCase().startsWith(arg)
                         && !name.equals(sender.getName())) {
                     candidates.add(name);

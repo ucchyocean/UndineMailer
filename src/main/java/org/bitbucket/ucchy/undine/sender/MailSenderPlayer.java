@@ -5,12 +5,11 @@
  */
 package org.bitbucket.ucchy.undine.sender;
 
-import java.util.HashMap;
 import java.util.List;
-import java.util.UUID;
 
 import org.bitbucket.ucchy.undine.UndineMailer;
 import org.bitbucket.ucchy.undine.Utility;
+import org.bitbucket.ucchy.undine.bridge.PCGFPluginLibBridge;
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.OfflinePlayer;
@@ -41,11 +40,8 @@ public class MailSenderPlayer extends MailSender {
      * @param player プレイヤー
      */
     public MailSenderPlayer(OfflinePlayer player) {
-        if ( Utility.isCB178orLater() ) {
-            this.nameOrUuid = "$" + player.getUniqueId().toString();
-        } else {
-            this.nameOrUuid = player.getName();
-        }
+        String uuid = UndineMailer.getInstance().getUUID(player.getName());
+        this.nameOrUuid = "$" + uuid;
     }
 
     /**
@@ -70,11 +66,7 @@ public class MailSenderPlayer extends MailSender {
             offline = getOfflinePlayer();
         }
 
-        if ( UndineMailer.getInstance().getUndineConfig().isValidateDestination() ) {
-            return offline.hasPlayedBefore() || offline.isOnline();
-        } else {
-            return offline != null;
-        }
+        return offline.hasPlayedBefore() || offline.isOnline();
     }
 
     /**
@@ -127,7 +119,9 @@ public class MailSenderPlayer extends MailSender {
     public OfflinePlayer getOfflinePlayer() {
         if ( offline != null ) return offline;
         if ( nameOrUuid.startsWith("$") ) {
-            offline = Bukkit.getOfflinePlayer(UUID.fromString(nameOrUuid.substring(1)));
+            //offline = Bukkit.getOfflinePlayer(UUID.fromString(nameOrUuid.substring(1)));
+            String name = PCGFPluginLibBridge.getNameFromUUID(nameOrUuid.substring(1));
+            offline = Bukkit.getOfflinePlayer(name);
         } else {
             offline = Bukkit.getOfflinePlayer(nameOrUuid);
         }
@@ -215,10 +209,11 @@ public class MailSenderPlayer extends MailSender {
         if ( offline == null ) {
             offline = getOfflinePlayer();
         }
-        if ( !offline.isOnline() ) {
+        Player player = offline.getPlayer();
+        if ( !offline.isOnline() || player == null ) {
             return;
         }
-        offline.getPlayer().setMetadata(key,
+        player.setMetadata(key,
                 new FixedMetadataValue(UndineMailer.getInstance(), value));
     }
 
@@ -233,10 +228,11 @@ public class MailSenderPlayer extends MailSender {
         if ( offline == null ) {
             offline = getOfflinePlayer();
         }
-        if ( !offline.isOnline() ) {
+        Player player = offline.getPlayer();
+        if ( !offline.isOnline() || player == null ) {
             return null;
         }
-        List<MetadataValue> values = offline.getPlayer().getMetadata(key);
+        List<MetadataValue> values = player.getMetadata(key);
         if ( values.size() == 0 ) {
             return null;
         }
@@ -254,10 +250,11 @@ public class MailSenderPlayer extends MailSender {
         if ( offline == null ) {
             offline = getOfflinePlayer();
         }
-        if ( !offline.isOnline() ) {
+        Player player = offline.getPlayer();
+        if ( !offline.isOnline() || player == null ) {
             return;
         }
-        offline.getPlayer().setMetadata(key,
+        player.setMetadata(key,
                 new FixedMetadataValue(UndineMailer.getInstance(), value));
     }
 
@@ -272,15 +269,15 @@ public class MailSenderPlayer extends MailSender {
         if ( offline == null ) {
             offline = getOfflinePlayer();
         }
-        if ( !offline.isOnline() ) {
+        Player player = offline.getPlayer();
+        if ( !offline.isOnline() || player == null ) {
             return false;
         }
-        List<MetadataValue> values = offline.getPlayer().getMetadata(key);
+        List<MetadataValue> values = player.getMetadata(key);
         if ( values.size() == 0 ) {
             return false;
         }
         return values.get(0).asBoolean();
-
     }
 
     /**
@@ -296,10 +293,21 @@ public class MailSenderPlayer extends MailSender {
         }
         OfflinePlayer player = (OfflinePlayer)sender;
         if ( nameOrUuid.startsWith("$") ) {
-            return nameOrUuid.equals("$" + player.getUniqueId().toString());
+            return nameOrUuid.equals("$" + UndineMailer.getInstance().getUUID(player.getName()));
         } else {
             return nameOrUuid.equals(player.getName());
         }
+    }
+
+    /**
+     * このMailSenderPlayerのUUIDが、PlayerNameUuidCacheにキャッシュされているかどうかを返す
+     * @return キャッシュされているかどうか
+     */
+    public boolean isUuidCached() {
+        upgrade();
+        if ( !nameOrUuid.startsWith("$") ) return false;
+        String uuid = nameOrUuid.substring(1);
+        return UndineMailer.getInstance().getPlayerUuids().contains(uuid);
     }
 
     /**
@@ -326,33 +334,9 @@ public class MailSenderPlayer extends MailSender {
         if ( nameOrUuid.startsWith("$") ) return false;
 
         // nameOrUuidを、$ + UUID に変更する
-        String uuid = getUUID(nameOrUuid);
+        String uuid = UndineMailer.getInstance().getUUID(nameOrUuid);
         if ( uuid.equals("") ) return false;
         nameOrUuid = "$" + uuid;
         return true;
-    }
-
-    // アップグレード時に使用される、UUIDのキャッシュ
-    private static HashMap<String, String> uuidCache;
-
-    /**
-     * 指定された名前を持つプレイヤーのUUIDを取得する
-     * @param name プレイヤー名
-     * @return UUID（文字列表記）
-     */
-    private static String getUUID(String name) {
-        if ( uuidCache == null ) {
-            uuidCache = new HashMap<String, String>();
-        }
-        if ( !uuidCache.containsKey(name) ) {
-            @SuppressWarnings("deprecation")
-            OfflinePlayer player = Bukkit.getOfflinePlayer(name);
-            if ( player == null || player.getUniqueId() == null ) {
-                uuidCache.put(name, "");
-            } else {
-                uuidCache.put(name, player.getUniqueId().toString());
-            }
-        }
-        return uuidCache.get(name);
     }
 }

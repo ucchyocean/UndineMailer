@@ -555,6 +555,7 @@ public class UndineAttachCommand implements SubCommand {
      * @param item アイテム
      * @return 持っているかどうか
      */
+    @SuppressWarnings("deprecation")
     private boolean hasItem(Player player, ItemStack item) {
         //return player.getInventory().contains(item.getType(), item.getAmount());
         // ↑のコードは、アイテムのデータ値を検査しないのでNG

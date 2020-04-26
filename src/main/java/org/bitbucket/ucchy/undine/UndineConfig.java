@@ -120,9 +120,6 @@ public class UndineConfig {
     /** プレイヤーがログインした時に、未読一覧を表示するまでの時間（秒） */
     private int loginNotificationDelaySeconds;
 
-    /** メールの宛先にしていされたプレイヤー名の有効性をチェックするかどうか */
-    private boolean validateDestination;
-
     /** ウェルカムメールを利用するかどうか。 */
     private boolean useWelcomeMail;
 
@@ -131,6 +128,9 @@ public class UndineConfig {
 
     /** ウェルカムメールの添付アイテム */
     private List<ItemStack> welcomeMailAttachments;
+
+    /** UUIDのオンラインモード */
+    private boolean uuidOnlineMode;
 
     private UndineMailer parent;
 
@@ -223,13 +223,14 @@ public class UndineConfig {
         mailStorageTermDays = conf.getInt("mailStorageTermDays", 30);
         mailSpamProtectionSeconds = conf.getInt("mailSpamProtectionSeconds", 15);
         loginNotificationDelaySeconds = conf.getInt("loginNotificationDelaySeconds", 3);
-        validateDestination = conf.getBoolean("validateDestination", true);
         useWelcomeMail = conf.getBoolean("useWelcomeMail", true);
         welcomeMailDelaySeconds = conf.getInt("welcomeMailDelaySeconds", 30);
         welcomeMailAttachments = getItemStackListFromConfig(
                 conf.getConfigurationSection("welcomeMailAttachments"));
 
         prohibitItemsToAttach = conf.getStringList("prohibitItemsToAttach");
+
+        uuidOnlineMode = conf.getBoolean("uuidOnlineMode", true);
 
         // sendFeeは、マイナスが指定されていたら0に変更する
         if ( sendFee < 0 ) {
@@ -548,10 +549,9 @@ public class UndineConfig {
     }
 
     /**
-     * @return validateDestination
+     * @return uuidOnlineMode
      */
-    public boolean isValidateDestination() {
-        return validateDestination;
+    public boolean isUuidOnlineMode() {
+        return uuidOnlineMode;
     }
-
 }

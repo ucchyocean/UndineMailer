@@ -742,9 +742,11 @@ public class MailManager {
 
         YamlConfiguration config = YamlConfiguration.loadConfiguration(file);
         for ( String name : config.getKeys(false) ) {
-            MailData mail = MailData.loadFromConfigSection(
-                    config.getConfigurationSection(name));
-            editmodeMails.put(name, mail);
+            ConfigurationSection section = config.getConfigurationSection(name);
+            if ( section != null ) {
+                MailData mail = MailData.loadFromConfigSection(section);
+                editmodeMails.put(name, mail);
+            }
         }
 
         // 復帰元ファイルを削除しておく
@@ -1449,6 +1451,7 @@ public class MailManager {
      */
     private String getItemDesc(ItemStack item, boolean forDescription) {
         if (item == null) return "null";
+        @SuppressWarnings("deprecation")
         String desc = item.getDurability() == 0 ? item.getType().toString() :
                 item.getType().toString() + ":" + item.getDurability();
         if ( item.getAmount() == 1 ) return desc;
