@@ -65,15 +65,21 @@ public class PlayerUuidCache {
                     if ( name == null ) continue;
 
                     String uuid = null;
+                    PlayerUuidCacheData data = null;
                     if ( caches.containsKey(name) ) {
-                        PlayerUuidCacheData data = caches.get(name);
+                        data = caches.get(name);
                         uuid = PCGFPluginLibBridge.getUUIDFromName(data.getName(), onlineMode, data.getLastKnownDate());
+                        if ( !data.getUuid().equals(uuid) || isBefore30Days(data.getLastKnownDate()) ) {
+                            data = new PlayerUuidCacheData(name, uuid, new Date());
+                            data.save();
+                        }
                     } else {
                         uuid = PCGFPluginLibBridge.getUUIDFromName(name, onlineMode, null);
+                        data = new PlayerUuidCacheData(name, uuid, new Date());
+                        data.save();
                     }
-                    PlayerUuidCacheData newData = new PlayerUuidCacheData(name, uuid, new Date());
-                    temp.put(name, newData);
-                    newData.save();
+
+                    temp.put(name, data);
                 }
 
                 UndineMailer.getInstance().getLogger().info("Async refresh offline player data... Done. Time: "
@@ -132,15 +138,21 @@ public class PlayerUuidCache {
 
         boolean onlineMode = UndineMailer.getInstance().getUndineConfig().isUuidOnlineMode();
         String uuid = null;
+        PlayerUuidCacheData data = null;
         if ( caches.containsKey(name) ) {
-            PlayerUuidCacheData data = caches.get(name);
+            data = caches.get(name);
             uuid = PCGFPluginLibBridge.getUUIDFromName(data.getName(), onlineMode, data.getLastKnownDate());
+            if ( !data.getUuid().equals(uuid) || isBefore30Days(data.getLastKnownDate()) ) {
+                data = new PlayerUuidCacheData(name, uuid, new Date());
+                caches.put(name, data);
+                data.save();
+            }
         } else {
             uuid = PCGFPluginLibBridge.getUUIDFromName(name, onlineMode, null);
+            data = new PlayerUuidCacheData(name, uuid, new Date());
+            caches.put(name, data);
+            data.save();
         }
-        PlayerUuidCacheData newData = new PlayerUuidCacheData(name, uuid, new Date());
-        newData.save();
-        caches.put(name, newData);
 
         return uuid;
     }
@@ -156,5 +168,9 @@ public class PlayerUuidCache {
                 refreshPlayerUuid(name);
             }
         }.runTaskAsynchronously(UndineMailer.getInstance());
+    }
+
+    private static boolean isBefore30Days(Date date) {
+        return date.before(new Date(System.currentTimeMillis() - 1000L*24*3600* 30));
     }
 }
