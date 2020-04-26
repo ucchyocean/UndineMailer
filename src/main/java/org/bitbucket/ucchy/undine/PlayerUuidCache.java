@@ -3,6 +3,8 @@ package org.bitbucket.ucchy.undine;
 import java.io.File;
 import java.util.Date;
 import java.util.HashMap;
+import java.util.HashSet;
+import java.util.Set;
 
 import org.bitbucket.ucchy.undine.bridge.PCGFPluginLibBridge;
 import org.bukkit.Bukkit;
@@ -23,8 +25,9 @@ public class PlayerUuidCache {
         isPlayerCacheLoaded = false;
     }
 
-    protected void load() {
+    protected static PlayerUuidCache load() {
 
+        PlayerUuidCache puc = new PlayerUuidCache();
         long start = System.currentTimeMillis();
 
         File folder = UndineMailer.getInstance().getCacheFolder();
@@ -36,11 +39,13 @@ public class PlayerUuidCache {
             }
 
             PlayerUuidCacheData cache = PlayerUuidCacheData.load(file);
-            caches.put(cache.getName(), cache);
+            puc.caches.put(cache.getName(), cache);
         }
 
         UndineMailer.getInstance().getLogger().info("Load offline player data from cache... Done. Time: "
-                + (System.currentTimeMillis() - start) + "ms, Data: " + caches.size() + ".");
+                + (System.currentTimeMillis() - start) + "ms, Data: " + puc.caches.size() + ".");
+
+        return puc;
     }
 
     protected void refresh() {
@@ -76,15 +81,77 @@ public class PlayerUuidCache {
         }.runTaskAsynchronously(UndineMailer.getInstance());
     }
 
-    protected HashMap<String, PlayerUuidCacheData> getCache() {
-        return caches;
-    }
-
     /**
      * プレイヤーキャッシュがロードされているかどうかを返す
      * @return プレイヤーキャッシュがロードされているかどうか
      */
     protected boolean isPlayerCacheLoaded() {
         return isPlayerCacheLoaded;
+    }
+
+    /**
+     * キャッシュしているプレイヤー名の一覧を返す
+     * @return プレイヤー名一覧
+     */
+    protected  Set<String> getPlayerNames() {
+        return caches.keySet();
+    }
+
+    /**
+     * キャッシュされているすべてのUUIDを取得する
+     * @return すべてのUUID
+     */
+    protected HashSet<String> getPlayerUuids() {
+        HashSet<String> uuids = new HashSet<>();
+        for ( PlayerUuidCacheData d : caches.values() ) {
+            uuids.add(d.getUuid());
+        }
+        return uuids;
+    }
+
+    /**
+     * 指定されたプレイヤー名のUUIDをキャッシュから取得する
+     * @param name プレイヤー名
+     * @return UUID
+     */
+    protected String getUUID(String name) {
+        if ( caches.containsKey(name) ) {
+            return caches.get(name).getUuid();
+        }
+        return refreshPlayerUuid(name);
+    }
+
+    /**
+     * 指定されたプレイヤー名のUUIDを更新する
+     * @param name プレイヤー名
+     */
+    private String refreshPlayerUuid(String name) {
+
+        boolean onlineMode = UndineMailer.getInstance().getUndineConfig().isUuidOnlineMode();
+        String uuid = null;
+        if ( caches.containsKey(name) ) {
+            PlayerUuidCacheData data = caches.get(name);
+            uuid = PCGFPluginLibBridge.getUUIDFromName(data.getName(), onlineMode, data.getLastKnownDate());
+        } else {
+            uuid = PCGFPluginLibBridge.getUUIDFromName(name, onlineMode, null);
+        }
+        PlayerUuidCacheData newData = new PlayerUuidCacheData(name, uuid, new Date());
+        newData.save();
+        caches.put(name, newData);
+
+        return uuid;
+    }
+
+    /**
+     * 指定されたプレイヤー名のUUIDを、非同期スレッドで更新する
+     * @param name プレイヤー名
+     */
+    protected void asyncRefreshPlayerUuid(String name) {
+
+        new BukkitRunnable() {
+            public void run() {
+                refreshPlayerUuid(name);
+            }
+        }.runTaskAsynchronously(UndineMailer.getInstance());
     }
 }

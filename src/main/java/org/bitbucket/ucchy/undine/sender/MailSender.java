@@ -5,6 +5,7 @@
  */
 package org.bitbucket.ucchy.undine.sender;
 
+import org.bitbucket.ucchy.undine.UndineMailer;
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.OfflinePlayer;
@@ -12,8 +13,6 @@ import org.bukkit.command.BlockCommandSender;
 import org.bukkit.command.CommandSender;
 import org.bukkit.command.ConsoleCommandSender;
 import org.bukkit.entity.Player;
-
-import at.pcgamingfreaks.UUIDConverter;
 
 /**
  * Senderの抽象クラス
@@ -194,10 +193,7 @@ public abstract class MailSender implements Comparable<MailSender> {
             return new MailSenderConsole((ConsoleCommandSender)sender);
         } else if ( sender instanceof OfflinePlayer ) {
             OfflinePlayer player = (OfflinePlayer)sender;
-
-            // PluginLib経由でUUIDを取得する
-            String uuid = UUIDConverter.getUUIDFromName(player.getName(), true);
-            return new MailSenderPlayer("$" + uuid);
+            return new MailSenderPlayer("$" + UndineMailer.getInstance().getUUID(player.getName()));
         }
         return null;
     }

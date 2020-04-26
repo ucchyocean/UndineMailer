@@ -5,7 +5,6 @@
  */
 package org.bitbucket.ucchy.undine.sender;
 
-import java.util.HashMap;
 import java.util.List;
 import java.util.UUID;
 
@@ -18,8 +17,6 @@ import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 import org.bukkit.metadata.FixedMetadataValue;
 import org.bukkit.metadata.MetadataValue;
-
-import at.pcgamingfreaks.UUIDConverter;
 
 /**
  * プレイヤー
@@ -43,9 +40,7 @@ public class MailSenderPlayer extends MailSender {
      * @param player プレイヤー
      */
     public MailSenderPlayer(OfflinePlayer player) {
-
-        // PluginLib経由でUUIDを取得する
-        String uuid = UUIDConverter.getUUIDFromName(player.getName(), true);
+        String uuid = UndineMailer.getInstance().getUUID(player.getName());
         this.nameOrUuid = "$" + uuid;
     }
 
@@ -277,7 +272,6 @@ public class MailSenderPlayer extends MailSender {
             return false;
         }
         return values.get(0).asBoolean();
-
     }
 
     /**
@@ -293,10 +287,21 @@ public class MailSenderPlayer extends MailSender {
         }
         OfflinePlayer player = (OfflinePlayer)sender;
         if ( nameOrUuid.startsWith("$") ) {
-            return nameOrUuid.equals("$" + player.getUniqueId().toString());
+            return nameOrUuid.equals("$" + UndineMailer.getInstance().getUUID(player.getName()));
         } else {
             return nameOrUuid.equals(player.getName());
         }
+    }
+
+    /**
+     * このMailSenderPlayerのUUIDが、PlayerNameUuidCacheにキャッシュされているかどうかを返す
+     * @return キャッシュされているかどうか
+     */
+    public boolean isUuidCached() {
+        upgrade();
+        if ( !nameOrUuid.startsWith("$") ) return false;
+        String uuid = nameOrUuid.substring(1);
+        return UndineMailer.getInstance().getPlayerUuids().contains(uuid);
     }
 
     /**
@@ -323,34 +328,9 @@ public class MailSenderPlayer extends MailSender {
         if ( nameOrUuid.startsWith("$") ) return false;
 
         // nameOrUuidを、$ + UUID に変更する
-        String uuid = getUUID(nameOrUuid);
+        String uuid = UndineMailer.getInstance().getUUID(nameOrUuid);
         if ( uuid.equals("") ) return false;
         nameOrUuid = "$" + uuid;
         return true;
-    }
-
-    // アップグレード時に使用される、UUIDのキャッシュ
-    private static HashMap<String, String> uuidCache;
-
-    /**
-     * 指定された名前を持つプレイヤーのUUIDを取得する
-     * @param name プレイヤー名
-     * @return UUID（文字列表記）
-     */
-    private static String getUUID(String name) {
-        if ( uuidCache == null ) {
-            uuidCache = new HashMap<String, String>();
-        }
-        if ( !uuidCache.containsKey(name) ) {
-
-            // PluginLib経由でUUIDを取得する
-            String uuid = UUIDConverter.getUUIDFromName(name, true);
-            if ( uuid == null ) {
-                uuidCache.put(name, "");
-            } else {
-                uuidCache.put(name, uuid);
-            }
-        }
-        return uuidCache.get(name);
     }
 }
