@@ -28,7 +28,7 @@ public class PlayerUuidCacheData {
         this.lastKnownDate = lastKnownDate;
     }
 
-    public static PlayerUuidCacheData load(File file) {
+    protected static PlayerUuidCacheData load(File file) {
 
         YamlConfiguration conf = YamlConfiguration.loadConfiguration(file);
         String name = conf.getString("name");
@@ -38,7 +38,7 @@ public class PlayerUuidCacheData {
         return new PlayerUuidCacheData(name, uuid, date);
     }
 
-    public void save() {
+    protected void save() {
 
         File folder = UndineMailer.getInstance().getCacheFolder();
         YamlConfiguration conf = new YamlConfiguration();
