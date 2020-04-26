@@ -19,11 +19,11 @@ import at.pcgamingfreaks.UUIDConverter;
  */
 public class PCGFPluginLibBridge {
 
-    public static String getUUIDFromName(@NotNull String name, boolean onlineMode, boolean withSeparators, boolean offlineUUIDonFail, @Nullable Date lastKnownDate) {
-        return UUIDConverter.getUUIDFromName(name, onlineMode, withSeparators, offlineUUIDonFail, lastKnownDate);
-    }
-
     public static String getUUIDFromName(@NotNull String name, boolean onlineMode, @Nullable Date lastKnownDate) {
         return UUIDConverter.getUUIDFromName(name, onlineMode, lastKnownDate);
+    }
+
+    public static String getNameFromUUID(@NotNull String uuid) {
+        return UUIDConverter.getNameFromUUID(uuid);
     }
 }

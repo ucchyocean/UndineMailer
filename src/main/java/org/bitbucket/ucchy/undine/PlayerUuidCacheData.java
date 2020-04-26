@@ -2,8 +2,6 @@ package org.bitbucket.ucchy.undine;
 
 import java.io.File;
 import java.io.IOException;
-import java.text.ParseException;
-import java.text.SimpleDateFormat;
 import java.util.Date;
 
 import org.bukkit.configuration.file.YamlConfiguration;
@@ -35,7 +33,7 @@ public class PlayerUuidCacheData {
         YamlConfiguration conf = YamlConfiguration.loadConfiguration(file);
         String name = conf.getString("name");
         String uuid = conf.getString("uuid");
-        Date date = parseDate(conf.getString("lastKnownDate"));
+        Date date = new Date(conf.getLong("lastKnownDate"));
 
         return new PlayerUuidCacheData(name, uuid, date);
     }
@@ -46,35 +44,13 @@ public class PlayerUuidCacheData {
         YamlConfiguration conf = new YamlConfiguration();
         conf.set("name", name);
         conf.set("uuid", uuid);
-        conf.set("lastKnownDate", formatDate(lastKnownDate));
+        conf.set("lastKnownDate", lastKnownDate.getTime());
 
         try {
             conf.save(new File(folder, uuid + ".yml"));
         } catch (IOException e) {
             e.printStackTrace();
         }
-    }
-
-    private static Date parseDate(String src) {
-
-        if ( src == null ) return null;
-
-        SimpleDateFormat format = new SimpleDateFormat("yyyyMMdd");
-
-        try {
-            return format.parse(src);
-        } catch (ParseException e) {
-            // do nothing.
-        }
-        return null;
-    }
-
-    private String formatDate(Date date) {
-
-        if ( date == null ) return null;
-
-        SimpleDateFormat format = new SimpleDateFormat("yyyyMMdd");
-        return format.format(date);
     }
 
     /**

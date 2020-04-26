@@ -6,10 +6,10 @@
 package org.bitbucket.ucchy.undine.sender;
 
 import java.util.List;
-import java.util.UUID;
 
 import org.bitbucket.ucchy.undine.UndineMailer;
 import org.bitbucket.ucchy.undine.Utility;
+import org.bitbucket.ucchy.undine.bridge.PCGFPluginLibBridge;
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.OfflinePlayer;
@@ -119,7 +119,9 @@ public class MailSenderPlayer extends MailSender {
     public OfflinePlayer getOfflinePlayer() {
         if ( offline != null ) return offline;
         if ( nameOrUuid.startsWith("$") ) {
-            offline = Bukkit.getOfflinePlayer(UUID.fromString(nameOrUuid.substring(1)));
+            //offline = Bukkit.getOfflinePlayer(UUID.fromString(nameOrUuid.substring(1)));
+            String name = PCGFPluginLibBridge.getNameFromUUID(nameOrUuid.substring(1));
+            offline = Bukkit.getOfflinePlayer(name);
         } else {
             offline = Bukkit.getOfflinePlayer(nameOrUuid);
         }
