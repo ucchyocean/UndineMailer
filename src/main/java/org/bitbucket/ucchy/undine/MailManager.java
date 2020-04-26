@@ -1449,6 +1449,7 @@ public class MailManager {
      */
     private String getItemDesc(ItemStack item, boolean forDescription) {
         if (item == null) return "null";
+        @SuppressWarnings("deprecation")
         String desc = item.getDurability() == 0 ? item.getType().toString() :
                 item.getType().toString() + ":" + item.getDurability();
         if ( item.getAmount() == 1 ) return desc;
