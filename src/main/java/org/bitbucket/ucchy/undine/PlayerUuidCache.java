@@ -1,12 +1,14 @@
 package org.bitbucket.ucchy.undine;
 
 import java.io.File;
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.List;
+import java.util.Map;
 import java.util.Set;
 
-import org.bitbucket.ucchy.undine.bridge.PCGFPluginLibBridge;
 import org.bukkit.Bukkit;
 import org.bukkit.OfflinePlayer;
 import org.bukkit.scheduler.BukkitRunnable;
@@ -56,32 +58,47 @@ public class PlayerUuidCache {
         new BukkitRunnable() {
             public void run() {
 
-                boolean onlineMode = UndineMailer.getInstance().getUndineConfig().isUuidOnlineMode();
-
+                // TODO キャッシュされているかどうか確認し、キャッシュされていないプレイヤー名をリストして、
+                // 10プレイヤーずつ、10秒ごとに、UUIDの確認と更新を行う。
+                ArrayList<String> namesToCheck = new ArrayList<>();
                 HashMap<String, PlayerUuidCacheData> temp = new HashMap<String, PlayerUuidCacheData>();
+
                 for ( OfflinePlayer player : Bukkit.getOfflinePlayers() ) {
 
                     String name = player.getName();
                     if ( name == null ) continue;
 
-                    String uuid = null;
-                    PlayerUuidCacheData data = null;
                     if ( caches.containsKey(name) ) {
-                        data = caches.get(name);
-                        if ( isBefore30Days(data.getLastKnownDate()) ) {
-                            uuid = PCGFPluginLibBridge.getUUIDFromName(name, onlineMode, true, new Date(0));
-                            if ( uuid == null ) continue;
-                            data = new PlayerUuidCacheData(name, uuid, new Date());
-                            data.save();
+                        if ( isBefore30Days(caches.get(name).getLastKnownDate()) ) {
+                            namesToCheck.add(name);
+                        } else {
+                            temp.put(name, caches.get(name));
                         }
                     } else {
-                        uuid = PCGFPluginLibBridge.getUUIDFromName(name, onlineMode, true, new Date(0));
-                        if ( uuid == null ) continue;
-                        data = new PlayerUuidCacheData(name, uuid, new Date());
+                        namesToCheck.add(name);
+                    }
+                }
+
+                int pageSize = 10; // 10 names per a request.
+                long waitTime = 1000L * 10; // 10 seconds.
+
+                for ( int index = 0; index < namesToCheck.size(); index += pageSize ) {
+                    int endIndex = (index + pageSize > namesToCheck.size()) ? namesToCheck.size() : index + pageSize;
+                    List<String> next = namesToCheck.subList(index, endIndex);
+
+                    Map<String, String> results = UUIDResolver.getUUIDsFromNames(next);
+                    for ( String name : results.keySet() ) {
+                        String uuid = results.get(name);
+                        PlayerUuidCacheData data = new PlayerUuidCacheData(name, uuid, new Date());
                         data.save();
+                        temp.put(name, data);
                     }
 
-                    temp.put(name, data);
+                    try {
+                        Thread.sleep(waitTime);
+                    } catch (InterruptedException e) {
+                        // do nothing.
+                    }
                 }
 
                 UndineMailer.getInstance().getLogger().info("Async refresh offline player data... Done. Time: "
@@ -138,20 +155,19 @@ public class PlayerUuidCache {
      */
     private String refreshPlayerUuid(String name) {
 
-        boolean onlineMode = UndineMailer.getInstance().getUndineConfig().isUuidOnlineMode();
         String uuid = null;
         PlayerUuidCacheData data = null;
         if ( caches.containsKey(name) ) {
             data = caches.get(name);
             if ( isBefore30Days(data.getLastKnownDate()) ) {
-                uuid = PCGFPluginLibBridge.getUUIDFromName(name, onlineMode, true, new Date(0));
+                uuid = UUIDResolver.getUUIDFromName(name, new Date());
                 if ( uuid == null ) return null;
                 data = new PlayerUuidCacheData(name, uuid, new Date());
                 caches.put(name, data);
                 data.save();
             }
         } else {
-            uuid = PCGFPluginLibBridge.getUUIDFromName(name, onlineMode, true, new Date(0));
+            uuid = UUIDResolver.getUUIDFromName(name, new Date());
             if ( uuid == null ) return null;
             data = new PlayerUuidCacheData(name, uuid, new Date());
             caches.put(name, data);
