@@ -19,10 +19,12 @@ public class UUIDResolverTest extends TestCase {
 
     public void testGetUUID() {
 
+        // UUIDのオンライン解決をテストする
+
         String myName = "ucchy";
         String myUuid = "9603ae84-5be8-40af-af14-a62ed0f14a29";
 
-        UUIDResolver resolver = new UUIDResolver();
+        UUIDResolver resolver = new UUIDResolver(true);
 
         long timeStart = System.currentTimeMillis();
         String uuid = resolver.getUUIDFromName(myName, new Date());
