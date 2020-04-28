@@ -35,7 +35,8 @@ mailSpamProtectionSeconds: 15
 loginNotificationDelaySeconds: 3
 
 # UUID online mode.
-uuidOnlineMode: true
+#   true = Getting UUIDs from Mojang server. false = Getting UUIDS from local bukkit server.
+uuidOnlineMode: false
 
 # -------------------- Attachment Item Box --------------------
 

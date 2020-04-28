@@ -258,6 +258,15 @@ public class UndineMailer extends JavaPlugin {
     }
 
     /**
+     * 指定されたUUIDのプレイヤー名をキャッシュから取得する
+     * @param uuid UUID
+     * @return プレイヤー名
+     */
+    public String getName(String uuid) {
+        return playerUuidCache.getName(uuid);
+    }
+
+    /**
      * 指定されたプレイヤー名のUUIDを、非同期スレッドで更新する
      * @param name プレイヤー名
      */

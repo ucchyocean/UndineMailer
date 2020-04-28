@@ -22,14 +22,15 @@ public class UUIDResolverTest extends TestCase {
         String myName = "ucchy";
         String myUuid = "9603ae84-5be8-40af-af14-a62ed0f14a29";
 
+        UUIDResolver resolver = new UUIDResolver();
 
         long timeStart = System.currentTimeMillis();
-        String uuid = UUIDResolver.getUUIDFromName(myName, new Date());
+        String uuid = resolver.getUUIDFromName(myName, new Date());
         System.out.println("ucchy uuid is " + uuid + ". Time : " + (System.currentTimeMillis() - timeStart));
         assertTrue(myUuid.equals(uuid));
 
         timeStart = System.currentTimeMillis();
-        String uuid2 = UUIDResolver.getUUIDFromName(myName, new Date());
+        String uuid2 = resolver.getUUIDFromName(myName, new Date());
         System.out.println("ucchy uuid is " + uuid2 + ". Time : " + (System.currentTimeMillis() - timeStart));
         assertTrue(myUuid.equals(uuid2));
 
@@ -62,7 +63,7 @@ public class UUIDResolverTest extends TestCase {
                 "test", "testttt", "testtttttttt", "thisIsInvalidID", "oooooooooo", "xxxxdddddxxxxxx"} ) {
             names.add(n);
         }
-        Map<String, String> results = UUIDResolver.getUUIDsFromNames(names);
+        Map<String, String> results = resolver.getUUIDsFromNames(names);
         System.out.println("getUUIDsFromNames. Time : " + (System.currentTimeMillis() - timeStart));
         for ( String key : results.keySet() ) {
             System.out.println(" - " + key + " --> " + results.get(key));
@@ -71,12 +72,12 @@ public class UUIDResolverTest extends TestCase {
 
 
         timeStart = System.currentTimeMillis();
-        String name1 = UUIDResolver.getNameFromUUID(myUuid);
+        String name1 = resolver.getNameFromUUID(myUuid);
         System.out.println(myUuid + " is " + name1 + ". Time : " + (System.currentTimeMillis() - timeStart));
         assertTrue(myName.equals(name1));
 
         timeStart = System.currentTimeMillis();
-        String name2 = UUIDResolver.getNameFromUUID("aiueo");
+        String name2 = resolver.getNameFromUUID("aiueo");
         System.out.println("aiueo is " + name2 + ". Time : " + (System.currentTimeMillis() - timeStart));
         assertTrue(name2 == null);
     }

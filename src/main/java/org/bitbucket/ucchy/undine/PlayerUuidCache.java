@@ -21,12 +21,20 @@ public class PlayerUuidCache {
 
     private HashMap<String, PlayerUuidCacheData> caches;
     private boolean isPlayerCacheLoaded;
+    private UUIDResolver resolver;
 
+    // コンストラクタ
     private PlayerUuidCache() {
         caches = new HashMap<String, PlayerUuidCacheData>();
         isPlayerCacheLoaded = false;
+        resolver = new UUIDResolver(
+                UndineMailer.getInstance().getUndineConfig().isUuidOnlineMode());
     }
 
+    /**
+     * PlayerUuidCacheを、キャッシュフォルダ内のファイルからロードする。
+     * @return PlayerUuidCache
+     */
     protected static PlayerUuidCache load() {
 
         PlayerUuidCache puc = new PlayerUuidCache();
@@ -50,6 +58,9 @@ public class PlayerUuidCache {
         return puc;
     }
 
+    /**
+     * サーバーのプレイヤー一覧を取得し、UUIDをキャッシュする。
+     */
     protected void refresh() {
 
         final long start = System.currentTimeMillis();
@@ -58,7 +69,7 @@ public class PlayerUuidCache {
         new BukkitRunnable() {
             public void run() {
 
-                // TODO キャッシュされているかどうか確認し、キャッシュされていないプレイヤー名をリストして、
+                // UUIDがキャッシュされているかどうか確認し、キャッシュされていないプレイヤー名をリストして、
                 // 10プレイヤーずつ、10秒ごとに、UUIDの確認と更新を行う。
                 ArrayList<String> namesToCheck = new ArrayList<>();
                 HashMap<String, PlayerUuidCacheData> temp = new HashMap<String, PlayerUuidCacheData>();
@@ -86,7 +97,7 @@ public class PlayerUuidCache {
                     int endIndex = (index + pageSize > namesToCheck.size()) ? namesToCheck.size() : index + pageSize;
                     List<String> next = namesToCheck.subList(index, endIndex);
 
-                    Map<String, String> results = UUIDResolver.getUUIDsFromNames(next);
+                    Map<String, String> results = resolver.getUUIDsFromNames(next);
                     for ( String name : results.keySet() ) {
                         String uuid = results.get(name);
                         PlayerUuidCacheData data = new PlayerUuidCacheData(name, uuid, new Date());
@@ -94,10 +105,12 @@ public class PlayerUuidCache {
                         temp.put(name, data);
                     }
 
-                    try {
-                        Thread.sleep(waitTime);
-                    } catch (InterruptedException e) {
-                        // do nothing.
+                    if ( index + pageSize < namesToCheck.size() ) {
+                        try {
+                            Thread.sleep(waitTime);
+                        } catch (InterruptedException e) {
+                            // do nothing.
+                        }
                     }
                 }
 
@@ -150,6 +163,20 @@ public class PlayerUuidCache {
     }
 
     /**
+     * 指定されたUUIDのプレイヤー名をキャッシュから取得する
+     * @param uuid UUID
+     * @return プレイヤー名
+     */
+    protected String getName(String uuid) {
+        for ( PlayerUuidCacheData d : caches.values() ) {
+            if ( d.getUuid().equals(uuid) ) {
+                return d.getName();
+            }
+        }
+        return resolver.getNameFromUUID(uuid);
+    }
+
+    /**
      * 指定されたプレイヤー名のUUIDを更新する
      * @param name プレイヤー名
      */
@@ -160,14 +187,14 @@ public class PlayerUuidCache {
         if ( caches.containsKey(name) ) {
             data = caches.get(name);
             if ( isBefore30Days(data.getLastKnownDate()) ) {
-                uuid = UUIDResolver.getUUIDFromName(name, new Date());
+                uuid = resolver.getUUIDFromName(name, new Date());
                 if ( uuid == null ) return null;
                 data = new PlayerUuidCacheData(name, uuid, new Date());
                 caches.put(name, data);
                 data.save();
             }
         } else {
-            uuid = UUIDResolver.getUUIDFromName(name, new Date());
+            uuid = resolver.getUUIDFromName(name, new Date());
             if ( uuid == null ) return null;
             data = new PlayerUuidCacheData(name, uuid, new Date());
             caches.put(name, data);
@@ -190,6 +217,7 @@ public class PlayerUuidCache {
         }.runTaskAsynchronously(UndineMailer.getInstance());
     }
 
+    // 指定されたDateが、30日以前かどうかを判定する。
     private static boolean isBefore30Days(Date date) {
         return date.before(new Date(System.currentTimeMillis() - 1000L*24*3600* 30));
     }

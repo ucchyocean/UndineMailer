@@ -40,7 +40,8 @@ mailSpamProtectionSeconds: 15
 loginNotificationDelaySeconds: 3
 
 # UUID取得時のオンラインモード
-uuidOnlineMode: true
+#   true = MojangのサーバーからUUIDを取得します。 false = ローカルのBukkitサーバーからUUIDを取得します。
+uuidOnlineMode: false
 
 # -------------------- アイテム添付設定 --------------------
 

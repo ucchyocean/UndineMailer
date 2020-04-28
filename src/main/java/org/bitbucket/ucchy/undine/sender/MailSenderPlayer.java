@@ -7,7 +7,6 @@ package org.bitbucket.ucchy.undine.sender;
 
 import java.util.List;
 
-import org.bitbucket.ucchy.undine.UUIDResolver;
 import org.bitbucket.ucchy.undine.UndineMailer;
 import org.bitbucket.ucchy.undine.Utility;
 import org.bukkit.Bukkit;
@@ -120,7 +119,7 @@ public class MailSenderPlayer extends MailSender {
         if ( offline != null ) return offline;
         if ( nameOrUuid.startsWith("$") ) {
             //offline = Bukkit.getOfflinePlayer(UUID.fromString(nameOrUuid.substring(1)));
-            String name = UUIDResolver.getNameFromUUID(nameOrUuid.substring(1));
+            String name = UndineMailer.getInstance().getName(nameOrUuid.substring(1));
             offline = Bukkit.getOfflinePlayer(name);
         } else {
             offline = Bukkit.getOfflinePlayer(nameOrUuid);

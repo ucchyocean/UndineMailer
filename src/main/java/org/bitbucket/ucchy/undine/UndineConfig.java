@@ -230,7 +230,7 @@ public class UndineConfig {
 
         prohibitItemsToAttach = conf.getStringList("prohibitItemsToAttach");
 
-        uuidOnlineMode = conf.getBoolean("uuidOnlineMode", true);
+        uuidOnlineMode = conf.getBoolean("uuidOnlineMode", false);
 
         // sendFeeは、マイナスが指定されていたら0に変更する
         if ( sendFee < 0 ) {

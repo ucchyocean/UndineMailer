@@ -7,6 +7,8 @@
 package org.bitbucket.ucchy.undine;
 
 import java.io.BufferedReader;
+import java.io.File;
+import java.io.FileReader;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
@@ -16,6 +18,8 @@ import java.net.HttpURLConnection;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.nio.charset.StandardCharsets;
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Date;
@@ -29,10 +33,14 @@ import java.util.UUID;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+import org.bukkit.Bukkit;
+import org.bukkit.OfflinePlayer;
+
 import com.google.common.base.Charsets;
 import com.google.gson.Gson;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
+import com.google.gson.stream.JsonReader;
 
 /**
  * UUIDとプレイヤー名の相互変換を行うためのクラス
@@ -44,16 +52,79 @@ public class UUIDResolver {
     private static final String UUID_FORMAT_REGEX = "(\\w{8})(\\w{4})(\\w{4})(\\w{4})(\\w{12})";
     private static final String UUID_FORMAT_REPLACE_TO = "$1-$2-$3-$4-$5";
     private static final long MOJANG_QUERY_RETRY_TIME = 600000L;
-    private static final Gson GSON = new Gson();
-    private static Map<String, String> UUID_CACHE = new HashMap<String, String>();
 
-    public static String getNameFromUUID(String uuid) {
-        NameChange[] names = getNamesFromUUID(uuid);
-        if ( names == null ) return null;
-        return names[names.length - 1].name;
+    private static final Gson GSON = new Gson();
+    private static final Map<String, String> UUID_CACHE = new HashMap<String, String>();
+
+    private boolean onlineMode = false;
+
+    /**
+     * コンストラクタ
+     */
+    public UUIDResolver() {
+        this(false);
     }
 
-    public static NameChange[] getNamesFromUUID(String uuid) {
+    /**
+     * コンストラクタ
+     * @param useUserCacheJson usercache.jsonからキャッシュの初期値を取得するかどうか
+     */
+    public UUIDResolver(boolean onlineMode) {
+        this.onlineMode = onlineMode;
+        if ( !onlineMode ) loadUserCache();
+    }
+
+    // usercache.jsonを、uuidCacheの初期値としてロードする
+    private void loadUserCache() {
+
+        // 既にロード済みなら何もしない
+        if ( UUID_CACHE.size() > 0 ) return;
+
+        int loaded = 0;
+        File uuidCache = new File("usercache.json");
+        if ( !uuidCache.exists() ) return;
+
+        try (JsonReader reader = new JsonReader(new FileReader(uuidCache))) {
+            CacheData[] dat = new Gson().fromJson(reader, CacheData[].class);
+            Date now = new Date();
+            for (CacheData d : dat) {
+                if (now.before(d.getExpiresDate())) {
+                    loaded++;
+                    UUID_CACHE.put(d.name, d.uuid);
+                }
+            }
+        } catch(Exception e) {
+            e.printStackTrace();
+        }
+
+        System.out.println("Loaded " + loaded + " UUIDs from local cache.");
+    }
+
+    /**
+     * UUIDから現在のプレイヤー名を取得する
+     * @param uuid UUID
+     * @return プレイヤー名（存在しないUUIDが指定された場合はnullになる）
+     */
+    protected String getNameFromUUID(String uuid) {
+        if ( uuid == null ) return null;
+        if ( onlineMode ) {
+            NameChange[] names = getOnlineNamesFromUUID(uuid);
+            if ( names == null ) return null;
+            return names[names.length - 1].name;
+        } else {
+            // Bukkit pass-throgh mode.
+            OfflinePlayer p = Bukkit.getOfflinePlayer(UUID.fromString(uuid));
+            if ( p == null ) return null;
+            return p.getName();
+        }
+    }
+
+    /**
+     * UUIDからプレイヤー名履歴を取得する
+     * @param uuid UUID
+     * @return プレイヤー名の履歴（存在しないUUIDが指定された場合はnullになる）
+     */
+    private NameChange[] getOnlineNamesFromUUID(String uuid) {
         NameChange[] names = null;
         try {
             Scanner jsonScanner = new Scanner((new URL("https://api.mojang.com/user/profiles/" + uuid.replaceAll("-", "") + "/names")).openConnection().getInputStream(), "UTF-8");
@@ -71,18 +142,33 @@ public class UUIDResolver {
         return names;
     }
 
-    public static String getUUIDFromName(String name, Date lastKnownDate) {
-        String uuid;
-        uuid = getOnlineUUID(name, lastKnownDate);
-        if (uuid == null) return null;
-
-        if (!uuid.contains("-")) {
-            uuid = uuid.replaceAll(UUID_FORMAT_REGEX, UUID_FORMAT_REPLACE_TO);
+    /**
+     * プレイヤー名からUUIDを取得する。
+     * 例えば、name=ucchy、lastKnownDate=2020/04/28を指定した場合は、2020/04/28の時点でucchyというプレイヤー名を使っていた人のUUIDを取得する。
+     * @param name プレイヤー名
+     * @param lastKnownDate 時点
+     * @return UUID
+     */
+    protected String getUUIDFromName(String name, Date lastKnownDate) {
+        if ( name == null ) return null;
+        if ( onlineMode ) {
+            String uuid = getOnlineUUID(name, lastKnownDate);
+            if (uuid == null) return null;
+            if (!uuid.contains("-")) {
+                uuid = uuid.replaceAll(UUID_FORMAT_REGEX, UUID_FORMAT_REPLACE_TO);
+            }
+            return uuid;
+        } else {
+            // Bukkit pass-throgh mode.
+            @SuppressWarnings("deprecation")
+            OfflinePlayer p = Bukkit.getOfflinePlayer(name);
+            if ( p == null ) return null;
+            return p.getUniqueId().toString();
         }
-        return uuid;
     }
 
-    private static String getOnlineUUID(String name, Date at) {
+    // ネットワーク経由でUUIDを取得する
+    private String getOnlineUUID(String name, Date at) {
         if ((at == null || at.after(new Date(System.currentTimeMillis() - 1000L*24*3600* 30))) && UUID_CACHE.containsKey(name)) {
             return UUID_CACHE.get(name);
         }
@@ -121,7 +207,12 @@ public class UUIDResolver {
 
     private static int BATCH_SIZE = 10; // Limit from Mojang
 
-    public static Map<String, String> getUUIDsFromNames(Collection<String> names) {
+    /**
+     * 複数のプレイヤー名からUUIDをまとめて取得する
+     * @param names プレイヤー名
+     * @return UUID
+     */
+    protected Map<String, String> getUUIDsFromNames(Collection<String> names) {
         Map<String, String> result = new TreeMap<>(String.CASE_INSENSITIVE_ORDER);
         for (Map.Entry<String, UUID> entry : getUUIDsFromNamesAsUUIDs(names).entrySet()) {
             result.put(entry.getKey(), entry.getValue().toString());
@@ -129,10 +220,28 @@ public class UUIDResolver {
         return result;
     }
 
-    public static Map<String, UUID> getUUIDsFromNamesAsUUIDs(Collection<String> names) {
+    /**
+     * 複数のプレイヤー名からUUIDをまとめて取得する
+     * @param names プレイヤー名
+     * @return UUID
+     */
+    protected Map<String, UUID> getUUIDsFromNamesAsUUIDs(Collection<String> names) {
+
+        Map<String, UUID> result = new TreeMap<>(String.CASE_INSENSITIVE_ORDER);
+
+        if ( !onlineMode ) {
+            // Bukkit pass-throgh mode.
+            for ( String name : names ) {
+                @SuppressWarnings("deprecation")
+                OfflinePlayer p = Bukkit.getOfflinePlayer(name);
+                if ( p == null ) continue;
+                result.put(name, p.getUniqueId());
+            }
+            return result;
+        }
+
         List<String> batch = new ArrayList<>(BATCH_SIZE);
         Iterator<String> players = names.iterator();
-        Map<String, UUID> result = new TreeMap<>(String.CASE_INSENSITIVE_ORDER);
         boolean success;
         int fromCache = 0, fromWeb = 0;
         while (players.hasNext()) {
@@ -172,7 +281,6 @@ public class UUIDResolver {
                         if(connection != null) {
                             if(connection.getResponseCode() == 429) {
                                 System.out.println("Reached the request limit of the mojang api!\nConverting will be paused for 10 minutes and then continue!");
-                                //TODO: better fail handling
                                 Thread.sleep(MOJANG_QUERY_RETRY_TIME);
                                 success = false;
                                 continue;
@@ -212,37 +320,34 @@ public class UUIDResolver {
         return result;
     }
 
-    /**
-     * A helper class to store the name changes and dates
-     */
-    public static class NameChange {
-
-        /**
-         * The name to which the name was changed
-         */
+    public class NameChange {
         public String name;
-
-        /**
-         * DateTime of the name change in UNIX time (without milliseconds)
-         */
         public long changedToAt;
 
-        /**
-         * Gets the date of a name change
-         *
-         * @return Date of the name change
-         */
         public Date getChangeDate() {
             return new Date(changedToAt);
         }
     }
 
-    private static class Profile {
+    private class Profile {
         public String id;
         public String name;
 
         public UUID getUUID() {
             return UUID.fromString(id.replaceAll(UUID_FORMAT_REGEX, UUID_FORMAT_REPLACE_TO));
+        }
+    }
+
+    private static class CacheData {
+        public String name, uuid, expiresOn;
+
+        public Date getExpiresDate() {
+            try {
+                return new SimpleDateFormat("yyyy-MM-dd HH:mm:ss Z").parse(expiresOn);
+            } catch(ParseException e) {
+                e.printStackTrace();
+            }
+            return new Date(); // When we failed to parse the date we return the current time stamp
         }
     }
 }
