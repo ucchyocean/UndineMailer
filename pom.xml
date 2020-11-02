@@ -2,8 +2,8 @@
   <modelVersion>4.0.0</modelVersion>
   <groupId>org.bitbucket.ucchy</groupId>
   <artifactId>UndineMailer</artifactId>
-  <version>1.10.3</version>
-  <description></description>
+  <version>2.0.0</version>
+  <description>A mail system plugin for bukkit server</description>
 
   <licenses>
     <license>
