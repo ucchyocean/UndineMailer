@@ -11,6 +11,7 @@ import java.util.ArrayList;
 import org.bitbucket.ucchy.undine.Messages;
 import org.bitbucket.ucchy.undine.UndineMailer;
 import org.bitbucket.ucchy.undine.sender.MailSender;
+import org.bitbucket.ucchy.undine.sender.MailSenderPlayer;
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 
@@ -40,8 +41,8 @@ public class SpecialGroupAllConnected extends GroupData {
     @Override
     public ArrayList<MailSender> getMembers() {
         ArrayList<MailSender> members = new ArrayList<MailSender>();
-        for ( MailSender sender : UndineMailer.getInstance().getPlayerCache().values() ) {
-            members.add(sender);
+        for ( String uuid : UndineMailer.getInstance().getPlayerUuids() ) {
+            members.add(new MailSenderPlayer("$" + uuid));
         }
         return members;
     }
@@ -54,7 +55,10 @@ public class SpecialGroupAllConnected extends GroupData {
      */
     @Override
     public boolean isMember(MailSender sender) {
-        return UndineMailer.getInstance().getPlayerCache().containsValue(sender);
+        if ( !(sender instanceof MailSenderPlayer) ) {
+            return false;
+        }
+        return ((MailSenderPlayer)sender).isUuidCached();
     }
 
     /**
