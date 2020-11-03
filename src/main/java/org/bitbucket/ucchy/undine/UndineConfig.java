@@ -10,6 +10,7 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.bitbucket.ucchy.undine.Database.DatabaseType;
 import org.bitbucket.ucchy.undine.group.GroupPermissionMode;
 import org.bukkit.configuration.ConfigurationSection;
 import org.bukkit.configuration.file.FileConfiguration;
@@ -26,6 +27,21 @@ public class UndineConfig {
 
     /** メッセージ言語 */
     private String lang;
+
+    /** データベースの種類。 */
+    private DatabaseType databaseType;
+
+    /** MySQLでログインするためのユーザー */
+    private String mysqlUser;
+
+    /** MySQLでログインするためのパスワード */
+    private String mysqlPass;
+
+    /** MySQLでログインするためのホスト */
+    private String mysqlHost;
+
+    /** MySQLでログインするためのポート */
+    private int mysqlPort;
 
     /** メールにアイテムの添付を可能にするかどうか */
     private boolean enableAttachment;
@@ -178,6 +194,11 @@ public class UndineConfig {
 
         // 読み込み
         lang = conf.getString("lang", "ja");
+        databaseType = DatabaseType.getByName(conf.getString("databaseType", "sqlite"));
+        mysqlUser = conf.getString("mysqlUser", "root");
+        mysqlPass = conf.getString("mysqlPass", "password");
+        mysqlHost = conf.getString("mysqlHost", "127.0.0.1");
+        mysqlPort = conf.getInt("mysqlPort", 3306);
         enableAttachment = conf.getBoolean("enableAttachment", true);
         enableSendFee = conf.getBoolean("enableSendFee", false);
         sendFee = conf.getDouble("sendFee", 10);
@@ -308,6 +329,41 @@ public class UndineConfig {
      */
     public String getLang() {
         return lang;
+    }
+
+    /**
+     * @return databaseType
+     */
+    public DatabaseType getDatabaseType() {
+        return databaseType;
+    }
+
+    /**
+     * @return mysqlHost
+     */
+    public String getMysqlHost() {
+        return mysqlHost;
+    }
+
+    /**
+     * @return mysqlPass
+     */
+    public String getMysqlPass() {
+        return mysqlPass;
+    }
+
+    /**
+     * @return mysqlUser
+     */
+    public String getMysqlUser() {
+        return mysqlUser;
+    }
+
+    /**
+     * @return mysqlPort
+     */
+    public int getMysqlPort() {
+        return mysqlPort;
     }
 
     /**

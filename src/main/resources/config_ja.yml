@@ -8,6 +8,14 @@
 # メッセージの言語
 lang: ja
 
+# データベースの設定
+# databaseTypeにはmysqlかsqliteを指定します。
+databaseType: sqlite
+mysqlUser: root
+mysqlPass: password
+mysqlHost: 127.0.0.1
+mysqlPort: 3306
+
 # 自分自身に送信可能とするかどうか。
 enableSendSelf: false
 
