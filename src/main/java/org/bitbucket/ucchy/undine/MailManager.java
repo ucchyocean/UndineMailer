@@ -5,14 +5,10 @@
  */
 package org.bitbucket.ucchy.undine;
 
-import java.io.File;
-import java.io.FilenameFilter;
-import java.io.IOException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Date;
-import java.util.HashMap;
 import java.util.List;
 
 import org.bitbucket.ucchy.undine.bridge.VaultEcoBridge;
@@ -26,11 +22,7 @@ import org.bitbucket.ucchy.undine.sender.MailSenderConsole;
 import org.bitbucket.ucchy.undine.sender.MailSenderPlayer;
 import org.bukkit.ChatColor;
 import org.bukkit.command.CommandSender;
-import org.bukkit.configuration.ConfigurationSection;
-import org.bukkit.configuration.file.YamlConfiguration;
-import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
-import org.bukkit.scheduler.BukkitRunnable;
 
 import com.github.ucchyocean.messaging.tellraw.ClickEventType;
 import com.github.ucchyocean.messaging.tellraw.MessageComponent;
@@ -40,7 +32,7 @@ import com.github.ucchyocean.messaging.tellraw.MessageParts;
  * メールデータマネージャ
  * @author ucchy
  */
-public class MailManager {
+public abstract class MailManager {
 
     protected static final String MAILLIST_METAKEY = "UndineMailList";
     public static final String SENDTIME_METAKEY = "MailSendTime";
@@ -53,12 +45,7 @@ public class MailManager {
     private static final int PAGE_SIZE = 10;
     private static final int MESSAGE_ADD_SIZE = 3;
 
-    private ArrayList<MailData> mails;
-    private HashMap<String, MailData> editmodeMails;
-    private int nextIndex;
-    private boolean isLoaded;
-
-    private UndineMailer parent;
+    protected UndineMailer parent;
 
     /**
      * コンストラクタ
@@ -73,61 +60,7 @@ public class MailManager {
      * メールデータを再読込する
      * @param リロードが完了した時に、通知する先。通知が不要なら、nullでよい。
      */
-    protected void reload(final CommandSender sender) {
-
-        final long start = System.currentTimeMillis();
-
-        new BukkitRunnable() {
-            public void run() {
-
-                isLoaded = false;
-                mails = new ArrayList<MailData>();
-                nextIndex = 1;
-
-                File folder = parent.getMailFolder();
-                File[] files = folder.listFiles(new FilenameFilter() {
-                    public boolean accept(File dir, String name) {
-                        return name.endsWith(".yml");
-                    }
-                });
-
-                if ( files != null ) {
-                    for ( File file : files ) {
-                        MailData data = MailData.load(file);
-                        mails.add(data);
-
-                        if ( nextIndex <= data.getIndex() ) {
-                            nextIndex = data.getIndex() + 1;
-                        }
-                    }
-                }
-
-                UndineMailer.getInstance().getLogger().info("Async load mail data... Done. Time: "
-                        + (System.currentTimeMillis() - start) + "ms, Data: " + mails.size() + ".");
-
-                long upgradeStart = System.currentTimeMillis();
-
-                int total = 0;
-                for ( MailData mail : mails ) {
-                    if ( mail.upgrade() ) {
-                        saveMail(mail);
-                        total++;
-                    }
-                }
-
-                if ( total > 0 ) {
-                    UndineMailer.getInstance().getLogger().info("Async upgrade mail data... Done.  Time: "
-                            + (System.currentTimeMillis() - upgradeStart) + "ms, Data: " + total + ".");
-                }
-
-                isLoaded = true;
-
-                if ( sender != null ) {
-                    sender.sendMessage(Messages.get("InformationReload"));
-                }
-            }
-        }.runTaskAsynchronously(UndineMailer.getInstance());
-    }
+    protected abstract void reload(final CommandSender sender);
 
     /**
      * メールデータがロード完了したかどうか。
@@ -136,25 +69,14 @@ public class MailManager {
      * 注意してください。
      * @return ロード完了したかどうか
      */
-    public boolean isLoaded() {
-        return isLoaded;
-    }
+    public abstract boolean isLoaded();
 
     /**
      * 指定されたインデクスのメールを取得する
      * @param index インデクス
      * @return メールデータ
      */
-    public MailData getMail(int index) {
-
-        if ( !isLoaded ) return null;
-        for ( MailData m : mails ) {
-            if ( m.getIndex() == index ) {
-                return m;
-            }
-        }
-        return null;
-    }
+    public abstract MailData getMail(int index);
 
     /**
      * 新しいテキストメールを送信する
@@ -202,214 +124,42 @@ public class MailManager {
      * 新しいメールを送信する
      * @param mail メール
      */
-    public void sendNewMail(MailData mail) {
-
-        // メールデータの本文が1行も無いときは、ここで1行追加を行う。
-        if ( mail.getMessage().size() == 0 ) {
-            mail.addMessage("");
-        }
-
-        // ロードが完了していないうちは、メールを送信できないようにする
-        if ( !isLoaded ) {
-            UndineMailer.getInstance().getLogger().warning(
-                    "Because mailer has not yet been initialized, mailer dropped new mail.");
-            UndineMailer.getInstance().getLogger().warning(mail.getInboxSummary());
-            return;
-        }
-
-        // 統合宛先を設定する。
-        ArrayList<MailSender> to_total = new ArrayList<MailSender>();
-        for ( MailSender t : mail.getTo() ) {
-            if ( !to_total.contains(t) ) {
-                to_total.add(t);
-            }
-        }
-        for ( GroupData group : mail.getToGroupsConv() ) {
-            for ( MailSender t : group.getMembers() ) {
-                if ( !to_total.contains(t) ) {
-                    to_total.add(t);
-                }
-            }
-        }
-        mail.setToTotal(to_total);
-
-        // インデクスを設定する
-        mail.setIndex(nextIndex);
-        nextIndex++;
-
-        // 送信時間を設定する
-        mail.setDate(new Date());
-
-        // 送信地点を設定する
-        mail.setLocation(mail.getFrom().getLocation());
-
-        // オリジナルの添付ファイルを記録する
-        mail.makeAttachmentsOriginal();
-
-        // 添付が無いなら、着払い設定はクリアしておく
-        if ( mail.getAttachments().size() == 0 ) {
-            mail.setCostMoney(0);
-            mail.setCostItem(null);
-        }
-
-        // 着払いアイテムが設定されているなら、着払い料金はクリアしておく
-        if ( mail.getCostItem() != null ) {
-            mail.setCostMoney(0);
-        }
-
-        // 着払い料金が無効なら、着払い料金はクリアしておく
-        if ( !parent.getUndineConfig().isEnableCODMoney() ) {
-            mail.setCostMoney(0);
-        }
-
-        // 着払いアイテム無効なら、着払いアイテムはクリアしておく
-        if ( !parent.getUndineConfig().isEnableCODItem() ) {
-            mail.setCostItem(null);
-        }
-
-        // 保存する
-        mails.add(mail);
-        saveMail(mail);
-
-        // 宛先の人がログイン中なら知らせる
-        String msg = Messages.get("InformationYouGotMail",
-                "%from", mail.getFrom().getName());
-
-        if ( mail.isAllMail() ) {
-            for ( Player player : Utility.getOnlinePlayers() ) {
-                player.sendMessage(msg);
-                String pre = Messages.get("ListVerticalParts");
-                sendMailLine(MailSender.getMailSender(player),
-                        pre, ChatColor.GOLD + mail.getInboxSummary(), mail);
-            }
-        } else {
-            for ( MailSender to : mail.getToTotal() ) {
-                if ( to.isOnline() ) {
-                    to.sendMessage(msg);
-                    String pre = Messages.get("ListVerticalParts");
-                    sendMailLine(to, pre, ChatColor.GOLD + mail.getInboxSummary(), mail);
-                }
-            }
-        }
-
-        // 送った時刻を、メタデータに記録する
-        long time = System.currentTimeMillis();
-        mail.getFrom().setStringMetadata(SENDTIME_METAKEY, time + "");
-    }
+    public abstract void sendNewMail(MailData mail);
 
     /**
      * 受信したメールのリストを取得する
      * @param sender 取得する対象
      * @return メールのリスト
      */
-    public ArrayList<MailData> getInboxMails(MailSender sender) {
-
-        if ( !isLoaded ) {
-            return null;
-        }
-
-        ArrayList<MailData> box = new ArrayList<MailData>();
-        for ( MailData mail : mails ) {
-            if ( mail.isAllMail()
-                    || (mail.getToTotal() != null && mail.getToTotal().contains(sender))
-                    || mail.getTo().contains(sender) ) {
-                if ( !mail.isSetTrash(sender) ) {
-                    box.add(mail);
-                }
-            }
-        }
-        sortNewer(box);
-        return box;
-    }
+    public abstract ArrayList<MailData> getInboxMails(MailSender sender);
 
     /**
      * 受信したメールで未読のリストを取得する
      * @param sender 取得する対象
      * @return メールのリスト
      */
-    public ArrayList<MailData> getUnreadMails(MailSender sender) {
-
-        if ( !isLoaded ) {
-            return null;
-        }
-
-        ArrayList<MailData> box = new ArrayList<MailData>();
-        for ( MailData mail : mails ) {
-            if ( mail.isAllMail()
-                    || (mail.getToTotal() != null && mail.getToTotal().contains(sender))
-                    || mail.getTo().contains(sender) ) {
-                if ( !mail.isRead(sender) && !mail.isSetTrash(sender) ) {
-                    box.add(mail);
-                }
-            }
-        }
-        sortNewer(box);
-        return box;
-    }
+    public abstract ArrayList<MailData> getUnreadMails(MailSender sender);
 
     /**
      * 送信したメールのリストを取得する
      * @param sender 取得する対象
      * @return メールのリスト
      */
-    public ArrayList<MailData> getOutboxMails(MailSender sender) {
-
-        if ( !isLoaded ) {
-            return null;
-        }
-
-        ArrayList<MailData> box = new ArrayList<MailData>();
-        for ( MailData mail : mails ) {
-            if ( mail.getFrom().equals(sender) && !mail.isSetTrash(sender) ) {
-                box.add(mail);
-            }
-        }
-        sortNewer(box);
-        return box;
-    }
+    public abstract ArrayList<MailData> getOutboxMails(MailSender sender);
 
     /**
      * 関連メールのリストを取得する
      * @param sender 取得する対象
      * @return メールのリスト
      */
-    public ArrayList<MailData> getRelatedMails(MailSender sender) {
-
-        if ( !isLoaded ) {
-            return null;
-        }
-
-        ArrayList<MailData> box = new ArrayList<MailData>();
-        for ( MailData mail : mails ) {
-            if ( mail.isRelatedWith(sender) && mail.isRead(sender)
-                    && !mail.isSetTrash(sender) ) {
-                box.add(mail);
-            }
-        }
-        sortNewer(box);
-        return box;
-    }
+    public abstract ArrayList<MailData> getRelatedMails(MailSender sender);
 
     /**
      * ゴミ箱フォルダのメールリストを取得する
      * @param sender 取得する対象
      * @return メールのリスト
      */
-    public ArrayList<MailData> getTrashboxMails(MailSender sender) {
-
-        if ( !isLoaded ) {
-            return null;
-        }
-
-        ArrayList<MailData> box = new ArrayList<MailData>();
-        for ( MailData mail : mails ) {
-            if ( mail.isRelatedWith(sender) && mail.isSetTrash(sender) ) {
-                box.add(mail);
-            }
-        }
-        sortNewer(box);
-        return box;
-    }
+    public abstract ArrayList<MailData> getTrashboxMails(MailSender sender);
 
     /**
      * 指定されたメールを開いて確認する
@@ -419,7 +169,7 @@ public class MailManager {
     public void displayMail(MailSender sender, MailData mail) {
 
         // ロード中の場合は、メールを表示できません
-        if ( !isLoaded ) {
+        if ( !isLoaded() ) {
             return;
         }
 
@@ -437,101 +187,38 @@ public class MailManager {
      * 指定されたメールデータをUndineに保存する
      * @param mail メールデータ
      */
-    public void saveMail(MailData mail) {
-
-        // 編集中で未送信のメールは保存できません。
-        if ( mail.getIndex() == 0 ) {
-            return;
-        }
-
-        String filename = String.format("%1$08d.yml", mail.getIndex());
-        File folder = parent.getMailFolder();
-        File file = new File(folder, filename);
-        mail.save(file);
-    }
+    public abstract void saveMail(MailData mail);
 
     /**
      * 指定されたインデクスのメールを削除する
      * @param index インデクス
      */
-    public void deleteMail(int index) {
-
-        if ( isLoaded ) {
-            MailData mail = getMail(index);
-            if ( mail != null ) {
-                mails.remove(mail);
-            }
-        }
-
-        String filename = String.format("%1$08d.yml", index);
-        File folder = parent.getMailFolder();
-        File file = new File(folder, filename);
-        if ( file.exists() ) {
-            file.delete();
-        }
-    }
+    public abstract void deleteMail(int index);
 
     /**
      * 古いメールを削除する
      */
-    protected void cleanup() {
-
-        if ( !isLoaded ) {
-            return;
-        }
-
-        ArrayList<Integer> queue = new ArrayList<Integer>();
-        int period = parent.getUndineConfig().getMailStorageTermDays();
-        Date now = new Date();
-
-        for ( MailData mail : mails ) {
-            int days = (int)((now.getTime() - mail.getDate().getTime()) / (1000*60*60*24));
-            if ( days > period ) {
-                queue.add(mail.getIndex());
-            }
-        }
-
-        for ( int index : queue ) {
-            deleteMail(index);
-        }
-    }
+    protected abstract void cleanup();
 
     /**
      * 編集中メールを作成して返す
      * @param sender 取得対象のsender
      * @return 編集中メール
      */
-    public MailData makeEditmodeMail(MailSender sender) {
-        String id = sender.toString();
-        if ( editmodeMails.containsKey(id) ) {
-            return editmodeMails.get(id);
-        }
-        MailData mail = new MailData();
-        mail.setFrom(sender);
-        editmodeMails.put(id, mail);
-        return mail;
-    }
+    public abstract MailData makeEditmodeMail(MailSender sender);
 
     /**
      * 編集中メールを取得する
      * @param sender 取得対象のsender
      * @return 編集中メール（編集中でないならnull）
      */
-    public MailData getEditmodeMail(MailSender sender) {
-        String id = sender.toString();
-        if ( editmodeMails.containsKey(id) ) {
-            return editmodeMails.get(id);
-        }
-        return null;
-    }
+    public abstract MailData getEditmodeMail(MailSender sender);
 
     /**
      * 編集中メールを削除する
      * @param sender 削除対象のsender
      */
-    public void clearEditmodeMail(MailSender sender) {
-        editmodeMails.remove(sender.toString());
-    }
+    public abstract void clearEditmodeMail(MailSender sender);
 
     /**
      * 指定されたsenderに、Inboxリストを表示する。
@@ -541,7 +228,7 @@ public class MailManager {
     public void displayInboxList(MailSender sender, int page) {
 
         // ロード中の場合は、リストを表示しないようにする
-        if ( !isLoaded ) {
+        if ( !isLoaded() ) {
             return;
         }
 
@@ -592,7 +279,7 @@ public class MailManager {
     public void displayOutboxList(MailSender sender, int page) {
 
         // ロード中の場合は、リストを表示しないようにする
-        if ( !isLoaded ) {
+        if ( !isLoaded() ) {
             return;
         }
 
@@ -636,7 +323,7 @@ public class MailManager {
     protected void displayUnreadOnJoin(MailSender sender) {
 
         // ロード中の場合は、リストを表示しないようにする
-        if ( !isLoaded ) {
+        if ( !isLoaded() ) {
             return;
         }
 
@@ -672,7 +359,7 @@ public class MailManager {
     public void displayTrashboxList(MailSender sender, int page) {
 
         // ロード中の場合は、リストを表示しないようにする
-        if ( !isLoaded ) {
+        if ( !isLoaded() ) {
             return;
         }
 
@@ -712,65 +399,19 @@ public class MailManager {
     /**
      * 編集中メールをeditmails.ymlへ保存する
      */
-    protected void storeEditmodeMail() {
-
-        YamlConfiguration config = new YamlConfiguration();
-        for ( String name : editmodeMails.keySet() ) {
-            ConfigurationSection section = config.createSection(name);
-            editmodeMails.get(name).saveToConfigSection(section);
-        }
-
-        try {
-            File file = new File(parent.getDataFolder(), "editmails.yml");
-            config.save(file);
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-    }
+    protected abstract void storeEditmodeMail();
 
     /**
      * editmails.ymlから編集中メールを復帰する
      */
-    protected void restoreEditmodeMail() {
-
-        editmodeMails = new HashMap<String, MailData>();
-
-        File file = new File(parent.getDataFolder(), "editmails.yml");
-        if ( !file.exists() ) return;
-
-        YamlConfiguration config = YamlConfiguration.loadConfiguration(file);
-        for ( String name : config.getKeys(false) ) {
-            ConfigurationSection section = config.getConfigurationSection(name);
-            if ( section != null ) {
-                MailData mail = MailData.loadFromConfigSection(section);
-                editmodeMails.put(name, mail);
-            }
-        }
-
-        // 復帰元ファイルを削除しておく
-        file.delete();
-    }
+    protected abstract void restoreEditmodeMail();
 
     /**
      * 指定したsenderが使用中の添付ボックスの個数を返す
      * @param sender
      * @return 使用中添付ボックスの個数
      */
-    public int getAttachBoxUsageCount(MailSender sender) {
-
-        // ロード中の場合は、Integer最大値を返す
-        if ( !isLoaded ) {
-            return Integer.MAX_VALUE;
-        }
-
-        int count = 0;
-        for ( MailData mail : mails ) {
-            if ( mail.getFrom().equals(sender) && mail.getAttachments().size() > 0 ) {
-                count++;
-            }
-        }
-        return count;
-    }
+    public abstract int getAttachBoxUsageCount(MailSender sender);
 
     /**
      * メールの詳細情報を表示する
@@ -1320,13 +961,13 @@ public class MailManager {
         // リストの取得
         ArrayList<MailData> list;
         if ( meta.equals("inbox") ) {
-            list = UndineMailer.getInstance().getMailManager().getInboxMails(sender);
+            list = getInboxMails(sender);
         } else if ( meta.equals("outbox") ) {
-            list = UndineMailer.getInstance().getMailManager().getOutboxMails(sender);
+            list = getOutboxMails(sender);
         } else if ( meta.equals("trash") ) {
-            list = UndineMailer.getInstance().getMailManager().getTrashboxMails(sender);
+            list = getTrashboxMails(sender);
         } else {
-            list = UndineMailer.getInstance().getMailManager().getUnreadMails(sender);
+            list = getUnreadMails(sender);
         }
 
         // ページ番号の取得
@@ -1461,7 +1102,7 @@ public class MailManager {
      * メールデータのリストを、新しいメール順に並び替えする
      * @param list リスト
      */
-    private static void sortNewer(List<MailData> list) {
+    protected static void sortNewer(List<MailData> list) {
         Collections.sort(list, (o1, o2) -> o2.getDate().compareTo(o1.getDate()));
     }
 
@@ -1472,7 +1113,7 @@ public class MailManager {
      * @param summary サマリーの文字列
      * @param mail メールデータ
      */
-    private void sendMailLine(
+    protected void sendMailLine(
             MailSender sender, String pre, String summary, MailData mail) {
 
         MessageComponent msg = new MessageComponent();

@@ -5,11 +5,10 @@
  */
 package org.bitbucket.ucchy.undine.group;
 
-import java.io.File;
-import java.io.FilenameFilter;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
+import java.util.List;
 
 import org.bitbucket.ucchy.undine.Messages;
 import org.bitbucket.ucchy.undine.UndineMailer;
@@ -28,9 +27,9 @@ import com.github.ucchyocean.messaging.tellraw.MessageParts;
  * メールグループ管理クラス
  * @author ucchy
  */
-public class GroupManager {
+public abstract class GroupManager {
 
-    private static final ArrayList<String> PEX_OPTION_FLAGS;
+    protected static final ArrayList<String> PEX_OPTION_FLAGS;
     static {
         PEX_OPTION_FLAGS = new ArrayList<String>();
         PEX_OPTION_FLAGS.add("recieve-mail");
@@ -45,9 +44,8 @@ public class GroupManager {
     private static final String PERMISSION_INFINITE_CREATE = GroupCommand.PERMISSION_INFINITE_CREATE;
     private static final String PERMISSION_INFINITE_ADD_MEMBER = GroupCommand.PERMISSION_INFINITE_ADD_MEMBER;
 
-    private UndineMailer parent;
-    private HashMap<String, GroupData> groups;
-    private HashMap<String, GroupData> pexGroupsCache;
+    protected UndineMailer parent;
+    protected HashMap<String, GroupData> pexGroupsCache;
 
     /**
      * コンストラクタ
@@ -61,50 +59,7 @@ public class GroupManager {
     /**
      * 全データを再読み込みする
      */
-    public void reload() {
-
-        long start = System.currentTimeMillis();
-
-        File folder = parent.getGroupFolder();
-        File[] files = folder.listFiles(new FilenameFilter() {
-            public boolean accept(File dir, String name) {
-                return name.endsWith(".yml");
-            }
-        });
-
-        groups = new HashMap<String, GroupData>();
-
-        if ( files != null ) {
-            for ( File f : files ) {
-                GroupData group = GroupData.loadFromFile(f);
-                groups.put(group.getName().toLowerCase(), group);
-            }
-        }
-
-        // 特殊グループを追加する
-        GroupData all = new SpecialGroupAll();
-        groups.put(all.getName().toLowerCase(), all);
-        GroupData allConnected = new SpecialGroupAllConnected();
-        groups.put(allConnected.getName().toLowerCase(), allConnected);
-        GroupData allLogin = new SpecialGroupAllLogin();
-        groups.put(allLogin.getName().toLowerCase(), allLogin);
-
-        // アップグレード処理
-        start = System.currentTimeMillis();
-
-        int total = 0;
-        for ( GroupData group : groups.values() ) {
-            if ( group.upgrade() ) {
-                saveGroupData(group);
-                total++;
-            }
-        }
-
-        if ( total > 0 ) {
-            UndineMailer.getInstance().getLogger().info("Upgrade group data... Done.  Time: "
-                    + (System.currentTimeMillis() - start) + "ms, Data: " + total + ".");
-        }
-    }
+    public abstract void reload();
 
     /**
      * グループを追加する。
@@ -112,85 +67,46 @@ public class GroupManager {
      * 古いグループが上書きされてしまうことに注意する。
      * @param group グループ
      */
-    public void addGroup(GroupData group) {
-        String name = group.getName().toLowerCase();
-        groups.put(name, group);
-        saveGroupData(group);
-    }
+    public abstract void addGroup(GroupData group);
 
     /**
      * 指定したグループ名のグループを取得する
      * @param name グループ名
      * @return グループ
      */
-    public GroupData getGroup(String name) {
-        name = name.toLowerCase();
+    public abstract GroupData getGroup(String name);
 
-        // PEXから取得する
-        if ( name.startsWith(SpecialGroupPex.NAME_PREFIX) && pexGroupsCache != null ) {
-            if ( pexGroupsCache.containsKey(name) ) {
-                return pexGroupsCache.get(name);
-            }
-        }
-
-        // グループから取得する
-        if ( groups.containsKey(name) ) {
-            return groups.get(name);
-        }
-        return null;
-    }
+    public abstract ArrayList<GroupData> getGroups(List<String> names);
 
     /**
      * 指定したグループ名のグループを削除する
      * @param name グループ名
      */
-    public void removeGroup(String name) {
-        name = name.toLowerCase();
-        if ( groups.containsKey(name) ) {
-            groups.remove(name);
-            File folder = parent.getGroupFolder();
-            File file = new File(folder, name + ".yml");
-            file.delete();
-        }
-    }
+    public abstract void removeGroup(String name);
 
     /**
      * 全てのグループ名を取得する
      * @return 全てのグループ名
      */
-    public ArrayList<String> getAllGroupNames() {
-        ArrayList<String> names = new ArrayList<String>();
-        for ( GroupData group : groups.values() ) {
-            names.add(group.getName());
-        }
-        return names;
-    }
+    public abstract ArrayList<String> getAllGroupNames();
 
     /**
      * 全てのグループを取得する
      * @return 全てのグループ
      */
-    public ArrayList<GroupData> getAllGroups() {
-        return new ArrayList<GroupData>(groups.values());
-    }
+    public abstract ArrayList<GroupData> getAllGroups();
 
     /**
      * 指定されたグループ名は既に存在するかどうかを確認する
      * @return 存在するかどうか
      */
-    public boolean existGroupName(String name) {
-        return groups.keySet().contains(name.toLowerCase());
-    }
+    public abstract boolean existGroupName(String name);
 
     /**
-     * 指定したグループを実データファイルに保存する
+     * 指定したグループを保存する
      * @param group グループ
      */
-    public void saveGroupData(GroupData group) {
-        File folder = parent.getGroupFolder();
-        File file = new File(folder, group.getName().toLowerCase() + ".yml");
-        group.saveToFile(file);
-    }
+    public abstract void saveGroupData(GroupData group);
 
     /**
      * グループ名として使用できる名前かどうかを確認する
@@ -206,13 +122,7 @@ public class GroupManager {
      * @param sender
      * @return オーナーのグループの個数
      */
-    public int getOwnerGroupCount(MailSender sender) {
-        int total = 0;
-        for ( GroupData group : groups.values() ) {
-            if ( group.getOwner().equals(sender) ) total++;
-        }
-        return total;
-    }
+    public abstract int getOwnerGroupCount(MailSender sender);
 
     /**
      * 指定したsenderは新規にグループを作成できるかどうかを返す
@@ -236,7 +146,7 @@ public class GroupManager {
 
         ArrayList<GroupData> results = new ArrayList<GroupData>();
 
-        for ( GroupData group : groups.values() ) {
+        for ( GroupData group : getAllGroups() ) {
             if ( group.isMember(sender) || group.canSend(sender) ) {
                 results.add(group);
             }
@@ -256,7 +166,7 @@ public class GroupManager {
 
         ArrayList<GroupData> results = new ArrayList<GroupData>();
 
-        for ( GroupData group : groups.values() ) {
+        for ( GroupData group : getAllGroups() ) {
             if ( group.canSend(sender) ) {
                 results.add(group);
             }
