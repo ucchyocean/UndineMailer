@@ -7,7 +7,6 @@ package org.bitbucket.ucchy.undine.command;
 
 import java.util.ArrayList;
 import java.util.Collections;
-import java.util.Comparator;
 import java.util.List;
 
 import org.bitbucket.ucchy.undine.Messages;
@@ -68,11 +67,7 @@ public class ListCommand implements TabExecutor {
 
         // 以下、プレイヤーリスト表示処理
         ArrayList<String> names = new ArrayList<String>(parent.getPlayerNames());
-        Collections.sort(names, new Comparator<String>() {
-            public int compare(String o1, String o2) {
-                return o1.compareToIgnoreCase(o2);
-            }
-        });
+        Collections.sort(names, String::compareToIgnoreCase);
 
         String parts = Messages.get("ListHorizontalParts");
         String pre = Messages.get("ListVerticalParts");

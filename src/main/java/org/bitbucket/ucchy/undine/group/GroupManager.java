@@ -9,7 +9,6 @@ import java.io.File;
 import java.io.FilenameFilter;
 import java.util.ArrayList;
 import java.util.Collections;
-import java.util.Comparator;
 import java.util.HashMap;
 
 import org.bitbucket.ucchy.undine.Messages;
@@ -243,11 +242,7 @@ public class GroupManager {
             }
         }
 
-        Collections.sort(results, new Comparator<GroupData>() {
-            public int compare(GroupData o1, GroupData o2) {
-                return o1.getName().compareToIgnoreCase(o2.getName());
-            }
-        });
+        Collections.sort(results, (o1, o2) -> o1.getName().compareToIgnoreCase(o2.getName()));
 
         return results;
     }
@@ -267,11 +262,7 @@ public class GroupManager {
             }
         }
 
-        Collections.sort(results, new Comparator<GroupData>() {
-            public int compare(GroupData o1, GroupData o2) {
-                return o1.getName().compareToIgnoreCase(o2.getName());
-            }
-        });
+        Collections.sort(results, (o1, o2) ->  o1.getName().compareToIgnoreCase(o2.getName()));
 
         // PermissionsExから動的にグループを取得して結合する
         for ( GroupData group : getPexGroups() ) {
@@ -451,11 +442,7 @@ public class GroupManager {
 
             // メンバーを5人ごとに区切って表示する
             ArrayList<MailSender> members = group.getMembers();
-            Collections.sort(members, new Comparator<MailSender>() {
-                public int compare(MailSender o1, MailSender o2) {
-                    return o1.getName().compareToIgnoreCase(o2.getName());
-                }
-            });
+            Collections.sort(members, (o1, o2) -> o1.getName().compareToIgnoreCase(o2.getName()));
             int size = members.size();
             int max = (int)((size - 1) / 5) + 1;
             for ( int i=0; i<max; i++ ) {
@@ -504,11 +491,7 @@ public class GroupManager {
         sender.sendMessage(pre + Messages.get("GroupMemberLine"));
 
         ArrayList<MailSender> members = group.getMembers();
-        Collections.sort(members, new Comparator<MailSender>() {
-            public int compare(MailSender o1, MailSender o2) {
-                return o1.getName().compareToIgnoreCase(o2.getName());
-            }
-        });
+        Collections.sort(members, (o1, o2) -> o1.getName().compareToIgnoreCase(o2.getName()));
         int size = members.size();
         int max = (int)((size - 1) / PAGE_SIZE) + 1;
 

@@ -11,7 +11,6 @@ import java.io.IOException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Collections;
-import java.util.Comparator;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
@@ -1463,11 +1462,7 @@ public class MailManager {
      * @param list リスト
      */
     private static void sortNewer(List<MailData> list) {
-        Collections.sort(list, new Comparator<MailData>() {
-            public int compare(MailData o1, MailData o2) {
-                return o2.getDate().compareTo(o1.getDate());
-            }
-        });
+        Collections.sort(list, (o1, o2) -> o2.getDate().compareTo(o1.getDate()));
     }
 
     /**
