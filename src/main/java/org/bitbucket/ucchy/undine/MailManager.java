@@ -25,7 +25,6 @@ import org.bitbucket.ucchy.undine.sender.MailSender;
 import org.bitbucket.ucchy.undine.sender.MailSenderBlock;
 import org.bitbucket.ucchy.undine.sender.MailSenderConsole;
 import org.bitbucket.ucchy.undine.sender.MailSenderPlayer;
-import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.command.CommandSender;
 import org.bukkit.configuration.ConfigurationSection;
@@ -882,7 +881,7 @@ public class MailManager {
                 }
             }
 
-            sendMessageComponent(msg, sender);
+            sender.sendMessageComponent(msg);
 
             for ( ItemStack i : mail.getAttachments() ) {
                 sender.sendMessage(pre + "  " + ChatColor.WHITE + getItemDesc(i, true));
@@ -916,7 +915,7 @@ public class MailManager {
                             Messages.get("MailDetailAttachmentBoxRefuseToolTip"));
                     msg.addParts(refuseButton);
                 }
-                sendMessageComponent(msg, sender);
+                sender.sendMessageComponent(msg);
             }
 
         } else if ( mail.isAttachmentsCancelled() ) {
@@ -962,7 +961,7 @@ public class MailManager {
                         COMMAND + " trash restore " + mail.getIndex());
                 msg.addParts(button);
 
-                sendMessageComponent(msg, sender);
+                sender.sendMessageComponent(msg);
 
             } else {
                 // 既に添付が1つもないメールなら、Deleteボタンを表示する
@@ -997,7 +996,7 @@ public class MailManager {
                         msg.addParts(button);
                     }
 
-                    sendMessageComponent(msg, sender);
+                    sender.sendMessageComponent(msg);
                 }
             }
         }
@@ -1015,7 +1014,7 @@ public class MailManager {
                     COMMAND + " teleport " + mail.getIndex());
             msg.addParts(button);
 
-            sendMessageComponent(msg, sender);
+            sender.sendMessageComponent(msg);
         }
 
         sendMailDescriptionPager(sender, mail.getIndex());
@@ -1078,7 +1077,7 @@ public class MailManager {
             msg.addParts(button);
             msg.addText(" ");
             msg.addText(mail.getTo().get(i).getName(), ChatColor.WHITE);
-            sendMessageComponent(msg, sender);
+            sender.sendMessageComponent(msg);
         }
 
         UndineConfig config = UndineMailer.getInstance().getUndineConfig();
@@ -1107,7 +1106,7 @@ public class MailManager {
 
             }
 
-            sendMessageComponent(msg, sender);
+            sender.sendMessageComponent(msg);
         }
 
         for ( int i=0; i<mail.getToGroups().size(); i++ ) {
@@ -1129,7 +1128,7 @@ public class MailManager {
                 groupName.setHoverText(group.getHoverText());
             }
             msg.addParts(groupName);
-            sendMessageComponent(msg, sender);
+            sender.sendMessageComponent(msg);
         }
 
         if ( sender.hasPermission(GroupCommand.PERMISSION + ".list") &&
@@ -1144,7 +1143,7 @@ public class MailManager {
                             + COMMAND + " to group " + (mail.getToGroups().size()+1));
             msg.addParts(button);
 
-            sendMessageComponent(msg, sender);
+            sender.sendMessageComponent(msg);
         }
 
         for ( int i=0; i<mail.getMessage().size(); i++ ) {
@@ -1166,7 +1165,7 @@ public class MailManager {
             buttonEdit.setHoverText(Messages.get("EditmodeLineEditToolTip"));
             msg.addParts(buttonEdit);
             msg.addText(" " + Utility.replaceColorCode(mail.getMessage().get(i)), ChatColor.WHITE);
-            sendMessageComponent(msg, sender);
+            sender.sendMessageComponent(msg);
         }
 
         if ( mail.getMessage().size() < MailData.MESSAGE_MAX_SIZE ) {
@@ -1182,7 +1181,7 @@ public class MailManager {
                     ClickEventType.RUN_COMMAND,
                     COMMAND + " message " + num);
             msg.addParts(button);
-            sendMessageComponent(msg, sender);
+            sender.sendMessageComponent(msg);
         }
 
         boolean senderHasPermissionOfOpenAttachBox =
@@ -1200,7 +1199,7 @@ public class MailManager {
             msg.addParts(button);
             msg.addText(" ");
             msg.addText(Messages.get("EditmodeAttachNum", "%num", mail.getAttachments().size()));
-            sendMessageComponent(msg, sender);
+            sender.sendMessageComponent(msg);
 
             boolean isEnableCODMoney = (UndineMailer.getInstance().getVaultEco() != null)
                     && config.isEnableCODMoney();
@@ -1279,7 +1278,7 @@ public class MailManager {
 
                 }
 
-                sendMessageComponent(msgfee, sender);
+                sender.sendMessageComponent(msgfee);
             }
         }
 
@@ -1295,7 +1294,7 @@ public class MailManager {
         cancelButton.setClickEvent(ClickEventType.RUN_COMMAND, COMMAND + " cancel");
         last.addParts(cancelButton);
         last.addText(parts);
-        sendMessageComponent(last, sender);
+        sender.sendMessageComponent(last);
 
         // メッセージがすべて空行の場合は、TIPSを表示する(see issue #90)
         if ( areMessagesEmpty(mail) ) {
@@ -1425,7 +1424,7 @@ public class MailManager {
 
         msg.addText(" " + parts);
 
-        sendMessageComponent(msg, sender);
+        sender.sendMessageComponent(msg);
     }
 
     /**
@@ -1497,7 +1496,7 @@ public class MailManager {
 
         msg.addText(summary);
 
-        sendMessageComponent(msg, sender);
+        sender.sendMessageComponent(msg);
     }
 
     /**
@@ -1566,7 +1565,7 @@ public class MailManager {
 
         msg.addText(" " + parts);
 
-        sendMessageComponent(msg, sender);
+        sender.sendMessageComponent(msg);
     }
 
     /**
@@ -1599,19 +1598,6 @@ public class MailManager {
             buffer.append(group);
         }
         return buffer.toString();
-    }
-
-    /**
-     * 指定されたメッセージコンポーネントを、指定されたMailSenderに送信する。
-     * @param msg メッセージコンポーネント
-     * @param sender 送信先
-     */
-    private void sendMessageComponent(MessageComponent msg, MailSender sender) {
-        if ( sender instanceof MailSenderPlayer && sender.isOnline() ) {
-            msg.send(sender.getPlayer());
-        } else if ( sender instanceof MailSenderConsole ) {
-            msg.send(Bukkit.getConsoleSender());
-        }
     }
 
     /**

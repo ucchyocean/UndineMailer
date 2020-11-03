@@ -5,6 +5,8 @@
  */
 package org.bitbucket.ucchy.undine.sender;
 
+import com.github.ucchyocean.messaging.tellraw.MessageComponent;
+
 import org.bitbucket.ucchy.undine.UndineMailer;
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
@@ -49,6 +51,12 @@ public abstract class MailSender implements Comparable<MailSender> {
      * @param message メッセージ
      */
     public abstract void sendMessage(String message);
+
+    /**
+     * 指定されたメッセージコンポーネントをこのMailSenderに送信する。
+     * @param msg メッセージコンポーネント
+     */
+    public abstract void sendMessageComponent(MessageComponent msg);
 
     /**
      * BukkitのOfflinePlayerを取得する。

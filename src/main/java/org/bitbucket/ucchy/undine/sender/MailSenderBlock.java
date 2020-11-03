@@ -7,6 +7,8 @@ package org.bitbucket.ucchy.undine.sender;
 
 import java.util.List;
 
+import com.github.ucchyocean.messaging.tellraw.MessageComponent;
+
 import org.bitbucket.ucchy.undine.UndineMailer;
 import org.bukkit.Location;
 import org.bukkit.Material;
@@ -81,6 +83,16 @@ public class MailSenderBlock extends MailSender {
      */
     @Override
     public void sendMessage(String message) {
+        // do nothing.
+    }
+    
+    /**
+     * メッセージを送る、実際は何もせずにメッセージを捨てる
+     * @param message メッセージ
+     * @see org.bitbucket.ucchy.undine.sender.MailSender#sendMessageComponent(com.github.ucchyocean.messaging.tellraw.MessageComponent)
+     */
+    @Override
+    public void sendMessageComponent(MessageComponent msg) {
         // do nothing.
     }
 
@@ -240,6 +252,6 @@ public class MailSenderBlock extends MailSender {
     }
 
     private boolean isCommandBlock(Material m) {
-        return m.name().equals("COMMAND") || m.name().equals("COMMAND_BLOCK");
+        return !m.name().contains("MINECART") && m.name().contains("COMMAND");
     }
 }

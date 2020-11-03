@@ -5,6 +5,8 @@
  */
 package org.bitbucket.ucchy.undine.sender;
 
+import com.github.ucchyocean.messaging.tellraw.MessageComponent;
+
 import org.bukkit.Location;
 import org.bukkit.OfflinePlayer;
 import org.bukkit.command.CommandSender;
@@ -59,6 +61,14 @@ public class MailSenderDummy extends MailSender {
      */
     @Override
     public void sendMessage(String message) {
+        // do nothing.
+    }
+
+    /**
+     * @see org.bitbucket.ucchy.undine.sender.MailSender#sendMessageComponent(com.github.ucchyocean.messaging.tellraw.MessageComponent)
+     */
+    @Override
+    public void sendMessageComponent(MessageComponent msg) {
         // do nothing.
     }
 

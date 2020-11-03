@@ -7,6 +7,8 @@ package org.bitbucket.ucchy.undine.sender;
 
 import java.util.List;
 
+import com.github.ucchyocean.messaging.tellraw.MessageComponent;
+
 import org.bitbucket.ucchy.undine.UndineMailer;
 import org.bitbucket.ucchy.undine.Utility;
 import org.bukkit.Bukkit;
@@ -105,6 +107,17 @@ public class MailSenderPlayer extends MailSender {
         Player player = getPlayer();
         if ( player != null ) {
             player.sendMessage(message);
+        }
+    }
+
+    /**
+     * 指定されたメッセージコンポーネントを、このMailSenderに送信する。
+     * @param msg メッセージコンポーネント
+     */
+    public void sendMessageComponent(MessageComponent msg) {
+        Player player = getPlayer();
+        if ( player != null ) {
+            msg.send(player);
         }
     }
 
