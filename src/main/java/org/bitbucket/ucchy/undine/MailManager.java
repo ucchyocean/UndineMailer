@@ -1,8 +1,3 @@
-/*
- * @author     ucchy
- * @license    LGPLv3
- * @copyright  Copyright ucchy 2015
- */
 package org.bitbucket.ucchy.undine;
 
 import java.text.SimpleDateFormat;
@@ -29,8 +24,9 @@ import com.github.ucchyocean.messaging.tellraw.MessageComponent;
 import com.github.ucchyocean.messaging.tellraw.MessageParts;
 
 /**
- * メールデータマネージャ
- * @author ucchy
+ * メールデータマネージャ。
+ * NOTE: Editmode mail = 送信前のメール
+ * @author LazyGon
  */
 public abstract class MailManager {
 
@@ -90,7 +86,9 @@ public abstract class MailManager {
         toList.add(to);
         ArrayList<String> messageList = new ArrayList<String>();
         messageList.add(message);
-        MailData mail = new MailData(toList, from, messageList);
+        MailData mail = makeEditmodeMail(from);
+        mail.addTo(to);
+        mail.setMessage(messageList);
         sendNewMail(mail);
     }
 
@@ -104,7 +102,9 @@ public abstract class MailManager {
 
         ArrayList<String> messageList = new ArrayList<String>();
         messageList.add(message);
-        MailData mail = new MailData(to, from, messageList);
+        MailData mail = makeEditmodeMail(from);
+        mail.addTo(to);
+        mail.setMessage(messageList);
         sendNewMail(mail);
     }
 
@@ -116,7 +116,9 @@ public abstract class MailManager {
      */
     public void sendNewMail(MailSender from, List<MailSender> to, List<String> message) {
 
-        MailData mail = new MailData(to, from, message);
+        MailData mail = makeEditmodeMail(from);
+        mail.addTo(to);
+        mail.setMessage(message);
         sendNewMail(mail);
     }
 
@@ -437,8 +439,8 @@ public abstract class MailManager {
             sender.sendMessage("");
         }
 
-        String num = mail.isEditmode() ? Messages.get("Editmode") : mail.getIndex() + "";
-        String fdate = mail.isEditmode() ? null : getFormattedDate(mail.getDate());
+        String num = !mail.isSent() ? Messages.get("Editmode") : mail.getIndex() + "";
+        String fdate = !mail.isSent() ? null : getFormattedDate(mail.getDate());
 
         String parts = Messages.get("DetailHorizontalParts");
         String pre = Messages.get("DetailVerticalParts");
@@ -473,7 +475,7 @@ public abstract class MailManager {
             msg.addText(pre + Messages.get("MailDetailAttachmentsLine"));
             msg.addText(" ");
 
-            if ( !mail.isEditmode() ) {
+            if ( mail.isSent() ) {
 
                 if ( (!mail.isAttachmentsCancelled() && mail.isRecipient(sender))
                         || (mail.isAttachmentsCancelled() && mail.getFrom().equals(sender)) ) {
@@ -527,21 +529,23 @@ public abstract class MailManager {
                 sender.sendMessage(pre + "  " + ChatColor.WHITE + getItemDesc(i, true));
             }
 
-            if ( mail.getCostMoney() > 0 || mail.getCostItem() != null ) {
-                String costDesc = mail.getCostMoney() + "";
+            double costMoney = mail.getCostMoney();
+            ItemStack costItem = mail.getCostItem();
+            if ( costMoney > 0 || costItem != null ) {
+                String costDesc = costMoney + "";
                 VaultEcoBridge eco = UndineMailer.getInstance().getVaultEco();
                 if ( eco != null ) {
-                    costDesc = eco.format(mail.getCostMoney());
+                    costDesc = eco.format(costMoney);
                 }
 
                 msg = new MessageComponent();
-                if ( mail.getCostMoney() > 0 ) {
+                if ( costMoney > 0 ) {
                     msg.addText(pre + Messages.get(
                             "MailDetailAttachCostMoneyLine", "%fee", costDesc));
                 } else {
                     msg.addText(pre + Messages.get(
                             "MailDetailAttachCostItemLine", "%item",
-                            getItemDesc(mail.getCostItem(), true)));
+                            getItemDesc(costItem, true)));
                 }
                 if ( mail.getTo().contains(sender) ) {
                     msg.addText(" ");
@@ -574,7 +578,7 @@ public abstract class MailManager {
             }
         }
 
-        if ( !mail.isEditmode() && mail.getAttachmentsOriginal() != null
+        if ( mail.isSent() && mail.getAttachmentsOriginal() != null
                 && mail.getAttachmentsOriginal().size() > 0 && mail.getFrom().equals(sender) ) {
             // 添付アイテムオリジナルがあり、表示先が送信者なら、元の添付アイテムを表示する。
 
@@ -587,7 +591,7 @@ public abstract class MailManager {
         }
 
         if ( sender instanceof MailSenderPlayer
-                && mail.isRelatedWith(sender) && !mail.isEditmode() ) {
+                && mail.isRelatedWith(sender) && mail.isSent() ) {
 
             if ( mail.isSetTrash(sender) ) {
                 // ゴミ箱に入っているメールなら、Restoreボタンを表示する
@@ -641,7 +645,7 @@ public abstract class MailManager {
             }
         }
 
-        if ( !mail.isEditmode() && mail.getLocation() != null
+        if ( mail.isSent() && mail.getLocation() != null
                 && sender instanceof MailSenderPlayer
                 && sender.hasPermission(PERMISSION_TELEPORT) ) {
 
@@ -681,9 +685,11 @@ public abstract class MailManager {
         }
 
         // メッセージが3行に満たない場合は、この時点で空行を足しておく
-        while ( mail.getMessage().size() < MESSAGE_ADD_SIZE ) {
-            mail.addMessage("");
+        List<String> message = mail.getMessage();
+        while ( message.size() < MESSAGE_ADD_SIZE ) {
+            message.add("");
         }
+        mail.setMessage(message);
 
         // 空行を挿入する
         int lines = UndineMailer.getInstance().getUndineConfig().getUiEmptyLines();
@@ -697,7 +703,8 @@ public abstract class MailManager {
         String title = Messages.get("EditmodeTitle");
         sender.sendMessage(parts + parts + " " + title + " " + parts + parts);
 
-        for ( int i=0; i<mail.getTo().size(); i++ ) {
+        List<MailSender> to = mail.getTo();
+        for ( int i=0; i<to.size(); i++ ) {
             MessageComponent msg = new MessageComponent();
             msg.addText(pre);
             MessageParts buttonDelete = new MessageParts(
@@ -712,17 +719,17 @@ public abstract class MailManager {
                     Messages.get("EditmodeTo"), ChatColor.AQUA);
             button.setClickEvent(
                     ClickEventType.SUGGEST_COMMAND,
-                    COMMAND + " to " + (i+1) + " " + mail.getTo().get(i).getName());
+                    COMMAND + " to " + (i+1) + " " + to.get(i).getName());
             button.setHoverText(Messages.get("EditmodeToToolTip"));
             msg.addParts(button);
             msg.addText(" ");
-            msg.addText(mail.getTo().get(i).getName(), ChatColor.WHITE);
+            msg.addText(to.get(i).getName(), ChatColor.WHITE);
             sender.sendMessageComponent(msg);
         }
 
         UndineConfig config = UndineMailer.getInstance().getUndineConfig();
 
-        if ( mail.getTo().size() < config.getMaxDestination() ) {
+        if ( to.size() < config.getMaxDestination() ) {
             MessageComponent msg = new MessageComponent();
             msg.addText(pre);
 
@@ -731,7 +738,7 @@ public abstract class MailManager {
                         Messages.get("EditmodeToAdd"), ChatColor.AQUA);
                 button.setClickEvent(
                         ClickEventType.SUGGEST_COMMAND,
-                        COMMAND + " to " + (mail.getTo().size()+1) + " ");
+                        COMMAND + " to " + (to.size()+1) + " ");
                 button.setHoverText(Messages.get("EditmodeToAddToolTip"));
                 msg.addParts(button);
 
@@ -741,7 +748,7 @@ public abstract class MailManager {
                 buttonAddress.setClickEvent(
                         ClickEventType.RUN_COMMAND,
                         ListCommand.COMMAND_INDEX + " " + COMMAND
-                            + " to " + (mail.getTo().size()+1));
+                            + " to " + (to.size()+1));
                 msg.addParts(buttonAddress);
 
             }
@@ -749,8 +756,9 @@ public abstract class MailManager {
             sender.sendMessageComponent(msg);
         }
 
-        for ( int i=0; i<mail.getToGroups().size(); i++ ) {
-            GroupData group = parent.getGroupManager().getGroup(mail.getToGroups().get(i));
+        List<String> toGroups = mail.getToGroups();
+        for ( int i=0; i<toGroups.size(); i++ ) {
+            GroupData group = parent.getGroupManager().getGroup(toGroups.get(i));
 
             MessageComponent msg = new MessageComponent();
             msg.addText(pre);
@@ -763,7 +771,7 @@ public abstract class MailManager {
             msg.addParts(buttonDelete);
             msg.addText(" " + ChatColor.WHITE + Messages.get("EditmodeToGroup") + " ",
                     ChatColor.WHITE);
-            MessageParts groupName = new MessageParts(mail.getToGroups().get(i), ChatColor.WHITE);
+            MessageParts groupName = new MessageParts(toGroups.get(i), ChatColor.WHITE);
             if ( group != null ) {
                 groupName.setHoverText(group.getHoverText());
             }
@@ -772,7 +780,7 @@ public abstract class MailManager {
         }
 
         if ( sender.hasPermission(GroupCommand.PERMISSION + ".list") &&
-                mail.getToGroups().size() < config.getMaxDestinationGroup() ) {
+                toGroups.size() < config.getMaxDestinationGroup() ) {
             MessageComponent msg = new MessageComponent();
             msg.addText(pre);
             MessageParts button = new MessageParts(
@@ -780,13 +788,13 @@ public abstract class MailManager {
             button.setClickEvent(
                     ClickEventType.RUN_COMMAND,
                     GroupCommand.COMMAND + " list 1 "
-                            + COMMAND + " to group " + (mail.getToGroups().size()+1));
+                            + COMMAND + " to group " + (toGroups.size()+1));
             msg.addParts(button);
 
             sender.sendMessageComponent(msg);
         }
 
-        for ( int i=0; i<mail.getMessage().size(); i++ ) {
+        for ( int i=0; i<message.size(); i++ ) {
             MessageComponent msg = new MessageComponent();
             msg.addText(pre);
             MessageParts buttonDelete = new MessageParts(
@@ -801,15 +809,15 @@ public abstract class MailManager {
                     Messages.get("EditmodeLineEdit", "%num", i+1), ChatColor.AQUA);
             buttonEdit.setClickEvent(
                     ClickEventType.SUGGEST_COMMAND,
-                    COMMAND + " message " + (i+1) + " " + mail.getMessage().get(i));
+                    COMMAND + " message " + (i+1) + " " + message.get(i));
             buttonEdit.setHoverText(Messages.get("EditmodeLineEditToolTip"));
             msg.addParts(buttonEdit);
-            msg.addText(" " + Utility.replaceColorCode(mail.getMessage().get(i)), ChatColor.WHITE);
+            msg.addText(" " + Utility.replaceColorCode(message.get(i)), ChatColor.WHITE);
             sender.sendMessageComponent(msg);
         }
 
-        if ( mail.getMessage().size() < MailData.MESSAGE_MAX_SIZE ) {
-            int num = mail.getMessage().size() + MESSAGE_ADD_SIZE;
+        if ( message.size() < MailData.MESSAGE_MAX_SIZE ) {
+            int num = message.size() + MESSAGE_ADD_SIZE;
             if ( num > MailData.MESSAGE_MAX_SIZE ) {
                 num = MailData.MESSAGE_MAX_SIZE;
             }
@@ -829,6 +837,10 @@ public abstract class MailManager {
                 sender.hasPermission(PERMISSION_ATTACH_SENDMAIL);
 
         if ( config.isEnableAttachment() && senderHasPermissionOfOpenAttachBox ) {
+            List<ItemStack> attachments = mail.getAttachments();
+            double costMoney = mail.getCostMoney();
+            ItemStack costItem = mail.getCostItem();
+
             MessageComponent msg = new MessageComponent();
             msg.addText(pre);
             MessageParts button = new MessageParts(
@@ -838,19 +850,19 @@ public abstract class MailManager {
                     COMMAND + " attach");
             msg.addParts(button);
             msg.addText(" ");
-            msg.addText(Messages.get("EditmodeAttachNum", "%num", mail.getAttachments().size()));
+            msg.addText(Messages.get("EditmodeAttachNum", "%num", attachments.size()));
             sender.sendMessageComponent(msg);
 
             boolean isEnableCODMoney = (UndineMailer.getInstance().getVaultEco() != null)
                     && config.isEnableCODMoney();
             boolean isEnableCODItem = config.isEnableCODItem();
 
-            if ( mail.getAttachments().size() > 0 && (isEnableCODMoney || isEnableCODItem) ) {
+            if ( attachments.size() > 0 && (isEnableCODMoney || isEnableCODItem) ) {
 
                 MessageComponent msgfee = new MessageComponent();
                 msgfee.addText(pre);
 
-                if ( mail.getCostMoney() == 0 && mail.getCostItem() == null ) {
+                if ( costMoney == 0 && costItem == null ) {
 
                     if ( isEnableCODMoney ) {
                         MessageParts buttonFee = new MessageParts(
@@ -874,12 +886,12 @@ public abstract class MailManager {
                         msgfee.addParts(buttonItem);
                     }
 
-                } else if ( mail.getCostMoney() > 0 ) {
+                } else if ( costMoney > 0 ) {
 
-                    String costDesc = mail.getCostMoney() + "";
+                    String costDesc = String.valueOf(costMoney);
                     VaultEcoBridge eco = UndineMailer.getInstance().getVaultEco();
                     if ( eco != null ) {
-                        costDesc = eco.format(mail.getCostMoney());
+                        costDesc = eco.format(costMoney);
                     }
 
                     MessageParts buttonDelete = new MessageParts(
@@ -894,12 +906,12 @@ public abstract class MailManager {
                             ChatColor.AQUA);
                     buttonFee.setClickEvent(
                             ClickEventType.SUGGEST_COMMAND,
-                            COMMAND + " costmoney " + mail.getCostMoney());
+                            COMMAND + " costmoney " + costMoney);
                     msgfee.addParts(buttonFee);
 
                 } else {
 
-                    String desc = getItemDesc(mail.getCostItem(), true);
+                    String desc = getItemDesc(costItem, true);
 
                     MessageParts buttonDelete = new MessageParts(
                             Messages.get("EditmodeCostItemRemove"), ChatColor.AQUA);
@@ -913,7 +925,7 @@ public abstract class MailManager {
                             ChatColor.AQUA);
                     buttonItem.setClickEvent(
                             ClickEventType.SUGGEST_COMMAND,
-                            COMMAND + " costitem " + getItemDesc(mail.getCostItem(), false));
+                            COMMAND + " costitem " + getItemDesc(costItem, false));
                     msgfee.addParts(buttonItem);
 
                 }
@@ -1208,8 +1220,9 @@ public abstract class MailManager {
      * 言語リソース設定に従ってフォーマットされた日時の文字列を取得します。
      * @param date フォーマットする日時
      * @return フォーマットされた文字列
+     * TODO: privateに戻す。
      */
-    private String getFormattedDate(Date date) {
+    public String getFormattedDate(Date date) {
         return new SimpleDateFormat(Messages.get("DateFormat")).format(date);
     }
 

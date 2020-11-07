@@ -150,8 +150,9 @@ public class UndineTextCommand implements SubCommand {
         }
 
         // メール生成
-        MailData mail = new MailData(
-                targets, ms, message.toString());
+        MailData mail = manager.makeEditmodeMail(ms);
+        mail.addTo(targets);
+        mail.addMessage(message.toString());
         for ( GroupData g : targetGroups ) {
             mail.setToGroup(mail.getToGroups().size(), g.getName());
         }

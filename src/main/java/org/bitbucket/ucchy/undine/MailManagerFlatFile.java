@@ -27,8 +27,8 @@ import org.bukkit.scheduler.BukkitRunnable;
  */
 public class MailManagerFlatFile extends MailManager {
 
-    private ArrayList<MailData> mails;
-    private HashMap<String, MailData> editmodeMails;
+    private ArrayList<MailDataFlatFile> mails;
+    private HashMap<String, MailDataFlatFile> editmodeMails;
     private int nextIndex;
     private boolean isLoaded;
 
@@ -53,7 +53,7 @@ public class MailManagerFlatFile extends MailManager {
             public void run() {
 
                 isLoaded = false;
-                mails = new ArrayList<MailData>();
+                mails = new ArrayList<MailDataFlatFile>();
                 nextIndex = 1;
 
                 File folder = parent.getMailFolder();
@@ -65,7 +65,7 @@ public class MailManagerFlatFile extends MailManager {
 
                 if (files != null) {
                     for (File file : files) {
-                        MailData data = MailData.load(file);
+                        MailDataFlatFile data = MailDataFlatFile.load(file);
                         mails.add(data);
 
                         if (nextIndex <= data.getIndex()) {
@@ -138,98 +138,100 @@ public class MailManagerFlatFile extends MailManager {
      */
     @Override
     public void sendNewMail(MailData mail) {
+        if (!(mail instanceof MailDataFlatFile)) {
+            return;
+        }
+        MailDataFlatFile fileMail = (MailDataFlatFile) mail;
 
         // メールデータの本文が1行も無いときは、ここで1行追加を行う。
-        if (mail.getMessage().size() == 0) {
-            mail.addMessage("");
+        if (fileMail.getMessage().size() == 0) {
+            fileMail.addMessage("");
         }
 
         // ロードが完了していないうちは、メールを送信できないようにする
         if (!isLoaded) {
             UndineMailer.getInstance().getLogger()
                     .warning("Because mailer has not yet been initialized, mailer dropped new mail.");
-            UndineMailer.getInstance().getLogger().warning(mail.getInboxSummary());
+            UndineMailer.getInstance().getLogger().warning(fileMail.getInboxSummary());
             return;
         }
 
         // 統合宛先を設定する。
         ArrayList<MailSender> to_total = new ArrayList<MailSender>();
-        for (MailSender t : mail.getTo()) {
+        for (MailSender t : fileMail.getTo()) {
             if (!to_total.contains(t)) {
                 to_total.add(t);
             }
         }
-        for (GroupData group : mail.getToGroupsConv()) {
+        for (GroupData group : fileMail.getToGroupsConv()) {
             for (MailSender t : group.getMembers()) {
                 if (!to_total.contains(t)) {
                     to_total.add(t);
                 }
             }
         }
-        mail.setToTotal(to_total);
-
-        mail.setEditmode(false);
+        fileMail.setToTotal(to_total);
 
         // インデクスを設定する
-        mail.setIndex(nextIndex);
+        fileMail.setIndex(nextIndex);
         nextIndex++;
 
         // 送信時間を設定する
-        mail.setDate(new Date());
+        fileMail.setDate(new Date());
 
         // 送信地点を設定する
-        mail.setLocation(mail.getFrom().getLocation());
+        fileMail.setLocation(fileMail.getFrom().getLocation());
 
         // オリジナルの添付ファイルを記録する
-        mail.makeAttachmentsOriginal();
+        fileMail.makeAttachmentsOriginal();
 
         // 添付が無いなら、着払い設定はクリアしておく
-        if (mail.getAttachments().size() == 0) {
-            mail.setCostMoney(0);
-            mail.setCostItem(null);
+        if (fileMail.getAttachments().size() == 0) {
+            fileMail.setCostMoney(0);
+            fileMail.setCostItem(null);
         }
 
         // 着払いアイテムが設定されているなら、着払い料金はクリアしておく
-        if (mail.getCostItem() != null) {
-            mail.setCostMoney(0);
+        if (fileMail.getCostItem() != null) {
+            fileMail.setCostMoney(0);
         }
 
         // 着払い料金が無効なら、着払い料金はクリアしておく
         if (!parent.getUndineConfig().isEnableCODMoney()) {
-            mail.setCostMoney(0);
+            fileMail.setCostMoney(0);
         }
 
         // 着払いアイテム無効なら、着払いアイテムはクリアしておく
         if (!parent.getUndineConfig().isEnableCODItem()) {
-            mail.setCostItem(null);
+            fileMail.setCostItem(null);
         }
 
         // 保存する
-        mails.add(mail);
-        saveMail(mail);
+        mails.add(fileMail);
+        saveMail(fileMail);
 
         // 宛先の人がログイン中なら知らせる
-        String msg = Messages.get("InformationYouGotMail", "%from", mail.getFrom().getName());
+        String msg = Messages.get("InformationYouGotMail", "%from", fileMail.getFrom().getName());
 
-        if (mail.isAllMail()) {
+        if (fileMail.isAllMail()) {
             for (Player player : Utility.getOnlinePlayers()) {
                 player.sendMessage(msg);
                 String pre = Messages.get("ListVerticalParts");
-                sendMailLine(MailSender.getMailSender(player), pre, ChatColor.GOLD + mail.getInboxSummary(), mail);
+                sendMailLine(MailSender.getMailSender(player), pre, ChatColor.GOLD + fileMail.getInboxSummary(), fileMail);
             }
         } else {
-            for (MailSender to : mail.getToTotal()) {
+            for (MailSender to : fileMail.getToTotal()) {
                 if (to.isOnline()) {
                     to.sendMessage(msg);
                     String pre = Messages.get("ListVerticalParts");
-                    sendMailLine(to, pre, ChatColor.GOLD + mail.getInboxSummary(), mail);
+                    sendMailLine(to, pre, ChatColor.GOLD + fileMail.getInboxSummary(), fileMail);
                 }
             }
         }
 
         // 送った時刻を、メタデータに記録する
         long time = System.currentTimeMillis();
-        mail.getFrom().setStringMetadata(SENDTIME_METAKEY, time + "");
+        fileMail.getFrom().setStringMetadata(SENDTIME_METAKEY, time + "");
     }
 
     /**
@@ -354,30 +356,6 @@ public class MailManagerFlatFile extends MailManager {
     }
 
     /**
-     * 指定されたメールを開いて確認する
-     * 
-     * @param sender 確認する対象
-     * @param mail   メール
-     */
-    @Override
-    public void displayMail(MailSender sender, MailData mail) {
-
-        // ロード中の場合は、メールを表示できません
-        if (!isLoaded) {
-            return;
-        }
-
-        // 指定されたsenderの画面にメールを表示する
-        displayMailDescription(sender, mail);
-
-        // 添付ボックスがからっぽになっているか、キャンセルされているなら、既読を付ける
-        if (mail.getAttachments().size() == 0 || mail.isAttachmentsCancelled()) {
-            mail.setReadFlag(sender);
-            saveMail(mail);
-        }
-    }
-
-    /**
      * 指定されたメールデータをUndineに保存する
      * 
      * @param mail メールデータ
@@ -390,10 +368,7 @@ public class MailManagerFlatFile extends MailManager {
             return;
         }
 
-        String filename = String.format("%1$08d.yml", mail.getIndex());
-        File folder = parent.getMailFolder();
-        File file = new File(folder, filename);
-        mail.save(file);
+        mail.save();
     }
 
     /**
@@ -457,7 +432,7 @@ public class MailManagerFlatFile extends MailManager {
         if (editmodeMails.containsKey(id)) {
             return editmodeMails.get(id);
         }
-        MailData mail = new MailData();
+        MailDataFlatFile mail = new MailDataFlatFile();
         mail.setFrom(sender);
         editmodeMails.put(id, mail);
         return mail;
@@ -514,7 +489,7 @@ public class MailManagerFlatFile extends MailManager {
     @Override
     protected void restoreEditmodeMail() {
 
-        editmodeMails = new HashMap<String, MailData>();
+        editmodeMails = new HashMap<String, MailDataFlatFile>();
 
         File file = new File(parent.getDataFolder(), "editmails.yml");
         if (!file.exists())
@@ -524,7 +499,7 @@ public class MailManagerFlatFile extends MailManager {
         for (String name : config.getKeys(false)) {
             ConfigurationSection section = config.getConfigurationSection(name);
             if (section != null) {
-                MailData mail = MailData.loadFromConfigSection(section);
+                MailDataFlatFile mail = MailDataFlatFile.loadFromConfigSection(section);
                 editmodeMails.put(name, mail);
             }
         }

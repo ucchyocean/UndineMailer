@@ -323,9 +323,8 @@ public class UndineAttachCommand implements SubCommand {
             manager.saveMail(mail);
 
             // 送信者側に新規メールで、アイテムを差し戻す
-            MailData reply = new MailData();
+            MailData reply = manager.makeEditmodeMail(MailSenderConsole.getMailSenderConsole());
             reply.setTo(0, mail.getFrom());
-            reply.setFrom(MailSenderConsole.getMailSenderConsole());
             reply.addMessage(Messages.get(
                     "BoxRefuseSenderResult",
                     new String[]{"%to", "%num"},
@@ -500,9 +499,8 @@ public class UndineAttachCommand implements SubCommand {
                     new String[]{fee.getType().toString(), fee.getAmount() + ""}));
 
             // メールの送信元に送金
-            MailData reply = new MailData();
+            MailData reply = manager.makeEditmodeMail(ms);
             reply.setTo(0, mail.getFrom());
-            reply.setFrom(ms);
             reply.setMessage(0, Messages.get(
                     "BoxOpenCostItemSenderResult",
                     new String[]{"%to", "%material", "%amount"},
