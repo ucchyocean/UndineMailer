@@ -206,6 +206,9 @@ public class MailManagerFlatFile extends MailManager {
             fileMail.setCostItem(null);
         }
 
+        // 編集中メールだったなら編集中ではなくしておく
+        editmodeMails.values().remove(fileMail);
+
         // 保存する
         mails.add(fileMail);
         saveMail(fileMail);
@@ -362,12 +365,6 @@ public class MailManagerFlatFile extends MailManager {
      */
     @Override
     public void saveMail(MailData mail) {
-
-        // 編集中で未送信のメールは保存できません。
-        if (mail.getIndex() == 0) {
-            return;
-        }
-
         mail.save();
     }
 

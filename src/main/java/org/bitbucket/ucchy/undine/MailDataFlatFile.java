@@ -149,6 +149,7 @@ public class MailDataFlatFile extends MailData {
      */
     @Override
     public void save() {
+        // 編集中で未送信のメールは保存できません。
         if (!isSent()) {
             return;
         }
