@@ -15,6 +15,7 @@ mysqlUser: root
 mysqlPass: password
 mysqlHost: 127.0.0.1
 mysqlPort: 3306
+mysqlDBName: "undinemailer"
 
 # Enable to send mail to oneself.
 enableSendSelf: false

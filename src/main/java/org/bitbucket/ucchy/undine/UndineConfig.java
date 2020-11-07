@@ -10,7 +10,7 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
-import org.bitbucket.ucchy.undine.Database.DatabaseType;
+import org.bitbucket.ucchy.undine.database.Database.DatabaseType;
 import org.bitbucket.ucchy.undine.group.GroupPermissionMode;
 import org.bukkit.configuration.ConfigurationSection;
 import org.bukkit.configuration.file.FileConfiguration;
@@ -42,6 +42,9 @@ public class UndineConfig {
 
     /** MySQLでログインするためのポート */
     private int mysqlPort;
+
+    /** MySQLで使うデータベースの名前 */
+    private String mysqlDBName;
 
     /** メールにアイテムの添付を可能にするかどうか */
     private boolean enableAttachment;
@@ -199,6 +202,7 @@ public class UndineConfig {
         mysqlPass = conf.getString("mysqlPass", "password");
         mysqlHost = conf.getString("mysqlHost", "127.0.0.1");
         mysqlPort = conf.getInt("mysqlPort", 3306);
+        mysqlDBName = conf.getString("mysqlDBName", "undinemailer");
         enableAttachment = conf.getBoolean("enableAttachment", true);
         enableSendFee = conf.getBoolean("enableSendFee", false);
         sendFee = conf.getDouble("sendFee", 10);
@@ -364,6 +368,13 @@ public class UndineConfig {
      */
     public int getMysqlPort() {
         return mysqlPort;
+    }
+
+    /**
+     * @return mysqlDBName
+     */
+    public String getMysqlDBName() {
+        return mysqlDBName;
     }
 
     /**
