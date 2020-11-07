@@ -21,7 +21,6 @@ import org.bukkit.event.inventory.InventoryClickEvent;
 import org.bukkit.event.inventory.InventoryCloseEvent;
 import org.bukkit.event.inventory.InventoryDragEvent;
 import org.bukkit.event.player.PlayerJoinEvent;
-import org.bukkit.event.player.PlayerLoginEvent;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.scheduler.BukkitRunnable;
 
@@ -60,24 +59,6 @@ public class UndineListener implements Listener {
         parent.getBoxManager().syncAttachBox(player);
     }
 
-    @EventHandler
-    public void onPlayerLogin(PlayerLoginEvent event) {
-        Player player = event.getPlayer();
-        if (parent.getUndineConfig().getDatabaseType() == DatabaseType.FLAT_FILE) {
-            if (!player.hasPlayedBefore()) {
-                firstPlayed.add(player);
-            } else {
-                firstPlayed.remove(player);
-            }
-        } else {
-            if (!parent.getDatabase().mailSenderTable.exists(MailSender.getMailSender(player))) {
-                firstPlayed.add(player);
-            } else {
-                firstPlayed.remove(player);
-            }
-        }
-    }
-
     /**
      * プレイヤーがサーバーに参加した時に呼び出されるメソッド
      * @param event
@@ -97,9 +78,11 @@ public class UndineListener implements Listener {
         }
 
         final MailSender sender = MailSender.getMailSender(player);
+        boolean hasPlayedBefore = player.hasPlayedBefore();
 
         // データベースを使っている場合は、初参加のプレイヤーをデータベースに登録する。
         if (config.getDatabaseType() != DatabaseType.FLAT_FILE && firstPlayed.contains(player)) {
+            hasPlayedBefore = parent.getDatabase().mailSenderTable.exists(MailSender.getMailSender(player));
             parent.getDatabase().mailSenderTable.add(sender);
         }
 
@@ -112,9 +95,7 @@ public class UndineListener implements Listener {
         }.runTaskLater(parent, delay * 20);
 
         // 新規プレイヤーの場合は、ウェルカムメールを送る
-        // NOTE: hasPlayedBeforeは初参加のプレイヤーでもPlayerJoinEventが発火されるときにはすでにtrueを返す。
-        //       これを修正するため、PlayerLoginEventを使っている。
-        if ( firstPlayed.contains(player) && config.isUseWelcomeMail() ) {
+        if ( !hasPlayedBefore && config.isUseWelcomeMail() ) {
             MailSender from = MailSenderConsole.getMailSenderConsole();
             List<MailSender> to = new ArrayList<MailSender>();
             to.add(sender);
