@@ -6,6 +6,8 @@
 package org.bitbucket.ucchy.undine;
 
 import java.io.File;
+import java.io.IOException;
+import java.sql.SQLException;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Locale;
@@ -16,6 +18,10 @@ import org.bitbucket.ucchy.undine.bridge.VaultEcoBridge;
 import org.bitbucket.ucchy.undine.command.GroupCommand;
 import org.bitbucket.ucchy.undine.command.ListCommand;
 import org.bitbucket.ucchy.undine.command.UndineCommand;
+import org.bitbucket.ucchy.undine.database.Database;
+import org.bitbucket.ucchy.undine.database.GroupManagerDatabase;
+import org.bitbucket.ucchy.undine.database.MailManagerDatabase;
+import org.bitbucket.ucchy.undine.database.Database.DatabaseType;
 import org.bitbucket.ucchy.undine.group.GroupManager;
 import org.bitbucket.ucchy.undine.group.GroupManagerFlatFile;
 import org.bukkit.Bukkit;
@@ -48,6 +54,8 @@ public class UndineMailer extends JavaPlugin {
     private VaultEcoBridge vaulteco;
     private PermissionsExBridge pex;
 
+    private Database database;
+
     /**
      * プラグインが有効化されたときに呼び出されるメソッド
      * @see org.bukkit.plugin.java.JavaPlugin#onEnable()
@@ -70,10 +78,21 @@ public class UndineMailer extends JavaPlugin {
                     getServer().getPluginManager().getPlugin("PermissionsEx"));
         }
 
-        // マネージャを生成し、データをロードする 
-        // TODO: データベースの実装を注入する
-        groupManager = new GroupManagerFlatFile(this);
-        mailManager = new MailManagerFlatFile(this);
+        // マネージャを生成する
+        try {
+            if (config.getDatabaseType() == DatabaseType.FLAT_FILE) {
+                database = null;
+                groupManager = new GroupManagerFlatFile(this);
+                mailManager = new MailManagerFlatFile(this);
+            } else {
+                database = new Database(this, config.getDatabaseType());
+                groupManager = new GroupManagerDatabase(this);
+                mailManager = new MailManagerDatabase(this);
+            }
+        } catch (SQLException | IOException e) {
+            new IllegalStateException("Could not initialize database.", e);
+        }
+
         boxManager = new AttachmentBoxManager(this);
 
         // メッセージをロードする
@@ -109,6 +128,11 @@ public class UndineMailer extends JavaPlugin {
 
         // タスクを停止する
         cleanupTask.cancel();
+
+        // データベースの終了
+        if (database != null) {
+            database.dispose();
+        }
 
         // 添付ボックスを開いたままにしているプレイヤーの
         // インベントリを強制的に閉じる
@@ -182,6 +206,14 @@ public class UndineMailer extends JavaPlugin {
             folder.mkdirs();
         }
         return folder;
+    }
+
+    /**
+     * データベースを取得する。フラットファイルモードの場合はnullを返す。
+     * @return データベース
+     */
+    public Database getDatabase() {
+        return database;
     }
 
     /**
