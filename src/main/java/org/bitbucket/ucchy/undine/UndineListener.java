@@ -6,9 +6,7 @@
 package org.bitbucket.ucchy.undine;
 
 import java.util.ArrayList;
-import java.util.HashSet;
 import java.util.List;
-import java.util.Set;
 
 import org.bitbucket.ucchy.undine.database.Database.DatabaseType;
 import org.bitbucket.ucchy.undine.sender.MailSender;
@@ -33,8 +31,6 @@ import com.github.ucchyocean.itemconfig.ItemConfigParserV111;
 public class UndineListener implements Listener {
 
     private UndineMailer parent;
-
-    private Set<Player> firstPlayed = new HashSet<>();
 
     /**
      * コンストラクタ
@@ -81,9 +77,11 @@ public class UndineListener implements Listener {
         boolean hasPlayedBefore = player.hasPlayedBefore();
 
         // データベースを使っている場合は、初参加のプレイヤーをデータベースに登録する。
-        if (config.getDatabaseType() != DatabaseType.FLAT_FILE && firstPlayed.contains(player)) {
+        if (config.getDatabaseType() != DatabaseType.FLAT_FILE) {
             hasPlayedBefore = parent.getDatabase().mailSenderTable.exists(MailSender.getMailSender(player));
-            parent.getDatabase().mailSenderTable.add(sender);
+            if (!hasPlayedBefore) {
+                parent.getDatabase().mailSenderTable.add(sender);
+            }
         }
 
         // 未読のメールを遅れて表示する
