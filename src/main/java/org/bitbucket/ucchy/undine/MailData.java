@@ -8,6 +8,7 @@ package org.bitbucket.ucchy.undine;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.List;
+import java.util.Objects;
 
 import org.bitbucket.ucchy.undine.group.GroupData;
 import org.bitbucket.ucchy.undine.group.SpecialGroupAll;
@@ -484,4 +485,20 @@ public abstract class MailData implements Comparable<MailData>, Cloneable {
      * @return アップグレードを実行したかどうか
      */
     protected abstract boolean upgrade();
+
+    @Override
+    public boolean equals(Object o) {
+        if (o == this)
+            return true;
+        if (!(o instanceof MailDataFlatFile)) {
+            return false;
+        }
+        MailDataFlatFile mailDataDatabase = (MailDataFlatFile) o;
+        return index == mailDataDatabase.index;
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hashCode(index);
+    }
 }

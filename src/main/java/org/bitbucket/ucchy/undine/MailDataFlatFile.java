@@ -973,17 +973,6 @@ public class MailDataFlatFile extends MailData {
 
     @Override
     public boolean equals(Object o) {
-        if (o == this)
-            return true;
-        if (!(o instanceof MailDataFlatFile)) {
-            return false;
-        }
-        MailDataFlatFile mailDataDatabase = (MailDataFlatFile) o;
-        return getIndex() == mailDataDatabase.getIndex();
-    }
-
-    @Override
-    public int hashCode() {
-        return Objects.hashCode(getIndex());
+        return super.equals(o) && o instanceof MailDataFlatFile;
     }
 }

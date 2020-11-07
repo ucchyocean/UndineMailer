@@ -818,11 +818,11 @@ public class MailDataDatabase extends MailData {
             return false;
         }
         MailDataDatabase mailDataDatabase = (MailDataDatabase) o;
-        return Objects.equals(getIndex(), mailDataDatabase.getIndex()) && isSent == mailDataDatabase.isSent;
+        return super.equals(o) && isSent == mailDataDatabase.isSent;
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(getIndex(), isSent);
+        return Objects.hash(super.hashCode(), isSent);
     }
 }
