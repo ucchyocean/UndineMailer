@@ -17,19 +17,35 @@ public class GroupDataDatabase extends GroupData {
     private GroupMembersTable groupMembersTable;
     private MailSenderTable mailSenderTable;
 
-    /**
-     * コンストラクタ。初期状態でownerはnull、
-     */
     public GroupDataDatabase(UndineMailer parent, String name) {
         super(parent, name);
         this.groupDataTable = parent.getDatabase().groupDataTable;
         this.groupMembersTable = parent.getDatabase().groupMembersTable;
         this.mailSenderTable = parent.getDatabase().mailSenderTable;
+
+        if (!this.groupDataTable.exists(name)) {
+            throw new IllegalArgumentException("The group " + name + " is not registered on database yet. Specify owner for constructor to register group.");
+        }
+    }
+
+    /**
+     * コンストラクタ
+     */
+    public GroupDataDatabase(UndineMailer parent, String name, MailSender owner) {
+        super(parent, name);
+        this.groupDataTable = parent.getDatabase().groupDataTable;
+        this.groupMembersTable = parent.getDatabase().groupMembersTable;
+        this.mailSenderTable = parent.getDatabase().mailSenderTable;
+        
+        this.groupDataTable.add(name, owner);
+        setSendMode(parent.getUndineConfig().getSendModeDefault());
+        setModifyMode(parent.getUndineConfig().getModifyModeDefault());
+        setDissolutionMode(parent.getUndineConfig().getDissolutionModeDefault());
     }
 
     @Override
     public void save() {
-        groupDataTable.add(name, getOwner(), getSendMode(), getModifyMode(), getDissolutionMode());
+        // Do nothing. データは常にデータベースと同期されているため、保存は不要。
     }
 
     /**

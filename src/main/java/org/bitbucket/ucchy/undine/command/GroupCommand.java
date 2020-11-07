@@ -201,10 +201,8 @@ public class GroupCommand implements TabExecutor {
             sender.sendMessage(Messages.get("ErrorGroupIsAlreadyExist", "%name", name));
             return true;
         }
-
-        parent.getDatabase().groupDataTable.add(name, ms);
         
-        // グループ作成
+        // グループ作成　保存もこのメソッドが行ってくれる
         GroupData.create(parent, name, ms);
 
         // グループリスト表示
