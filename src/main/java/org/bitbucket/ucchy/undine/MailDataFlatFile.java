@@ -10,7 +10,6 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
-import java.util.Objects;
 
 import org.bitbucket.ucchy.undine.group.SpecialGroupAll;
 import org.bitbucket.ucchy.undine.sender.MailSender;
@@ -142,7 +141,7 @@ public class MailDataFlatFile extends MailData {
      */
     @Override
     public boolean isSent() {
-        return index == 0;
+        return index != 0;
     }
 
     /**
