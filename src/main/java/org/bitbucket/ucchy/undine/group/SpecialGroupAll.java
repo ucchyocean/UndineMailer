@@ -5,7 +5,6 @@
  */
 package org.bitbucket.ucchy.undine.group;
 
-import java.io.File;
 import java.util.ArrayList;
 
 import org.bitbucket.ucchy.undine.Messages;
@@ -18,7 +17,7 @@ import org.bukkit.ChatColor;
  * 特殊グループ all
  * @author ucchy
  */
-public class SpecialGroupAll extends GroupData {
+public class SpecialGroupAll extends SpecialGroup {
 
     public static final String NAME = "All";
 
@@ -29,8 +28,18 @@ public class SpecialGroupAll extends GroupData {
         super(NAME);
         setOwner(MailSender.getMailSender(Bukkit.getConsoleSender()));
         setSendMode(UndineMailer.getInstance().getUndineConfig().getSpecialGroupAllSendMode());
-        setModifyMode(GroupPermissionMode.NEVER);
-        setDissolutionMode(GroupPermissionMode.NEVER);
+        super.setModifyMode(GroupPermissionMode.NEVER);
+        super.setDissolutionMode(GroupPermissionMode.NEVER);
+    }
+
+    @Override
+    public void setDissolutionMode(GroupPermissionMode dissolutionMode) {
+        // Do nothing.
+    }
+
+    @Override
+    public void setModifyMode(GroupPermissionMode modifyMode) {
+        // Do nothing.
     }
 
     /**
@@ -41,7 +50,7 @@ public class SpecialGroupAll extends GroupData {
     @Override
     @Deprecated
     public ArrayList<MailSender> getMembers() {
-        return super.getMembers();
+        return new ArrayList<>();
     }
 
     /**
@@ -53,18 +62,6 @@ public class SpecialGroupAll extends GroupData {
     @Override
     public boolean isMember(MailSender sender) {
         return true; // 常にtrueを返す
-    }
-
-    /**
-     * ファイルにグループを保存する
-     * @param file ファイル
-     * @see org.bitbucket.ucchy.undine.group.GroupData#saveToFile(java.io.File)
-     * @deprecated このメソッドは実際は何も実行されません。
-     */
-    @Override
-    @Deprecated
-    protected void saveToFile(File file) {
-        // do nothing.
     }
 
     /**

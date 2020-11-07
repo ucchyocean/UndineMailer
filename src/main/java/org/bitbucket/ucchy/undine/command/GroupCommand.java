@@ -202,9 +202,10 @@ public class GroupCommand implements TabExecutor {
             return true;
         }
 
+        parent.getDatabase().groupDataTable.add(name, ms);
+        
         // グループ作成
-        GroupData group = new GroupData(name, ms);
-        manager.addGroup(group);
+        GroupData.create(parent, name, ms);
 
         // グループリスト表示
         parent.getGroupManager().displayGroupList(ms, 1);

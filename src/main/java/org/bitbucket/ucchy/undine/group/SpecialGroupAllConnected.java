@@ -5,7 +5,6 @@
  */
 package org.bitbucket.ucchy.undine.group;
 
-import java.io.File;
 import java.util.ArrayList;
 
 import org.bitbucket.ucchy.undine.Messages;
@@ -19,7 +18,7 @@ import org.bukkit.ChatColor;
  * 特殊グループ AllConnected
  * @author ucchy
  */
-public class SpecialGroupAllConnected extends GroupData {
+public class SpecialGroupAllConnected extends SpecialGroup {
 
     public static final String NAME = "AllConnected";
 
@@ -59,18 +58,6 @@ public class SpecialGroupAllConnected extends GroupData {
             return false;
         }
         return ((MailSenderPlayer)sender).isUuidCached();
-    }
-
-    /**
-     * ファイルにグループを保存する
-     * @param file ファイル
-     * @see org.bitbucket.ucchy.undine.group.GroupData#saveToFile(java.io.File)
-     * @deprecated このメソッドは実際は何も実行されません。
-     */
-    @Override
-    @Deprecated
-    protected void saveToFile(File file) {
-        // do nothing.
     }
 
     /**

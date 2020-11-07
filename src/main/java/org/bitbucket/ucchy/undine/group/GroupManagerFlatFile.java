@@ -49,18 +49,15 @@ public class GroupManagerFlatFile extends GroupManager {
 
         if ( files != null ) {
             for ( File f : files ) {
-                GroupData group = GroupData.loadFromFile(f);
+                GroupData group = GroupDataFlatFile.loadFromFile(parent, f);
                 groups.put(group.getName().toLowerCase(), group);
             }
         }
 
         // 特殊グループを追加する
-        GroupData all = new SpecialGroupAll();
-        groups.put(all.getName().toLowerCase(), all);
-        GroupData allConnected = new SpecialGroupAllConnected();
-        groups.put(allConnected.getName().toLowerCase(), allConnected);
-        GroupData allLogin = new SpecialGroupAllLogin();
-        groups.put(allLogin.getName().toLowerCase(), allLogin);
+        groups.put(groupAll.getName().toLowerCase(), groupAll);
+        groups.put(groupAllConnected.getName().toLowerCase(), groupAllConnected);
+        groups.put(groupAllLogin.getName().toLowerCase(), groupAllLogin);
 
         // アップグレード処理
         start = System.currentTimeMillis();
@@ -89,15 +86,8 @@ public class GroupManagerFlatFile extends GroupManager {
     @Override
     public GroupData getGroup(String name) {
         name = name.toLowerCase();
-
-        // PEXから取得する
-        if ( name.startsWith(SpecialGroupPex.NAME_PREFIX) && pexGroupsCache != null ) {
-            if ( pexGroupsCache.containsKey(name) ) {
-                return pexGroupsCache.get(name);
-            }
-        }
-
-        return groups.get(name);
+        GroupData pexGroup = getPexGroup(name);
+        return pexGroup != null ? pexGroup : groups.get(name);
     }
 
     @Override
@@ -141,9 +131,7 @@ public class GroupManagerFlatFile extends GroupManager {
 
     @Override
     public void saveGroupData(GroupData group) {
-        File folder = parent.getGroupFolder();
-        File file = new File(folder, group.getName().toLowerCase() + ".yml");
-        group.saveToFile(file);
+        group.save();
     }
 
     @Override

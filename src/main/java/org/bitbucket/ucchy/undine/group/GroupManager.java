@@ -45,6 +45,11 @@ public abstract class GroupManager {
     private static final String PERMISSION_INFINITE_ADD_MEMBER = GroupCommand.PERMISSION_INFINITE_ADD_MEMBER;
 
     protected UndineMailer parent;
+
+    protected SpecialGroupAll groupAll = new SpecialGroupAll();
+    protected SpecialGroupAllConnected groupAllConnected = new SpecialGroupAllConnected();
+    protected SpecialGroupAllLogin groupAllLogin = new SpecialGroupAllLogin();
+
     protected HashMap<String, GroupData> pexGroupsCache;
 
     /**
@@ -107,6 +112,28 @@ public abstract class GroupManager {
      * @param group グループ
      */
     public abstract void saveGroupData(GroupData group);
+
+    /**
+     * @return すべてのプレイヤーを示すグループ
+     */
+    public SpecialGroupAll getGroupAll() {
+        return groupAll;
+    }
+
+    /**
+     * @return サーバーの起動している間に接続したすべてのプレイヤーを示すグループ
+     */
+    public SpecialGroupAllConnected getGroupAllConnected() {
+        return groupAllConnected;
+    }
+
+    /**
+     * @return 現在ログインしているすべてのプレイヤーを示すグループ。別のサーバーのプレイヤーは含まれない。
+     * TODO: mailsenderのデータベーススキーマを変更して含ませる。
+     */
+    public SpecialGroupAllLogin getGroupAllLogin() {
+        return groupAllLogin;
+    }
 
     /**
      * グループ名として使用できる名前かどうかを確認する
@@ -707,6 +734,29 @@ public abstract class GroupManager {
         msg.addText(" " + parts);
 
         sender.sendMessageComponent(msg);
+    }
+
+    /**
+     * PEXからグループを取得する。
+     * @param name グループ名
+     * @return PEXからインポートされたグループ
+     */
+    protected GroupData getPexGroup(String name) {
+        if ( name.startsWith(SpecialGroupPex.NAME_PREFIX) && pexGroupsCache != null ) {
+            if ( pexGroupsCache.containsKey(name) ) {
+                return pexGroupsCache.get(name);
+            }
+        }
+
+        if (pexGroupsCache == null) {
+            for (GroupData group : getPexGroups()) {
+                if (group.getName().equals(name)) {
+                    return group;
+                }
+            }
+        }
+
+        return null;
     }
 
     /**
