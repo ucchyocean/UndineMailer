@@ -9,7 +9,7 @@
 lang: ja
 
 # データベースの設定
-# databaseTypeにはmysqlかsqliteを指定します。
+# databaseTypeにはmysqlかsqlite、あるいはflatfileを指定します。
 databaseType: sqlite
 mysqlUser: root
 mysqlPass: password
