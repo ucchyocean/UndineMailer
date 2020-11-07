@@ -25,7 +25,10 @@ import org.bukkit.metadata.MetadataValue;
  */
 public class MailSenderBlock extends MailSender {
 
-    BlockCommandSender sender;
+    private final BlockCommandSender sender;
+
+    private final String name;
+    private final Location location;
 
     /**
      * コンストラクタ
@@ -33,6 +36,14 @@ public class MailSenderBlock extends MailSender {
      */
     public MailSenderBlock(BlockCommandSender sender) {
         this.sender = sender;
+        this.name = sender.getName();
+        this.location = sender.getBlock().getLocation();
+    }
+
+    public MailSenderBlock(String name, Location location) {
+        this.sender = null;
+        this.name = name;
+        this.location = location;
     }
 
     /**
@@ -61,8 +72,9 @@ public class MailSenderBlock extends MailSender {
      */
     @Override
     public String getName() {
-        if ( sender == null ) return "@";
-        return sender.getName();
+        if ( sender != null ) return sender.getName();
+        if ( name != null ) return name;
+        return "@";
     }
 
     /**
@@ -72,8 +84,7 @@ public class MailSenderBlock extends MailSender {
      */
     @Override
     public String getDisplayName() {
-        if ( sender == null ) return "@";
-        return sender.getName();
+        return getName();
     }
 
     /**
@@ -123,8 +134,9 @@ public class MailSenderBlock extends MailSender {
      */
     @Override
     public String getWorldName() {
-        if ( sender == null || sender.getBlock() == null ) return "";
-        return sender.getBlock().getWorld().getName();
+        if ( sender != null && sender.getBlock() != null ) return sender.getBlock().getWorld().getName();
+        if ( location != null && location.getWorld() != null ) return location.getWorld().getName();
+        return "";
     }
 
     /**

@@ -6,8 +6,11 @@
 package org.bitbucket.ucchy.undine;
 
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
+import org.bitbucket.ucchy.undine.database.Database.DatabaseType;
 import org.bitbucket.ucchy.undine.sender.MailSender;
 import org.bitbucket.ucchy.undine.sender.MailSenderConsole;
 import org.bukkit.Material;
@@ -18,6 +21,7 @@ import org.bukkit.event.inventory.InventoryClickEvent;
 import org.bukkit.event.inventory.InventoryCloseEvent;
 import org.bukkit.event.inventory.InventoryDragEvent;
 import org.bukkit.event.player.PlayerJoinEvent;
+import org.bukkit.event.player.PlayerLoginEvent;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.scheduler.BukkitRunnable;
 
@@ -30,6 +34,8 @@ import com.github.ucchyocean.itemconfig.ItemConfigParserV111;
 public class UndineListener implements Listener {
 
     private UndineMailer parent;
+
+    private Set<Player> firstPlayed = new HashSet<>();
 
     /**
      * コンストラクタ
@@ -54,6 +60,24 @@ public class UndineListener implements Listener {
         parent.getBoxManager().syncAttachBox(player);
     }
 
+    @EventHandler
+    public void onPlayerLogin(PlayerLoginEvent event) {
+        Player player = event.getPlayer();
+        if (parent.getUndineConfig().getDatabaseType() == DatabaseType.FLAT_FILE) {
+            if (!player.hasPlayedBefore()) {
+                firstPlayed.add(player);
+            } else {
+                firstPlayed.remove(player);
+            }
+        } else {
+            if (!parent.getDatabase().mailSenderTable.exists(MailSender.getMailSender(player))) {
+                firstPlayed.add(player);
+            } else {
+                firstPlayed.remove(player);
+            }
+        }
+    }
+
     /**
      * プレイヤーがサーバーに参加した時に呼び出されるメソッド
      * @param event
@@ -74,6 +98,11 @@ public class UndineListener implements Listener {
 
         final MailSender sender = MailSender.getMailSender(player);
 
+        // データベースを使っている場合は、初参加のプレイヤーをデータベースに登録する。
+        if (config.getDatabaseType() != DatabaseType.FLAT_FILE && firstPlayed.contains(player)) {
+            parent.getDatabase().mailSenderTable.add(sender);
+        }
+
         // 未読のメールを遅れて表示する
         int delay = config.getLoginNotificationDelaySeconds();
         new BukkitRunnable() {
@@ -83,7 +112,9 @@ public class UndineListener implements Listener {
         }.runTaskLater(parent, delay * 20);
 
         // 新規プレイヤーの場合は、ウェルカムメールを送る
-        if ( !player.hasPlayedBefore() && config.isUseWelcomeMail() ) {
+        // NOTE: hasPlayedBeforeは初参加のプレイヤーでもPlayerJoinEventが発火されるときにはすでにtrueを返す。
+        //       これを修正するため、PlayerLoginEventを使っている。
+        if ( firstPlayed.contains(player) && config.isUseWelcomeMail() ) {
             MailSender from = MailSenderConsole.getMailSenderConsole();
             List<MailSender> to = new ArrayList<MailSender>();
             to.add(sender);
@@ -92,11 +123,18 @@ public class UndineListener implements Listener {
                 message.add(msg);
             }
             List<ItemStack> attachments = cloneItemStackList(config.getWelcomeMailAttachments());
-            final MailData mail = new MailData(to, from, message, attachments);
+            MailManager manager = parent.getMailManager();
             int welcomeDelay = config.getWelcomeMailDelaySeconds();
             new BukkitRunnable() {
                 public void run() {
-                    parent.getMailManager().sendNewMail(mail);
+                    // メールの作成と送信の処理が離れすぎると
+                    // その間にメールが送信されたときにIndexが競合して
+                    // 最終的にNPEが発生するため、作成と送信は同時にする。
+                    final MailData mail = manager.makeEditmodeMail(from);
+                    mail.addTo(to);
+                    mail.setMessage(message);
+                    mail.setAttachments(attachments);
+                    manager.sendNewMail(mail);
                 }
             }.runTaskLater(parent, welcomeDelay * 20);
         }
