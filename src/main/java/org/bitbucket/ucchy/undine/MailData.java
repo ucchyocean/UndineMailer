@@ -24,7 +24,9 @@ public abstract class MailData implements Comparable<MailData>, Cloneable {
     public static final int MESSAGE_MAX_SIZE = 15;
     private static final int SUMMARY_MAX_SIZE = 45;
 
-    private int index = 0;
+    protected int index = 0;
+    
+    /** メールが送信されたかどうか。Database モード用の変数であり、フラットファイルモードでは index == 0 のとき isSent == true と判定する */
     private boolean isSent;
 
     /**

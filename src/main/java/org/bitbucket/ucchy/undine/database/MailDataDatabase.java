@@ -63,7 +63,7 @@ public class MailDataDatabase extends MailData {
      */
     @Override
     public MailDataDatabase clone() {
-        return new MailDataDatabase(database, getIndex(), isSent);
+        return new MailDataDatabase(database, index, isSent);
     }
 
     /**
@@ -72,11 +72,11 @@ public class MailDataDatabase extends MailData {
     @Override
     public void deleteAllTo() {
         if (isSent()) {
-            database.mailRecipientsTable.clearRecipient(getIndex());
-            database.mailRecipientGroupsTable.clearGroup(getIndex());
+            database.mailRecipientsTable.clearRecipient(index);
+            database.mailRecipientGroupsTable.clearGroup(index);
         } else {
-            database.draftMailRecipientsTable.clearRecipient(getIndex());
-            database.draftMailRecipientGroupsTable.clearGroup(getIndex());
+            database.draftMailRecipientsTable.clearRecipient(index);
+            database.draftMailRecipientGroupsTable.clearGroup(index);
         }
     }
 
@@ -89,9 +89,9 @@ public class MailDataDatabase extends MailData {
     public List<MailSender> getTo() {
         List<Integer> recipientIds;
         if (isSent()) {
-            recipientIds = database.mailRecipientsTable.getRecipients(getIndex());
+            recipientIds = database.mailRecipientsTable.getRecipients(index);
         } else {
-            recipientIds = database.draftMailRecipientsTable.getRecipients(getIndex());
+            recipientIds = database.draftMailRecipientsTable.getRecipients(index);
         }
         return new ArrayList<>(database.mailSenderTable.getByIds(recipientIds).values());
     }
@@ -106,28 +106,28 @@ public class MailDataDatabase extends MailData {
     public void setTo(int line, MailSender to) {
         if (isSent()) {
             ArrayList<MailSender> recipients = new ArrayList<>(
-                    database.mailSenderTable.getByIds(database.mailRecipientsTable.getRecipients(getIndex())).values());
+                    database.mailSenderTable.getByIds(database.mailRecipientsTable.getRecipients(index)).values());
             recipients.sort((o1, o2) -> o1.getName().compareToIgnoreCase(o2.getName()));
             if (recipients.size() > line) {
-                database.mailRecipientsTable.removeRecipient(getIndex(),
+                database.mailRecipientsTable.removeRecipient(index,
                         database.mailSenderTable.getId(recipients.get(line)));
             }
-            database.mailRecipientsTable.addRecipient(getIndex(), database.mailSenderTable.getId(to));
+            database.mailRecipientsTable.addRecipient(index, database.mailSenderTable.getId(to));
 
             // 全体グループを除去しておく。
-            database.mailRecipientGroupsTable.removeGroup(getIndex(), SpecialGroupAll.NAME);
+            database.mailRecipientGroupsTable.removeGroup(index, SpecialGroupAll.NAME);
         } else {
             ArrayList<MailSender> recipients = new ArrayList<>(database.mailSenderTable
-                    .getByIds(database.draftMailRecipientsTable.getRecipients(getIndex())).values());
+                    .getByIds(database.draftMailRecipientsTable.getRecipients(index)).values());
             recipients.sort((o1, o2) -> o1.getName().compareToIgnoreCase(o2.getName()));
             if (recipients.size() > line) {
-                database.draftMailRecipientsTable.removeRecipient(getIndex(),
+                database.draftMailRecipientsTable.removeRecipient(index,
                         database.mailSenderTable.getId(recipients.get(line)));
             }
-            database.draftMailRecipientsTable.addRecipient(getIndex(), database.mailSenderTable.getId(to));
+            database.draftMailRecipientsTable.addRecipient(index, database.mailSenderTable.getId(to));
 
             // 全体グループを除去しておく。
-            database.draftMailRecipientGroupsTable.removeGroup(getIndex(), SpecialGroupAll.NAME);
+            database.draftMailRecipientGroupsTable.removeGroup(index, SpecialGroupAll.NAME);
         }
     }
 
@@ -139,16 +139,16 @@ public class MailDataDatabase extends MailData {
     @Override
     public void addTo(MailSender to) {
         if (isSent()) {
-            database.mailRecipientsTable.addRecipient(getIndex(), database.mailSenderTable.getId(to));
+            database.mailRecipientsTable.addRecipient(index, database.mailSenderTable.getId(to));
 
             // 全体グループは除去しておく。
-            database.mailRecipientGroupsTable.removeGroup(getIndex(),
+            database.mailRecipientGroupsTable.removeGroup(index,
                     UndineMailer.getInstance().getGroupManager().getGroupAll().getName());
         } else {
-            database.draftMailRecipientsTable.addRecipient(getIndex(), database.mailSenderTable.getId(to));
+            database.draftMailRecipientsTable.addRecipient(index, database.mailSenderTable.getId(to));
 
             // 全体グループは除去しておく。
-            database.draftMailRecipientGroupsTable.removeGroup(getIndex(),
+            database.draftMailRecipientGroupsTable.removeGroup(index,
                     UndineMailer.getInstance().getGroupManager().getGroupAll().getName());
         }
     }
@@ -164,16 +164,16 @@ public class MailDataDatabase extends MailData {
             return;
         }
         if (isSent()) {
-            database.mailRecipientsTable.addRecipients(getIndex(), database.mailSenderTable.getIds(to));
+            database.mailRecipientsTable.addRecipients(index, database.mailSenderTable.getIds(to));
 
             // 全体グループは除去しておく。
-            database.mailRecipientGroupsTable.removeGroup(getIndex(),
+            database.mailRecipientGroupsTable.removeGroup(index,
                     UndineMailer.getInstance().getGroupManager().getGroupAll().getName());
         } else {
-            database.draftMailRecipientsTable.addRecipients(getIndex(), database.mailSenderTable.getIds(to));
+            database.draftMailRecipientsTable.addRecipients(index, database.mailSenderTable.getIds(to));
 
             // 全体グループは除去しておく。
-            database.draftMailRecipientGroupsTable.removeGroup(getIndex(),
+            database.draftMailRecipientGroupsTable.removeGroup(index,
                     UndineMailer.getInstance().getGroupManager().getGroupAll().getName());
         }
     }
@@ -187,18 +187,18 @@ public class MailDataDatabase extends MailData {
     public void deleteTo(int line) {
         if (isSent()) {
             ArrayList<MailSender> recipients = new ArrayList<>(
-                    database.mailSenderTable.getByIds(database.mailRecipientsTable.getRecipients(getIndex())).values());
+                    database.mailSenderTable.getByIds(database.mailRecipientsTable.getRecipients(index)).values());
             recipients.sort((o1, o2) -> o1.getName().compareToIgnoreCase(o2.getName()));
             if (recipients.size() > line) {
-                database.mailRecipientsTable.removeRecipient(getIndex(),
+                database.mailRecipientsTable.removeRecipient(index,
                         database.mailSenderTable.getId(recipients.get(line)));
             }
         } else {
             ArrayList<MailSender> recipients = new ArrayList<>(database.mailSenderTable
-                    .getByIds(database.draftMailRecipientsTable.getRecipients(getIndex())).values());
+                    .getByIds(database.draftMailRecipientsTable.getRecipients(index)).values());
             recipients.sort((o1, o2) -> o1.getName().compareToIgnoreCase(o2.getName()));
             if (recipients.size() > line) {
-                database.draftMailRecipientsTable.removeRecipient(getIndex(),
+                database.draftMailRecipientsTable.removeRecipient(index,
                         database.mailSenderTable.getId(recipients.get(line)));
             }
         }
@@ -212,9 +212,9 @@ public class MailDataDatabase extends MailData {
     @Override
     public MailSender getFrom() {
         if (isSent()) {
-            return database.mailDataTable.getSenderById(getIndex());
+            return database.mailDataTable.getSenderById(index);
         } else {
-            return database.draftMailDataTable.getSenderById(getIndex());
+            return database.draftMailDataTable.getSenderById(index);
         }
     }
 
@@ -240,10 +240,10 @@ public class MailDataDatabase extends MailData {
     @Override
     public List<String> getMessage() {
         if (isSent()) {
-            String message = database.mailDataTable.getMessage(getIndex());
+            String message = database.mailDataTable.getMessage(index);
             return message == null ? new ArrayList<>() : new ArrayList<>(Arrays.asList(message.split("\r\n|\r|\n", -1)));
         } else {
-            String message = database.draftMailDataTable.getMessage(getIndex());
+            String message = database.draftMailDataTable.getMessage(index);
             return message == null ? new ArrayList<>() : new ArrayList<>(Arrays.asList(message.split("\r\n|\r|\n", -1)));
         }
     }
@@ -257,9 +257,9 @@ public class MailDataDatabase extends MailData {
     public void setMessage(List<String> message) {
         if (message.isEmpty()) {
             if (isSent()) {
-                database.mailDataTable.setMessage(getIndex(), null);
+                database.mailDataTable.setMessage(index, null);
             } else {
-                database.draftMailDataTable.setMessage(getIndex(), null);
+                database.draftMailDataTable.setMessage(index, null);
             }
             return;
         }
@@ -273,9 +273,9 @@ public class MailDataDatabase extends MailData {
             messageBuilder.append("\n");
         }
         if (isSent()) {
-            database.mailDataTable.setMessage(getIndex(), messageBuilder.toString());
+            database.mailDataTable.setMessage(index, messageBuilder.toString());
         } else {
-            database.draftMailDataTable.setMessage(getIndex(), messageBuilder.toString());
+            database.draftMailDataTable.setMessage(index, messageBuilder.toString());
         }
     }
 
@@ -333,9 +333,9 @@ public class MailDataDatabase extends MailData {
     @Override
     public List<String> getToGroups() {
         if (isSent()) {
-            return database.mailRecipientGroupsTable.getGroups(getIndex());
+            return database.mailRecipientGroupsTable.getGroups(index);
         } else {
-            return database.draftMailRecipientGroupsTable.getGroups(getIndex());
+            return database.draftMailRecipientGroupsTable.getGroups(index);
         }
     }
 
@@ -351,47 +351,47 @@ public class MailDataDatabase extends MailData {
             // 追加するグループが全体グループなら、
             // 他の宛先を全て削除する
             if (SpecialGroupAll.NAME.equals(group)) {
-                database.mailRecipientsTable.clearRecipient(getIndex());
-                database.mailRecipientGroupsTable.clearGroup(getIndex());
-                database.mailRecipientGroupsTable.addGroup(getIndex(), group);
+                database.mailRecipientsTable.clearRecipient(index);
+                database.mailRecipientGroupsTable.clearGroup(index);
+                database.mailRecipientGroupsTable.addGroup(index, group);
                 return;
             }
 
-            List<String> groups = database.mailRecipientGroupsTable.getGroups(getIndex());
+            List<String> groups = database.mailRecipientGroupsTable.getGroups(index);
             groups.sort(String::compareToIgnoreCase);
             if (groups.size() <= line) {
-                database.mailRecipientGroupsTable.addGroup(getIndex(), group);
+                database.mailRecipientGroupsTable.addGroup(index, group);
             } else if (groups.size() > line) {
-                database.mailRecipientGroupsTable.removeGroup(getIndex(), groups.get(line));
-                database.mailRecipientGroupsTable.addGroup(getIndex(), group);
+                database.mailRecipientGroupsTable.removeGroup(index, groups.get(line));
+                database.mailRecipientGroupsTable.addGroup(index, group);
             }
 
             // 全体グループが含まれていたなら、全体グループを除去する
             if (groups.contains(SpecialGroupAll.NAME)) {
-                database.mailRecipientGroupsTable.removeGroup(getIndex(), SpecialGroupAll.NAME);
+                database.mailRecipientGroupsTable.removeGroup(index, SpecialGroupAll.NAME);
             }
         } else {
             // 追加するグループが全体グループなら、
             // 他の宛先を全て削除する
             if (SpecialGroupAll.NAME.equals(group)) {
-                database.draftMailRecipientsTable.clearRecipient(getIndex());
-                database.draftMailRecipientGroupsTable.clearGroup(getIndex());
-                database.draftMailRecipientGroupsTable.addGroup(getIndex(), group);
+                database.draftMailRecipientsTable.clearRecipient(index);
+                database.draftMailRecipientGroupsTable.clearGroup(index);
+                database.draftMailRecipientGroupsTable.addGroup(index, group);
                 return;
             }
 
-            List<String> groups = database.draftMailRecipientGroupsTable.getGroups(getIndex());
+            List<String> groups = database.draftMailRecipientGroupsTable.getGroups(index);
             groups.sort(String::compareToIgnoreCase);
             if (groups.size() <= line) {
-                database.draftMailRecipientGroupsTable.addGroup(getIndex(), group);
+                database.draftMailRecipientGroupsTable.addGroup(index, group);
             } else if (groups.size() > line) {
-                database.draftMailRecipientGroupsTable.removeGroup(getIndex(), groups.get(line));
-                database.draftMailRecipientGroupsTable.addGroup(getIndex(), group);
+                database.draftMailRecipientGroupsTable.removeGroup(index, groups.get(line));
+                database.draftMailRecipientGroupsTable.addGroup(index, group);
             }
 
             // 全体グループが含まれていたなら、全体グループを除去する
             if (groups.contains(SpecialGroupAll.NAME)) {
-                database.draftMailRecipientGroupsTable.removeGroup(getIndex(), SpecialGroupAll.NAME);
+                database.draftMailRecipientGroupsTable.removeGroup(index, SpecialGroupAll.NAME);
             }
 
         }
@@ -405,18 +405,18 @@ public class MailDataDatabase extends MailData {
     @Override
     public void deleteToGroup(int line) {
         if (isSent()) {
-            List<String> groups = database.mailRecipientGroupsTable.getGroups(getIndex());
+            List<String> groups = database.mailRecipientGroupsTable.getGroups(index);
             groups.sort(String::compareToIgnoreCase);
             if (groups.size() > line && line >= 0) {
                 String removal = groups.get(line);
-                database.mailRecipientGroupsTable.removeGroup(getIndex(), removal);
+                database.mailRecipientGroupsTable.removeGroup(index, removal);
             }
         } else {
-            List<String> groups = database.draftMailRecipientGroupsTable.getGroups(getIndex());
+            List<String> groups = database.draftMailRecipientGroupsTable.getGroups(index);
             groups.sort(String::compareToIgnoreCase);
             if (groups.size() > line && line >= 0) {
                 String removal = groups.get(line);
-                database.draftMailRecipientGroupsTable.removeGroup(getIndex(), removal);
+                database.draftMailRecipientGroupsTable.removeGroup(index, removal);
             }
         }
     }
@@ -452,9 +452,9 @@ public class MailDataDatabase extends MailData {
     @Override
     public List<ItemStack> getAttachments() {
         if (isSent()) {
-            return database.mailAttachmentBoxTable.getAttachmentBoxOf(getIndex());
+            return database.mailAttachmentBoxTable.getAttachmentBoxOf(index);
         } else {
-            return database.draftMailAttachmentBoxTable.getAttachmentBoxOf(getIndex());
+            return database.draftMailAttachmentBoxTable.getAttachmentBoxOf(index);
         }
     }
 
@@ -466,9 +466,9 @@ public class MailDataDatabase extends MailData {
     @Override
     public void setAttachments(List<ItemStack> attachments) {
         if (isSent()) {
-            database.mailAttachmentBoxTable.setAttachmentBox(getIndex(), attachments);
+            database.mailAttachmentBoxTable.setAttachmentBox(index, attachments);
         } else {
-            database.draftMailAttachmentBoxTable.setAttachmentBox(getIndex(), attachments);
+            database.draftMailAttachmentBoxTable.setAttachmentBox(index, attachments);
         }
     }
 
@@ -495,7 +495,7 @@ public class MailDataDatabase extends MailData {
             return new ArrayList<>();
         }
         return new ArrayList<>(
-                database.mailSenderTable.getByIds(database.mailRecipientsTable.getWhoRead(getIndex())).values());
+                database.mailSenderTable.getByIds(database.mailRecipientsTable.getWhoRead(index)).values());
     }
 
     /**
@@ -509,7 +509,7 @@ public class MailDataDatabase extends MailData {
             return new ArrayList<>();
         }
         return new ArrayList<>(
-                database.mailSenderTable.getByIds(database.mailRecipientsTable.getWhoTrash(getIndex())).values());
+                database.mailSenderTable.getByIds(database.mailRecipientsTable.getWhoTrash(index)).values());
     }
 
     /**
@@ -520,9 +520,9 @@ public class MailDataDatabase extends MailData {
     @Override
     public double getCostMoney() {
         if (isSent()) {
-            return database.mailDataTable.getCostMoney(getIndex());
+            return database.mailDataTable.getCostMoney(index);
         } else {
-            return database.draftMailDataTable.getCostMoney(getIndex());
+            return database.draftMailDataTable.getCostMoney(index);
         }
     }
 
@@ -534,9 +534,9 @@ public class MailDataDatabase extends MailData {
     @Override
     public void setCostMoney(double feeMoney) {
         if (isSent()) {
-            database.mailDataTable.setCostMoney(getIndex(), feeMoney);
+            database.mailDataTable.setCostMoney(index, feeMoney);
         } else {
-            database.draftMailDataTable.setCostMoney(getIndex(), feeMoney);
+            database.draftMailDataTable.setCostMoney(index, feeMoney);
         }
     }
 
@@ -548,9 +548,9 @@ public class MailDataDatabase extends MailData {
     @Override
     public ItemStack getCostItem() {
         if (!isSent()) {
-            return database.mailDataTable.getCostItem(getIndex());
+            return database.mailDataTable.getCostItem(index);
         } else {
-            return database.draftMailDataTable.getCostItem(getIndex());
+            return database.draftMailDataTable.getCostItem(index);
         }
     }
 
@@ -562,9 +562,9 @@ public class MailDataDatabase extends MailData {
     @Override
     public void setCostItem(ItemStack feeItem) {
         if (!isSent()) {
-            database.mailDataTable.setCostItem(getIndex(), feeItem);
+            database.mailDataTable.setCostItem(index, feeItem);
         } else {
-            database.draftMailDataTable.setCostItem(getIndex(), feeItem);
+            database.draftMailDataTable.setCostItem(index, feeItem);
         }
     }
 
@@ -576,7 +576,7 @@ public class MailDataDatabase extends MailData {
     @Override
     public Date getDate() {
         if (isSent()) {
-            return database.mailDataTable.getDate(getIndex());
+            return database.mailDataTable.getDate(index);
         }
         return null;
     }
@@ -589,7 +589,7 @@ public class MailDataDatabase extends MailData {
     @Override
     protected void setDate(Date date) {
         if (isSent()) {
-            database.mailDataTable.setDate(getIndex(), date);
+            database.mailDataTable.setDate(index, date);
         }
     }
 
@@ -601,7 +601,7 @@ public class MailDataDatabase extends MailData {
     @Override
     public Location getLocation() {
         if (isSent()) {
-            return database.mailDataTable.getLocation(getIndex());
+            return database.mailDataTable.getLocation(index);
         }
         return null;
     }
@@ -614,7 +614,7 @@ public class MailDataDatabase extends MailData {
     @Override
     public void setLocation(Location location) {
         if (isSent()) {
-            database.mailDataTable.setLocation(getIndex(), location);
+            database.mailDataTable.setLocation(index, location);
         }
     }
 
@@ -626,7 +626,7 @@ public class MailDataDatabase extends MailData {
     @Override
     public List<ItemStack> getAttachmentsOriginal() {
         if (isSent()) {
-            return database.mailAttachmentBoxSnapshotTable.getAttachmentBoxOf(getIndex());
+            return database.mailAttachmentBoxSnapshotTable.getAttachmentBoxOf(index);
         } else {
             return new ArrayList<>();
         }
@@ -637,7 +637,7 @@ public class MailDataDatabase extends MailData {
      */
     @Override
     protected void makeAttachmentsOriginal() {
-        database.mailAttachmentBoxSnapshotTable.setAttachmentBox(getIndex(), getAttachments());
+        database.mailAttachmentBoxSnapshotTable.setAttachmentBox(index, getAttachments());
     }
 
     /**
@@ -651,7 +651,7 @@ public class MailDataDatabase extends MailData {
         if (!isSent()) {
             return false;
         }
-        return database.mailRecipientsTable.isRead(getIndex(), database.mailSenderTable.getId(sender));
+        return database.mailRecipientsTable.isRead(index, database.mailSenderTable.getId(sender));
     }
 
     /**
@@ -662,7 +662,7 @@ public class MailDataDatabase extends MailData {
     @Override
     public void setReadFlag(MailSender sender) {
         if (isSent()) {
-            database.mailRecipientsTable.setRead(getIndex(), database.mailSenderTable.getId(sender), true);
+            database.mailRecipientsTable.setRead(index, database.mailSenderTable.getId(sender), true);
         }
     }
 
@@ -675,7 +675,7 @@ public class MailDataDatabase extends MailData {
     @Override
     public boolean isSetTrash(MailSender sender) {
         if (isSent()) {
-            return database.mailRecipientsTable.isTrash(getIndex(), database.mailSenderTable.getId(sender));
+            return database.mailRecipientsTable.isTrash(index, database.mailSenderTable.getId(sender));
         }
         return false;
     }
@@ -688,7 +688,7 @@ public class MailDataDatabase extends MailData {
     @Override
     public void setTrashFlag(MailSender sender) {
         if (isSent()) {
-            database.mailRecipientsTable.setTrash(getIndex(), database.mailSenderTable.getId(sender), true);
+            database.mailRecipientsTable.setTrash(index, database.mailSenderTable.getId(sender), true);
         }
     }
 
@@ -700,7 +700,7 @@ public class MailDataDatabase extends MailData {
     @Override
     public void removeTrashFlag(MailSender sender) {
         if (isSent()) {
-            database.mailRecipientsTable.setTrash(getIndex(), database.mailSenderTable.getId(sender), false);
+            database.mailRecipientsTable.setTrash(index, database.mailSenderTable.getId(sender), false);
         }
     }
 
@@ -733,7 +733,7 @@ public class MailDataDatabase extends MailData {
      */
     @Override
     public boolean isAttachmentsOpened() {
-        return database.mailDataTable.isAttachmentOpened(getIndex());
+        return database.mailDataTable.isAttachmentOpened(index);
     }
 
     /**
@@ -742,7 +742,7 @@ public class MailDataDatabase extends MailData {
      */
     @Override
     public void setOpenAttachments() {
-        database.mailDataTable.setAttachmentOpened(getIndex(), true);
+        database.mailDataTable.setAttachmentOpened(index, true);
     }
 
     /**
@@ -752,7 +752,7 @@ public class MailDataDatabase extends MailData {
      */
     @Override
     public boolean isAttachmentsCancelled() {
-        return database.mailDataTable.isAttachmentCancelled(getIndex());
+        return database.mailDataTable.isAttachmentCancelled(index);
     }
 
     /**
@@ -761,7 +761,7 @@ public class MailDataDatabase extends MailData {
      */
     @Override
     public void cancelAttachments() {
-        database.mailDataTable.setAttachmentCancelled(getIndex(), true);
+        database.mailDataTable.setAttachmentCancelled(index, true);
         setCostItem(null);
         setCostMoney(0);
     }
@@ -773,7 +773,7 @@ public class MailDataDatabase extends MailData {
      */
     @Override
     public boolean isAttachmentsRefused() {
-        return database.mailDataTable.isAttachmentRefused(getIndex());
+        return database.mailDataTable.isAttachmentRefused(index);
     }
 
     /**
@@ -783,7 +783,7 @@ public class MailDataDatabase extends MailData {
      */
     @Override
     public String getAttachmentsRefusedReason() {
-        return database.mailDataTable.getAttachmentsRefusedReason(getIndex());
+        return database.mailDataTable.getAttachmentsRefusedReason(index);
     }
 
     /**
@@ -794,9 +794,9 @@ public class MailDataDatabase extends MailData {
     @Override
     public void refuseAttachments(String attachmentsRefusedReason) {
         cancelAttachments();
-        database.mailDataTable.setAttachmentRefused(getIndex(), true);
+        database.mailDataTable.setAttachmentRefused(index, true);
         if (attachmentsRefusedReason != null && attachmentsRefusedReason.length() > 0) {
-            database.mailDataTable.setAttachmentsRefusedReason(getIndex(), attachmentsRefusedReason);
+            database.mailDataTable.setAttachmentsRefusedReason(index, attachmentsRefusedReason);
         }
     }
 

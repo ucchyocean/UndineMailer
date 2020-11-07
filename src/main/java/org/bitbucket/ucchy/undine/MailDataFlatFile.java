@@ -41,7 +41,6 @@ public class MailDataFlatFile extends MailData {
     private ItemStack costItem;
 
     // 送信後に設定される属性
-    private int index;
     private List<MailSender> toTotal;
     private List<MailSender> readFlags;
     private List<MailSender> trashFlags;
@@ -123,7 +122,6 @@ public class MailDataFlatFile extends MailData {
      */
     public MailDataFlatFile(List<MailSender> to, MailSender from, List<String> message, List<ItemStack> attachments,
             double costMoney, ItemStack costItem, List<String> toGroup) {
-        this.index = 0;
         this.to = to;
         this.toGroups = toGroup;
         this.from = from;
