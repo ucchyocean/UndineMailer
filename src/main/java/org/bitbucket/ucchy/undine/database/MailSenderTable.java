@@ -307,8 +307,8 @@ public class MailSenderTable {
             }
             valuesBuilder.delete(valuesBuilder.length() - 2, valuesBuilder.length());
             String onDuplicateKey = database.getDatabaseType() == DatabaseType.MYSQL
-                ? " ON DUPLICATE KEY UPDATE name = VALUES(name) WHERE type = 2"
-                : " ON CONFLICT(uuidMost, uuidLeast) DO UPDATE SET name = excluded.name WHERE type = 2";
+                ? " ON DUPLICATE KEY UPDATE name = VALUES(name)"
+                : " ON CONFLICT(uuidMost, uuidLeast) DO UPDATE SET name = excluded.name";
             database.execute(insert + valuesBuilder.toString() + onDuplicateKey);
         }
         if (!dummies.isEmpty()) {
@@ -325,8 +325,8 @@ public class MailSenderTable {
             }
             valuesBuilder.delete(valuesBuilder.length() - 2, valuesBuilder.length());
             String onDuplicateKey = database.getDatabaseType() == DatabaseType.MYSQL
-                ? " ON DUPLICATE KEY UPDATE name = VALUES(name) WHERE type = 2"
-                : " ON CONFLICT(uuidMost, uuidLeast) DO UPDATE SET name = excluded.name WHERE type = 2";
+                ? " ON DUPLICATE KEY UPDATE name = VALUES(name)"
+                : " ON CONFLICT(uuidMost, uuidLeast) DO UPDATE SET name = excluded.name";
             database.execute(insert + valuesBuilder.toString() + onDuplicateKey);
         }
         if (!others.isEmpty()) {
@@ -345,8 +345,8 @@ public class MailSenderTable {
             }
             valuesBuilder.delete(valuesBuilder.length() - 2, valuesBuilder.length());
             String onDuplicateKey = database.getDatabaseType() == DatabaseType.MYSQL
-                ? " ON DUPLICATE KEY UPDATE name = VALUES(name) WHERE type = 2"
-                : " ON CONFLICT(uuidMost, uuidLeast) DO UPDATE SET name = excluded.name WHERE type = 2";
+                ? " ON DUPLICATE KEY UPDATE name = VALUES(name)"
+                : " ON CONFLICT(uuidMost, uuidLeast) DO UPDATE SET name = excluded.name";
             database.execute(insert + valuesBuilder.toString() + onDuplicateKey);
         }
     }

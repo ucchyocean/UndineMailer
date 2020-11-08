@@ -87,7 +87,7 @@ public class MailRecipientsTable {
         valuesBuilder.delete(valuesBuilder.length() - 2, valuesBuilder.length());
 
         if (database.getDatabaseType() == DatabaseType.MYSQL) {
-            database.execute("INSERT INTO " + NAME + " (mailId, recipient) VALUES " + valuesBuilder.toString() + " ON DUPLICATE KEY UPDATE recipientId = recipientId");
+            database.execute("INSERT INTO " + NAME + " (mailId, recipient) VALUES " + valuesBuilder.toString() + " ON DUPLICATE KEY UPDATE recipient = recipient");
         } else if (database.getDatabaseType() == DatabaseType.SQLITE) {
             database.execute("INSERT INTO " + NAME + " (mailId, recipient) VALUES " + valuesBuilder.toString() + " ON CONFLICT(mailId, recipient) DO NOTHING");
         }
