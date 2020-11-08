@@ -26,7 +26,7 @@ public class GroupMembersTable {
     void createTable() {
         database.execute(
             "CREATE TABLE IF NOT EXISTS " + NAME + " (" +
-                "groupName VARCHAR(64) NOT NULL, " +
+                "groupName VARCHAR(64) NOT NULL" + (database.getDatabaseType() == DatabaseType.SQLITE ? " COLLATE NOCASE" : "") + ", " +
                 "member INTEGER NOT NULL, " +
                 "PRIMARY KEY (groupName, member), " +
                 "FOREIGN KEY (groupName) REFERENCES " + GroupDataTable.NAME + "(name) ON DELETE CASCADE ON UPDATE CASCADE, " +
