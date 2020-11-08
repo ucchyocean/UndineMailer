@@ -27,7 +27,7 @@ public class DraftMailRecipientGroupsTable {
         database.execute(
             "CREATE TABLE IF NOT EXISTS " + NAME + " (" +
                 "mailId INTEGER NOT NULL, " +
-                "recipientGroup VARCHER(64) NOT NULL" + (database.getDatabaseType() == DatabaseType.SQLITE ? " COLLATE NOCASE" : "") + ", " +
+                "recipientGroup VARCHAR(64) NOT NULL" + (database.getDatabaseType() == DatabaseType.SQLITE ? " COLLATE NOCASE" : "") + ", " +
                 "PRIMARY KEY (mailId, recipientGroup), " +
                 "FOREIGN KEY (mailId) REFERENCES " + DraftMailDataTable.NAME + "(id) ON DELETE CASCADE ON UPDATE CASCADE, " +
                 "FOREIGN KEY (recipientGroup) REFERENCES " + GroupDataTable.NAME + "(name) ON DELETE CASCADE ON UPDATE CASCADE" +

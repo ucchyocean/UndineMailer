@@ -32,7 +32,7 @@ public class GroupDataTable {
         UndineConfig config = database.parent.getUndineConfig();
         database.execute(
             "CREATE TABLE IF NOT EXISTS " + NAME + " (" +
-                "name VAECHAR(64) PRIMARY KEY" + (database.getDatabaseType() == DatabaseType.SQLITE ? " COLLATE NOCASE" : "") + ", " +
+                "name VARCHAR(64) PRIMARY KEY" + (database.getDatabaseType() == DatabaseType.SQLITE ? " COLLATE NOCASE" : "") + ", " +
                 "owner INTEGER NOT NULL, " +
                 "sendMode TINYINT NOT NULL DEFAULT " + config.getSendModeDefault().ordinal() + ", " +
                 "modifyMode TINYINT NOT NULL DEFAULT " + config.getModifyModeDefault().ordinal() + ", " +
