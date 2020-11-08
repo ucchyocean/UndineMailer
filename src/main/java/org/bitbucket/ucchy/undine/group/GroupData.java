@@ -184,6 +184,7 @@ public abstract class GroupData {
         if ( sender.hasPermission(specialNode) ) {
             return true;
         }
+        // FIXME: MEMBER権限のときOwnerやOPは権限なし判定されそうに見えるが大丈夫だろうか...？
         switch ( mode ) {
         case EVERYONE:
             return true;

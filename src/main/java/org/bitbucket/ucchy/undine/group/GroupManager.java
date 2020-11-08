@@ -741,7 +741,7 @@ public abstract class GroupManager {
      * @param name グループ名
      * @return PEXからインポートされたグループ
      */
-    protected GroupData getPexGroup(String name) {
+    public GroupData getPexGroup(String name) {
         if ( name.startsWith(SpecialGroupPex.NAME_PREFIX) && pexGroupsCache != null ) {
             if ( pexGroupsCache.containsKey(name) ) {
                 return pexGroupsCache.get(name);
@@ -763,7 +763,7 @@ public abstract class GroupManager {
      * PEXからグループを取得してGroupDataに変換して返す
      * @return PEXからインポートされたグループ
      */
-    private ArrayList<GroupData> getPexGroups() {
+    public ArrayList<GroupData> getPexGroups() {
 
         PermissionsExBridge pex = UndineMailer.getInstance().getPex();
         ArrayList<GroupData> results = new ArrayList<GroupData>();

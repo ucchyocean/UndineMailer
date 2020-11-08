@@ -6,6 +6,10 @@ import java.util.List;
 import org.bitbucket.ucchy.undine.UndineMailer;
 import org.bitbucket.ucchy.undine.group.GroupData;
 import org.bitbucket.ucchy.undine.group.GroupManager;
+import org.bitbucket.ucchy.undine.group.SpecialGroupAll;
+import org.bitbucket.ucchy.undine.group.SpecialGroupAllConnected;
+import org.bitbucket.ucchy.undine.group.SpecialGroupAllLogin;
+import org.bitbucket.ucchy.undine.group.SpecialGroupPex;
 import org.bitbucket.ucchy.undine.sender.MailSender;
 
 /**
@@ -96,7 +100,17 @@ public class GroupManagerDatabase extends GroupManager {
         }
         ArrayList<GroupData> groups = new ArrayList<>();
         for (String name : groupNames) {
-            groups.add(new GroupDataDatabase(parent, name));
+            if (name.equals(SpecialGroupAll.NAME)) {
+                groups.add(parent.getGroupManager().getGroupAll());
+            } else if (name.equals(SpecialGroupAllConnected.NAME)) {
+                groups.add(parent.getGroupManager().getGroupAllConnected());
+            } else if (name.equals(SpecialGroupAllLogin.NAME)) {
+                groups.add(parent.getGroupManager().getGroupAllLogin());
+            } else if (name.toLowerCase().startsWith(SpecialGroupPex.NAME_PREFIX)) {
+                groups.add(parent.getGroupManager().getPexGroup(name));
+            } else {
+                groups.add(new GroupDataDatabase(parent, name));
+            }
         }
         return groups;
     }

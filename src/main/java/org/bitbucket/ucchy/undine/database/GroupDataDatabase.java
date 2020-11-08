@@ -38,6 +38,7 @@ public class GroupDataDatabase extends GroupData {
         this.mailSenderTable = parent.getDatabase().mailSenderTable;
         
         this.groupDataTable.add(name, owner);
+        addMember(owner);
         setSendMode(parent.getUndineConfig().getSendModeDefault());
         setModifyMode(parent.getUndineConfig().getModifyModeDefault());
         setDissolutionMode(parent.getUndineConfig().getDissolutionModeDefault());
