@@ -190,10 +190,6 @@ public class GroupDataTable {
         return database.execute("DELETE FROM " + NAME + " WHERE name = '" + groupName + "'");
     }
 
-    public boolean delete(String groupName) {
-        return deleteByName(groupName);
-    }
-
     public void deleteByNames(List<String> groupNames) {
         if (!groupNames.isEmpty()) {
             database.execute("DELETE FROM " + NAME + " WHERE name " + Database.createIn(groupNames));
