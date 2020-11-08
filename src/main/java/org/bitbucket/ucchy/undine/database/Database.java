@@ -1,3 +1,8 @@
+/*
+ * @author     LazyGon
+ * @license    LGPLv3
+ * @copyright  Copyright OKOCRAFT 2020
+ */
 package org.bitbucket.ucchy.undine.database;
 
 import java.io.IOException;
