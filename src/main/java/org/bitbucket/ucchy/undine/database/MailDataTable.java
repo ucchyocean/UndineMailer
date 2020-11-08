@@ -45,7 +45,7 @@ public class MailDataTable {
                 "isAttachmentsOpened TINYINT NOT NULL DEFAULT 0, " +
                 "isAttachmentsCancelled TINYINT NOT NULL DEFAULT 0, " +
                 "isAttachmentsRefused TINYINT NOT NULL DEFAULT 0, " +
-                "attachmentsRefusedReason TEXT(512) NOT NULL DEFAULT '', " +
+                "attachmentsRefusedReason TEXT(512), " +
                 "dateAndTime BIGINT NOT NULL, " +
                 "location VARCHAR(128), " +
                 "UNIQUE (id, sender), " +
@@ -169,11 +169,12 @@ public class MailDataTable {
     }
 
     public String getAttachmentsRefusedReason(int id) {
-        return getString(id, "attachmentsRefusedReason");
+        String refusedReason = getString(id, "attachmentsRefusedReason");
+        return refusedReason == null ? "" : refusedReason;
     }
 
     public void setAttachmentsRefusedReason(int id, String attachmentsRefusedReason) {
-        setString(id, "attachmentsRefusedReason", attachmentsRefusedReason);
+        setString(id, "attachmentsRefusedReason", attachmentsRefusedReason == null ? "" : attachmentsRefusedReason);
     }
 
     public String getString(int id, String prop) {
@@ -420,7 +421,8 @@ public class MailDataTable {
                         data.cancelAttachments();
                     }
                     if (rs.getByte("isAttachmentsRefused") == (byte)1) {
-                        data.refuseAttachments(rs.getString("attachmentsRefusedReason"));
+                        String refuseReason = rs.getString("attachmentsRefusedReason");
+                        data.refuseAttachments(refuseReason == null ? "" : refuseReason);
                     }
                     data.setLocation(Database.fromDBLocationString(rs.getString("location")));
                     data.setDate(new Date(rs.getLong("dateAndTime")));

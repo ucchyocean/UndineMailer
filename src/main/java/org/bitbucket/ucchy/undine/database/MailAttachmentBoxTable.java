@@ -34,9 +34,13 @@ public class MailAttachmentBoxTable {
                 "mailId INTEGER NOT NULL, " +
                 "item TEXT(8192) NOT NULL, " +
                 "FOREIGN KEY (mailId) REFERENCES " + MailDataTable.NAME + "(id) ON DELETE CASCADE ON UPDATE CASCADE" +
+                (database.getDatabaseType() == DatabaseType.MYSQL ? ", INDEX attachmentmailid (id, mailId)" : "") +
+                
             ")"
         );
-        database.execute("CREATE INDEX IF NOT EXISTS attachmentmailid ON " + NAME + "(id, mailId)");
+        if (database.getDatabaseType() == DatabaseType.SQLITE) {
+            database.execute("CREATE INDEX IF NOT EXISTS attachmentmailid ON " + NAME + "(id, mailId)");
+        }
     }
 
     public int getAttachBoxUsageCount(int senderId) {

@@ -32,9 +32,12 @@ public class MailAttachmentBoxSnapshotTable {
                 "mailId INTEGER NOT NULL, " +
                 "item TEXT(8192) NOT NULL, " +
                 "FOREIGN KEY (mailId) REFERENCES " + MailDataTable.NAME + "(id) ON DELETE CASCADE ON UPDATE CASCADE" +
+                (database.getDatabaseType() == DatabaseType.MYSQL ? ", INDEX snapshotattachmentmailid (id, mailId)" : "") +
             ")"
         );
-        database.execute("CREATE INDEX IF NOT EXISTS snapshotattachmentmailid ON " + NAME + "(id, mailId)");
+        if (database.getDatabaseType() == DatabaseType.SQLITE) {
+            database.execute("CREATE INDEX IF NOT EXISTS snapshotattachmentmailid ON " + NAME + "(id, mailId)");
+        }
     }
 
     public ArrayList<ItemStack> getAttachmentBoxOf(int mailId) {
