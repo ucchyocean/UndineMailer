@@ -85,7 +85,7 @@ public class DraftMailRecipientGroupsTable {
             try {
                 ArrayList<String> groupNames = new ArrayList<>();
                 while (rs.next()) {
-                    groupNames.add(rs.getString("name"));
+                    groupNames.add(rs.getString("recipientGroup"));
                 }
                 return groupNames;
             } catch (SQLException e) {
