@@ -118,7 +118,7 @@ public class MailSenderTable {
         mailSenders.removeAll(mailSenderCache.values());
 
         if (mailSenders.isEmpty()) {
-            return new ArrayList<>();
+            return result;
         }
 
         addAll(mailSenders);
