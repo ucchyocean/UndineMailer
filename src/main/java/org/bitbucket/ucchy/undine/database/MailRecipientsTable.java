@@ -94,7 +94,7 @@ public class MailRecipientsTable {
     }
 
     public void addRecipient(int id, int recipientId) {
-        addRecipients(recipientId, Arrays.asList(recipientId));
+        addRecipients(id, Arrays.asList(recipientId));
     }
 
     public void removeRecipient(int id, int recipientId) {

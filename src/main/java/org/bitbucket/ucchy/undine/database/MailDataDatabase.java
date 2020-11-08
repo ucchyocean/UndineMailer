@@ -226,9 +226,9 @@ public class MailDataDatabase extends MailData {
     @Override
     public void setFrom(MailSender from) {
         if (isSent()) {
-            database.mailDataTable.setSender(database.mailSenderTable.getId(from));
+            database.mailDataTable.setSender(index, database.mailSenderTable.getId(from));
         } else {
-            database.draftMailDataTable.setSender(database.mailSenderTable.getId(from));
+            database.draftMailDataTable.setSender(index, database.mailSenderTable.getId(from));
         }
     }
 

@@ -204,8 +204,8 @@ public class MailDataTable {
         return ids;
     }
 
-    public void setSender(int senderId) {
-        database.execute("UPDATE " + NAME + " SET sender = " + senderId);
+    public void setSender(int mailId, int senderId) {
+        database.execute("UPDATE " + NAME + " SET sender = " + senderId + " WHERE id = " + mailId);
     }
 
     public MailSender getSenderById(int id) {

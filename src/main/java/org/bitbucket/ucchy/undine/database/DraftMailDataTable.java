@@ -63,8 +63,8 @@ public class DraftMailDataTable {
         return ids;
     }
 
-    public void setSender(int senderId) {
-        database.execute("UPDATE " + NAME + " SET sender = " + senderId);
+    public void setSender(int id, int senderId) {
+        database.execute("UPDATE " + NAME + " SET sender = " + senderId + " WHERE id = " + id);
     }
 
     public MailSender getSenderById(int id) {
