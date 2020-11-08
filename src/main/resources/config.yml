@@ -10,7 +10,7 @@ lang: en
 
 # Database settings
 # flatfile, sqlite or mysql for databaseType.
-databaseType: sqlite
+databaseType: flatfile
 mysqlUser: root
 mysqlPass: password
 mysqlHost: 127.0.0.1
