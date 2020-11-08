@@ -9,6 +9,9 @@ import java.util.List;
 import java.util.Map;
 import java.util.UUID;
 
+import com.google.common.collect.BiMap;
+import com.google.common.collect.HashBiMap;
+
 import org.bitbucket.ucchy.undine.database.Database.DatabaseType;
 import org.bitbucket.ucchy.undine.sender.MailSender;
 import org.bitbucket.ucchy.undine.sender.MailSenderBlock;
@@ -22,6 +25,8 @@ public class MailSenderTable {
     public static final String NAME = "undine_mailsenders";
     
     private final Database database;
+
+    private final BiMap<Integer, MailSender> mailSenderCache = HashBiMap.create();
 
     MailSenderTable(Database database) {
         this.database = database;
@@ -42,17 +47,16 @@ public class MailSenderTable {
         );
     }
 
-    /**
-     * NOTE: こいつが-1のとき何を返すかで初期値が変わる。注意
-     * @param id
-     * @return
-     */
     public MailSender getById(int id) {
         if (id <= 0) {
             return null;
         }
 
-        return database.query("SELECT type, name, uuidMost, uuidLeast FROM " + NAME + " WHERE id = " + id, rs -> {
+        if (mailSenderCache.containsKey(id)) {
+            return mailSenderCache.get(id);
+        }
+
+        MailSender result = database.query("SELECT type, name, uuidMost, uuidLeast FROM " + NAME + " WHERE id = " + id, rs -> {
             try {
                 if (rs.next()) {
                     switch ((int)rs.getByte("type")) {
@@ -70,9 +74,17 @@ public class MailSenderTable {
                 return null;
             }
         });
+
+        mailSenderCache.put(id, result);
+
+        return result;
     }
 
     public int getId(MailSender mailSender) {
+        if (mailSenderCache.containsValue(mailSender)) {
+            return mailSenderCache.inverse().get(mailSender);
+        }
+
         if (mailSender instanceof MailSenderBlock) {
             return getIdWhere(
                 "WHERE " +
@@ -96,11 +108,20 @@ public class MailSenderTable {
     }
 
     public List<Integer> getIds(Collection<MailSender> mailSenders) {
+        mailSenders = new ArrayList<>(mailSenders);
+        List<Integer> result = new ArrayList<>();
+        for (MailSender mailSender : mailSenders) {
+            if (mailSenderCache.containsValue(mailSender)) {
+                result.add(mailSenderCache.inverse().get(mailSender));
+            }
+            mailSenders.remove(mailSender);
+        }
+
         if (mailSenders.isEmpty()) {
             return new ArrayList<>();
         }
+
         addAll(mailSenders);
-        List<Integer> result = new ArrayList<>();
 
         List<MailSender> blocks = new ArrayList<>();
         MailSender console = null;
@@ -152,6 +173,13 @@ public class MailSenderTable {
             }
             result.addAll(getIdsWhere("WHERE (type = 3 OR type = 4) AND name " + Database.createIn(names)));
         }
+
+        getByIds(result).forEach((id, sender) -> {
+            if (!mailSenderCache.containsKey(id)) {
+                mailSenderCache.put(id, sender);
+            }
+        });
+
         return result;
     }
 
@@ -176,31 +204,38 @@ public class MailSenderTable {
     }
 
     public Map<Integer, MailSender> getByIds(Collection<Integer> ids) {
-        if (ids.isEmpty()) {
-            return new HashMap<>();
+        ids = new ArrayList<>(ids);
+        Map<Integer, MailSender> result = new HashMap<>();
+        for (int id : ids) {
+            if (mailSenderCache.containsKey(id)) {
+                result.put(id, mailSenderCache.get(id));
+            }
         }
-        return database.query("SELECT id, type, name, uuidMost, uuidLeast FROM " + NAME + " WHERE id " + Database.createIn(ids), rs -> {
+        ids.removeAll(result.keySet());
+        if (ids.isEmpty()) {
+            return result;
+        }
+        database.query("SELECT id, type, name, uuidMost, uuidLeast FROM " + NAME + " WHERE id " + Database.createIn(ids), rs -> {
             try {
-                Map<Integer, MailSender> senders = new HashMap<>();
-                
                 while (rs.next()) {
                     int type = (int)rs.getByte("type");
                     if (type == 0) {
-                        senders.put(rs.getInt("id"), new MailSenderBlock(rs.getString("name"), Database.fromDBLocationString(rs.getString("location"))));
+                        result.put(rs.getInt("id"), new MailSenderBlock(rs.getString("name"), Database.fromDBLocationString(rs.getString("location"))));
                     } else if (type == 1) {
-                        senders.put(rs.getInt("id"), MailSenderConsole.getMailSenderConsole());
+                        result.put(rs.getInt("id"), MailSenderConsole.getMailSenderConsole());
                     } else if (type == 2) {
-                        senders.put(rs.getInt("id"), MailSender.getMailSenderFromString("$" + new UUID(rs.getLong("uuidMost"), rs.getLong("uuidLeast"))));
+                        result.put(rs.getInt("id"), MailSender.getMailSenderFromString("$" + new UUID(rs.getLong("uuidMost"), rs.getLong("uuidLeast"))));
                     } else if (type == 3 || type == 4) {
-                        senders.put(rs.getInt("id"), new MailSenderDummy(rs.getString("name")));
+                        result.put(rs.getInt("id"), new MailSenderDummy(rs.getString("name")));
                     }
                 }
-                return senders;
+                return null;
             } catch (SQLException e) {
                 e.printStackTrace();
-                return new HashMap<>();
+                return null;
             }
         });
+        return result;
     }
 
     public void add(MailSender mailSender) {
