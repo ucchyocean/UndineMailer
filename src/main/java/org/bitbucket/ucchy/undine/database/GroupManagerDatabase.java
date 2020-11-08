@@ -57,7 +57,7 @@ public class GroupManagerDatabase extends GroupManager {
     }
 
     public ArrayList<GroupData> getGroups(List<String> names) {
-        return convert(groupDataTable.getNames(), true);
+        return convert(names, true);
     }
 
     @Override
@@ -90,7 +90,7 @@ public class GroupManagerDatabase extends GroupManager {
         return groupDataTable.getNamesByOwner(parent.getDatabase().mailSenderTable.getId(sender)).size();
     }
 
-    private ArrayList<GroupData> convert(ArrayList<String> groupNames, boolean filter) {
+    private ArrayList<GroupData> convert(List<String> groupNames, boolean filter) {
         if (filter) {
             groupDataTable.retainExistsByName(groupNames);
         }

@@ -206,7 +206,7 @@ public class GroupCommand implements TabExecutor {
         GroupData.create(parent, name, ms);
 
         // グループリスト表示
-        parent.getGroupManager().displayGroupList(ms, 1);
+        manager.displayGroupList(ms, 1);
 
         sender.sendMessage(Messages.get("InformationMakeGroup", "%name", name));
 
@@ -250,7 +250,7 @@ public class GroupCommand implements TabExecutor {
             manager.removeGroup(name);
 
             // グループリスト表示
-            parent.getGroupManager().displayGroupList(MailSender.getMailSender(sender), 1);
+            manager.displayGroupList(MailSender.getMailSender(sender), 1);
 
             sender.sendMessage(Messages.get("InformationDeleteGroup", "%name", name));
 

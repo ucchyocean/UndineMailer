@@ -225,7 +225,7 @@ public abstract class GroupData {
         GroupData groupData;
         if (parent.getUndineConfig().getDatabaseType() == DatabaseType.FLAT_FILE) {
             groupData = new GroupDataFlatFile(parent, name, owner);
-            parent.getGroupManager().saveGroupData(groupData);
+            parent.getGroupManager().addGroup(groupData);
         } else {
             groupData = new GroupDataDatabase(parent, name, owner);
         }
