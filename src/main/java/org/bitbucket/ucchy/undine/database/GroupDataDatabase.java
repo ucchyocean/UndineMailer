@@ -26,6 +26,7 @@ public class GroupDataDatabase extends GroupData {
         if (!this.groupDataTable.exists(name)) {
             throw new IllegalArgumentException("The group " + name + " is not registered on database yet. Specify owner for constructor to register group.");
         }
+        this.name = this.groupDataTable.fixCase(name);
     }
 
     /**

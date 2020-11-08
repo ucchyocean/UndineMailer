@@ -81,6 +81,17 @@ public class GroupDataTable {
         }
     }
 
+    public String fixCase(String groupName) {
+        return database.query("SELECT name FROM " + NAME + " WHERE name = '" + groupName + "'", rs -> {
+            try {
+                return rs.next() ? rs.getString("name") : null;
+            } catch (SQLException e) {
+                e.printStackTrace();
+                return null;
+            }
+        });
+    }
+
     public ArrayList<String> getNames() {
         return getNamesWhere(null);
     }

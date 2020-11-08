@@ -49,7 +49,6 @@ public class GroupManagerDatabase extends GroupManager {
 
     @Override
     public GroupData getGroup(String name) {
-        name = name.toLowerCase();
         GroupData pexGroup = getPexGroup(name);
         if (pexGroup != null) {
             return pexGroup;
