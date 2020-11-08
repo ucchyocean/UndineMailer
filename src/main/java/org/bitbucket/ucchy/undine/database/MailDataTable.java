@@ -79,9 +79,7 @@ public class MailDataTable {
     public int getLastInsertedId() {
         return database.query("SELECT MAX(id) AS maxId FROM " + NAME + "", rs -> {
             try {
-                int a = rs.next() ? rs.getInt("maxId") : -1;
-                System.out.println("getLastInsertedId: " + a);
-                return a;
+                return rs.next() ? rs.getInt("maxId") : -1;
             } catch (SQLException e) {
                 e.printStackTrace();
                 return -1;

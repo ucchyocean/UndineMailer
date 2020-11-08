@@ -183,7 +183,6 @@ public class Database {
      * @return SQL文の実行に成功したかどうか
      */
     boolean execute(String SQL) {
-        System.out.println(SQL);
         try (PreparedStatement preparedStatement = reloadConnection().prepareStatement(SQL)) {
             preparedStatement.execute();
             return true;
@@ -203,7 +202,6 @@ public class Database {
      * @return AUTOINCREMENTで生成された数値のリスト
      */
     List<Integer> insert(String insert) {
-        System.out.println(insert);
         try (PreparedStatement preparedStatement = reloadConnection().prepareStatement(insert, Statement.RETURN_GENERATED_KEYS)) {
             if (preparedStatement.executeUpdate() == 0) {
                 return new ArrayList<>();
@@ -229,7 +227,6 @@ public class Database {
      * @return fuctionの処理結果
      */
     <T> T query(String SQL, Function<ResultSet, T> function) {
-        System.out.println(SQL);
         try (PreparedStatement preparedStatement = reloadConnection().prepareStatement(SQL)) {
             return function.apply(preparedStatement.executeQuery());
         } catch (SQLException e) {
