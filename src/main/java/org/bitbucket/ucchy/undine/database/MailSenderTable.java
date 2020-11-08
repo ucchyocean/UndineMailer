@@ -114,8 +114,8 @@ public class MailSenderTable {
             if (mailSenderCache.containsValue(mailSender)) {
                 result.add(mailSenderCache.inverse().get(mailSender));
             }
-            mailSenders.remove(mailSender);
         }
+        mailSenders.removeAll(mailSenderCache.values());
 
         if (mailSenders.isEmpty()) {
             return new ArrayList<>();
