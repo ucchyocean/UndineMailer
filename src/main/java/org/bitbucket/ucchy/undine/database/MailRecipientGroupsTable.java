@@ -96,9 +96,9 @@ public class MailRecipientGroupsTable {
 
     public void addGroup(int id, String groupName) {
         if (database.getDatabaseType() == DatabaseType.MYSQL) {
-            database.execute("INSERT INTO " + NAME + " (mailId, recipientGroup) VALUES (" + id + ", " + groupName + ") ON DUPLICATE KEY UPDATE recipientGroup = recipientGroup");
+            database.execute("INSERT INTO " + NAME + " (mailId, recipientGroup) VALUES (" + id + ", '" + groupName + "') ON DUPLICATE KEY UPDATE recipientGroup = recipientGroup");
         } else if (database.getDatabaseType() == DatabaseType.SQLITE) {
-            database.execute("INSERT INTO " + NAME + " (mailId, recipientGroup) VALUES (" + id + ", " + groupName + ") ON CONFLICT(mailId, recipientGroup) DO NOTHING");
+            database.execute("INSERT INTO " + NAME + " (mailId, recipientGroup) VALUES (" + id + ", '" + groupName + "') ON CONFLICT(mailId, recipientGroup) DO NOTHING");
         }
     }
 
