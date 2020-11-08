@@ -1125,7 +1125,7 @@ public abstract class MailManager {
      * @param summary サマリーの文字列
      * @param mail メールデータ
      */
-    protected void sendMailLine(
+    public void sendMailLine(
             MailSender sender, String pre, String summary, MailData mail) {
 
         MessageComponent msg = new MessageComponent();

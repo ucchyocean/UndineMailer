@@ -13,12 +13,19 @@ import java.util.stream.Collectors;
 import com.github.ucchyocean.itemconfig.ItemConfigParseException;
 import com.github.ucchyocean.itemconfig.ItemConfigParser;
 
+import org.bitbucket.ucchy.undine.MailData;
 import org.bitbucket.ucchy.undine.MailDataFlatFile;
+import org.bitbucket.ucchy.undine.MailManager;
+import org.bitbucket.ucchy.undine.Messages;
+import org.bitbucket.ucchy.undine.Utility;
 import org.bitbucket.ucchy.undine.sender.MailSender;
+import org.bukkit.ChatColor;
 import org.bukkit.Location;
 import org.bukkit.configuration.InvalidConfigurationException;
 import org.bukkit.configuration.file.YamlConfiguration;
+import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
+import org.bukkit.scheduler.BukkitRunnable;
 
 public class MailDataTable {
     
@@ -27,10 +34,25 @@ public class MailDataTable {
     private final Database database;
     private final MailSenderTable mailSenderTable;
 
+    private int checkedLatestId = 0;
+
     MailDataTable(Database database, MailSenderTable mailSenderTable) {
         this.database = database;
         this.mailSenderTable = mailSenderTable;
         createTable();
+
+        // 他のサーバーから送信されたメールを確認して、存在する場合はチャットで通知する
+        checkedLatestId = getLastInsertedId();
+        new BukkitRunnable(){
+            @Override
+            public void run() {
+                int currentId = getLastInsertedId();
+                while (checkedLatestId < currentId) {
+                    checkedLatestId++;
+                    notifyMail(checkedLatestId);
+                }
+            };
+        }.runTaskTimer(database.parent, 100L, 200L);
     }
 
     void createTable() {
@@ -53,6 +75,20 @@ public class MailDataTable {
             ")"
         );
     }
+
+    public int getLastInsertedId() {
+        return database.query("SELECT MAX(id) AS maxId FROM " + NAME + "", rs -> {
+            try {
+                int a = rs.next() ? rs.getInt("maxId") : -1;
+                System.out.println("getLastInsertedId: " + a);
+                return a;
+            } catch (SQLException e) {
+                e.printStackTrace();
+                return -1;
+            }
+        });
+    }
+
     public int newMail(int editId) {
         List<Integer> generatedKeys = database.insert("INSERT INTO " + NAME + " (sender, message, costMoney, costItem, dateAndTime) " +
             "SELECT sender, message, costMoney, costItem, " + System.currentTimeMillis() + " FROM " + DraftMailDataTable.NAME + " WHERE id = " + editId);
@@ -66,7 +102,37 @@ public class MailDataTable {
 
         database.draftMailDataTable.removeMail(editId);
 
+        // 他のサーバーから送信されたメールを確認して、存在する場合は現在のIDを更新する前にチャットで通知する
+        for (int mailIdFromOtherServer = checkedLatestId + 1; mailId > mailIdFromOtherServer; mailIdFromOtherServer++) {
+            notifyMail(mailIdFromOtherServer);
+        }
+        checkedLatestId = mailId;
+        
         return mailId;
+    }
+
+    private void notifyMail(int mailId) {
+        MailManager manager = database.parent.getMailManager();
+        MailData mail = manager.getMail(mailId);
+
+        // 宛先の人がログイン中なら知らせる
+        String msg = Messages.get("InformationYouGotMail", "%from", mail.getFrom().getName());
+
+        if (mail.isAllMail()) {
+            for (Player player : Utility.getOnlinePlayers()) {
+                player.sendMessage(msg);
+                String pre = Messages.get("ListVerticalParts");
+                manager.sendMailLine(MailSender.getMailSender(player), pre, ChatColor.GOLD + mail.getInboxSummary(), mail);
+            }
+        } else {
+            for (MailSender to : mail.getToTotal()) {
+                if (to.isOnline()) {
+                    to.sendMessage(msg);
+                    String pre = Messages.get("ListVerticalParts");
+                    manager.sendMailLine(to, pre, ChatColor.GOLD + mail.getInboxSummary(), mail);
+                }
+            }
+        }
     }
 
     public void removeMail(int id) {
