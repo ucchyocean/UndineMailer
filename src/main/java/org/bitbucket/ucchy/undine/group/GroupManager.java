@@ -5,12 +5,10 @@
  */
 package org.bitbucket.ucchy.undine.group;
 
-import java.io.File;
-import java.io.FilenameFilter;
 import java.util.ArrayList;
 import java.util.Collections;
-import java.util.Comparator;
 import java.util.HashMap;
+import java.util.List;
 
 import org.bitbucket.ucchy.undine.Messages;
 import org.bitbucket.ucchy.undine.UndineMailer;
@@ -19,21 +17,19 @@ import org.bitbucket.ucchy.undine.command.GroupCommand;
 import org.bitbucket.ucchy.undine.command.ListCommand;
 import org.bitbucket.ucchy.undine.command.UndineCommand;
 import org.bitbucket.ucchy.undine.sender.MailSender;
-import org.bitbucket.ucchy.undine.sender.MailSenderConsole;
-import org.bitbucket.ucchy.undine.sender.MailSenderPlayer;
-import org.bitbucket.ucchy.undine.tellraw.ClickEventType;
-import org.bitbucket.ucchy.undine.tellraw.MessageComponent;
-import org.bitbucket.ucchy.undine.tellraw.MessageParts;
-import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
+
+import com.github.ucchyocean.messaging.tellraw.ClickEventType;
+import com.github.ucchyocean.messaging.tellraw.MessageComponent;
+import com.github.ucchyocean.messaging.tellraw.MessageParts;
 
 /**
  * メールグループ管理クラス
  * @author ucchy
  */
-public class GroupManager {
+public abstract class GroupManager {
 
-    private static final ArrayList<String> PEX_OPTION_FLAGS;
+    protected static final ArrayList<String> PEX_OPTION_FLAGS;
     static {
         PEX_OPTION_FLAGS = new ArrayList<String>();
         PEX_OPTION_FLAGS.add("recieve-mail");
@@ -48,9 +44,13 @@ public class GroupManager {
     private static final String PERMISSION_INFINITE_CREATE = GroupCommand.PERMISSION_INFINITE_CREATE;
     private static final String PERMISSION_INFINITE_ADD_MEMBER = GroupCommand.PERMISSION_INFINITE_ADD_MEMBER;
 
-    private UndineMailer parent;
-    private HashMap<String, GroupData> groups;
-    private HashMap<String, GroupData> pexGroupsCache;
+    protected UndineMailer parent;
+
+    protected SpecialGroupAll groupAll = new SpecialGroupAll();
+    protected SpecialGroupAllConnected groupAllConnected = new SpecialGroupAllConnected();
+    protected SpecialGroupAllLogin groupAllLogin = new SpecialGroupAllLogin();
+
+    protected HashMap<String, GroupData> pexGroupsCache;
 
     /**
      * コンストラクタ
@@ -64,50 +64,7 @@ public class GroupManager {
     /**
      * 全データを再読み込みする
      */
-    public void reload() {
-
-        long start = System.currentTimeMillis();
-
-        File folder = parent.getGroupFolder();
-        File[] files = folder.listFiles(new FilenameFilter() {
-            public boolean accept(File dir, String name) {
-                return name.endsWith(".yml");
-            }
-        });
-
-        groups = new HashMap<String, GroupData>();
-
-        if ( files != null ) {
-            for ( File f : files ) {
-                GroupData group = GroupData.loadFromFile(f);
-                groups.put(group.getName().toLowerCase(), group);
-            }
-        }
-
-        // 特殊グループを追加する
-        GroupData all = new SpecialGroupAll();
-        groups.put(all.getName().toLowerCase(), all);
-        GroupData allConnected = new SpecialGroupAllConnected();
-        groups.put(allConnected.getName().toLowerCase(), allConnected);
-        GroupData allLogin = new SpecialGroupAllLogin();
-        groups.put(allLogin.getName().toLowerCase(), allLogin);
-
-        // アップグレード処理
-        start = System.currentTimeMillis();
-
-        int total = 0;
-        for ( GroupData group : groups.values() ) {
-            if ( group.upgrade() ) {
-                saveGroupData(group);
-                total++;
-            }
-        }
-
-        if ( total > 0 ) {
-            UndineMailer.getInstance().getLogger().info("Upgrade group data... Done.  Time: "
-                    + (System.currentTimeMillis() - start) + "ms, Data: " + total + ".");
-        }
-    }
+    public abstract void reload();
 
     /**
      * グループを追加する。
@@ -115,84 +72,72 @@ public class GroupManager {
      * 古いグループが上書きされてしまうことに注意する。
      * @param group グループ
      */
-    public void addGroup(GroupData group) {
-        String name = group.getName().toLowerCase();
-        groups.put(name, group);
-        saveGroupData(group);
-    }
+    public abstract void addGroup(GroupData group);
 
     /**
      * 指定したグループ名のグループを取得する
      * @param name グループ名
      * @return グループ
      */
-    public GroupData getGroup(String name) {
-        name = name.toLowerCase();
+    public abstract GroupData getGroup(String name);
 
-        // PEXから取得する
-        if ( name.startsWith(SpecialGroupPex.NAME_PREFIX) && pexGroupsCache != null ) {
-            if ( pexGroupsCache.containsKey(name) ) {
-                return pexGroupsCache.get(name);
-            }
-        }
-
-        // グループから取得する
-        if ( groups.containsKey(name) ) {
-            return groups.get(name);
-        }
-        return null;
-    }
+    /**
+     * 指定したグループ名のグループをすべて取得する。
+     * @param names グループ名のリスト
+     * @return グループのリスト
+     */
+    public abstract ArrayList<GroupData> getGroups(List<String> names);
 
     /**
      * 指定したグループ名のグループを削除する
      * @param name グループ名
      */
-    public void removeGroup(String name) {
-        name = name.toLowerCase();
-        if ( groups.containsKey(name) ) {
-            groups.remove(name);
-            File folder = parent.getGroupFolder();
-            File file = new File(folder, name + ".yml");
-            file.delete();
-        }
-    }
+    public abstract void removeGroup(String name);
 
     /**
      * 全てのグループ名を取得する
      * @return 全てのグループ名
      */
-    public ArrayList<String> getAllGroupNames() {
-        ArrayList<String> names = new ArrayList<String>();
-        for ( GroupData group : groups.values() ) {
-            names.add(group.getName());
-        }
-        return names;
-    }
+    public abstract ArrayList<String> getAllGroupNames();
 
     /**
      * 全てのグループを取得する
      * @return 全てのグループ
      */
-    public ArrayList<GroupData> getAllGroups() {
-        return new ArrayList<GroupData>(groups.values());
-    }
+    public abstract ArrayList<GroupData> getAllGroups();
 
     /**
      * 指定されたグループ名は既に存在するかどうかを確認する
      * @return 存在するかどうか
      */
-    public boolean existGroupName(String name) {
-        return groups.keySet().contains(name.toLowerCase());
+    public abstract boolean existGroupName(String name);
+
+    /**
+     * 指定したグループを保存する
+     * @param group グループ
+     */
+    public abstract void saveGroupData(GroupData group);
+
+    /**
+     * @return すべてのプレイヤーを示すグループ
+     */
+    public SpecialGroupAll getGroupAll() {
+        return groupAll;
     }
 
     /**
-     * 指定したグループを実データファイルに保存する
-     * @param group グループ
+     * @return サーバーの起動している間に接続したすべてのプレイヤーを示すグループ
      */
-    public void saveGroupData(GroupData group) {
-        File folder = parent.getGroupFolder();
-        File file = new File(folder, group.getName().toLowerCase() + ".yml");
-        group.saveToFile(file);
+    public SpecialGroupAllConnected getGroupAllConnected() {
+        return groupAllConnected;
+    }
+
+    /**
+     * @return 現在ログインしているすべてのプレイヤーを示すグループ。別のサーバーのプレイヤーは含まれない。
+     * TODO: mailsenderのデータベーススキーマを変更して含ませる。
+     */
+    public SpecialGroupAllLogin getGroupAllLogin() {
+        return groupAllLogin;
     }
 
     /**
@@ -209,13 +154,7 @@ public class GroupManager {
      * @param sender
      * @return オーナーのグループの個数
      */
-    public int getOwnerGroupCount(MailSender sender) {
-        int total = 0;
-        for ( GroupData group : groups.values() ) {
-            if ( group.getOwner().equals(sender) ) total++;
-        }
-        return total;
-    }
+    public abstract int getOwnerGroupCount(MailSender sender);
 
     /**
      * 指定したsenderは新規にグループを作成できるかどうかを返す
@@ -239,17 +178,13 @@ public class GroupManager {
 
         ArrayList<GroupData> results = new ArrayList<GroupData>();
 
-        for ( GroupData group : groups.values() ) {
+        for ( GroupData group : getAllGroups() ) {
             if ( group.isMember(sender) || group.canSend(sender) ) {
                 results.add(group);
             }
         }
 
-        Collections.sort(results, new Comparator<GroupData>() {
-            public int compare(GroupData o1, GroupData o2) {
-                return o1.getName().compareToIgnoreCase(o2.getName());
-            }
-        });
+        Collections.sort(results, (o1, o2) -> o1.getName().compareToIgnoreCase(o2.getName()));
 
         return results;
     }
@@ -263,17 +198,13 @@ public class GroupManager {
 
         ArrayList<GroupData> results = new ArrayList<GroupData>();
 
-        for ( GroupData group : groups.values() ) {
+        for ( GroupData group : getAllGroups() ) {
             if ( group.canSend(sender) ) {
                 results.add(group);
             }
         }
 
-        Collections.sort(results, new Comparator<GroupData>() {
-            public int compare(GroupData o1, GroupData o2) {
-                return o1.getName().compareToIgnoreCase(o2.getName());
-            }
-        });
+        Collections.sort(results, (o1, o2) ->  o1.getName().compareToIgnoreCase(o2.getName()));
 
         // PermissionsExから動的にグループを取得して結合する
         for ( GroupData group : getPexGroups() ) {
@@ -322,7 +253,7 @@ public class GroupManager {
                     new MessageParts("[" + group.getName() + "]", ChatColor.AQUA);
             button.setClickEvent(ClickEventType.RUN_COMMAND,
                     COMMAND + " detail " + group.getName());
-            button.addHoverText(group.getHoverText());
+            button.setHoverText(group.getHoverText());
             msg.addParts(button);
 
             if ( group instanceof SpecialGroupAll ) {
@@ -333,7 +264,7 @@ public class GroupManager {
                         new String[]{group.getOwner().getName(), group.getMembers().size() + ""}));
             }
 
-            sendMessageComponent(msg, sender);
+            sender.sendMessageComponent(msg);
         }
 
         if ( canMakeNewGroup(sender) ) {
@@ -344,10 +275,10 @@ public class GroupManager {
                     new MessageParts(Messages.get("GroupMakeNewGroup"), ChatColor.AQUA);
             button.setClickEvent(ClickEventType.SUGGEST_COMMAND,
                     COMMAND + " create ");
-            button.addHoverText(Messages.get("GroupMakeNewGroupToolTip"));
+            button.setHoverText(Messages.get("GroupMakeNewGroupToolTip"));
             msg.addParts(button);
 
-            sendMessageComponent(msg, sender);
+            sender.sendMessageComponent(msg);
         }
 
         sendPager(sender, COMMAND + " list", "", page, max,
@@ -392,7 +323,7 @@ public class GroupManager {
                     new MessageParts("[" + group.getName() + "]", ChatColor.AQUA);
             button.setClickEvent(ClickEventType.RUN_COMMAND,
                     next + " " + group.getName());
-            button.addHoverText(group.getHoverText());
+            button.setHoverText(group.getHoverText());
             msg.addParts(button);
 
             if ( group instanceof SpecialGroupAll ) {
@@ -403,7 +334,7 @@ public class GroupManager {
                         new String[]{group.getOwner().getName(), group.getMembers().size() + ""}));
             }
 
-            sendMessageComponent(msg, sender);
+            sender.sendMessageComponent(msg);
         }
 
         if ( canMakeNewGroup(sender) ) {
@@ -412,10 +343,10 @@ public class GroupManager {
 
             MessageParts button =
                     new MessageParts(Messages.get("GroupMakeNewGroup"), ChatColor.WHITE);
-            button.addHoverText(Messages.get("GroupMakeNewGroupToolTipForSelection"));
+            button.setHoverText(Messages.get("GroupMakeNewGroupToolTipForSelection"));
             msg.addParts(button);
 
-            sendMessageComponent(msg, sender);
+            sender.sendMessageComponent(msg);
         }
 
         sendPager(sender, COMMAND + " list", " " + next, page, max,
@@ -453,11 +384,7 @@ public class GroupManager {
 
             // メンバーを5人ごとに区切って表示する
             ArrayList<MailSender> members = group.getMembers();
-            Collections.sort(members, new Comparator<MailSender>() {
-                public int compare(MailSender o1, MailSender o2) {
-                    return o1.getName().compareToIgnoreCase(o2.getName());
-                }
-            });
+            Collections.sort(members, (o1, o2) -> o1.getName().compareToIgnoreCase(o2.getName()));
             int size = members.size();
             int max = (int)((size - 1) / 5) + 1;
             for ( int i=0; i<max; i++ ) {
@@ -479,7 +406,7 @@ public class GroupManager {
         button.setClickEvent(ClickEventType.RUN_COMMAND, COMMAND + " list");
         msg.addParts(button);
         msg.addText(" " + parts + parts);
-        sendMessageComponent(msg, sender);
+        sender.sendMessageComponent(msg);
     }
 
     /**
@@ -506,11 +433,7 @@ public class GroupManager {
         sender.sendMessage(pre + Messages.get("GroupMemberLine"));
 
         ArrayList<MailSender> members = group.getMembers();
-        Collections.sort(members, new Comparator<MailSender>() {
-            public int compare(MailSender o1, MailSender o2) {
-                return o1.getName().compareToIgnoreCase(o2.getName());
-            }
-        });
+        Collections.sort(members, (o1, o2) -> o1.getName().compareToIgnoreCase(o2.getName()));
         int size = members.size();
         int max = (int)((size - 1) / PAGE_SIZE) + 1;
 
@@ -531,20 +454,20 @@ public class GroupManager {
                 delete.setClickEvent(
                         ClickEventType.RUN_COMMAND,
                         COMMAND + " remove " + group.getName() + " " + member.getName());
-                delete.addHoverText(Messages.get("GroupDeleteMemberToolTip"));
+                delete.setHoverText(Messages.get("GroupDeleteMemberToolTip"));
                 msg.addParts(delete);
 
             } else {
                 MessageParts delete = new MessageParts(
                         Messages.get("GroupDeleteMemberButton"), ChatColor.WHITE);
-                delete.addHoverText(Messages.get("GroupDeleteMemberOwnerToolTip"));
+                delete.setHoverText(Messages.get("GroupDeleteMemberOwnerToolTip"));
                 msg.addParts(delete);
 
             }
 
             msg.addText(member.getName());
 
-            sendMessageComponent(msg, sender);
+            sender.sendMessageComponent(msg);
         }
 
         // メンバー追加ボタンと、設定ボタンを置く
@@ -571,7 +494,7 @@ public class GroupManager {
                 msg.addParts(addAddress);
             }
 
-            sendMessageComponent(msg, sender);
+            sender.sendMessageComponent(msg);
 
             msg = new MessageComponent();
             msg.addText(pre);
@@ -582,7 +505,7 @@ public class GroupManager {
                     COMMAND + " addalllogin " + group.getName());
             msg.addParts(addall);
 
-            sendMessageComponent(msg, sender);
+            sender.sendMessageComponent(msg);
         }
 
         MessageComponent msg = new MessageComponent();
@@ -594,7 +517,7 @@ public class GroupManager {
                 COMMAND + " detail " + group.getName() + " setting");
         msg.addParts(setting);
 
-        sendMessageComponent(msg, sender);
+        sender.sendMessageComponent(msg);
 
         sendPager(sender, COMMAND + " detail " + group.getName(), "",
                 page, max, Messages.get("DetailHorizontalParts"),
@@ -630,7 +553,7 @@ public class GroupManager {
                 (mode != GroupPermissionMode.OWNER),
                 (mode != GroupPermissionMode.MEMBER),
                 (mode != GroupPermissionMode.EVERYONE), true);
-        sendMessageComponent(msgSend, sender);
+        sender.sendMessageComponent(msgSend);
 
         mode = group.getModifyMode();
         sender.sendMessage(pre + Messages.get("GroupModifyPerm")
@@ -643,7 +566,7 @@ public class GroupManager {
                 (mode != GroupPermissionMode.OWNER),
                 (mode != GroupPermissionMode.MEMBER),
                 false, false);
-        sendMessageComponent(msgMod, sender);
+        sender.sendMessageComponent(msgMod);
 
         mode = group.getDissolutionMode();
         sender.sendMessage(pre + Messages.get("GroupDissolutionPerm")
@@ -656,7 +579,7 @@ public class GroupManager {
                 (mode != GroupPermissionMode.OWNER),
                 (mode != GroupPermissionMode.MEMBER),
                 false, false);
-        sendMessageComponent(msgDis, sender);
+        sender.sendMessageComponent(msgDis);
 
         if ( group.canBreakup(sender) ) {
             MessageComponent msg = new MessageComponent();
@@ -667,7 +590,7 @@ public class GroupManager {
                     ClickEventType.RUN_COMMAND,
                     COMMAND + " delete " + group.getName());
             msg.addParts(breakup);
-            sendMessageComponent(msg, sender);
+            sender.sendMessageComponent(msg);
         }
 
         MessageComponent msg = new MessageComponent();
@@ -678,7 +601,7 @@ public class GroupManager {
                 ClickEventType.RUN_COMMAND,
                 COMMAND + " detail " + group.getName());
         msg.addParts(breakup);
-        sendMessageComponent(msg, sender);
+        sender.sendMessageComponent(msg);
 
         sender.sendMessage(Messages.get("DetailLastLine"));
     }
@@ -762,7 +685,7 @@ public class GroupManager {
             MessageParts returnButton = new MessageParts(
                     Messages.get("Return"), ChatColor.AQUA);
             returnButton.setClickEvent(ClickEventType.RUN_COMMAND, returnCommand);
-            returnButton.addHoverText(Messages.get("ReturnToolTip"));
+            returnButton.setHoverText(Messages.get("ReturnToolTip"));
             msg.addParts(returnButton);
 
             msg.addText(" ");
@@ -773,7 +696,7 @@ public class GroupManager {
                     firstLabel, ChatColor.AQUA);
             firstButton.setClickEvent(ClickEventType.RUN_COMMAND,
                     commandPre + " 1" + commandSuf);
-            firstButton.addHoverText(firstToolTip);
+            firstButton.setHoverText(firstToolTip);
             msg.addParts(firstButton);
 
             msg.addText(" ");
@@ -782,7 +705,7 @@ public class GroupManager {
                     prevLabel, ChatColor.AQUA);
             prevButton.setClickEvent(ClickEventType.RUN_COMMAND,
                     commandPre + " " + (page - 1) + commandSuf);
-            prevButton.addHoverText(prevToolTip);
+            prevButton.setHoverText(prevToolTip);
             msg.addParts(prevButton);
 
         } else {
@@ -797,7 +720,7 @@ public class GroupManager {
                     nextLabel, ChatColor.AQUA);
             nextButton.setClickEvent(ClickEventType.RUN_COMMAND,
                     commandPre + " " + (page + 1) + commandSuf);
-            nextButton.addHoverText(nextToolTip);
+            nextButton.setHoverText(nextToolTip);
             msg.addParts(nextButton);
 
             msg.addText(" ");
@@ -806,7 +729,7 @@ public class GroupManager {
                     lastLabel, ChatColor.AQUA);
             lastButton.setClickEvent(ClickEventType.RUN_COMMAND,
                     commandPre + " " + max + commandSuf);
-            lastButton.addHoverText(lastToolTip);
+            lastButton.setHoverText(lastToolTip);
             msg.addParts(lastButton);
 
         } else {
@@ -815,14 +738,37 @@ public class GroupManager {
 
         msg.addText(" " + parts);
 
-        sendMessageComponent(msg, sender);
+        sender.sendMessageComponent(msg);
+    }
+
+    /**
+     * PEXからグループを取得する。
+     * @param name グループ名
+     * @return PEXからインポートされたグループ
+     */
+    public GroupData getPexGroup(String name) {
+        if ( name.startsWith(SpecialGroupPex.NAME_PREFIX) && pexGroupsCache != null ) {
+            if ( pexGroupsCache.containsKey(name) ) {
+                return pexGroupsCache.get(name);
+            }
+        }
+
+        if (pexGroupsCache == null) {
+            for (GroupData group : getPexGroups()) {
+                if (group.getName().equals(name)) {
+                    return group;
+                }
+            }
+        }
+
+        return null;
     }
 
     /**
      * PEXからグループを取得してGroupDataに変換して返す
      * @return PEXからインポートされたグループ
      */
-    private ArrayList<GroupData> getPexGroups() {
+    public ArrayList<GroupData> getPexGroups() {
 
         PermissionsExBridge pex = UndineMailer.getInstance().getPex();
         ArrayList<GroupData> results = new ArrayList<GroupData>();
@@ -842,18 +788,5 @@ public class GroupManager {
         }
 
         return results;
-    }
-
-    /**
-     * 指定されたメッセージコンポーネントを、指定されたMailSenderに送信する。
-     * @param msg メッセージコンポーネント
-     * @param sender 送信先
-     */
-    private void sendMessageComponent(MessageComponent msg, MailSender sender) {
-        if ( sender instanceof MailSenderPlayer && sender.isOnline() ) {
-            msg.send(sender.getPlayer());
-        } else if ( sender instanceof MailSenderConsole ) {
-            msg.send(Bukkit.getConsoleSender());
-        }
     }
 }

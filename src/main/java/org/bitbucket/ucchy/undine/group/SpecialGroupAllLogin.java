@@ -5,7 +5,6 @@
  */
 package org.bitbucket.ucchy.undine.group;
 
-import java.io.File;
 import java.util.ArrayList;
 
 import org.bitbucket.ucchy.undine.Messages;
@@ -21,7 +20,7 @@ import org.bukkit.entity.Player;
  * 特殊グループ AllLogin
  * @author ucchy
  */
-public class SpecialGroupAllLogin extends GroupData {
+public class SpecialGroupAllLogin extends SpecialGroup {
 
     public static final String NAME = "AllLogin";
 
@@ -58,18 +57,6 @@ public class SpecialGroupAllLogin extends GroupData {
     @Override
     public boolean isMember(MailSender sender) {
         return (sender instanceof MailSenderPlayer && sender.isOnline());
-    }
-
-    /**
-     * ファイルにグループを保存する
-     * @param file ファイル
-     * @see org.bitbucket.ucchy.undine.group.GroupData#saveToFile(java.io.File)
-     * @deprecated このメソッドは実際は何も実行されません。
-     */
-    @Override
-    @Deprecated
-    protected void saveToFile(File file) {
-        // do nothing.
     }
 
     /**

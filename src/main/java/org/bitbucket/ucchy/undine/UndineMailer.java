@@ -6,17 +6,24 @@
 package org.bitbucket.ucchy.undine;
 
 import java.io.File;
-import java.util.HashMap;
+import java.io.IOException;
+import java.sql.SQLException;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Locale;
+import java.util.Set;
 
 import org.bitbucket.ucchy.undine.bridge.PermissionsExBridge;
 import org.bitbucket.ucchy.undine.bridge.VaultEcoBridge;
 import org.bitbucket.ucchy.undine.command.GroupCommand;
 import org.bitbucket.ucchy.undine.command.ListCommand;
 import org.bitbucket.ucchy.undine.command.UndineCommand;
+import org.bitbucket.ucchy.undine.database.Database;
+import org.bitbucket.ucchy.undine.database.GroupManagerDatabase;
+import org.bitbucket.ucchy.undine.database.MailManagerDatabase;
+import org.bitbucket.ucchy.undine.database.Database.DatabaseType;
 import org.bitbucket.ucchy.undine.group.GroupManager;
-import org.bitbucket.ucchy.undine.sender.MailSender;
+import org.bitbucket.ucchy.undine.group.GroupManagerFlatFile;
 import org.bukkit.Bukkit;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandSender;
@@ -30,12 +37,13 @@ public class UndineMailer extends JavaPlugin {
 
     private static final String MAIL_FOLDER = "mail";
     private static final String GROUP_FOLDER = "group";
+    private static final String CACHE_FOLDER = "cache";
 
     private MailManager mailManager;
     private AttachmentBoxManager boxManager;
     private GroupManager groupManager;
     private MailCleanupTask cleanupTask;
-    private PlayerNameCache playerNameCache;
+    private PlayerUuidCache playerUuidCache;
 
     private UndineCommand undineCommand;
     private ListCommand listCommand;
@@ -45,6 +53,8 @@ public class UndineMailer extends JavaPlugin {
 
     private VaultEcoBridge vaulteco;
     private PermissionsExBridge pex;
+
+    private Database database;
 
     /**
      * プラグインが有効化されたときに呼び出されるメソッド
@@ -68,9 +78,21 @@ public class UndineMailer extends JavaPlugin {
                     getServer().getPluginManager().getPlugin("PermissionsEx"));
         }
 
-        // マネージャを生成し、データをロードする
-        groupManager = new GroupManager(this);
-        mailManager = new MailManager(this);
+        // マネージャを生成する
+        try {
+            if (config.getDatabaseType() == DatabaseType.FLAT_FILE) {
+                database = null;
+                groupManager = new GroupManagerFlatFile(this);
+                mailManager = new MailManagerFlatFile(this);
+            } else {
+                database = new Database(this, config.getDatabaseType());
+                groupManager = new GroupManagerDatabase(this);
+                mailManager = new MailManagerDatabase(this);
+            }
+        } catch (SQLException | IOException e) {
+            new IllegalStateException("Could not initialize database.", e);
+        }
+
         boxManager = new AttachmentBoxManager(this);
 
         // メッセージをロードする
@@ -91,10 +113,10 @@ public class UndineMailer extends JavaPlugin {
         getServer().getPluginManager().registerEvents(new UndineListener(this), this);
 
         // プレイヤーキャッシュの作成
-        playerNameCache = PlayerNameCache.load();
+        playerUuidCache = PlayerUuidCache.load();
 
         // プレイヤーキャッシュのリロード
-        playerNameCache.refresh();
+        playerUuidCache.refresh();
     }
 
     /**
@@ -106,6 +128,11 @@ public class UndineMailer extends JavaPlugin {
 
         // タスクを停止する
         cleanupTask.cancel();
+
+        // データベースの終了
+        if (database != null) {
+            database.dispose();
+        }
 
         // 添付ボックスを開いたままにしているプレイヤーの
         // インベントリを強制的に閉じる
@@ -167,6 +194,26 @@ public class UndineMailer extends JavaPlugin {
             folder.mkdirs();
         }
         return folder;
+    }
+
+    /**
+     * キャッシュデータを格納するフォルダを返す
+     * @return キャッシュデータ格納フォルダ
+     */
+    public File getCacheFolder() {
+        File folder = new File(getDataFolder(), CACHE_FOLDER);
+        if ( !folder.exists() ) {
+            folder.mkdirs();
+        }
+        return folder;
+    }
+
+    /**
+     * データベースを取得する。フラットファイルモードの場合はnullを返す。
+     * @return データベース
+     */
+    public Database getDatabase() {
+        return database;
     }
 
     /**
@@ -236,11 +283,45 @@ public class UndineMailer extends JavaPlugin {
     }
 
     /**
-     * プレイヤーキャッシュを取得する
-     * @return プレイヤーキャッシュ
+     * 指定されたプレイヤー名のUUIDをキャッシュから取得する
+     * @param name プレイヤー名
+     * @return UUID
      */
-    public HashMap<String, MailSender> getPlayerCache() {
-        return playerNameCache.getCache();
+    public String getUUID(String name) {
+        return playerUuidCache.getUUID(name);
+    }
+
+    /**
+     * 指定されたUUIDのプレイヤー名をキャッシュから取得する
+     * @param uuid UUID
+     * @return プレイヤー名
+     */
+    public String getName(String uuid) {
+        return playerUuidCache.getName(uuid);
+    }
+
+    /**
+     * 指定されたプレイヤー名のUUIDを、非同期スレッドで更新する
+     * @param name プレイヤー名
+     */
+    public void asyncRefreshPlayerUuid(String name) {
+        playerUuidCache.asyncRefreshPlayerUuid(name);
+    }
+
+    /**
+     * キャッシュしているプレイヤー名の一覧を返す
+     * @return プレイヤー名一覧
+     */
+    public Set<String> getPlayerNames() {
+        return playerUuidCache.getPlayerNames();
+    }
+
+    /**
+     * キャッシュされているすべてのUUIDを取得する
+     * @return すべてのUUID
+     */
+    public HashSet<String> getPlayerUuids() {
+        return playerUuidCache.getPlayerUuids();
     }
 
     /**
@@ -255,7 +336,7 @@ public class UndineMailer extends JavaPlugin {
         config.reloadConfig();
         Messages.reload(config.getLang());
 
-        playerNameCache.refresh();
+        playerUuidCache.refresh();
     }
 
     /**
@@ -263,7 +344,7 @@ public class UndineMailer extends JavaPlugin {
      * @return プレイヤーキャッシュがロードされているかどうか
      */
     public boolean isPlayerCacheLoaded() {
-        return playerNameCache.isPlayerCacheLoaded();
+        return playerUuidCache.isPlayerCacheLoaded();
     }
 
     /**

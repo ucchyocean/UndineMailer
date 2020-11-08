@@ -10,13 +10,14 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.bitbucket.ucchy.undine.database.Database.DatabaseType;
 import org.bitbucket.ucchy.undine.group.GroupPermissionMode;
-import org.bitbucket.ucchy.undine.item.ItemConfigParseException;
-import org.bitbucket.ucchy.undine.item.ItemConfigParser;
-import org.bitbucket.ucchy.undine.item.TradableMaterial;
 import org.bukkit.configuration.ConfigurationSection;
 import org.bukkit.configuration.file.FileConfiguration;
 import org.bukkit.inventory.ItemStack;
+
+import com.github.ucchyocean.itemconfig.ItemConfigParseException;
+import com.github.ucchyocean.itemconfig.ItemConfigParser;
 
 /**
  * Undineコンフィグ管理クラス
@@ -26,6 +27,24 @@ public class UndineConfig {
 
     /** メッセージ言語 */
     private String lang;
+
+    /** データベースの種類。 */
+    private DatabaseType databaseType;
+
+    /** MySQLでログインするためのユーザー */
+    private String mysqlUser;
+
+    /** MySQLでログインするためのパスワード */
+    private String mysqlPass;
+
+    /** MySQLでログインするためのホスト */
+    private String mysqlHost;
+
+    /** MySQLでログインするためのポート */
+    private int mysqlPort;
+
+    /** MySQLで使うデータベースの名前 */
+    private String mysqlDBName;
 
     /** メールにアイテムの添付を可能にするかどうか */
     private boolean enableAttachment;
@@ -55,7 +74,7 @@ public class UndineConfig {
     private List<String> disableWorldsToOpenAttachBox;
 
     /** 添付ボックスに添付できないようにするアイテム */
-    private List<TradableMaterial> prohibitItemsToAttach;
+    private List<String> prohibitItemsToAttach;
 
     /** 着払い料金を使用するかどうか */
     private boolean enableCODMoney;
@@ -129,6 +148,9 @@ public class UndineConfig {
     /** ウェルカムメールの添付アイテム */
     private List<ItemStack> welcomeMailAttachments;
 
+    /** UUIDのオンラインモード */
+    private boolean uuidOnlineMode;
+
     private UndineMailer parent;
 
     /**
@@ -175,6 +197,12 @@ public class UndineConfig {
 
         // 読み込み
         lang = conf.getString("lang", "ja");
+        databaseType = DatabaseType.getByName(conf.getString("databaseType", "sqlite"));
+        mysqlUser = conf.getString("mysqlUser", "root");
+        mysqlPass = conf.getString("mysqlPass", "password");
+        mysqlHost = conf.getString("mysqlHost", "127.0.0.1");
+        mysqlPort = conf.getInt("mysqlPort", 3306);
+        mysqlDBName = conf.getString("mysqlDBName", "undinemailer");
         enableAttachment = conf.getBoolean("enableAttachment", true);
         enableSendFee = conf.getBoolean("enableSendFee", false);
         sendFee = conf.getDouble("sendFee", 10);
@@ -225,13 +253,9 @@ public class UndineConfig {
         welcomeMailAttachments = getItemStackListFromConfig(
                 conf.getConfigurationSection("welcomeMailAttachments"));
 
-        prohibitItemsToAttach = new ArrayList<TradableMaterial>();
-        for ( String name : conf.getStringList("prohibitItemsToAttach") ) {
-            TradableMaterial material = TradableMaterial.getMaterial(name);
-            if ( material != null ) {
-                prohibitItemsToAttach.add(material);
-            }
-        }
+        prohibitItemsToAttach = conf.getStringList("prohibitItemsToAttach");
+
+        uuidOnlineMode = conf.getBoolean("uuidOnlineMode", false);
 
         // sendFeeは、マイナスが指定されていたら0に変更する
         if ( sendFee < 0 ) {
@@ -312,6 +336,48 @@ public class UndineConfig {
     }
 
     /**
+     * @return databaseType
+     */
+    public DatabaseType getDatabaseType() {
+        return databaseType;
+    }
+
+    /**
+     * @return mysqlHost
+     */
+    public String getMysqlHost() {
+        return mysqlHost;
+    }
+
+    /**
+     * @return mysqlPass
+     */
+    public String getMysqlPass() {
+        return mysqlPass;
+    }
+
+    /**
+     * @return mysqlUser
+     */
+    public String getMysqlUser() {
+        return mysqlUser;
+    }
+
+    /**
+     * @return mysqlPort
+     */
+    public int getMysqlPort() {
+        return mysqlPort;
+    }
+
+    /**
+     * @return mysqlDBName
+     */
+    public String getMysqlDBName() {
+        return mysqlDBName;
+    }
+
+    /**
      * @return enableAttachment
      */
     public boolean isEnableAttachment() {
@@ -377,7 +443,7 @@ public class UndineConfig {
     /**
      * @return prohibitItemsToAttach
      */
-    public List<TradableMaterial> getProhibitItemsToAttach() {
+    public List<String> getProhibitItemsToAttach() {
         return prohibitItemsToAttach;
     }
 
@@ -549,4 +615,10 @@ public class UndineConfig {
         return welcomeMailAttachments;
     }
 
+    /**
+     * @return uuidOnlineMode
+     */
+    public boolean isUuidOnlineMode() {
+        return uuidOnlineMode;
+    }
 }

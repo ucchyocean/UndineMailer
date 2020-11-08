@@ -7,6 +7,8 @@ package org.bitbucket.ucchy.undine.sender;
 
 import java.util.HashMap;
 
+import com.github.ucchyocean.messaging.tellraw.MessageComponent;
+
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.OfflinePlayer;
@@ -80,6 +82,15 @@ public class MailSenderConsole extends MailSender {
     @Override
     public void sendMessage(String message) {
         sender.sendMessage(message);
+    }
+
+    /**
+     * 指定されたメッセージコンポーネントをこのMailSenderに送信する。
+     * @param msg メッセージコンポーネント
+     */
+    @Override
+    public void sendMessageComponent(MessageComponent msg) {
+        msg.send(Bukkit.getConsoleSender());
     }
 
     /**

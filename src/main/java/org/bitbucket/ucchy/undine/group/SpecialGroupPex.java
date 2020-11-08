@@ -5,9 +5,6 @@
  */
 package org.bitbucket.ucchy.undine.group;
 
-import java.io.File;
-import java.util.ArrayList;
-
 import org.bitbucket.ucchy.undine.UndineMailer;
 import org.bitbucket.ucchy.undine.sender.MailSender;
 import org.bitbucket.ucchy.undine.sender.MailSenderDummy;
@@ -16,7 +13,7 @@ import org.bitbucket.ucchy.undine.sender.MailSenderDummy;
  * PEXからインポートされたグループ
  * @author ucchy
  */
-public class SpecialGroupPex extends GroupData {
+public class SpecialGroupPex extends SpecialGroup {
 
     public static final String NAME_PREFIX = "(pex)";
 
@@ -38,17 +35,6 @@ public class SpecialGroupPex extends GroupData {
     }
 
     /**
-     * グループのメンバーを取得する
-     * @see org.bitbucket.ucchy.undine.group.GroupData#getMembers()
-     * @deprecated このメソッドは期待した結果とは違う結果を返します。
-     */
-    @Override
-    @Deprecated
-    public ArrayList<MailSender> getMembers() {
-        return super.getMembers();
-    }
-
-    /**
      * 指定されたsenderが、グループのメンバーかどうかを返す
      * @param sender
      * @return メンバーかどうか
@@ -59,17 +45,5 @@ public class SpecialGroupPex extends GroupData {
     @Deprecated
     public boolean isMember(MailSender sender) {
         return true; // 常にtrueを返す
-    }
-
-    /**
-     * ファイルにグループを保存する
-     * @param file ファイル
-     * @see org.bitbucket.ucchy.undine.group.GroupData#saveToFile(java.io.File)
-     * @deprecated このメソッドは実際は何も実行されません。
-     */
-    @Override
-    @Deprecated
-    protected void saveToFile(File file) {
-        // do nothing.
     }
 }

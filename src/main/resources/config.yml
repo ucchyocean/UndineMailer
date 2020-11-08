@@ -8,6 +8,15 @@
 # Message locale.
 lang: en
 
+# Database settings
+# flatfile, sqlite or mysql for databaseType.
+databaseType: flatfile
+mysqlUser: root
+mysqlPass: password
+mysqlHost: 127.0.0.1
+mysqlPort: 3306
+mysqlDBName: "undinemailer"
+
 # Enable to send mail to oneself.
 enableSendSelf: false
 
@@ -34,6 +43,10 @@ mailSpamProtectionSeconds: 15
 # Mail notification delay seconds on player login.
 loginNotificationDelaySeconds: 3
 
+# UUID online mode.
+#   true = Getting UUIDs from Mojang server. false = Getting UUIDS from local bukkit server.
+uuidOnlineMode: false
+
 # -------------------- Attachment Item Box --------------------
 
 # Enable the attachment item box.
@@ -54,7 +67,7 @@ disableWorldsToOpenAttachBox: []
 # For example, the following setting makes that gold apple and quartz block will not be attached.
 #   prohibitItemsToAttach: [GOLDEN_APPLE, QUARTZ_BLOCK]
 # Possible item name, please see the following URL as a reference.
-# https://github.com/ucchyocean/UndineMailer/blob/master/src/main/java/org/bitbucket/ucchy/undine/item/TradableMaterial.java#L16-L357
+# https://github.com/ucchyocean/UndineMailer/blob/master/src/main/java/org/bitbucket/ucchy/undine/item/TradableMaterial.java#L19-L462
 prohibitItemsToAttach: []
 
 # -------------------- C.O.D. Setting --------------------
@@ -154,7 +167,7 @@ welcomeMailDelaySeconds: 30
 # Attachment items of welcome mail.
 welcomeMailAttachments:
   attachment1:
-    material: STONE_SPADE
+    material: STONE_SHOVEL
   attachment2:
     material: STONE_PICKAXE
   attachment3:

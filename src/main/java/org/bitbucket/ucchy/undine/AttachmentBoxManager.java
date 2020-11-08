@@ -25,7 +25,7 @@ public class AttachmentBoxManager {
 
     private HashMap<Player, Inventory> editmodeBoxes;
     private HashMap<Integer, Inventory> attachmentBoxes;
-    private HashMap<Player, Integer> indexCache;
+    private HashMap<Player, MailData> indexCache;
 
     /**
      * コンストラクタ
@@ -35,7 +35,7 @@ public class AttachmentBoxManager {
         this.parent = parent;
         editmodeBoxes = new HashMap<Player, Inventory>();
         attachmentBoxes = new HashMap<Integer, Inventory>();
-        indexCache = new HashMap<Player, Integer>();
+        indexCache = new HashMap<Player, MailData>();
     }
 
     /**
@@ -43,12 +43,13 @@ public class AttachmentBoxManager {
      * @param player プレイヤー
      * @param インベントリ名
      */
-    private String displayEditmodeBox(Player player) {
+    private void displayEditmodeBox(Player player) {
 
         // 既に、該当プレイヤーの編集中ボックスインベントリがある場合は、そちらを表示する
         if ( editmodeBoxes.containsKey(player) ) {
             player.openInventory(editmodeBoxes.get(player));
-            return editmodeBoxes.get(player).getName();
+            return;
+            //return editmodeBoxes.get(player).getName();
         }
 
         // 添付ボックスの作成
@@ -71,7 +72,7 @@ public class AttachmentBoxManager {
 
         editmodeBoxes.put(player, box);
         player.openInventory(box);
-        return box.getName();
+        //return box.getName();
     }
 
     /**
@@ -105,12 +106,13 @@ public class AttachmentBoxManager {
      * @param mail メール
      * @param インベントリ名
      */
-    private String displayAttachmentBox(Player player, MailData mail) {
+    private void displayAttachmentBox(Player player, MailData mail) {
 
         // 既に、該当メールの添付ボックスインベントリがある場合は、そちらを表示する
         if ( attachmentBoxes.containsKey(mail.getIndex()) ) {
             player.openInventory(attachmentBoxes.get(mail.getIndex()));
-            return attachmentBoxes.get(mail.getIndex()).getName();
+            return;
+            //return attachmentBoxes.get(mail.getIndex()).getName();
         }
 
         // 添付ボックスの作成
@@ -134,7 +136,7 @@ public class AttachmentBoxManager {
         // 指定されたplayerの画面に添付ボックスを表示する
         player.openInventory(box);
 
-        return box.getName();
+        //return box.getName();
     }
 
     /**
@@ -144,7 +146,7 @@ public class AttachmentBoxManager {
      */
     public void displayAttachBox(Player player, MailData mail) {
 
-        if ( mail.isEditmode() ) {
+        if ( !mail.isSent() ) {
             displayEditmodeBox(player);
         } else {
             displayAttachmentBox(player, mail);
@@ -152,7 +154,7 @@ public class AttachmentBoxManager {
         }
 
         // メールのインデクスを記録しておく
-        indexCache.put(player, mail.getIndex());
+        indexCache.put(player, mail);
     }
 
     /**
@@ -163,7 +165,7 @@ public class AttachmentBoxManager {
      */
     protected boolean isOpeningAttachBox(Player player) {
         return indexCache.containsKey(player)
-                && indexCache.get(player) > 0;
+                && indexCache.get(player).isSent();
     }
 
     /**
@@ -174,7 +176,7 @@ public class AttachmentBoxManager {
      */
     protected boolean isOpeningEditmodeBox(Player player) {
         return indexCache.containsKey(player)
-                && indexCache.get(player) == 0;
+                && !indexCache.get(player).isSent();
     }
 
     /**
@@ -186,19 +188,17 @@ public class AttachmentBoxManager {
         // 開いていたボックスのインデクスが記録されていないなら、何もしない
         if ( !indexCache.containsKey(player) ) return;
 
+        // 同期するボックスとメールを取得する
+        MailData mail = indexCache.get(player);
+
         // インデクスを削除する
-        int index = indexCache.get(player);
         indexCache.remove(player);
 
-        // 同期するボックスとメールを取得する
-        MailData mail;
         Inventory inv;
-        if ( index == 0 ) {
-            mail = parent.getMailManager().getEditmodeMail(MailSender.getMailSender(player));
+        if ( !mail.isSent() ) {
             inv = editmodeBoxes.get(player);
         } else {
-            mail = parent.getMailManager().getMail(index);
-            inv = attachmentBoxes.get(index);
+            inv = attachmentBoxes.get(mail.getIndex());
         }
 
         // 一旦取り出して再度挿入することで、アイテムをスタックして整理する
@@ -227,7 +227,7 @@ public class AttachmentBoxManager {
 
         // メール詳細を開く
         if ( player.isOnline() ) {
-            if ( mail.isEditmode() ) {
+            if ( !mail.isSent() ) {
                 parent.getMailManager().displayEditmode(
                         MailSender.getMailSender(player));
             } else {

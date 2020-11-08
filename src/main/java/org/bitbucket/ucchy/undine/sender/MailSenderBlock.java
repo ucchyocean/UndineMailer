@@ -7,6 +7,8 @@ package org.bitbucket.ucchy.undine.sender;
 
 import java.util.List;
 
+import com.github.ucchyocean.messaging.tellraw.MessageComponent;
+
 import org.bitbucket.ucchy.undine.UndineMailer;
 import org.bukkit.Location;
 import org.bukkit.Material;
@@ -23,7 +25,10 @@ import org.bukkit.metadata.MetadataValue;
  */
 public class MailSenderBlock extends MailSender {
 
-    BlockCommandSender sender;
+    private final BlockCommandSender sender;
+
+    private final String name;
+    private final Location location;
 
     /**
      * コンストラクタ
@@ -31,6 +36,14 @@ public class MailSenderBlock extends MailSender {
      */
     public MailSenderBlock(BlockCommandSender sender) {
         this.sender = sender;
+        this.name = sender.getName();
+        this.location = sender.getBlock().getLocation();
+    }
+
+    public MailSenderBlock(String name, Location location) {
+        this.sender = null;
+        this.name = name;
+        this.location = location;
     }
 
     /**
@@ -59,8 +72,9 @@ public class MailSenderBlock extends MailSender {
      */
     @Override
     public String getName() {
-        if ( sender == null ) return "@";
-        return sender.getName();
+        if ( sender != null ) return sender.getName();
+        if ( name != null ) return name;
+        return "@";
     }
 
     /**
@@ -70,8 +84,7 @@ public class MailSenderBlock extends MailSender {
      */
     @Override
     public String getDisplayName() {
-        if ( sender == null ) return "@";
-        return sender.getName();
+        return getName();
     }
 
     /**
@@ -81,6 +94,16 @@ public class MailSenderBlock extends MailSender {
      */
     @Override
     public void sendMessage(String message) {
+        // do nothing.
+    }
+    
+    /**
+     * メッセージを送る、実際は何もせずにメッセージを捨てる
+     * @param message メッセージ
+     * @see org.bitbucket.ucchy.undine.sender.MailSender#sendMessageComponent(com.github.ucchyocean.messaging.tellraw.MessageComponent)
+     */
+    @Override
+    public void sendMessageComponent(MessageComponent msg) {
         // do nothing.
     }
 
@@ -111,8 +134,9 @@ public class MailSenderBlock extends MailSender {
      */
     @Override
     public String getWorldName() {
-        if ( sender == null || sender.getBlock() == null ) return "";
-        return sender.getBlock().getWorld().getName();
+        if ( sender != null && sender.getBlock() != null ) return sender.getBlock().getWorld().getName();
+        if ( location != null && location.getWorld() != null ) return location.getWorld().getName();
+        return "";
     }
 
     /**
@@ -156,7 +180,7 @@ public class MailSenderBlock extends MailSender {
     @Override
     public void setStringMetadata(String key, String value) {
         if ( sender == null || sender.getBlock() == null
-                || sender.getBlock().getType() != Material.COMMAND ) {
+                || !isCommandBlock(sender.getBlock().getType()) ) {
             return;
         }
         sender.getBlock().setMetadata(key,
@@ -172,7 +196,7 @@ public class MailSenderBlock extends MailSender {
     @Override
     public String getStringMetadata(String key) {
         if ( sender == null || sender.getBlock() == null
-                || sender.getBlock().getType() != Material.COMMAND ) {
+                || !isCommandBlock(sender.getBlock().getType()) ) {
             return null;
         }
         List<MetadataValue> values = sender.getBlock().getMetadata(key);
@@ -191,7 +215,7 @@ public class MailSenderBlock extends MailSender {
     @Override
     public void setBooleanMetadata(String key, boolean value) {
         if ( sender == null || sender.getBlock() == null
-                || sender.getBlock().getType() != Material.COMMAND ) {
+                || !isCommandBlock(sender.getBlock().getType()) ) {
             return;
         }
         sender.getBlock().setMetadata(key,
@@ -207,7 +231,7 @@ public class MailSenderBlock extends MailSender {
     @Override
     public boolean getBooleanMetadata(String key) {
         if ( sender == null || sender.getBlock() == null
-                || sender.getBlock().getType() != Material.COMMAND ) {
+                || !isCommandBlock(sender.getBlock().getType()) ) {
             return false;
         }
         List<MetadataValue> values = sender.getBlock().getMetadata(key);
@@ -237,5 +261,9 @@ public class MailSenderBlock extends MailSender {
     @Override
     public String toString() {
         return getName();
+    }
+
+    private boolean isCommandBlock(Material m) {
+        return !m.name().contains("MINECART") && m.name().contains("COMMAND");
     }
 }

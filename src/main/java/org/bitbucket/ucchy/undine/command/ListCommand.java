@@ -7,18 +7,18 @@ package org.bitbucket.ucchy.undine.command;
 
 import java.util.ArrayList;
 import java.util.Collections;
-import java.util.Comparator;
 import java.util.List;
 
 import org.bitbucket.ucchy.undine.Messages;
 import org.bitbucket.ucchy.undine.UndineMailer;
-import org.bitbucket.ucchy.undine.tellraw.ClickEventType;
-import org.bitbucket.ucchy.undine.tellraw.MessageComponent;
-import org.bitbucket.ucchy.undine.tellraw.MessageParts;
 import org.bukkit.ChatColor;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandSender;
 import org.bukkit.command.TabExecutor;
+
+import com.github.ucchyocean.messaging.tellraw.ClickEventType;
+import com.github.ucchyocean.messaging.tellraw.MessageComponent;
+import com.github.ucchyocean.messaging.tellraw.MessageParts;
 
 /**
  * listコマンド
@@ -66,12 +66,8 @@ public class ListCommand implements TabExecutor {
         }
 
         // 以下、プレイヤーリスト表示処理
-        ArrayList<String> names = new ArrayList<String>(parent.getPlayerCache().keySet());
-        Collections.sort(names, new Comparator<String>() {
-            public int compare(String o1, String o2) {
-                return o1.compareToIgnoreCase(o2);
-            }
-        });
+        ArrayList<String> names = new ArrayList<String>(parent.getPlayerNames());
+        Collections.sort(names, String::compareToIgnoreCase);
 
         String parts = Messages.get("ListHorizontalParts");
         String pre = Messages.get("ListVerticalParts");
@@ -216,7 +212,7 @@ public class ListCommand implements TabExecutor {
 
         MessageParts returnButton = new MessageParts(returnLabel, ChatColor.AQUA);
         returnButton.setClickEvent(ClickEventType.RUN_COMMAND, COMMAND_INDEX + next);
-        returnButton.addHoverText(returnToolTip);
+        returnButton.setHoverText(returnToolTip);
         msg.addParts(returnButton);
 
         msg.addText(" ");
@@ -225,7 +221,7 @@ public class ListCommand implements TabExecutor {
             MessageParts firstButton = new MessageParts(
                     firstLabel, ChatColor.AQUA);
             firstButton.setClickEvent(ClickEventType.RUN_COMMAND, commandPre + " 1" + next);
-            firstButton.addHoverText(firstToolTip);
+            firstButton.setHoverText(firstToolTip);
             msg.addParts(firstButton);
 
             msg.addText(" ");
@@ -233,7 +229,7 @@ public class ListCommand implements TabExecutor {
             MessageParts prevButton = new MessageParts(
                     prevLabel, ChatColor.AQUA);
             prevButton.setClickEvent(ClickEventType.RUN_COMMAND, commandPre + " " + (page - 1) + next);
-            prevButton.addHoverText(prevToolTip);
+            prevButton.setHoverText(prevToolTip);
             msg.addParts(prevButton);
 
         } else {
@@ -246,7 +242,7 @@ public class ListCommand implements TabExecutor {
             MessageParts nextButton = new MessageParts(
                     nextLabel, ChatColor.AQUA);
             nextButton.setClickEvent(ClickEventType.RUN_COMMAND, commandPre + " " + (page + 1) + next);
-            nextButton.addHoverText(nextToolTip);
+            nextButton.setHoverText(nextToolTip);
             msg.addParts(nextButton);
 
             msg.addText(" ");
@@ -254,7 +250,7 @@ public class ListCommand implements TabExecutor {
             MessageParts lastButton = new MessageParts(
                     lastLabel, ChatColor.AQUA);
             lastButton.setClickEvent(ClickEventType.RUN_COMMAND, commandPre + " " + max + next);
-            lastButton.addHoverText(lastToolTip);
+            lastButton.setHoverText(lastToolTip);
             msg.addParts(lastButton);
 
         } else {

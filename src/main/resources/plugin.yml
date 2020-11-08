@@ -4,6 +4,7 @@ main: org.bitbucket.ucchy.undine.UndineMailer
 description: UndineMailer - Mail Plugin
 softdepend: [Vault,PermissionsEx]
 author: ucchy
+api-version: 1.13
 
 commands:
   mail:

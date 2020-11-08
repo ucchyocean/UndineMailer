@@ -14,7 +14,6 @@ import org.bitbucket.ucchy.undine.Messages;
 import org.bitbucket.ucchy.undine.UndineConfig;
 import org.bitbucket.ucchy.undine.UndineMailer;
 import org.bitbucket.ucchy.undine.bridge.VaultEcoBridge;
-import org.bitbucket.ucchy.undine.item.TradableMaterial;
 import org.bitbucket.ucchy.undine.sender.MailSender;
 import org.bitbucket.ucchy.undine.sender.MailSenderConsole;
 import org.bukkit.OfflinePlayer;
@@ -92,7 +91,9 @@ public class UndineAttachCommand implements SubCommand {
             }
 
             // パーミッション確認
-            if  ( !sender.hasPermission(NODE_ATTACH_SENDMAIL) ) {
+            // 設定で添付不可にしている場合も拒否する(see issue #93)
+            if  ( !sender.hasPermission(NODE_ATTACH_SENDMAIL)
+                    || !config.isEnableAttachment() ) {
                 sender.sendMessage(Messages.get("PermissionDeniedCommand"));
                 return;
             }
@@ -142,10 +143,10 @@ public class UndineAttachCommand implements SubCommand {
             }
 
             // 取引可能な種類のアイテムでないなら、エラーを表示して終了
-            if ( !TradableMaterial.isTradable(item.getType()) ) {
-                sender.sendMessage(Messages.get("ErrorInvalidItem", "%item", args[2]));
-                return;
-            }
+//            if ( !TradableMaterial.isTradable(item.getType()) ) {
+//                sender.sendMessage(Messages.get("ErrorInvalidItem", "%item", args[2]));
+//                return;
+//            }
 
             // 個数も指定されている場合は、個数を反映する
             if ( args.length >= 4 && args[3].matches("[0-9]{1,9}") ) {
@@ -195,7 +196,9 @@ public class UndineAttachCommand implements SubCommand {
             }
 
             // パーミッション確認
-            if  ( !sender.hasPermission(NODE_ATTACH_INBOXMAIL) ) {
+            // 設定で添付不可にしている場合も拒否する(see issue #93)
+            if  ( !sender.hasPermission(NODE_ATTACH_INBOXMAIL)
+                    || !config.isEnableAttachment() ) {
                 sender.sendMessage(Messages.get("PermissionDeniedCommand"));
                 return;
             }
@@ -320,9 +323,8 @@ public class UndineAttachCommand implements SubCommand {
             manager.saveMail(mail);
 
             // 送信者側に新規メールで、アイテムを差し戻す
-            MailData reply = new MailData();
+            MailData reply = manager.makeEditmodeMail(MailSenderConsole.getMailSenderConsole());
             reply.setTo(0, mail.getFrom());
-            reply.setFrom(MailSenderConsole.getMailSenderConsole());
             reply.addMessage(Messages.get(
                     "BoxRefuseSenderResult",
                     new String[]{"%to", "%num"},
@@ -497,14 +499,22 @@ public class UndineAttachCommand implements SubCommand {
                     new String[]{fee.getType().toString(), fee.getAmount() + ""}));
 
             // メールの送信元に送金
-            MailData reply = new MailData();
+            MailData reply = manager.makeEditmodeMail(ms);
             reply.setTo(0, mail.getFrom());
-            reply.setFrom(ms);
             reply.setMessage(0, Messages.get(
                     "BoxOpenCostItemSenderResult",
                     new String[]{"%to", "%material", "%amount"},
                     new String[]{ms.getName(), fee.getType().toString(), fee.getAmount() + ""}));
+
+            // アイテムをのスタック状態を規定の個数に整理する。
+            // see issue #99.
+            int stackSize = fee.getType().getMaxStackSize();
+            while ( fee.getAmount() > stackSize ) {
+                reply.addAttachment(new ItemStack(fee.getType(), stackSize));
+                fee.setAmount(fee.getAmount() - stackSize);
+            }
             reply.addAttachment(fee);
+
             parent.getMailManager().sendNewMail(reply);
 
             // 着払いをnullに設定して保存
@@ -543,6 +553,7 @@ public class UndineAttachCommand implements SubCommand {
      * @param item アイテム
      * @return 持っているかどうか
      */
+    @SuppressWarnings("deprecation")
     private boolean hasItem(Player player, ItemStack item) {
         //return player.getInventory().contains(item.getType(), item.getAmount());
         // ↑のコードは、アイテムのデータ値を検査しないのでNG

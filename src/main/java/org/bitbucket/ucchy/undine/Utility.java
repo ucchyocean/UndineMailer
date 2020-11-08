@@ -31,9 +31,6 @@ import org.bukkit.entity.Player;
  */
 public class Utility {
 
-    private static Boolean isCB178orLaterCache;
-    private static Boolean isCB19orLaterCache;
-
     /**
      * jarファイルの中に格納されているファイルを、jarファイルの外にコピーするメソッド
      * @param jarFile jarファイル
@@ -48,6 +45,7 @@ public class Utility {
         FileOutputStream fos = null;
         BufferedReader reader = null;
         BufferedWriter writer = null;
+        JarFile jar = null;
 
         File parent = targetFile.getParentFile();
         if ( !parent.exists() ) {
@@ -55,7 +53,7 @@ public class Utility {
         }
 
         try {
-            JarFile jar = new JarFile(jarFile);
+            jar = new JarFile(jarFile);
             ZipEntry zipEntry = jar.getEntry(sourceFilePath);
             is = jar.getInputStream(zipEntry);
 
@@ -120,6 +118,13 @@ public class Utility {
             if ( is != null ) {
                 try {
                     is.close();
+                } catch (IOException e) {
+                    // do nothing.
+                }
+            }
+            if ( jar != null ) {
+                try {
+                    jar.close();
                 } catch (IOException e) {
                     // do nothing.
                 }
@@ -225,10 +230,7 @@ public class Utility {
      * @return v1.7.8以上ならtrue、そうでないならfalse
      */
     public static boolean isCB178orLater() {
-        if ( isCB178orLaterCache == null ) {
-            isCB178orLaterCache = isUpperVersion(Bukkit.getBukkitVersion(), "1.7.8");
-        }
-        return isCB178orLaterCache;
+        return isUpperVersion(Bukkit.getBukkitVersion(), "1.7.8");
     }
 
     /**
@@ -236,10 +238,15 @@ public class Utility {
      * @return v1.9以上ならtrue、そうでないならfalse
      */
     public static boolean isCB19orLater() {
-        if ( isCB19orLaterCache == null ) {
-            isCB19orLaterCache = isUpperVersion(Bukkit.getBukkitVersion(), "1.9");
-        }
-        return isCB19orLaterCache;
+        return isUpperVersion(Bukkit.getBukkitVersion(), "1.9");
+    }
+
+    /**
+     * 現在動作中のCraftBukkitが、v1.11 以上かどうかを確認する
+     * @return v1.11以上ならtrue、そうでないならfalse
+     */
+    public static boolean isCB111orLater() {
+        return isUpperVersion(Bukkit.getBukkitVersion(), "1.11");
     }
 
     /**

@@ -1,19 +1,9 @@
-/*
- * @author     ucchy
- * @license    LGPLv3
- * @copyright  Copyright ucchy 2015
- */
 package org.bitbucket.ucchy.undine;
 
-import java.io.File;
-import java.io.FilenameFilter;
-import java.io.IOException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Collections;
-import java.util.Comparator;
 import java.util.Date;
-import java.util.HashMap;
 import java.util.List;
 
 import org.bitbucket.ucchy.undine.bridge.VaultEcoBridge;
@@ -25,23 +15,20 @@ import org.bitbucket.ucchy.undine.sender.MailSender;
 import org.bitbucket.ucchy.undine.sender.MailSenderBlock;
 import org.bitbucket.ucchy.undine.sender.MailSenderConsole;
 import org.bitbucket.ucchy.undine.sender.MailSenderPlayer;
-import org.bitbucket.ucchy.undine.tellraw.ClickEventType;
-import org.bitbucket.ucchy.undine.tellraw.MessageComponent;
-import org.bitbucket.ucchy.undine.tellraw.MessageParts;
-import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.command.CommandSender;
-import org.bukkit.configuration.ConfigurationSection;
-import org.bukkit.configuration.file.YamlConfiguration;
-import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
-import org.bukkit.scheduler.BukkitRunnable;
+
+import com.github.ucchyocean.messaging.tellraw.ClickEventType;
+import com.github.ucchyocean.messaging.tellraw.MessageComponent;
+import com.github.ucchyocean.messaging.tellraw.MessageParts;
 
 /**
- * メールデータマネージャ
- * @author ucchy
+ * メールデータマネージャ。
+ * NOTE: Editmode mail = 送信前のメール
+ * @author LazyGon
  */
-public class MailManager {
+public abstract class MailManager {
 
     protected static final String MAILLIST_METAKEY = "UndineMailList";
     public static final String SENDTIME_METAKEY = "MailSendTime";
@@ -54,12 +41,7 @@ public class MailManager {
     private static final int PAGE_SIZE = 10;
     private static final int MESSAGE_ADD_SIZE = 3;
 
-    private ArrayList<MailData> mails;
-    private HashMap<String, MailData> editmodeMails;
-    private int nextIndex;
-    private boolean isLoaded;
-
-    private UndineMailer parent;
+    protected UndineMailer parent;
 
     /**
      * コンストラクタ
@@ -74,61 +56,7 @@ public class MailManager {
      * メールデータを再読込する
      * @param リロードが完了した時に、通知する先。通知が不要なら、nullでよい。
      */
-    protected void reload(final CommandSender sender) {
-
-        final long start = System.currentTimeMillis();
-
-        new BukkitRunnable() {
-            public void run() {
-
-                isLoaded = false;
-                mails = new ArrayList<MailData>();
-                nextIndex = 1;
-
-                File folder = parent.getMailFolder();
-                File[] files = folder.listFiles(new FilenameFilter() {
-                    public boolean accept(File dir, String name) {
-                        return name.endsWith(".yml");
-                    }
-                });
-
-                if ( files != null ) {
-                    for ( File file : files ) {
-                        MailData data = MailData.load(file);
-                        mails.add(data);
-
-                        if ( nextIndex <= data.getIndex() ) {
-                            nextIndex = data.getIndex() + 1;
-                        }
-                    }
-                }
-
-                UndineMailer.getInstance().getLogger().info("Async load mail data... Done. Time: "
-                        + (System.currentTimeMillis() - start) + "ms, Data: " + mails.size() + ".");
-
-                long upgradeStart = System.currentTimeMillis();
-
-                int total = 0;
-                for ( MailData mail : mails ) {
-                    if ( mail.upgrade() ) {
-                        saveMail(mail);
-                        total++;
-                    }
-                }
-
-                if ( total > 0 ) {
-                    UndineMailer.getInstance().getLogger().info("Async upgrade mail data... Done.  Time: "
-                            + (System.currentTimeMillis() - upgradeStart) + "ms, Data: " + total + ".");
-                }
-
-                isLoaded = true;
-
-                if ( sender != null ) {
-                    sender.sendMessage(Messages.get("InformationReload"));
-                }
-            }
-        }.runTaskAsynchronously(UndineMailer.getInstance());
-    }
+    protected abstract void reload(final CommandSender sender);
 
     /**
      * メールデータがロード完了したかどうか。
@@ -137,25 +65,14 @@ public class MailManager {
      * 注意してください。
      * @return ロード完了したかどうか
      */
-    public boolean isLoaded() {
-        return isLoaded;
-    }
+    public abstract boolean isLoaded();
 
     /**
      * 指定されたインデクスのメールを取得する
      * @param index インデクス
      * @return メールデータ
      */
-    public MailData getMail(int index) {
-
-        if ( !isLoaded ) return null;
-        for ( MailData m : mails ) {
-            if ( m.getIndex() == index ) {
-                return m;
-            }
-        }
-        return null;
-    }
+    public abstract MailData getMail(int index);
 
     /**
      * 新しいテキストメールを送信する
@@ -169,7 +86,9 @@ public class MailManager {
         toList.add(to);
         ArrayList<String> messageList = new ArrayList<String>();
         messageList.add(message);
-        MailData mail = new MailData(toList, from, messageList);
+        MailData mail = makeEditmodeMail(from);
+        mail.addTo(to);
+        mail.setMessage(messageList);
         sendNewMail(mail);
     }
 
@@ -183,7 +102,9 @@ public class MailManager {
 
         ArrayList<String> messageList = new ArrayList<String>();
         messageList.add(message);
-        MailData mail = new MailData(to, from, messageList);
+        MailData mail = makeEditmodeMail(from);
+        mail.addTo(to);
+        mail.setMessage(messageList);
         sendNewMail(mail);
     }
 
@@ -195,7 +116,9 @@ public class MailManager {
      */
     public void sendNewMail(MailSender from, List<MailSender> to, List<String> message) {
 
-        MailData mail = new MailData(to, from, message);
+        MailData mail = makeEditmodeMail(from);
+        mail.addTo(to);
+        mail.setMessage(message);
         sendNewMail(mail);
     }
 
@@ -203,214 +126,42 @@ public class MailManager {
      * 新しいメールを送信する
      * @param mail メール
      */
-    public void sendNewMail(MailData mail) {
-
-        // メールデータの本文が1行も無いときは、ここで1行追加を行う。
-        if ( mail.getMessage().size() == 0 ) {
-            mail.addMessage("");
-        }
-
-        // ロードが完了していないうちは、メールを送信できないようにする
-        if ( !isLoaded ) {
-            UndineMailer.getInstance().getLogger().warning(
-                    "Because mailer has not yet been initialized, mailer dropped new mail.");
-            UndineMailer.getInstance().getLogger().warning(mail.getInboxSummary());
-            return;
-        }
-
-        // 統合宛先を設定する。
-        ArrayList<MailSender> to_total = new ArrayList<MailSender>();
-        for ( MailSender t : mail.getTo() ) {
-            if ( !to_total.contains(t) ) {
-                to_total.add(t);
-            }
-        }
-        for ( GroupData group : mail.getToGroupsConv() ) {
-            for ( MailSender t : group.getMembers() ) {
-                if ( !to_total.contains(t) ) {
-                    to_total.add(t);
-                }
-            }
-        }
-        mail.setToTotal(to_total);
-
-        // インデクスを設定する
-        mail.setIndex(nextIndex);
-        nextIndex++;
-
-        // 送信時間を設定する
-        mail.setDate(new Date());
-
-        // 送信地点を設定する
-        mail.setLocation(mail.getFrom().getLocation());
-
-        // オリジナルの添付ファイルを記録する
-        mail.makeAttachmentsOriginal();
-
-        // 添付が無いなら、着払い設定はクリアしておく
-        if ( mail.getAttachments().size() == 0 ) {
-            mail.setCostMoney(0);
-            mail.setCostItem(null);
-        }
-
-        // 着払いアイテムが設定されているなら、着払い料金はクリアしておく
-        if ( mail.getCostItem() != null ) {
-            mail.setCostMoney(0);
-        }
-
-        // 着払い料金が無効なら、着払い料金はクリアしておく
-        if ( !parent.getUndineConfig().isEnableCODMoney() ) {
-            mail.setCostMoney(0);
-        }
-
-        // 着払いアイテム無効なら、着払いアイテムはクリアしておく
-        if ( !parent.getUndineConfig().isEnableCODItem() ) {
-            mail.setCostItem(null);
-        }
-
-        // 保存する
-        mails.add(mail);
-        saveMail(mail);
-
-        // 宛先の人がログイン中なら知らせる
-        String msg = Messages.get("InformationYouGotMail",
-                "%from", mail.getFrom().getName());
-
-        if ( mail.isAllMail() ) {
-            for ( Player player : Utility.getOnlinePlayers() ) {
-                player.sendMessage(msg);
-                String pre = Messages.get("ListVerticalParts");
-                sendMailLine(MailSender.getMailSender(player),
-                        pre, ChatColor.GOLD + mail.getInboxSummary(), mail);
-            }
-        } else {
-            for ( MailSender to : mail.getToTotal() ) {
-                if ( to.isOnline() ) {
-                    to.sendMessage(msg);
-                    String pre = Messages.get("ListVerticalParts");
-                    sendMailLine(to, pre, ChatColor.GOLD + mail.getInboxSummary(), mail);
-                }
-            }
-        }
-
-        // 送った時刻を、メタデータに記録する
-        long time = System.currentTimeMillis();
-        mail.getFrom().setStringMetadata(SENDTIME_METAKEY, time + "");
-    }
+    public abstract void sendNewMail(MailData mail);
 
     /**
      * 受信したメールのリストを取得する
      * @param sender 取得する対象
      * @return メールのリスト
      */
-    public ArrayList<MailData> getInboxMails(MailSender sender) {
-
-        if ( !isLoaded ) {
-            return null;
-        }
-
-        ArrayList<MailData> box = new ArrayList<MailData>();
-        for ( MailData mail : mails ) {
-            if ( mail.isAllMail()
-                    || (mail.getToTotal() != null && mail.getToTotal().contains(sender))
-                    || mail.getTo().contains(sender) ) {
-                if ( !mail.isSetTrash(sender) ) {
-                    box.add(mail);
-                }
-            }
-        }
-        sortNewer(box);
-        return box;
-    }
+    public abstract ArrayList<MailData> getInboxMails(MailSender sender);
 
     /**
      * 受信したメールで未読のリストを取得する
      * @param sender 取得する対象
      * @return メールのリスト
      */
-    public ArrayList<MailData> getUnreadMails(MailSender sender) {
-
-        if ( !isLoaded ) {
-            return null;
-        }
-
-        ArrayList<MailData> box = new ArrayList<MailData>();
-        for ( MailData mail : mails ) {
-            if ( mail.isAllMail()
-                    || (mail.getToTotal() != null && mail.getToTotal().contains(sender))
-                    || mail.getTo().contains(sender) ) {
-                if ( !mail.isRead(sender) && !mail.isSetTrash(sender) ) {
-                    box.add(mail);
-                }
-            }
-        }
-        sortNewer(box);
-        return box;
-    }
+    public abstract ArrayList<MailData> getUnreadMails(MailSender sender);
 
     /**
      * 送信したメールのリストを取得する
      * @param sender 取得する対象
      * @return メールのリスト
      */
-    public ArrayList<MailData> getOutboxMails(MailSender sender) {
-
-        if ( !isLoaded ) {
-            return null;
-        }
-
-        ArrayList<MailData> box = new ArrayList<MailData>();
-        for ( MailData mail : mails ) {
-            if ( mail.getFrom().equals(sender) && !mail.isSetTrash(sender) ) {
-                box.add(mail);
-            }
-        }
-        sortNewer(box);
-        return box;
-    }
+    public abstract ArrayList<MailData> getOutboxMails(MailSender sender);
 
     /**
      * 関連メールのリストを取得する
      * @param sender 取得する対象
      * @return メールのリスト
      */
-    public ArrayList<MailData> getRelatedMails(MailSender sender) {
-
-        if ( !isLoaded ) {
-            return null;
-        }
-
-        ArrayList<MailData> box = new ArrayList<MailData>();
-        for ( MailData mail : mails ) {
-            if ( mail.isRelatedWith(sender) && mail.isRead(sender)
-                    && !mail.isSetTrash(sender) ) {
-                box.add(mail);
-            }
-        }
-        sortNewer(box);
-        return box;
-    }
+    public abstract ArrayList<MailData> getRelatedMails(MailSender sender);
 
     /**
      * ゴミ箱フォルダのメールリストを取得する
      * @param sender 取得する対象
      * @return メールのリスト
      */
-    public ArrayList<MailData> getTrashboxMails(MailSender sender) {
-
-        if ( !isLoaded ) {
-            return null;
-        }
-
-        ArrayList<MailData> box = new ArrayList<MailData>();
-        for ( MailData mail : mails ) {
-            if ( mail.isRelatedWith(sender) && mail.isSetTrash(sender) ) {
-                box.add(mail);
-            }
-        }
-        sortNewer(box);
-        return box;
-    }
+    public abstract ArrayList<MailData> getTrashboxMails(MailSender sender);
 
     /**
      * 指定されたメールを開いて確認する
@@ -420,7 +171,7 @@ public class MailManager {
     public void displayMail(MailSender sender, MailData mail) {
 
         // ロード中の場合は、メールを表示できません
-        if ( !isLoaded ) {
+        if ( !isLoaded() ) {
             return;
         }
 
@@ -438,101 +189,38 @@ public class MailManager {
      * 指定されたメールデータをUndineに保存する
      * @param mail メールデータ
      */
-    public void saveMail(MailData mail) {
-
-        // 編集中で未送信のメールは保存できません。
-        if ( mail.getIndex() == 0 ) {
-            return;
-        }
-
-        String filename = String.format("%1$08d.yml", mail.getIndex());
-        File folder = parent.getMailFolder();
-        File file = new File(folder, filename);
-        mail.save(file);
-    }
+    public abstract void saveMail(MailData mail);
 
     /**
      * 指定されたインデクスのメールを削除する
      * @param index インデクス
      */
-    public void deleteMail(int index) {
-
-        if ( isLoaded ) {
-            MailData mail = getMail(index);
-            if ( mail != null ) {
-                mails.remove(mail);
-            }
-        }
-
-        String filename = String.format("%1$08d.yml", index);
-        File folder = parent.getMailFolder();
-        File file = new File(folder, filename);
-        if ( file.exists() ) {
-            file.delete();
-        }
-    }
+    public abstract void deleteMail(int index);
 
     /**
      * 古いメールを削除する
      */
-    protected void cleanup() {
-
-        if ( !isLoaded ) {
-            return;
-        }
-
-        ArrayList<Integer> queue = new ArrayList<Integer>();
-        int period = parent.getUndineConfig().getMailStorageTermDays();
-        Date now = new Date();
-
-        for ( MailData mail : mails ) {
-            int days = (int)((now.getTime() - mail.getDate().getTime()) / (1000*60*60*24));
-            if ( days > period ) {
-                queue.add(mail.getIndex());
-            }
-        }
-
-        for ( int index : queue ) {
-            deleteMail(index);
-        }
-    }
+    protected abstract void cleanup();
 
     /**
      * 編集中メールを作成して返す
      * @param sender 取得対象のsender
      * @return 編集中メール
      */
-    public MailData makeEditmodeMail(MailSender sender) {
-        String id = sender.toString();
-        if ( editmodeMails.containsKey(id) ) {
-            return editmodeMails.get(id);
-        }
-        MailData mail = new MailData();
-        mail.setFrom(sender);
-        editmodeMails.put(id, mail);
-        return mail;
-    }
+    public abstract MailData makeEditmodeMail(MailSender sender);
 
     /**
      * 編集中メールを取得する
      * @param sender 取得対象のsender
      * @return 編集中メール（編集中でないならnull）
      */
-    public MailData getEditmodeMail(MailSender sender) {
-        String id = sender.toString();
-        if ( editmodeMails.containsKey(id) ) {
-            return editmodeMails.get(id);
-        }
-        return null;
-    }
+    public abstract MailData getEditmodeMail(MailSender sender);
 
     /**
      * 編集中メールを削除する
      * @param sender 削除対象のsender
      */
-    public void clearEditmodeMail(MailSender sender) {
-        editmodeMails.remove(sender.toString());
-    }
+    public abstract void clearEditmodeMail(MailSender sender);
 
     /**
      * 指定されたsenderに、Inboxリストを表示する。
@@ -542,7 +230,7 @@ public class MailManager {
     public void displayInboxList(MailSender sender, int page) {
 
         // ロード中の場合は、リストを表示しないようにする
-        if ( !isLoaded ) {
+        if ( !isLoaded() ) {
             return;
         }
 
@@ -593,7 +281,7 @@ public class MailManager {
     public void displayOutboxList(MailSender sender, int page) {
 
         // ロード中の場合は、リストを表示しないようにする
-        if ( !isLoaded ) {
+        if ( !isLoaded() ) {
             return;
         }
 
@@ -637,7 +325,7 @@ public class MailManager {
     protected void displayUnreadOnJoin(MailSender sender) {
 
         // ロード中の場合は、リストを表示しないようにする
-        if ( !isLoaded ) {
+        if ( !isLoaded() ) {
             return;
         }
 
@@ -673,7 +361,7 @@ public class MailManager {
     public void displayTrashboxList(MailSender sender, int page) {
 
         // ロード中の場合は、リストを表示しないようにする
-        if ( !isLoaded ) {
+        if ( !isLoaded() ) {
             return;
         }
 
@@ -713,63 +401,19 @@ public class MailManager {
     /**
      * 編集中メールをeditmails.ymlへ保存する
      */
-    protected void storeEditmodeMail() {
-
-        YamlConfiguration config = new YamlConfiguration();
-        for ( String name : editmodeMails.keySet() ) {
-            ConfigurationSection section = config.createSection(name);
-            editmodeMails.get(name).saveToConfigSection(section);
-        }
-
-        try {
-            File file = new File(parent.getDataFolder(), "editmails.yml");
-            config.save(file);
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-    }
+    protected abstract void storeEditmodeMail();
 
     /**
      * editmails.ymlから編集中メールを復帰する
      */
-    protected void restoreEditmodeMail() {
-
-        editmodeMails = new HashMap<String, MailData>();
-
-        File file = new File(parent.getDataFolder(), "editmails.yml");
-        if ( !file.exists() ) return;
-
-        YamlConfiguration config = YamlConfiguration.loadConfiguration(file);
-        for ( String name : config.getKeys(false) ) {
-            MailData mail = MailData.loadFromConfigSection(
-                    config.getConfigurationSection(name));
-            editmodeMails.put(name, mail);
-        }
-
-        // 復帰元ファイルを削除しておく
-        file.delete();
-    }
+    protected abstract void restoreEditmodeMail();
 
     /**
      * 指定したsenderが使用中の添付ボックスの個数を返す
      * @param sender
      * @return 使用中添付ボックスの個数
      */
-    public int getAttachBoxUsageCount(MailSender sender) {
-
-        // ロード中の場合は、Integer最大値を返す
-        if ( !isLoaded ) {
-            return Integer.MAX_VALUE;
-        }
-
-        int count = 0;
-        for ( MailData mail : mails ) {
-            if ( mail.getFrom().equals(sender) && mail.getAttachments().size() > 0 ) {
-                count++;
-            }
-        }
-        return count;
-    }
+    public abstract int getAttachBoxUsageCount(MailSender sender);
 
     /**
      * メールの詳細情報を表示する
@@ -795,8 +439,8 @@ public class MailManager {
             sender.sendMessage("");
         }
 
-        String num = mail.isEditmode() ? Messages.get("Editmode") : mail.getIndex() + "";
-        String fdate = mail.isEditmode() ? null : getFormattedDate(mail.getDate());
+        String num = !mail.isSent() ? Messages.get("Editmode") : mail.getIndex() + "";
+        String fdate = !mail.isSent() ? null : getFormattedDate(mail.getDate());
 
         String parts = Messages.get("DetailHorizontalParts");
         String pre = Messages.get("DetailVerticalParts");
@@ -831,7 +475,7 @@ public class MailManager {
             msg.addText(pre + Messages.get("MailDetailAttachmentsLine"));
             msg.addText(" ");
 
-            if ( !mail.isEditmode() ) {
+            if ( mail.isSent() ) {
 
                 if ( (!mail.isAttachmentsCancelled() && mail.isRecipient(sender))
                         || (mail.isAttachmentsCancelled() && mail.getFrom().equals(sender)) ) {
@@ -860,7 +504,7 @@ public class MailManager {
                                 ChatColor.AQUA);
                         button.setClickEvent(ClickEventType.RUN_COMMAND,
                                 COMMAND + " attach " + mail.getIndex() + " cancel");
-                        button.addHoverText(Messages.get("MailDetailAttachmentBoxCancelToolTip"));
+                        button.setHoverText(Messages.get("MailDetailAttachmentBoxCancelToolTip"));
                         msg.addParts(button);
                     }
 
@@ -879,27 +523,29 @@ public class MailManager {
                 }
             }
 
-            sendMessageComponent(msg, sender);
+            sender.sendMessageComponent(msg);
 
             for ( ItemStack i : mail.getAttachments() ) {
                 sender.sendMessage(pre + "  " + ChatColor.WHITE + getItemDesc(i, true));
             }
 
-            if ( mail.getCostMoney() > 0 || mail.getCostItem() != null ) {
-                String costDesc = mail.getCostMoney() + "";
+            double costMoney = mail.getCostMoney();
+            ItemStack costItem = mail.getCostItem();
+            if ( costMoney > 0 || costItem != null ) {
+                String costDesc = costMoney + "";
                 VaultEcoBridge eco = UndineMailer.getInstance().getVaultEco();
                 if ( eco != null ) {
-                    costDesc = eco.format(mail.getCostMoney());
+                    costDesc = eco.format(costMoney);
                 }
 
                 msg = new MessageComponent();
-                if ( mail.getCostMoney() > 0 ) {
+                if ( costMoney > 0 ) {
                     msg.addText(pre + Messages.get(
                             "MailDetailAttachCostMoneyLine", "%fee", costDesc));
                 } else {
                     msg.addText(pre + Messages.get(
                             "MailDetailAttachCostItemLine", "%item",
-                            getItemDesc(mail.getCostItem(), true)));
+                            getItemDesc(costItem, true)));
                 }
                 if ( mail.getTo().contains(sender) ) {
                     msg.addText(" ");
@@ -909,11 +555,11 @@ public class MailManager {
                     refuseButton.setClickEvent(
                             ClickEventType.SUGGEST_COMMAND,
                             UndineCommand.COMMAND + " attach " + mail.getIndex() + " refuse ");
-                    refuseButton.addHoverText(
+                    refuseButton.setHoverText(
                             Messages.get("MailDetailAttachmentBoxRefuseToolTip"));
                     msg.addParts(refuseButton);
                 }
-                sendMessageComponent(msg, sender);
+                sender.sendMessageComponent(msg);
             }
 
         } else if ( mail.isAttachmentsCancelled() ) {
@@ -932,7 +578,7 @@ public class MailManager {
             }
         }
 
-        if ( !mail.isEditmode() && mail.getAttachmentsOriginal() != null
+        if ( mail.isSent() && mail.getAttachmentsOriginal() != null
                 && mail.getAttachmentsOriginal().size() > 0 && mail.getFrom().equals(sender) ) {
             // 添付アイテムオリジナルがあり、表示先が送信者なら、元の添付アイテムを表示する。
 
@@ -945,7 +591,7 @@ public class MailManager {
         }
 
         if ( sender instanceof MailSenderPlayer
-                && mail.isRelatedWith(sender) && !mail.isEditmode() ) {
+                && mail.isRelatedWith(sender) && mail.isSent() ) {
 
             if ( mail.isSetTrash(sender) ) {
                 // ゴミ箱に入っているメールなら、Restoreボタンを表示する
@@ -959,7 +605,7 @@ public class MailManager {
                         COMMAND + " trash restore " + mail.getIndex());
                 msg.addParts(button);
 
-                sendMessageComponent(msg, sender);
+                sender.sendMessageComponent(msg);
 
             } else {
                 // 既に添付が1つもないメールなら、Deleteボタンを表示する
@@ -994,12 +640,12 @@ public class MailManager {
                         msg.addParts(button);
                     }
 
-                    sendMessageComponent(msg, sender);
+                    sender.sendMessageComponent(msg);
                 }
             }
         }
 
-        if ( !mail.isEditmode() && mail.getLocation() != null
+        if ( mail.isSent() && mail.getLocation() != null
                 && sender instanceof MailSenderPlayer
                 && sender.hasPermission(PERMISSION_TELEPORT) ) {
 
@@ -1012,7 +658,7 @@ public class MailManager {
                     COMMAND + " teleport " + mail.getIndex());
             msg.addParts(button);
 
-            sendMessageComponent(msg, sender);
+            sender.sendMessageComponent(msg);
         }
 
         sendMailDescriptionPager(sender, mail.getIndex());
@@ -1039,9 +685,11 @@ public class MailManager {
         }
 
         // メッセージが3行に満たない場合は、この時点で空行を足しておく
-        while ( mail.getMessage().size() < MESSAGE_ADD_SIZE ) {
-            mail.addMessage("");
+        List<String> message = mail.getMessage();
+        while ( message.size() < MESSAGE_ADD_SIZE ) {
+            message.add("");
         }
+        mail.setMessage(message);
 
         // 空行を挿入する
         int lines = UndineMailer.getInstance().getUndineConfig().getUiEmptyLines();
@@ -1055,7 +703,8 @@ public class MailManager {
         String title = Messages.get("EditmodeTitle");
         sender.sendMessage(parts + parts + " " + title + " " + parts + parts);
 
-        for ( int i=0; i<mail.getTo().size(); i++ ) {
+        List<MailSender> to = mail.getTo();
+        for ( int i=0; i<to.size(); i++ ) {
             MessageComponent msg = new MessageComponent();
             msg.addText(pre);
             MessageParts buttonDelete = new MessageParts(
@@ -1063,24 +712,24 @@ public class MailManager {
             buttonDelete.setClickEvent(
                     ClickEventType.RUN_COMMAND,
                     COMMAND + " to delete " + (i+1));
-            buttonDelete.addHoverText(Messages.get("EditmodeToDeleteToolTip"));
+            buttonDelete.setHoverText(Messages.get("EditmodeToDeleteToolTip"));
             msg.addParts(buttonDelete);
             msg.addText(" ");
             MessageParts button = new MessageParts(
                     Messages.get("EditmodeTo"), ChatColor.AQUA);
             button.setClickEvent(
                     ClickEventType.SUGGEST_COMMAND,
-                    COMMAND + " to " + (i+1) + " " + mail.getTo().get(i).getName());
-            button.addHoverText(Messages.get("EditmodeToToolTip"));
+                    COMMAND + " to " + (i+1) + " " + to.get(i).getName());
+            button.setHoverText(Messages.get("EditmodeToToolTip"));
             msg.addParts(button);
             msg.addText(" ");
-            msg.addText(mail.getTo().get(i).getName(), ChatColor.WHITE);
-            sendMessageComponent(msg, sender);
+            msg.addText(to.get(i).getName(), ChatColor.WHITE);
+            sender.sendMessageComponent(msg);
         }
 
         UndineConfig config = UndineMailer.getInstance().getUndineConfig();
 
-        if ( mail.getTo().size() < config.getMaxDestination() ) {
+        if ( to.size() < config.getMaxDestination() ) {
             MessageComponent msg = new MessageComponent();
             msg.addText(pre);
 
@@ -1089,8 +738,8 @@ public class MailManager {
                         Messages.get("EditmodeToAdd"), ChatColor.AQUA);
                 button.setClickEvent(
                         ClickEventType.SUGGEST_COMMAND,
-                        COMMAND + " to " + (mail.getTo().size()+1) + " ");
-                button.addHoverText(Messages.get("EditmodeToAddToolTip"));
+                        COMMAND + " to " + (to.size()+1) + " ");
+                button.setHoverText(Messages.get("EditmodeToAddToolTip"));
                 msg.addParts(button);
 
             } else {
@@ -1099,16 +748,17 @@ public class MailManager {
                 buttonAddress.setClickEvent(
                         ClickEventType.RUN_COMMAND,
                         ListCommand.COMMAND_INDEX + " " + COMMAND
-                            + " to " + (mail.getTo().size()+1));
+                            + " to " + (to.size()+1));
                 msg.addParts(buttonAddress);
 
             }
 
-            sendMessageComponent(msg, sender);
+            sender.sendMessageComponent(msg);
         }
 
-        for ( int i=0; i<mail.getToGroups().size(); i++ ) {
-            GroupData group = parent.getGroupManager().getGroup(mail.getToGroups().get(i));
+        List<String> toGroups = mail.getToGroups();
+        for ( int i=0; i<toGroups.size(); i++ ) {
+            GroupData group = parent.getGroupManager().getGroup(toGroups.get(i));
 
             MessageComponent msg = new MessageComponent();
             msg.addText(pre);
@@ -1117,20 +767,20 @@ public class MailManager {
             buttonDelete.setClickEvent(
                     ClickEventType.RUN_COMMAND,
                     COMMAND + " to group delete " + (i+1));
-            buttonDelete.addHoverText(Messages.get("EditmodeToDeleteToolTip"));
+            buttonDelete.setHoverText(Messages.get("EditmodeToDeleteToolTip"));
             msg.addParts(buttonDelete);
             msg.addText(" " + ChatColor.WHITE + Messages.get("EditmodeToGroup") + " ",
                     ChatColor.WHITE);
-            MessageParts groupName = new MessageParts(mail.getToGroups().get(i), ChatColor.WHITE);
+            MessageParts groupName = new MessageParts(toGroups.get(i), ChatColor.WHITE);
             if ( group != null ) {
-                groupName.addHoverText(group.getHoverText());
+                groupName.setHoverText(group.getHoverText());
             }
             msg.addParts(groupName);
-            sendMessageComponent(msg, sender);
+            sender.sendMessageComponent(msg);
         }
 
         if ( sender.hasPermission(GroupCommand.PERMISSION + ".list") &&
-                mail.getToGroups().size() < config.getMaxDestinationGroup() ) {
+                toGroups.size() < config.getMaxDestinationGroup() ) {
             MessageComponent msg = new MessageComponent();
             msg.addText(pre);
             MessageParts button = new MessageParts(
@@ -1138,13 +788,13 @@ public class MailManager {
             button.setClickEvent(
                     ClickEventType.RUN_COMMAND,
                     GroupCommand.COMMAND + " list 1 "
-                            + COMMAND + " to group " + (mail.getToGroups().size()+1));
+                            + COMMAND + " to group " + (toGroups.size()+1));
             msg.addParts(button);
 
-            sendMessageComponent(msg, sender);
+            sender.sendMessageComponent(msg);
         }
 
-        for ( int i=0; i<mail.getMessage().size(); i++ ) {
+        for ( int i=0; i<message.size(); i++ ) {
             MessageComponent msg = new MessageComponent();
             msg.addText(pre);
             MessageParts buttonDelete = new MessageParts(
@@ -1152,22 +802,22 @@ public class MailManager {
             buttonDelete.setClickEvent(
                     ClickEventType.RUN_COMMAND,
                     COMMAND + " message delete " + (i+1));
-            buttonDelete.addHoverText(Messages.get("EditmodeLineDeleteToolTip"));
+            buttonDelete.setHoverText(Messages.get("EditmodeLineDeleteToolTip"));
             msg.addParts(buttonDelete);
             msg.addText(" ");
             MessageParts buttonEdit = new MessageParts(
-                    "[M" + (i+1) + "]", ChatColor.AQUA);
+                    Messages.get("EditmodeLineEdit", "%num", i+1), ChatColor.AQUA);
             buttonEdit.setClickEvent(
                     ClickEventType.SUGGEST_COMMAND,
-                    COMMAND + " message " + (i+1) + " " + mail.getMessage().get(i));
-            buttonEdit.addHoverText(Messages.get("EditmodeLineEditToolTip"));
+                    COMMAND + " message " + (i+1) + " " + message.get(i));
+            buttonEdit.setHoverText(Messages.get("EditmodeLineEditToolTip"));
             msg.addParts(buttonEdit);
-            msg.addText(" " + Utility.replaceColorCode(mail.getMessage().get(i)), ChatColor.WHITE);
-            sendMessageComponent(msg, sender);
+            msg.addText(" " + Utility.replaceColorCode(message.get(i)), ChatColor.WHITE);
+            sender.sendMessageComponent(msg);
         }
 
-        if ( mail.getMessage().size() < MailData.MESSAGE_MAX_SIZE ) {
-            int num = mail.getMessage().size() + MESSAGE_ADD_SIZE;
+        if ( message.size() < MailData.MESSAGE_MAX_SIZE ) {
+            int num = message.size() + MESSAGE_ADD_SIZE;
             if ( num > MailData.MESSAGE_MAX_SIZE ) {
                 num = MailData.MESSAGE_MAX_SIZE;
             }
@@ -1179,7 +829,7 @@ public class MailManager {
                     ClickEventType.RUN_COMMAND,
                     COMMAND + " message " + num);
             msg.addParts(button);
-            sendMessageComponent(msg, sender);
+            sender.sendMessageComponent(msg);
         }
 
         boolean senderHasPermissionOfOpenAttachBox =
@@ -1187,6 +837,10 @@ public class MailManager {
                 sender.hasPermission(PERMISSION_ATTACH_SENDMAIL);
 
         if ( config.isEnableAttachment() && senderHasPermissionOfOpenAttachBox ) {
+            List<ItemStack> attachments = mail.getAttachments();
+            double costMoney = mail.getCostMoney();
+            ItemStack costItem = mail.getCostItem();
+
             MessageComponent msg = new MessageComponent();
             msg.addText(pre);
             MessageParts button = new MessageParts(
@@ -1196,26 +850,26 @@ public class MailManager {
                     COMMAND + " attach");
             msg.addParts(button);
             msg.addText(" ");
-            msg.addText(Messages.get("EditmodeAttachNum", "%num", mail.getAttachments().size()));
-            sendMessageComponent(msg, sender);
+            msg.addText(Messages.get("EditmodeAttachNum", "%num", attachments.size()));
+            sender.sendMessageComponent(msg);
 
             boolean isEnableCODMoney = (UndineMailer.getInstance().getVaultEco() != null)
                     && config.isEnableCODMoney();
             boolean isEnableCODItem = config.isEnableCODItem();
 
-            if ( mail.getAttachments().size() > 0 && (isEnableCODMoney || isEnableCODItem) ) {
+            if ( attachments.size() > 0 && (isEnableCODMoney || isEnableCODItem) ) {
 
                 MessageComponent msgfee = new MessageComponent();
                 msgfee.addText(pre);
 
-                if ( mail.getCostMoney() == 0 && mail.getCostItem() == null ) {
+                if ( costMoney == 0 && costItem == null ) {
 
                     if ( isEnableCODMoney ) {
                         MessageParts buttonFee = new MessageParts(
                                 Messages.get("EditmodeCostMoney"), ChatColor.AQUA);
                         buttonFee.setClickEvent(
                                 ClickEventType.SUGGEST_COMMAND, COMMAND + " costmoney ");
-                        buttonFee.addHoverText(Messages.get("EditmodeCostMoneyToolTip"));
+                        buttonFee.setHoverText(Messages.get("EditmodeCostMoneyToolTip"));
                         msgfee.addParts(buttonFee);
                     }
 
@@ -1228,16 +882,16 @@ public class MailManager {
                                 Messages.get("EditmodeCostItem"), ChatColor.AQUA);
                         buttonItem.setClickEvent(
                                 ClickEventType.SUGGEST_COMMAND, COMMAND + " costitem ");
-                        buttonItem.addHoverText(Messages.get("EditmodeCostItemToolTip"));
+                        buttonItem.setHoverText(Messages.get("EditmodeCostItemToolTip"));
                         msgfee.addParts(buttonItem);
                     }
 
-                } else if ( mail.getCostMoney() > 0 ) {
+                } else if ( costMoney > 0 ) {
 
-                    String costDesc = mail.getCostMoney() + "";
+                    String costDesc = String.valueOf(costMoney);
                     VaultEcoBridge eco = UndineMailer.getInstance().getVaultEco();
                     if ( eco != null ) {
-                        costDesc = eco.format(mail.getCostMoney());
+                        costDesc = eco.format(costMoney);
                     }
 
                     MessageParts buttonDelete = new MessageParts(
@@ -1245,38 +899,38 @@ public class MailManager {
                     buttonDelete.setClickEvent(
                             ClickEventType.RUN_COMMAND,
                             COMMAND + " costmoney 0");
-                    buttonDelete.addHoverText(Messages.get("EditmodeCostMoneyRemoveToolTip"));
+                    buttonDelete.setHoverText(Messages.get("EditmodeCostMoneyRemoveToolTip"));
                     msgfee.addParts(buttonDelete);
                     MessageParts buttonFee = new MessageParts(
                             Messages.get("EditmodeCostMoneyData", "%fee", costDesc),
                             ChatColor.AQUA);
                     buttonFee.setClickEvent(
                             ClickEventType.SUGGEST_COMMAND,
-                            COMMAND + " costmoney " + mail.getCostMoney());
+                            COMMAND + " costmoney " + costMoney);
                     msgfee.addParts(buttonFee);
 
                 } else {
 
-                    String desc = getItemDesc(mail.getCostItem(), true);
+                    String desc = getItemDesc(costItem, true);
 
                     MessageParts buttonDelete = new MessageParts(
                             Messages.get("EditmodeCostItemRemove"), ChatColor.AQUA);
                     buttonDelete.setClickEvent(
                             ClickEventType.RUN_COMMAND,
                             COMMAND + " costitem remove");
-                    buttonDelete.addHoverText(Messages.get("EditmodeCostItemRemoveToolTip"));
+                    buttonDelete.setHoverText(Messages.get("EditmodeCostItemRemoveToolTip"));
                     msgfee.addParts(buttonDelete);
                     MessageParts buttonItem = new MessageParts(
                             Messages.get("EditmodeCostItemData", "%item", desc),
                             ChatColor.AQUA);
                     buttonItem.setClickEvent(
                             ClickEventType.SUGGEST_COMMAND,
-                            COMMAND + " costitem " + getItemDesc(mail.getCostItem(), false));
+                            COMMAND + " costitem " + getItemDesc(costItem, false));
                     msgfee.addParts(buttonItem);
 
                 }
 
-                sendMessageComponent(msgfee, sender);
+                sender.sendMessageComponent(msgfee);
             }
         }
 
@@ -1292,7 +946,12 @@ public class MailManager {
         cancelButton.setClickEvent(ClickEventType.RUN_COMMAND, COMMAND + " cancel");
         last.addParts(cancelButton);
         last.addText(parts);
-        sendMessageComponent(last, sender);
+        sender.sendMessageComponent(last);
+
+        // メッセージがすべて空行の場合は、TIPSを表示する(see issue #90)
+        if ( areMessagesEmpty(mail) ) {
+            sender.sendMessage(Messages.get("EditmodeTipsMessage"));
+        }
     }
 
     /**
@@ -1314,13 +973,13 @@ public class MailManager {
         // リストの取得
         ArrayList<MailData> list;
         if ( meta.equals("inbox") ) {
-            list = UndineMailer.getInstance().getMailManager().getInboxMails(sender);
+            list = getInboxMails(sender);
         } else if ( meta.equals("outbox") ) {
-            list = UndineMailer.getInstance().getMailManager().getOutboxMails(sender);
+            list = getOutboxMails(sender);
         } else if ( meta.equals("trash") ) {
-            list = UndineMailer.getInstance().getMailManager().getTrashboxMails(sender);
+            list = getTrashboxMails(sender);
         } else {
-            list = UndineMailer.getInstance().getMailManager().getUnreadMails(sender);
+            list = getUnreadMails(sender);
         }
 
         // ページ番号の取得
@@ -1358,7 +1017,7 @@ public class MailManager {
             MessageParts returnButton = new MessageParts(
                     Messages.get("Return"), ChatColor.AQUA);
             returnButton.setClickEvent(ClickEventType.RUN_COMMAND, returnCommand);
-            returnButton.addHoverText(Messages.get("ReturnListToolTip"));
+            returnButton.setHoverText(Messages.get("ReturnListToolTip"));
             msg.addParts(returnButton);
 
             msg.addText(" ");
@@ -1372,7 +1031,7 @@ public class MailManager {
                     firstLabel, ChatColor.AQUA);
             firstButton.setClickEvent(ClickEventType.RUN_COMMAND,
                     COMMAND + " read " + first);
-            firstButton.addHoverText(firstToolTip);
+            firstButton.setHoverText(firstToolTip);
             msg.addParts(firstButton);
 
             msg.addText(" ");
@@ -1381,7 +1040,7 @@ public class MailManager {
                     prevLabel, ChatColor.AQUA);
             prevButton.setClickEvent(ClickEventType.RUN_COMMAND,
                     COMMAND + " read " + prev);
-            prevButton.addHoverText(prevToolTip);
+            prevButton.setHoverText(prevToolTip);
             msg.addParts(prevButton);
 
         } else {
@@ -1399,7 +1058,7 @@ public class MailManager {
                     nextLabel, ChatColor.AQUA);
             nextButton.setClickEvent(ClickEventType.RUN_COMMAND,
                     COMMAND + " read " + next);
-            nextButton.addHoverText(nextToolTip);
+            nextButton.setHoverText(nextToolTip);
             msg.addParts(nextButton);
 
             msg.addText(" ");
@@ -1408,7 +1067,7 @@ public class MailManager {
                     lastLabel, ChatColor.AQUA);
             lastButton.setClickEvent(ClickEventType.RUN_COMMAND,
                     COMMAND + " read " + last);
-            lastButton.addHoverText(lastToolTip);
+            lastButton.setHoverText(lastToolTip);
             msg.addParts(lastButton);
 
         } else {
@@ -1417,7 +1076,7 @@ public class MailManager {
 
         msg.addText(" " + parts);
 
-        sendMessageComponent(msg, sender);
+        sender.sendMessageComponent(msg);
     }
 
     /**
@@ -1442,6 +1101,8 @@ public class MailManager {
      * @return 文字列表現
      */
     private String getItemDesc(ItemStack item, boolean forDescription) {
+        if (item == null) return "null";
+        @SuppressWarnings("deprecation")
         String desc = item.getDurability() == 0 ? item.getType().toString() :
                 item.getType().toString() + ":" + item.getDurability();
         if ( item.getAmount() == 1 ) return desc;
@@ -1453,12 +1114,8 @@ public class MailManager {
      * メールデータのリストを、新しいメール順に並び替えする
      * @param list リスト
      */
-    private static void sortNewer(List<MailData> list) {
-        Collections.sort(list, new Comparator<MailData>() {
-            public int compare(MailData o1, MailData o2) {
-                return o2.getDate().compareTo(o1.getDate());
-            }
-        });
+    protected static void sortNewer(List<MailData> list) {
+        Collections.sort(list, (o1, o2) -> o2.getDate().compareTo(o1.getDate()));
     }
 
     /**
@@ -1468,7 +1125,7 @@ public class MailManager {
      * @param summary サマリーの文字列
      * @param mail メールデータ
      */
-    private void sendMailLine(
+    public void sendMailLine(
             MailSender sender, String pre, String summary, MailData mail) {
 
         MessageComponent msg = new MessageComponent();
@@ -1480,14 +1137,14 @@ public class MailManager {
         button.setClickEvent(
                 ClickEventType.RUN_COMMAND,
                 UndineCommand.COMMAND + " read " + mail.getIndex());
-        button.addHoverText(Messages.get("SummaryOpenThisMailToolTip"));
+        button.setHoverText(Messages.get("SummaryOpenThisMailToolTip"));
         msg.addParts(button);
 
         msg.addText((mail.getAttachments().size() > 0) ? "*" : " ");
 
         msg.addText(summary);
 
-        sendMessageComponent(msg, sender);
+        sender.sendMessageComponent(msg);
     }
 
     /**
@@ -1517,7 +1174,7 @@ public class MailManager {
             MessageParts firstButton = new MessageParts(
                     firstLabel, ChatColor.AQUA);
             firstButton.setClickEvent(ClickEventType.RUN_COMMAND, commandPre + " 1");
-            firstButton.addHoverText(firstToolTip);
+            firstButton.setHoverText(firstToolTip);
             msg.addParts(firstButton);
 
             msg.addText(" ");
@@ -1525,7 +1182,7 @@ public class MailManager {
             MessageParts prevButton = new MessageParts(
                     prevLabel, ChatColor.AQUA);
             prevButton.setClickEvent(ClickEventType.RUN_COMMAND, commandPre + " " + (page - 1));
-            prevButton.addHoverText(prevToolTip);
+            prevButton.setHoverText(prevToolTip);
             msg.addParts(prevButton);
 
         } else {
@@ -1539,7 +1196,7 @@ public class MailManager {
             MessageParts nextButton = new MessageParts(
                     nextLabel, ChatColor.AQUA);
             nextButton.setClickEvent(ClickEventType.RUN_COMMAND, commandPre + " " + (page + 1));
-            nextButton.addHoverText(nextToolTip);
+            nextButton.setHoverText(nextToolTip);
             msg.addParts(nextButton);
 
             msg.addText(" ");
@@ -1547,7 +1204,7 @@ public class MailManager {
             MessageParts lastButton = new MessageParts(
                     lastLabel, ChatColor.AQUA);
             lastButton.setClickEvent(ClickEventType.RUN_COMMAND, commandPre + " " + max);
-            lastButton.addHoverText(lastToolTip);
+            lastButton.setHoverText(lastToolTip);
             msg.addParts(lastButton);
 
         } else {
@@ -1556,15 +1213,16 @@ public class MailManager {
 
         msg.addText(" " + parts);
 
-        sendMessageComponent(msg, sender);
+        sender.sendMessageComponent(msg);
     }
 
     /**
      * 言語リソース設定に従ってフォーマットされた日時の文字列を取得します。
      * @param date フォーマットする日時
      * @return フォーマットされた文字列
+     * TODO: privateに戻す。
      */
-    private String getFormattedDate(Date date) {
+    public String getFormattedDate(Date date) {
         return new SimpleDateFormat(Messages.get("DateFormat")).format(date);
     }
 
@@ -1592,15 +1250,16 @@ public class MailManager {
     }
 
     /**
-     * 指定されたメッセージコンポーネントを、指定されたMailSenderに送信する。
-     * @param msg メッセージコンポーネント
-     * @param sender 送信先
+     * 指定されたメールのメッセージがすべて空行かどうかを判定する。
+     * @param mail メール
+     * @return すべてのメッセージが空行かどうか
      */
-    private void sendMessageComponent(MessageComponent msg, MailSender sender) {
-        if ( sender instanceof MailSenderPlayer && sender.isOnline() ) {
-            msg.send(sender.getPlayer());
-        } else if ( sender instanceof MailSenderConsole ) {
-            msg.send(Bukkit.getConsoleSender());
+    private boolean areMessagesEmpty(MailData mail) {
+        for ( String line : mail.getMessage() ) {
+            if ( line != null && !line.trim().equals("") ) {
+                return false;
+            }
         }
+        return true;
     }
 }

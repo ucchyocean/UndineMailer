@@ -7,15 +7,13 @@ package org.bitbucket.ucchy.undine.command;
 
 import org.bitbucket.ucchy.undine.Messages;
 import org.bitbucket.ucchy.undine.sender.MailSender;
-import org.bitbucket.ucchy.undine.sender.MailSenderConsole;
-import org.bitbucket.ucchy.undine.sender.MailSenderPlayer;
-import org.bitbucket.ucchy.undine.tellraw.ClickEventType;
-import org.bitbucket.ucchy.undine.tellraw.MessageComponent;
-import org.bitbucket.ucchy.undine.tellraw.MessageParts;
-import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.Material;
 import org.bukkit.inventory.ItemStack;
+
+import com.github.ucchyocean.messaging.tellraw.ClickEventType;
+import com.github.ucchyocean.messaging.tellraw.MessageComponent;
+import com.github.ucchyocean.messaging.tellraw.MessageParts;
 
 /**
  * コマンド実行関連のユーティリティクラス
@@ -26,19 +24,15 @@ public class UndineCommandUtil {
     /**
      * アイテム表記から、ItemStackを作成して返す
      * @param desc アイテム表記
-     * （マテリアル名、または、アイテムID。コロンを付けた後にデータ値を指定することも可能。
-     *   例：WOOL, WOOL:3, 35, 35:6 ）
+     * （マテリアル名。コロンを付けた後にデータ値を指定することも可能。
+     *   例：WOOL, WOOL:3）
      * @return ItemStack
      */
+    @SuppressWarnings("deprecation")
     protected static ItemStack getItemStackFromDescription(String desc) {
         String[] descs = desc.split(":");
         if ( descs.length <= 0 ) return null;
         Material material = Material.getMaterial(descs[0].toUpperCase());
-        if ( material == null && descs[0].matches("[0-9]{1,5}") ) {
-            @SuppressWarnings("deprecation")
-            Material m = Material.getMaterial(Integer.parseInt(descs[0]));
-            material = m;
-        }
         if ( material == null ) return null;
         ItemStack item = new ItemStack(material);
         if ( descs.length >= 2 && descs[1].matches("[0-9]{1,5}") ) {
@@ -70,7 +64,7 @@ public class UndineCommandUtil {
         buttonCancel.setClickEvent(ClickEventType.RUN_COMMAND, cancelCommand);
         msg.addParts(buttonCancel);
 
-        sendMessageComponent(msg, ms);
+        ms.sendMessageComponent(msg);
     }
 
     /**
@@ -79,8 +73,10 @@ public class UndineCommandUtil {
      * @return 文字列表現
      */
     protected static String getItemDesc(ItemStack item) {
-        return item.getDurability() == 0 ? item.getType().toString() :
-                item.getType().toString() + ":" + item.getDurability();
+//        return item.getDurability() == 0 ? item.getType().toString() :
+//                item.getType().toString() + ":" + item.getDurability();
+//        return item.serialize().toString();
+        return item != null ? item.getType().toString() : "null";
     }
 
     /**
@@ -93,19 +89,6 @@ public class UndineCommandUtil {
             return Double.parseDouble(value);
         } catch(NumberFormatException e) {
             return -1;
-        }
-    }
-
-    /**
-     * 指定されたメッセージコンポーネントを、指定されたMailSenderに送信する。
-     * @param msg メッセージコンポーネント
-     * @param sender 送信先
-     */
-    private static void sendMessageComponent(MessageComponent msg, MailSender sender) {
-        if ( sender instanceof MailSenderPlayer && sender.isOnline() ) {
-            msg.send(sender.getPlayer());
-        } else if ( sender instanceof MailSenderConsole ) {
-            msg.send(Bukkit.getConsoleSender());
         }
     }
 }

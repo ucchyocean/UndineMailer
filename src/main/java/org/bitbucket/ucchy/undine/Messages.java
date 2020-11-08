@@ -137,6 +137,7 @@ public class Messages {
         // デフォルトメッセージを、jarファイル内からロードする
         defaultMessages = new YamlConfiguration();
         JarFile jarFile = null;
+        BufferedReader reader = null;
         try {
             jarFile = new JarFile(jar);
             ZipEntry zipEntry = jarFile.getEntry(String.format("messages_%s.yml", lang));
@@ -144,8 +145,7 @@ public class Messages {
                 zipEntry = jarFile.getEntry("messages_en.yml");
             }
             InputStream inputStream = jarFile.getInputStream(zipEntry);
-            BufferedReader reader =
-                    new BufferedReader(new InputStreamReader(inputStream, "UTF-8"));
+            reader = new BufferedReader(new InputStreamReader(inputStream, "UTF-8"));
             String line;
             while ( (line = reader.readLine()) != null ) {
                 if ( line.startsWith("#") || !line.contains(":") ) {
@@ -160,6 +160,13 @@ public class Messages {
         } catch (IOException e) {
             e.printStackTrace();
         } finally {
+            if ( reader != null ) {
+                try {
+                    reader.close();
+                } catch (IOException e) {
+                    // do nothing.
+                }
+            }
             if ( jarFile != null ) {
                 try {
                     jarFile.close();

@@ -16,17 +16,15 @@ import org.bitbucket.ucchy.undine.group.GroupManager;
 import org.bitbucket.ucchy.undine.group.GroupPermissionMode;
 import org.bitbucket.ucchy.undine.group.SpecialGroupPex;
 import org.bitbucket.ucchy.undine.sender.MailSender;
-import org.bitbucket.ucchy.undine.sender.MailSenderConsole;
-import org.bitbucket.ucchy.undine.sender.MailSenderPlayer;
-import org.bitbucket.ucchy.undine.tellraw.ClickEventType;
-import org.bitbucket.ucchy.undine.tellraw.MessageComponent;
-import org.bitbucket.ucchy.undine.tellraw.MessageParts;
-import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandSender;
 import org.bukkit.command.TabExecutor;
 import org.bukkit.entity.Player;
+
+import com.github.ucchyocean.messaging.tellraw.ClickEventType;
+import com.github.ucchyocean.messaging.tellraw.MessageComponent;
+import com.github.ucchyocean.messaging.tellraw.MessageParts;
 
 /**
  * groupコマンド
@@ -203,13 +201,12 @@ public class GroupCommand implements TabExecutor {
             sender.sendMessage(Messages.get("ErrorGroupIsAlreadyExist", "%name", name));
             return true;
         }
-
-        // グループ作成
-        GroupData group = new GroupData(name, ms);
-        manager.addGroup(group);
+        
+        // グループ作成　保存もこのメソッドが行ってくれる
+        GroupData.create(parent, name, ms);
 
         // グループリスト表示
-        parent.getGroupManager().displayGroupList(ms, 1);
+        manager.displayGroupList(ms, 1);
 
         sender.sendMessage(Messages.get("InformationMakeGroup", "%name", name));
 
@@ -253,7 +250,7 @@ public class GroupCommand implements TabExecutor {
             manager.removeGroup(name);
 
             // グループリスト表示
-            parent.getGroupManager().displayGroupList(MailSender.getMailSender(sender), 1);
+            manager.displayGroupList(MailSender.getMailSender(sender), 1);
 
             sender.sendMessage(Messages.get("InformationDeleteGroup", "%name", name));
 
@@ -687,19 +684,6 @@ public class GroupCommand implements TabExecutor {
         buttonCancel.setClickEvent(ClickEventType.RUN_COMMAND, cancelCommand);
         msg.addParts(buttonCancel);
 
-        sendMessageComponent(msg, ms);
-    }
-
-    /**
-     * 指定されたメッセージコンポーネントを、指定されたMailSenderに送信する。
-     * @param msg メッセージコンポーネント
-     * @param sender 送信先
-     */
-    private void sendMessageComponent(MessageComponent msg, MailSender sender) {
-        if ( sender instanceof MailSenderPlayer && sender.isOnline() ) {
-            msg.send(sender.getPlayer());
-        } else if ( sender instanceof MailSenderConsole ) {
-            msg.send(Bukkit.getConsoleSender());
-        }
+        ms.sendMessageComponent(msg);
     }
 }
