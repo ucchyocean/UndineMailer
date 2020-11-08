@@ -6,6 +6,10 @@ import java.util.List;
 
 import org.bitbucket.ucchy.undine.database.Database.DatabaseType;
 
+/**
+ * グループメンバーを保持するテーブルにアクセスするクラス。
+ * @author LazyGon
+ */
 public class GroupMembersTable {
 
     public static final String NAME = "undine_groupmembers";
@@ -35,6 +39,11 @@ public class GroupMembersTable {
         );
     }
 
+    /**
+     * 指定されたすべてのグループのメンバーの和集合を取得する。
+     * @param groupNames グループ名のリスト
+     * @return 各グループのメンバーをまとめたリスト
+     */
     public ArrayList<Integer> getMemberIdsOf(List<String> groupNames) {
         if (groupNames.isEmpty()) {
             return new ArrayList<>();
@@ -55,6 +64,11 @@ public class GroupMembersTable {
         });
     }
 
+    /**
+     * 指定したグループのメンバーを取得する。
+     * @param groupName グループ
+     * @return メンバーのリスト
+     */
     public ArrayList<Integer> getMemberIdsOf(String groupName) {
         return database.query(
             "SELECT member FROM " + NAME + " WHERE groupName = '" + groupName + "'",
@@ -72,6 +86,12 @@ public class GroupMembersTable {
         });
     }
 
+    /**
+     * 指定したグループから指定したメンバーを削除する。
+     * @param groupName グループ 
+     * @param memberId メンバー
+     * @return 削除したかどうか
+     */
     public boolean removeMember(String groupName, int memberId) {
         return database.execute(
             "DELETE FROM " + NAME + " WHERE " +
@@ -80,6 +100,11 @@ public class GroupMembersTable {
         );
     }
     
+    /**
+     * 指定したすべてのグループから、指定されたメンバーを削除する。
+     * @param memberId メンバー
+     * @param groupNames グループのリスト
+     */
     public void removeMemberFromGroups(int memberId, ArrayList<String> groupNames) {
         database.execute(
             "DELETE FROM " + NAME + " WHERE " +
@@ -88,14 +113,28 @@ public class GroupMembersTable {
         );
     }
 
+    /**
+     * 指定されたメンバーをすべてのグループから削除する。
+     * @param memberId メンバー
+     */
     public void removeMemberFromAllGroups(int memberId) {
         database.execute("DELETE FROM " + NAME + " WHERE member = " + memberId);        
     }
 
+    /**
+     * 指定されたグループのメンバーをすべて削除する。
+     * @param groupName グループ
+     */
     public void clearMembers(String groupName) {
         database.execute("DELETE FROM" + NAME + " WHERE groupName = '" + groupName + "'");
     }
 
+    /**
+     * 指定されたグループにメンバーを追加する。
+     * @param groupName グループ
+     * @param memberId メンバー
+     * @return 追加したか
+     */
     public boolean addMember(String groupName, int memberId) {
         String insert = "INSERT INTO " + NAME + " (groupName, member) VALUES ('" + groupName + "', " + memberId + ")";
         if (database.getDatabaseType() == DatabaseType.MYSQL) {
@@ -106,6 +145,12 @@ public class GroupMembersTable {
         return true;
     }
 
+    /**
+     * 指定されたグループにはいっているメンバーかどうか調べる。
+     * @param groupName グループ
+     * @param memberId メンバー
+     * @return メンバーだったらtrue
+     */
     public boolean isMember(String groupName, int memberId) {
         return database.query("SELECT member FROM " + NAME + " WHERE groupName = '" + groupName + "'", rs -> {
             try {
@@ -117,6 +162,11 @@ public class GroupMembersTable {
         });
     }
 
+    /**
+     * 指定されたすべてのメンバーを指定されたグループに追加する。
+     * @param groupName グループ
+     * @param memberIds メンバーのリスト
+     */
     public void addAllToGroup(String groupName, ArrayList<Integer> memberIds) {
         StringBuilder valueBuilder = new StringBuilder();
         for (Integer memberId : memberIds) {
@@ -137,10 +187,20 @@ public class GroupMembersTable {
         } 
     }
 
+    /**
+     * メンバーからが所属しているすべてのグループを取得する。
+     * @param memberId メンバー
+     * @return グループのリスト
+     */
     public ArrayList<String> getBelongingGroups(int memberId) {
         return getGroupsWhere("WHERE member = " + memberId);
     }
 
+    /**
+     * WHERE句を指定してグループを取得する。
+     * @param where SQL文のWHERE句部分
+     * @return 条件に当てはまったグループのリスト
+     */
     public ArrayList<String> getGroupsWhere(String where) {
         return database.query("SELECT groupName FROM " + NAME + (where == null || where.isBlank() ? "" : " " + where), rs -> {
             try {

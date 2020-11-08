@@ -81,6 +81,11 @@ public abstract class GroupManager {
      */
     public abstract GroupData getGroup(String name);
 
+    /**
+     * 指定したグループ名のグループをすべて取得する。
+     * @param names グループ名のリスト
+     * @return グループのリスト
+     */
     public abstract ArrayList<GroupData> getGroups(List<String> names);
 
     /**

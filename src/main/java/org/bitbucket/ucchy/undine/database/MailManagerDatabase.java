@@ -14,6 +14,10 @@ import org.bukkit.ChatColor;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 
+/**
+ * データベース管理のメール管理クラス。このパッケージ外からデータベースにアクセスする場合はこのクラスを通す。
+ * @author LazyGon
+ */
 public class MailManagerDatabase extends MailManager {
 
     private final Database database;
@@ -324,7 +328,7 @@ public class MailManagerDatabase extends MailManager {
      */
     @Override
     public void clearEditmodeMail(MailSender sender) {
-        database.draftMailDataTable.removeMail(database.draftMailDataTable.getIdsBySenderId(database.mailSenderTable.getId(sender)));
+        database.draftMailDataTable.removeMails(database.draftMailDataTable.getIdsBySenderId(database.mailSenderTable.getId(sender)));
     }
 
     /**

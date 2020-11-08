@@ -6,6 +6,10 @@ import java.util.List;
 
 import org.bitbucket.ucchy.undine.database.Database.DatabaseType;
 
+/**
+ * メールの宛先グループを保持するテーブルにアクセスするクラス。
+ * @author LazyGon
+ */
 public class MailRecipientGroupsTable {
     
     public static final String NAME = "undine_mailrecipientgroups";
@@ -36,8 +40,8 @@ public class MailRecipientGroupsTable {
     }
 
     /**
-     * toGroupに指定したgroupを含むメールのidをすべて取得する。
-     * @param group グループ
+     * 指定したグループを含むメールのidをすべて取得する。
+     * @param groupName グループ
      * @return メールIDのリスト
      */
     public ArrayList<Integer> getMailIdsByGroup(String groupName) {
@@ -57,7 +61,7 @@ public class MailRecipientGroupsTable {
 
     /**
      * 指定したgroupのどれか一つでも含むメールのidをすべて取得する。
-     * @param groups グループIDのリスト
+     * @param groupNames グループIDのリスト
      * @return メールIDのリスト
      */
     public ArrayList<Integer> getMailIdsByGroups(List<String> groupNames) {
@@ -79,6 +83,11 @@ public class MailRecipientGroupsTable {
         });
     }
     
+    /**
+     * 指定されたIDのメールが宛先としているグループをすべて取得する。
+     * @param mailId メールのID
+     * @return グループのリスト
+     */
     public ArrayList<String> getGroups(int mailId) {
         return database.query("SELECT recipientGroup FROM " + NAME + " WHERE mailId = " + mailId, rs -> {
             try {
@@ -94,19 +103,33 @@ public class MailRecipientGroupsTable {
         });
     }
 
-    public void addGroup(int id, String groupName) {
+    /**
+     * 指定されたグループを指定されたIDのメールの宛先に追加する。
+     * @param mailId メールのID
+     * @param groupName グループ
+     */
+    public void addGroup(int mailId, String groupName) {
         if (database.getDatabaseType() == DatabaseType.MYSQL) {
-            database.execute("INSERT INTO " + NAME + " (mailId, recipientGroup) VALUES (" + id + ", '" + groupName + "') ON DUPLICATE KEY UPDATE recipientGroup = recipientGroup");
+            database.execute("INSERT INTO " + NAME + " (mailId, recipientGroup) VALUES (" + mailId + ", '" + groupName + "') ON DUPLICATE KEY UPDATE recipientGroup = recipientGroup");
         } else if (database.getDatabaseType() == DatabaseType.SQLITE) {
-            database.execute("INSERT INTO " + NAME + " (mailId, recipientGroup) VALUES (" + id + ", '" + groupName + "') ON CONFLICT(mailId, recipientGroup) DO NOTHING");
+            database.execute("INSERT INTO " + NAME + " (mailId, recipientGroup) VALUES (" + mailId + ", '" + groupName + "') ON CONFLICT(mailId, recipientGroup) DO NOTHING");
         }
     }
 
-    public void removeGroup(int id, String groupName) {
-        database.execute("DELETE FROM " + NAME + " WHERE mailId = " + id + " AND recipientGroup = '" + groupName + "'");
+    /**
+     * 指定されたグループを指定されたIDのメールの宛先から削除する。
+     * @param mailId メールのID
+     * @param groupName グループ
+     */
+    public void removeGroup(int mailId, String groupName) {
+        database.execute("DELETE FROM " + NAME + " WHERE mailId = " + mailId + " AND recipientGroup = '" + groupName + "'");
     }
 
-    public void clearGroup(int id) {
-        database.execute("DELETE FROM " + NAME + " WHERE mailId = " + id);
+    /**
+     * 指定されたIDのメールの宛先グループをすべて削除する。
+     * @param mailId メールのID
+     */
+    public void clearGroup(int mailId) {
+        database.execute("DELETE FROM " + NAME + " WHERE mailId = " + mailId);
     }
 }

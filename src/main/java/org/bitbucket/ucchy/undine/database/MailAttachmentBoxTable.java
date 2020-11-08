@@ -14,6 +14,10 @@ import org.bukkit.configuration.InvalidConfigurationException;
 import org.bukkit.configuration.file.YamlConfiguration;
 import org.bukkit.inventory.ItemStack;
 
+/**
+ * メールの添付アイテムボックスを保持するテーブルにアクセスするクラス。
+ * @author LazyGon
+ */
 public class MailAttachmentBoxTable {
     public static final String NAME = "undine_mailattachmentbox";
 
@@ -43,6 +47,11 @@ public class MailAttachmentBoxTable {
         }
     }
 
+    /**
+     * 指定された送信者がいくつの添付アイテムボックスを使っているか調べる。メール一通につき一つとカウントする。
+     * @param senderId
+     * @return 送信者が使っている添付アイテムボックスの数
+     */
     public int getAttachBoxUsageCount(int senderId) {
         
         return database.query("SELECT mailId FROM " + NAME + " WHERE mailId " + Database.createIn(database.mailDataTable.getIdsBySenderId(senderId)), rs -> {
@@ -59,6 +68,11 @@ public class MailAttachmentBoxTable {
         });
     }
 
+    /**
+     * 指定されたIDのメールの保持する添付アイテムボックスのオリジナルを取得する。
+     * @param mailId メールのID
+     * @return 添付アイテムボックス
+     */
     public ArrayList<ItemStack> getAttachmentBoxOf(int mailId) {
         return database.query("SELECT item FROM " + NAME + " WHERE mailId = " + mailId, rs -> {
             try {
@@ -76,6 +90,11 @@ public class MailAttachmentBoxTable {
         });
     }
 
+    /**
+     * 指定したIDのメールの添付アイテムボックスのオリジナルを設定する。
+     * @param mailId メールのID
+     * @param items 添付アイテムボックス
+     */
     public void setAttachmentBox(int mailId, List<ItemStack> items) {
         database.execute("DELETE FROM " + NAME + " WHERE mailId = " + mailId);
         if (items.isEmpty()) {

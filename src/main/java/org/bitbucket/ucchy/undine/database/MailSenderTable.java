@@ -20,6 +20,10 @@ import org.bitbucket.ucchy.undine.sender.MailSenderDummy;
 import org.bitbucket.ucchy.undine.sender.MailSenderPlayer;
 import org.bukkit.Location;
 
+/**
+ * MailSenderを保存するテーブルにアクセスするクラス。。Bukkitからのみだと他のサーバーからのメール送信に対応できないため、このテーブルを実装している。
+ * @author LazyGon
+ */
 public class MailSenderTable {
 
     public static final String NAME = "undine_mailsenders";
@@ -47,6 +51,11 @@ public class MailSenderTable {
         );
     }
 
+    /**
+     * idからMailSenderを取得する。
+     * @param id MailSenderのデータベース内でのid
+     * @return MailSender
+     */
     public MailSender getById(int id) {
         if (id <= 0) {
             return null;
@@ -80,6 +89,11 @@ public class MailSenderTable {
         return result;
     }
 
+    /**
+     * 指定されたMailSenderのデータベース内でのidを取得する。MailSenderConsoleについては見つからなかったときはinsertしてそのとき生成されたidを返す。
+     * @param mailSender idを取得するMailSender
+     * @return MailSenderのid
+     */
     public int getId(MailSender mailSender) {
         if (mailSenderCache.containsValue(mailSender)) {
             return mailSenderCache.inverse().get(mailSender);
@@ -107,6 +121,12 @@ public class MailSenderTable {
         return -1;
     }
 
+    /**
+     * 指定されたすべてのMailSenderのidを取得する。
+     * そのidとMailSenderのマッピングが欲しい場合はここから更にgetByIdsを使う必要がある。(複雑すぎて1メソッドでは実装できなかったため)
+     * @param mailSenders idを取得するMailSender
+     * @return 取得されたidのリスト
+     */
     public List<Integer> getIds(Collection<MailSender> mailSenders) {
         mailSenders = new ArrayList<>(mailSenders);
         List<Integer> result = new ArrayList<>();
@@ -183,6 +203,11 @@ public class MailSenderTable {
         return result;
     }
 
+    /**
+     * WHERE句を指定してMailSenderのidを取得する。
+     * @param where SQL文のWHERE句部分
+     * @return 条件に当てはまったMailSenderのリスト
+     */
     private List<Integer> getIdsWhere(String where) {
         return database.query("SELECT id FROM " + NAME + (where == null || where.isBlank() ? "" : " " + where), rs -> {
             try {
@@ -198,11 +223,21 @@ public class MailSenderTable {
         });
     }
 
+    /**
+     * WHERE句を指定してMailSenderを取得する。結果が一つになるようなWHERE句を書くことが推奨される。
+     * @param where SQL文のWHERE句部分
+     * @return 取得されたMailSender
+     */
     private int getIdWhere(String where) {
         List<Integer> ids = getIdsWhere(where);
         return ids.isEmpty() ? -1 : ids.get(0);
     }
 
+    /**
+     * idのリストからMailSenderをすべて取得する。
+     * @param ids idのリスト
+     * @return 指定されたidと取得されたMailSenderのMap
+     */
     public Map<Integer, MailSender> getByIds(Collection<Integer> ids) {
         ids = new ArrayList<>(ids);
         Map<Integer, MailSender> result = new HashMap<>();
@@ -238,10 +273,18 @@ public class MailSenderTable {
         return result;
     }
 
+    /**
+     * 指定されたMailSenderをデータベースに追加する。
+     * @param mailSender
+     */
     public void add(MailSender mailSender) {
         addAll(Arrays.asList(mailSender));
     }
 
+    /**
+     * 指定されたすべてのMailSenderをデータベースに追加する。
+     * @param mailSenders MailSenderのリスト
+     */
     public void addAll(Collection<MailSender> mailSenders) {
         if (mailSenders.isEmpty()) {
             return;
@@ -351,12 +394,20 @@ public class MailSenderTable {
         }
     }
 
-    public String updateName(MailSender mailSender, String newName) {
-        int id = getId(mailSender);
-        database.execute("UPDATE " + NAME + " SET name = '" + newName + "' WHERE id = " + id);
-        return null;
+    /**
+     * データベースに登録されている名前を変更する。
+     * @param mailSender 名前を変更するMailSender
+     * @param newName 新しい名前
+     */
+    public void updateName(MailSender mailSender, String newName) {
+        database.execute("UPDATE " + NAME + " SET name = '" + newName + "' WHERE id = " + getId(mailSender));
     }
 
+    /**
+     * かつて指定された位置にあったBlockのMailSenderをデータベースから取得する。過去にそうだったとしても現在はそのブロックはMailSenderにはなりえない可能性がある。
+     * @param location ブロックの位置
+     * @return MailSenderBlock
+     */
     public MailSenderBlock getMailSenderBlockAt(Location location) {
         return database.query("SELECT name, location FROM " + NAME + " " +
                 "WHERE type = 0 AND location = '" + Database.createDBLocationString(location) + "'", rs -> {
@@ -372,10 +423,20 @@ public class MailSenderTable {
         });
     }
     
+    /**
+     * 指定されたMailSenderがデータベースに存在するかを調べる。
+     * @param mailSender 調べるMailSender
+     * @return データベースに存在したらtrue
+     */
     public boolean exists(MailSender mailSender) {
         return getId(mailSender) != -1;
     }
 
+    /**
+     * データベースから指定されたMailSenderを削除する。
+     * @param mailSender 削除するMailSender
+     * @return 削除したかどうか
+     */
     public boolean delete(MailSender mailSender) {
         return database.execute("DELETE FROM " + NAME + " WHERE id = " + getId(mailSender));
     }

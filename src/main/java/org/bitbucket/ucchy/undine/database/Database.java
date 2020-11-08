@@ -23,9 +23,12 @@ import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.World;
 
+/**
+ * データベースの接続を保持するクラス。
+ * @author LazyGon
+ */
 public class Database {
 
-    /** データベースへの接続。 */
     
     private final DatabaseType databaseType;
     
@@ -39,6 +42,7 @@ public class Database {
 
     private Connection connection;
     
+    /** データベースへの接続。 */
     final UndineMailer parent;
 
     public final MailSenderTable mailSenderTable;
@@ -55,10 +59,13 @@ public class Database {
     public final DraftMailAttachmentBoxTable draftMailAttachmentBoxTable;
 
     /**
-     * SQLiteに接続する。
+     * コンストラクタ。データベースに接続する。
      * 
-     * @param dbPath SQLiteのデータファイルのパス
-     * @throws SQLException {@code Connection}の生成中に例外が発生した場合
+     * @param parent プラグイン
+     * @param type データベースのタイプ。FLAT_FILEを指定するとIllegalArgumentExceptionをスローする。
+     * @throws IOException SQLiteデータベースのファイルが作成できなかったとき
+     * @throws SQLException JDBCドライバーが読み込めなかったとき
+     * @throws SQLException コネクションを作れなかったとき
      */
     public Database(UndineMailer parent, DatabaseType type) throws IOException, SQLException {
         this.parent = parent;
@@ -112,6 +119,12 @@ public class Database {
 
     }
 
+    /**
+     * コネクションがクローズしていた場合、再作成する。クローズしていない場合は今あるコネクションを返す。
+     * 再作成されたコネクションはconnectionのフィールドに格納される。
+     * 
+     * @return 今あるコネクションか、それが利用不能のときは新しいコネクション。
+     */
     private Connection reloadConnection() throws SQLException {
         if (connection != null && !connection.isClosed()) {
             return connection;
@@ -131,6 +144,9 @@ public class Database {
         return connection;
     }
 
+    /**
+     * データベース接続を切る。
+     */
     public void dispose() {
         try {
             if (connection != null && !connection.isClosed()) {
@@ -141,10 +157,21 @@ public class Database {
         }
     }
 
+    /**
+     * このインスタンスがどのデータベースの種類を使っているか返す。
+     * 
+     * @return MySQL か SQLITE
+     */
     public DatabaseType getDatabaseType() {
         return databaseType;
     }
 
+    /**
+     * データベースに保存される形式の文字列からLocationを生成して返す。
+     * 
+     * @param dbLocationStr データベースに保存される形式のLocation文字列
+     * @return Location
+     */
     public static Location fromDBLocationString(String dbLocationStr) {
         String[] part = dbLocationStr.split(",");
         World world = Bukkit.getWorld(part[0]);
@@ -166,6 +193,11 @@ public class Database {
         }
     }
 
+    /**
+     * Locationからデータベースに保存される形式の文字列を生成する。 
+     * @param location ロケーション
+     * @return Location文字列
+     */
     public static String createDBLocationString(Location location) {
         if (location == null || location.getWorld() == null) return null;
         return location.getWorld().getName() + "," +
@@ -196,7 +228,7 @@ public class Database {
     /**
      * 指定したINSERT文を実行する。AUTOINCREMENTによって新たに生成された数値を返す。
      * 値は挿入されたレコードの数だけ生成される。主キーがAUTOINCREMENTでない場合は値が生成されない。
-     * INSERTではないSQLを実行する場合は {@link org.bitbucket.ucchy.undine.database.Database#execute(String)} を使うこと。
+     * INSERTではないSQLを実行する場合や、生成されたキーが必要ない場合は {@link org.bitbucket.ucchy.undine.database.Database#execute(String)} を使うこと。
      * 
      * @param insert 実行するSQL文。メソッド内でPreparedStatementに変換される。
      * @return AUTOINCREMENTで生成された数値のリスト
@@ -268,6 +300,11 @@ public class Database {
             this.autoIncrement = autoIncrement;
         }
 
+        /**
+         * 名前からデータベースタイプを取得する。
+         * @param name 名前
+         * @return データベースタイプ
+         */
         public static DatabaseType getByName(String name) {
             for (DatabaseType type : values()) {
                 if (type.name().toLowerCase(Locale.ROOT).replace("_", "").equals(name)) {

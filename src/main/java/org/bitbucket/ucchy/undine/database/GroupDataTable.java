@@ -15,6 +15,10 @@ import org.bitbucket.ucchy.undine.group.GroupDataFlatFile;
 import org.bitbucket.ucchy.undine.group.GroupPermissionMode;
 import org.bitbucket.ucchy.undine.sender.MailSender;
 
+/**
+ * グループデータを保持するメインテーブルにアクセスするクラス。
+ * @author LazyGon
+ */
 public class GroupDataTable {
 
     public static final String NAME = "undine_groupdata";
@@ -42,6 +46,12 @@ public class GroupDataTable {
         );
     }
 
+    /**
+     * 
+     * @param name
+     * @param owner
+     * @return
+     */
     public boolean add(String name, MailSender owner) {
         UndineConfig config = database.parent.getUndineConfig();
         return add(name, owner, config.getSendModeDefault(), config.getModifyModeDefault(), config.getDissolutionModeDefault());
@@ -155,11 +165,11 @@ public class GroupDataTable {
         }
     }
 
-    private GroupPermissionMode getMode(String groupName, String propName) {
-        return database.query("SELECT " + propName + " FROM " + NAME + " WHERE name = '" + groupName + "'", rs -> {
+    private GroupPermissionMode getMode(String groupName, String columnName) {
+        return database.query("SELECT " + columnName + " FROM " + NAME + " WHERE name = '" + groupName + "'", rs -> {
             try {
                 if (rs.next()) {
-                    return GroupPermissionMode.values()[(int)rs.getByte(propName)];
+                    return GroupPermissionMode.values()[(int)rs.getByte(columnName)];
                 }
                 return null;
             } catch (SQLException e) {
@@ -181,8 +191,8 @@ public class GroupDataTable {
         return getMode(groupName, "dissolutionMode");
     }
     
-    private void setMode(String groupName, String propName, GroupPermissionMode mode) {
-        database.execute("UPDATE " + NAME + " SET " + propName + " = " + mode.ordinal() + " WHERE name = '" + groupName + "'");
+    private void setMode(String groupName, String columnName, GroupPermissionMode mode) {
+        database.execute("UPDATE " + NAME + " SET " + columnName + " = " + mode.ordinal() + " WHERE name = '" + groupName + "'");
     }
 
     public void setSendMode(String groupName, GroupPermissionMode mode) {

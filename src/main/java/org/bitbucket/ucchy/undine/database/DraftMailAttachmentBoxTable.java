@@ -12,6 +12,10 @@ import org.bukkit.configuration.InvalidConfigurationException;
 import org.bukkit.configuration.file.YamlConfiguration;
 import org.bukkit.inventory.ItemStack;
 
+/**
+ * 編集中メールの添付アイテムボックスを保持するテーブルにアクセスするクラス。。
+ * @author LazyGon
+ */
 public class DraftMailAttachmentBoxTable {
     public static final String NAME = "undine_draftmailattachmentbox";
 
@@ -40,6 +44,11 @@ public class DraftMailAttachmentBoxTable {
         }
     }
 
+    /**
+     * 指定されたメールIDの添付アイテムのリストを取得する。
+     * @param mailId メールID
+     * @return 添付アイテムボックス
+     */
     public ArrayList<ItemStack> getAttachmentBoxOf(int mailId) {
         return database.query("SELECT item FROM " + NAME + " WHERE mailId = " + mailId, rs -> {
             try {
@@ -57,6 +66,11 @@ public class DraftMailAttachmentBoxTable {
         });
     }
 
+    /**
+     * このメールIDの添付アイテムボックスを設定する。
+     * @param mailId メールID
+     * @param items 添付アイテムボックス
+     */
     public void setAttachmentBox(int mailId, List<ItemStack> items) {
         database.execute("DELETE FROM " + NAME + " WHERE mailId = " + mailId);
         if (items.isEmpty()) {

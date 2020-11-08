@@ -7,6 +7,10 @@ import java.util.List;
 
 import org.bitbucket.ucchy.undine.database.Database.DatabaseType;
 
+/**
+ * 編集中メールの宛先を保持するテーブルにアクセスするクラス。
+ * @author LazyGon
+ */
 public class DraftMailRecipientsTable {
 
     public static final String NAME = "undine_draftmailrecipients";
@@ -36,6 +40,11 @@ public class DraftMailRecipientsTable {
         );
     }
 
+    /**
+     * 指定された受信者を宛先に含むメールのIDをすべて取得する。
+     * @param recipientId 受信者
+     * @return メールのID
+     */
     public ArrayList<Integer> getMailIdsByRecipient(int recipientId) {
         if (recipientId == -1) {
             return new ArrayList<>();
@@ -54,8 +63,13 @@ public class DraftMailRecipientsTable {
         });
     }
 
-    public ArrayList<Integer> getRecipients(int id) {
-        return database.query("SELECT recipient FROM " + NAME + " WHERE mailId = " + id, rs -> {
+    /**
+     * 指定されたIDのメールの宛先の受信者のIDをすべて取得する。
+     * @param mailId メールのID
+     * @return 受信者のIDのリスト
+     */
+    public ArrayList<Integer> getRecipients(int mailId) {
+        return database.query("SELECT recipient FROM " + NAME + " WHERE mailId = " + mailId, rs -> {
             try {
                 ArrayList<Integer> ids = new ArrayList<>();
                 while (rs.next()) {
@@ -69,13 +83,18 @@ public class DraftMailRecipientsTable {
         });
     }
 
-    public void addRecipients(int id, List<Integer> recipientIds) {
+    /**
+     * 指定された受信者をすべて指定されたIDのメールに追加する。
+     * @param mailId メールのID
+     * @param recipientIds 受信者のリスト
+     */
+    public void addRecipients(int mailId, List<Integer> recipientIds) {
         if (recipientIds.isEmpty()) {
             return;
         }
         StringBuilder valuesBuilder = new StringBuilder();
         for (int recipientId : recipientIds) {
-            valuesBuilder.append("(").append(id).append(", ").append(recipientId).append("), ");
+            valuesBuilder.append("(").append(mailId).append(", ").append(recipientId).append("), ");
         }
         valuesBuilder.delete(valuesBuilder.length() - 2, valuesBuilder.length());
 
@@ -86,17 +105,31 @@ public class DraftMailRecipientsTable {
         }
     }
 
-    public void addRecipient(int id, int recipientId) {
-        addRecipients(id, Arrays.asList(recipientId));
+    /**
+     * 指定された受信者を指定されたIDのメールの宛先に追加する。
+     * @param mailId メールのID
+     * @param recipientId 受信者
+     */
+    public void addRecipient(int mailId, int recipientId) {
+        addRecipients(mailId, Arrays.asList(recipientId));
     }
 
-    public void removeRecipient(int id, int recipientId) {
+    /**
+     * 指定された受信者を指定されたIDのメールの宛先から削除する。
+     * @param mailId メールのID
+     * @param recipientId 受信者
+     */
+    public void removeRecipient(int mailId, int recipientId) {
         if (recipientId != -1) {
-            database.execute("DELETE FROM " + NAME + " WHERE mailId = " + id + " AND recipient = " + recipientId);
+            database.execute("DELETE FROM " + NAME + " WHERE mailId = " + mailId + " AND recipient = " + recipientId);
         }
     }
 
-    public void clearRecipient(int id) {
-        database.execute("DELETE FROM " + NAME + " WHERE mailId = " + id);
+    /**
+     * 指定されたIDのメールの宛先をすべて削除する。
+     * @param mailId メールのID
+     */
+    public void clearRecipient(int mailId) {
+        database.execute("DELETE FROM " + NAME + " WHERE mailId = " + mailId);
     }
 }

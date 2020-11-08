@@ -8,7 +8,7 @@ import org.bitbucket.ucchy.undine.group.GroupPermissionMode;
 import org.bitbucket.ucchy.undine.sender.MailSender;
 
 /**
- * データベース管理のメールグループ
+ * データベース管理のメールグループ。
  * @author LazyGon
  */
 public class GroupDataDatabase extends GroupData {
