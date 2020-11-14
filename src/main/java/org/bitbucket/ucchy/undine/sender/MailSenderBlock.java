@@ -156,7 +156,7 @@ public class MailSenderBlock extends MailSender {
     @Override
     public void setStringMetadata(String key, String value) {
         if ( sender == null || sender.getBlock() == null
-                || sender.getBlock().getType() != Material.COMMAND ) {
+                || !isCommandBlock(sender.getBlock().getType()) ) {
             return;
         }
         sender.getBlock().setMetadata(key,
@@ -172,7 +172,7 @@ public class MailSenderBlock extends MailSender {
     @Override
     public String getStringMetadata(String key) {
         if ( sender == null || sender.getBlock() == null
-                || sender.getBlock().getType() != Material.COMMAND ) {
+                || !isCommandBlock(sender.getBlock().getType()) ) {
             return null;
         }
         List<MetadataValue> values = sender.getBlock().getMetadata(key);
@@ -191,7 +191,7 @@ public class MailSenderBlock extends MailSender {
     @Override
     public void setBooleanMetadata(String key, boolean value) {
         if ( sender == null || sender.getBlock() == null
-                || sender.getBlock().getType() != Material.COMMAND ) {
+                || !isCommandBlock(sender.getBlock().getType()) ) {
             return;
         }
         sender.getBlock().setMetadata(key,
@@ -207,7 +207,7 @@ public class MailSenderBlock extends MailSender {
     @Override
     public boolean getBooleanMetadata(String key) {
         if ( sender == null || sender.getBlock() == null
-                || sender.getBlock().getType() != Material.COMMAND ) {
+                || !isCommandBlock(sender.getBlock().getType()) ) {
             return false;
         }
         List<MetadataValue> values = sender.getBlock().getMetadata(key);
@@ -237,5 +237,9 @@ public class MailSenderBlock extends MailSender {
     @Override
     public String toString() {
         return getName();
+    }
+
+    private boolean isCommandBlock(Material m) {
+        return m.name().equals("COMMAND") || m.name().equals("COMMAND_BLOCK");
     }
 }

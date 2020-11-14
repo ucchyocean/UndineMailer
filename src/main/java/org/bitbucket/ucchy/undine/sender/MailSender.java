@@ -5,7 +5,7 @@
  */
 package org.bitbucket.ucchy.undine.sender;
 
-import org.bitbucket.ucchy.undine.Utility;
+import org.bitbucket.ucchy.undine.UndineMailer;
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.OfflinePlayer;
@@ -193,11 +193,7 @@ public abstract class MailSender implements Comparable<MailSender> {
             return new MailSenderConsole((ConsoleCommandSender)sender);
         } else if ( sender instanceof OfflinePlayer ) {
             OfflinePlayer player = (OfflinePlayer)sender;
-            if ( Utility.isCB178orLater() ) {
-                return new MailSenderPlayer("$" + player.getUniqueId().toString());
-            } else {
-                return new MailSenderPlayer(player.getName());
-            }
+            return new MailSenderPlayer("$" + UndineMailer.getInstance().getUUID(player.getName()));
         }
         return null;
     }

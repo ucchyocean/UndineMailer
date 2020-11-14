@@ -43,6 +43,7 @@ ErrorCannotSendSpamMail: '&cYou cannot send mail in succession. Until the next m
 ErrorPlayerCacheIncomplete: '&cSince the players cache has not been completed, you cannot send AllConnected addressed mail. Please send after waiting for a while.'
 ErrorCannotFoundLocation: '&cYou cannot teleport for transmission point is not recorded to the specified mail.'
 ErrorProhibitItemAttached: '&cItem %material is prohibited to attach.'
+ErrorContainsProhibitItemInShulkerbox: '&cShulkerBox contains prohibited item(s).'
 
 ErrorInvalidGroupName: '&c%name cannot be used as a group name.'
 ErrorGroupIsAlreadyExist: '&cGroup %name cannot be used because it already exists.'
@@ -86,7 +87,7 @@ InformationGroupMemberAddAllLogin: '&7Added %num player(s) to the members of the
 InformationGroupMemberRemove: '&7Removed Player %player from the members of the group %group.'
 InformationGroupSetPermission: '&7Set %type permission of Group %name to %value.'
 
-InformationTipsReadCommandFail: '&7TIPS: You can open mail by clicking blue numbers in mail list.'
+InformationTipsReadCommandFail: '&7TIP: You can open mail by clicking blue numbers in mail list.'
 
 SummaryOpenThisMailToolTip: 'Open this mail'
 
@@ -122,6 +123,7 @@ EditmodeToAdd: '[Add recipient]'
 EditmodeToAddToolTip: 'To add new recipient,\nclick here and\ninput recipient player name to chat window.'
 EditmodeToAddress: '[Add recipient from Player list]'
 EditmodeToGroupAdd: '[Add recipient group]'
+EditmodeLineEdit: '[M%num]'
 EditmodeLineEditToolTip: 'Click here to add your message'
 EditmodeLineDelete: '[x]'
 EditmodeLineDeleteToolTip: 'Delete this line'
@@ -140,6 +142,7 @@ EditmodeCostItemRemove: '[x]'
 EditmodeCostItemRemoveToolTip: 'Remove C.O.D. item'
 EditmodeSend: '[Send]'
 EditmodeCancel: '[Cancel]'
+EditmodeTipsMessage: '&7TIP: Click the [M1] to add your message to this line.'
 
 EditmodeFeeInformation: '&7You need %fee for sending this mail.'
 EditmodeFeeDetail: '&7(mail fee %mail + attachment fee %item)'

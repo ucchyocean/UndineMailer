@@ -39,6 +39,10 @@ mailSpamProtectionSeconds: 15
 # プレイヤーがログインした時に、未読一覧を表示するまでの時間（秒）。
 loginNotificationDelaySeconds: 3
 
+# UUID取得時のオンラインモード
+#   true = MojangのサーバーからUUIDを取得します。 false = ローカルのBukkitサーバーからUUIDを取得します。
+uuidOnlineMode: false
+
 # -------------------- アイテム添付設定 --------------------
 
 # メールにアイテムの添付を可能にするかどうか。
@@ -61,7 +65,7 @@ disableWorldsToOpenAttachBox: []
 # 例えば prohibitItemsToAttach: [GOLDEN_APPLE, QUARTZ_BLOCK] と設定すると、
 # 金リンゴとクオーツブロックが添付できなくなります。
 # 指定可能なアイテム名は、下記のURLを参考にしてください。
-# https://github.com/ucchyocean/UndineMailer/blob/master/src/main/java/org/bitbucket/ucchy/undine/item/TradableMaterial.java#L16-L357
+# https://github.com/ucchyocean/UndineMailer/blob/master/src/main/java/org/bitbucket/ucchy/undine/item/TradableMaterial.java#L19-L462
 prohibitItemsToAttach: []
 
 # -------------------- 着払い設定 --------------------
@@ -170,7 +174,7 @@ welcomeMailDelaySeconds: 30
 # ウェルカムメールの添付アイテム設定です。
 welcomeMailAttachments:
   attachment1:
-    material: STONE_SPADE
+    material: STONE_SHOVEL
   attachment2:
     material: STONE_PICKAXE
   attachment3:

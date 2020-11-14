@@ -21,11 +21,12 @@ import org.bitbucket.ucchy.undine.command.UndineCommand;
 import org.bitbucket.ucchy.undine.sender.MailSender;
 import org.bitbucket.ucchy.undine.sender.MailSenderConsole;
 import org.bitbucket.ucchy.undine.sender.MailSenderPlayer;
-import org.bitbucket.ucchy.undine.tellraw.ClickEventType;
-import org.bitbucket.ucchy.undine.tellraw.MessageComponent;
-import org.bitbucket.ucchy.undine.tellraw.MessageParts;
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
+
+import com.github.ucchyocean.messaging.tellraw.ClickEventType;
+import com.github.ucchyocean.messaging.tellraw.MessageComponent;
+import com.github.ucchyocean.messaging.tellraw.MessageParts;
 
 /**
  * メールグループ管理クラス
@@ -322,7 +323,7 @@ public class GroupManager {
                     new MessageParts("[" + group.getName() + "]", ChatColor.AQUA);
             button.setClickEvent(ClickEventType.RUN_COMMAND,
                     COMMAND + " detail " + group.getName());
-            button.addHoverText(group.getHoverText());
+            button.setHoverText(group.getHoverText());
             msg.addParts(button);
 
             if ( group instanceof SpecialGroupAll ) {
@@ -344,7 +345,7 @@ public class GroupManager {
                     new MessageParts(Messages.get("GroupMakeNewGroup"), ChatColor.AQUA);
             button.setClickEvent(ClickEventType.SUGGEST_COMMAND,
                     COMMAND + " create ");
-            button.addHoverText(Messages.get("GroupMakeNewGroupToolTip"));
+            button.setHoverText(Messages.get("GroupMakeNewGroupToolTip"));
             msg.addParts(button);
 
             sendMessageComponent(msg, sender);
@@ -392,7 +393,7 @@ public class GroupManager {
                     new MessageParts("[" + group.getName() + "]", ChatColor.AQUA);
             button.setClickEvent(ClickEventType.RUN_COMMAND,
                     next + " " + group.getName());
-            button.addHoverText(group.getHoverText());
+            button.setHoverText(group.getHoverText());
             msg.addParts(button);
 
             if ( group instanceof SpecialGroupAll ) {
@@ -412,7 +413,7 @@ public class GroupManager {
 
             MessageParts button =
                     new MessageParts(Messages.get("GroupMakeNewGroup"), ChatColor.WHITE);
-            button.addHoverText(Messages.get("GroupMakeNewGroupToolTipForSelection"));
+            button.setHoverText(Messages.get("GroupMakeNewGroupToolTipForSelection"));
             msg.addParts(button);
 
             sendMessageComponent(msg, sender);
@@ -531,13 +532,13 @@ public class GroupManager {
                 delete.setClickEvent(
                         ClickEventType.RUN_COMMAND,
                         COMMAND + " remove " + group.getName() + " " + member.getName());
-                delete.addHoverText(Messages.get("GroupDeleteMemberToolTip"));
+                delete.setHoverText(Messages.get("GroupDeleteMemberToolTip"));
                 msg.addParts(delete);
 
             } else {
                 MessageParts delete = new MessageParts(
                         Messages.get("GroupDeleteMemberButton"), ChatColor.WHITE);
-                delete.addHoverText(Messages.get("GroupDeleteMemberOwnerToolTip"));
+                delete.setHoverText(Messages.get("GroupDeleteMemberOwnerToolTip"));
                 msg.addParts(delete);
 
             }
@@ -762,7 +763,7 @@ public class GroupManager {
             MessageParts returnButton = new MessageParts(
                     Messages.get("Return"), ChatColor.AQUA);
             returnButton.setClickEvent(ClickEventType.RUN_COMMAND, returnCommand);
-            returnButton.addHoverText(Messages.get("ReturnToolTip"));
+            returnButton.setHoverText(Messages.get("ReturnToolTip"));
             msg.addParts(returnButton);
 
             msg.addText(" ");
@@ -773,7 +774,7 @@ public class GroupManager {
                     firstLabel, ChatColor.AQUA);
             firstButton.setClickEvent(ClickEventType.RUN_COMMAND,
                     commandPre + " 1" + commandSuf);
-            firstButton.addHoverText(firstToolTip);
+            firstButton.setHoverText(firstToolTip);
             msg.addParts(firstButton);
 
             msg.addText(" ");
@@ -782,7 +783,7 @@ public class GroupManager {
                     prevLabel, ChatColor.AQUA);
             prevButton.setClickEvent(ClickEventType.RUN_COMMAND,
                     commandPre + " " + (page - 1) + commandSuf);
-            prevButton.addHoverText(prevToolTip);
+            prevButton.setHoverText(prevToolTip);
             msg.addParts(prevButton);
 
         } else {
@@ -797,7 +798,7 @@ public class GroupManager {
                     nextLabel, ChatColor.AQUA);
             nextButton.setClickEvent(ClickEventType.RUN_COMMAND,
                     commandPre + " " + (page + 1) + commandSuf);
-            nextButton.addHoverText(nextToolTip);
+            nextButton.setHoverText(nextToolTip);
             msg.addParts(nextButton);
 
             msg.addText(" ");
@@ -806,7 +807,7 @@ public class GroupManager {
                     lastLabel, ChatColor.AQUA);
             lastButton.setClickEvent(ClickEventType.RUN_COMMAND,
                     commandPre + " " + max + commandSuf);
-            lastButton.addHoverText(lastToolTip);
+            lastButton.setHoverText(lastToolTip);
             msg.addParts(lastButton);
 
         } else {

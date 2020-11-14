@@ -15,8 +15,6 @@ import java.util.List;
 import org.bitbucket.ucchy.undine.group.GroupData;
 import org.bitbucket.ucchy.undine.group.GroupManager;
 import org.bitbucket.ucchy.undine.group.SpecialGroupAll;
-import org.bitbucket.ucchy.undine.item.ItemConfigParseException;
-import org.bitbucket.ucchy.undine.item.ItemConfigParser;
 import org.bitbucket.ucchy.undine.sender.MailSender;
 import org.bitbucket.ucchy.undine.sender.MailSenderPlayer;
 import org.bukkit.Bukkit;
@@ -25,6 +23,9 @@ import org.bukkit.World;
 import org.bukkit.configuration.ConfigurationSection;
 import org.bukkit.configuration.file.YamlConfiguration;
 import org.bukkit.inventory.ItemStack;
+
+import com.github.ucchyocean.itemconfig.ItemConfigParseException;
+import com.github.ucchyocean.itemconfig.ItemConfigParser;
 
 /**
  * メールのデータ
@@ -223,13 +224,16 @@ public class MailData implements Comparable<MailData>, Cloneable {
         }
 
         if ( location != null ) {
-            ConfigurationSection locSec = section.createSection("location");
-            locSec.set("world", location.getWorld().getName());
-            locSec.set("x", location.getX());
-            locSec.set("y", location.getY());
-            locSec.set("z", location.getZ());
-            locSec.set("yaw", location.getYaw());
-            locSec.set("pitch", location.getPitch());
+            World world = location.getWorld();
+            if ( world != null ) {
+                ConfigurationSection locSec = section.createSection("location");
+                locSec.set("world", world.getName());
+                locSec.set("x", location.getX());
+                locSec.set("y", location.getY());
+                locSec.set("z", location.getZ());
+                locSec.set("yaw", location.getYaw());
+                locSec.set("pitch", location.getPitch());
+            }
         }
 
         section.set("isAttachmentsCancelled", isAttachmentsCancelled);
@@ -279,14 +283,15 @@ public class MailData implements Comparable<MailData>, Cloneable {
         data.from = MailSender.getMailSenderFromString(section.getString("from"));
         data.message = section.getStringList("message");
 
-        if ( section.contains("attachments") ) {
+        ConfigurationSection attachmentsSec = section.getConfigurationSection("attachments");
+        if ( attachmentsSec != null ) {
             data.attachments = new ArrayList<ItemStack>();
 
-            for ( String name : section.getConfigurationSection("attachments").getKeys(false) ) {
+            for ( String name : attachmentsSec.getKeys(false) ) {
                 ConfigurationSection sub = section.getConfigurationSection("attachments." + name);
                 try {
                     ItemStack item = ItemConfigParser.getItemFromSection(sub);
-                    data.attachments.add(item);
+                    if (item != null) data.attachments.add(item);
                 } catch (ItemConfigParseException e) {
                     e.printStackTrace();
                 }
@@ -321,18 +326,19 @@ public class MailData implements Comparable<MailData>, Cloneable {
             }
         }
 
-        if ( section.contains("attachmentsOriginal") ) {
+        ConfigurationSection attachmentsOrgSec = section.getConfigurationSection("attachmentsOriginal");
+        if ( attachmentsOrgSec != null ) {
             data.attachmentsOriginal = new ArrayList<ItemStack>();
 
-            for ( String name :
-                    section.getConfigurationSection("attachmentsOriginal").getKeys(false) ) {
-                ConfigurationSection sub =
-                        section.getConfigurationSection("attachmentsOriginal." + name);
-                try {
-                    ItemStack item = ItemConfigParser.getItemFromSection(sub);
-                    data.attachmentsOriginal.add(item);
-                } catch (ItemConfigParseException e) {
-                    e.printStackTrace();
+            for ( String name : attachmentsOrgSec.getKeys(false) ) {
+                ConfigurationSection sub = attachmentsOrgSec.getConfigurationSection(name);
+                if ( sub != null ) {
+                    try {
+                        ItemStack item = ItemConfigParser.getItemFromSection(sub);
+                        data.attachmentsOriginal.add(item);
+                    } catch (ItemConfigParseException e) {
+                        e.printStackTrace();
+                    }
                 }
             }
         }
@@ -341,16 +347,19 @@ public class MailData implements Comparable<MailData>, Cloneable {
             data.date = new Date(section.getLong("date"));
         }
 
-        if ( section.contains("location") && section.contains("location.world") ) {
-            ConfigurationSection locSec = section.getConfigurationSection("location");
-            World world = Bukkit.getWorld(locSec.getString("world"));
-            if ( world != null ) {
-                double x = locSec.getDouble("x");
-                double y = locSec.getDouble("y");
-                double z = locSec.getDouble("z");
-                double yaw = locSec.getDouble("yaw");
-                double pitch = locSec.getDouble("pitch");
-                data.location = new Location(world, x, y, z, (float)yaw, (float)pitch);
+        ConfigurationSection locSec = section.getConfigurationSection("location");
+        if ( locSec != null ) {
+            String worldName = locSec.getString("world");
+            if ( worldName != null ) {
+                World world = Bukkit.getWorld(worldName);
+                if ( world != null ) {
+                    double x = locSec.getDouble("x");
+                    double y = locSec.getDouble("y");
+                    double z = locSec.getDouble("z");
+                    double yaw = locSec.getDouble("yaw");
+                    double pitch = locSec.getDouble("pitch");
+                    data.location = new Location(world, x, y, z, (float)yaw, (float)pitch);
+                }
             }
         }
 

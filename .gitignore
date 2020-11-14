@@ -5,3 +5,5 @@
 /release
 .idea/
 *.iml
+/bin/
+dependency-reduced-pom.xml
