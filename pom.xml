@@ -2,8 +2,8 @@
   <modelVersion>4.0.0</modelVersion>
   <groupId>org.bitbucket.ucchy</groupId>
   <artifactId>UndineMailer</artifactId>
-  <version>1.10.3</version>
-  <description></description>
+  <version>1.11</version>
+  <description>Mail sending and receiving system.</description>
 
   <licenses>
     <license>
@@ -15,6 +15,7 @@
 
   <properties>
     <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+    <java.version>16</java.version>
   </properties>
 
   <distributionManagement>
@@ -28,22 +29,25 @@
   <build>
     <finalName>${project.artifactId}</finalName>
     <defaultGoal>clean javadoc:jar source:jar deploy</defaultGoal>
+
     <resources>
       <resource>
         <directory>src/main/resources</directory>
         <filtering>true</filtering>
       </resource>
     </resources>
+
     <plugins>
       <plugin>
         <groupId>org.apache.maven.plugins</groupId>
         <artifactId>maven-compiler-plugin</artifactId>
         <version>3.8.1</version>
         <configuration>
-          <source>1.8</source>
-          <target>1.8</target>
+          <source>${java.version}</source>
+          <target>${java.version}</target>
         </configuration>
       </plugin>
+
       <plugin>
         <groupId>org.apache.maven.plugins</groupId>
         <artifactId>maven-javadoc-plugin</artifactId>
@@ -61,10 +65,11 @@
           </links>
         </configuration>
       </plugin>
+
       <plugin>
         <groupId>org.apache.maven.plugins</groupId>
         <artifactId>maven-shade-plugin</artifactId>
-        <version>3.2.1</version>
+        <version>3.2.4</version>
         <configuration>
           <createDependencyReducedPom>false</createDependencyReducedPom>
         </configuration>
@@ -94,6 +99,7 @@
           </execution>
         </executions>
       </plugin>
+
       <plugin>
         <groupId>org.apache.maven.plugins</groupId>
         <artifactId>maven-assembly-plugin</artifactId>
@@ -110,6 +116,7 @@
           </execution>
         </executions>
       </plugin>
+
       <plugin>
         <groupId>org.codehaus.mojo</groupId>
         <artifactId>versions-maven-plugin</artifactId>
@@ -121,24 +128,21 @@
   <repositories>
     <repository>
       <id>spigot-repo</id>
-      <name>Spigot Maven Repository</name>
-      <url>https://hub.spigotmc.org/nexus/content/groups/public</url>
+      <url>https://hub.spigotmc.org/nexus/content/repositories/snapshots/</url>
     </repository>
+
     <repository>
       <id>jitpack.io</id>
       <name>Vault Repository</name>
       <url>https://jitpack.io/</url>
     </repository>
-    <repository>
-      <id>pex-repo</id>
-      <name>PermissionsEx Repository</name>
-      <url>http://pex-repo.aoeu.xyz</url>
-    </repository>
+
     <repository>
       <id>pcgf-repo</id>
       <name>PCGF PluginLib Repository</name>
-      <url>https://repo.pcgamingfreaks.at/repository/everything</url>
+      <url>https://repo.pcgamingfreaks.at/repository/maven-everything</url>
     </repository>
+
     <repository>
       <id>ucchy-github</id>
       <name>ucchy github repository</name>
@@ -150,10 +154,12 @@
     <dependency>
       <groupId>org.spigotmc</groupId>
       <artifactId>spigot-api</artifactId>
-      <version>1.16.2-R0.1-SNAPSHOT</version>
+      <version>1.17.1-R0.1-SNAPSHOT</version>
       <optional>true</optional>
       <scope>provided</scope>
     </dependency>
+
+    <!-- https://mvnrepository.com/artifact/com.github.MilkBowl/VaultAPI -->
     <dependency>
       <groupId>com.github.MilkBowl</groupId>
       <artifactId>VaultAPI</artifactId>
@@ -167,42 +173,42 @@
         </exclusion>
       </exclusions>
     </dependency>
+
+    <!-- https://mvnrepository.com/artifact/net.luckperms/api -->
     <dependency>
-      <groupId>ru.tehkode</groupId>
-      <artifactId>PermissionsEx</artifactId>
-      <version>1.23.1</version>
-      <optional>true</optional>
-      <scope>system</scope>
-      <systemPath>${project.basedir}/lib/PermissionsEx-1.23.1.jar</systemPath>
-      <exclusions>
-        <exclusion>
-          <groupId>net.gravitydevelopment.updater</groupId>
-          <artifactId>updater</artifactId>
-        </exclusion>
-      </exclusions>
+      <groupId>net.luckperms</groupId>
+      <artifactId>api</artifactId>
+      <version>5.3</version>
+      <scope>provided</scope>
     </dependency>
+
+    <!-- https://mvnrepository.com/artifact/com.google.code.gson/gson -->
     <dependency>
       <groupId>com.google.code.gson</groupId>
       <artifactId>gson</artifactId>
-      <version>2.8.6</version>
+      <version>2.8.7</version>
       <optional>true</optional>
     </dependency>
+
     <dependency>
       <groupId>com.github.ucchyocean</groupId>
       <artifactId>MessagingUtility</artifactId>
       <version>0.0.3</version>
       <optional>true</optional>
     </dependency>
+
     <dependency>
       <groupId>com.github.ucchyocean</groupId>
       <artifactId>ItemConfigUtility</artifactId>
       <version>0.0.5</version>
       <optional>true</optional>
     </dependency>
+
+    <!-- https://mvnrepository.com/artifact/junit/junit -->
     <dependency>
       <groupId>junit</groupId>
       <artifactId>junit</artifactId>
-      <version>4.13.1</version>
+      <version>4.13.2</version>
       <scope>test</scope>
     </dependency>
   </dependencies>

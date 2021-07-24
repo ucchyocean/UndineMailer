@@ -14,7 +14,7 @@ import org.bitbucket.ucchy.undine.Utility;
 import org.bitbucket.ucchy.undine.group.GroupData;
 import org.bitbucket.ucchy.undine.group.GroupManager;
 import org.bitbucket.ucchy.undine.group.GroupPermissionMode;
-import org.bitbucket.ucchy.undine.group.SpecialGroupPex;
+import org.bitbucket.ucchy.undine.group.SpecialGroupLp;
 import org.bitbucket.ucchy.undine.sender.MailSender;
 import org.bitbucket.ucchy.undine.sender.MailSenderConsole;
 import org.bitbucket.ucchy.undine.sender.MailSenderPlayer;
@@ -194,7 +194,7 @@ public class GroupCommand implements TabExecutor {
             sender.sendMessage(Messages.get("ErrorInvalidGroupName", "%name", name));
             return true;
         }
-        if ( name.toLowerCase().startsWith(SpecialGroupPex.NAME_PREFIX) ) {
+        if ( name.toLowerCase().startsWith(SpecialGroupLp.NAME_PREFIX) ) {
             sender.sendMessage(Messages.get("ErrorInvalidGroupName", "%name", name));
             return true;
         }
