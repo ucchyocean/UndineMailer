@@ -134,9 +134,9 @@ dissolutionModeDefault: OWNER
 # Sending permission mode of special group "All" (all players group).
 specialGroupAllSendMode: OP
 
-# Default of sending permission mode of special group "PEX" (PermissionsEx group).
+# Default of sending permission mode of special group "LP" (LuckPerms group).
 # You can arrange this permission each groups by setting "send-mode" option value.
-specialGroupPexSendMode: OP
+specialGroupLpSendMode: OP
 
 # Sending permission mode of special group "AllConnected" (all connected players without newcomers).
 specialGroupAllConnectedSendMode: OP

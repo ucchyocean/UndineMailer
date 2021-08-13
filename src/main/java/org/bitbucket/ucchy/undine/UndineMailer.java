@@ -11,7 +11,7 @@ import java.util.List;
 import java.util.Locale;
 import java.util.Set;
 
-import org.bitbucket.ucchy.undine.bridge.PermissionsExBridge;
+import org.bitbucket.ucchy.undine.bridge.LuckPermsBridge;
 import org.bitbucket.ucchy.undine.bridge.VaultEcoBridge;
 import org.bitbucket.ucchy.undine.command.GroupCommand;
 import org.bitbucket.ucchy.undine.command.ListCommand;
@@ -45,7 +45,7 @@ public class UndineMailer extends JavaPlugin {
     private UndineConfig config;
 
     private VaultEcoBridge vaulteco;
-    private PermissionsExBridge pex;
+    private LuckPermsBridge lp;
 
     /**
      * プラグインが有効化されたときに呼び出されるメソッド
@@ -63,10 +63,10 @@ public class UndineMailer extends JavaPlugin {
                     getServer().getPluginManager().getPlugin("Vault"));
         }
 
-        // PermissionsExをロード
-        if ( getServer().getPluginManager().isPluginEnabled("PermissionsEx") ) {
-            pex = PermissionsExBridge.load(
-                    getServer().getPluginManager().getPlugin("PermissionsEx"));
+        // LuckPermsをロード
+        if ( getServer().getPluginManager().isPluginEnabled("LuckPerms") ) {
+            lp = LuckPermsBridge.load(
+                    getServer().getPluginManager().getPlugin("LuckPerms"));
         }
 
         // マネージャを生成し、データをロードする
@@ -223,11 +223,11 @@ public class UndineMailer extends JavaPlugin {
     }
 
     /**
-     * PermissionsExへのアクセスブリッジを取得する
-     * @return PermissionsExBridge、ロードされていなければnullになる
+     * LuckPermsへのアクセスブリッジを取得する
+     * @return LuckPermsBridge、ロードされていなければnullになる
      */
-    public PermissionsExBridge getPex() {
-        return pex;
+    public LuckPermsBridge getLp() {
+        return lp;
     }
 
     /**

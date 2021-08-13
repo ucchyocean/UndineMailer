@@ -14,7 +14,7 @@ import java.util.HashMap;
 
 import org.bitbucket.ucchy.undine.Messages;
 import org.bitbucket.ucchy.undine.UndineMailer;
-import org.bitbucket.ucchy.undine.bridge.PermissionsExBridge;
+import org.bitbucket.ucchy.undine.bridge.LuckPermsBridge;
 import org.bitbucket.ucchy.undine.command.GroupCommand;
 import org.bitbucket.ucchy.undine.command.ListCommand;
 import org.bitbucket.ucchy.undine.command.UndineCommand;
@@ -34,14 +34,14 @@ import com.github.ucchyocean.messaging.tellraw.MessageParts;
  */
 public class GroupManager {
 
-    private static final ArrayList<String> PEX_OPTION_FLAGS;
+    private static final ArrayList<String> LP_OPTION_FLAGS;
     static {
-        PEX_OPTION_FLAGS = new ArrayList<String>();
-        PEX_OPTION_FLAGS.add("recieve-mail");
-        PEX_OPTION_FLAGS.add("receive-mail");
+        LP_OPTION_FLAGS = new ArrayList<String>();
+        LP_OPTION_FLAGS.add("recieve-mail");
+        LP_OPTION_FLAGS.add("receive-mail");
     }
 
-    private static final String PEX_OPTION_SENDMODE = "send-mode";
+    private static final String LP_OPTION_SENDMODE = "send-mode";
     private static final int PAGE_SIZE = 10;
 
     private static final String COMMAND = GroupCommand.COMMAND;
@@ -51,7 +51,7 @@ public class GroupManager {
 
     private UndineMailer parent;
     private HashMap<String, GroupData> groups;
-    private HashMap<String, GroupData> pexGroupsCache;
+    private HashMap<String, GroupData> lpGroupsCache;
 
     /**
      * コンストラクタ
@@ -130,10 +130,10 @@ public class GroupManager {
     public GroupData getGroup(String name) {
         name = name.toLowerCase();
 
-        // PEXから取得する
-        if ( name.startsWith(SpecialGroupPex.NAME_PREFIX) && pexGroupsCache != null ) {
-            if ( pexGroupsCache.containsKey(name) ) {
-                return pexGroupsCache.get(name);
+        // LPから取得する
+        if ( name.startsWith(SpecialGroupLp.NAME_PREFIX) && lpGroupsCache != null ) {
+            if ( lpGroupsCache.containsKey(name) ) {
+                return lpGroupsCache.get(name);
             }
         }
 
@@ -276,8 +276,8 @@ public class GroupManager {
             }
         });
 
-        // PermissionsExから動的にグループを取得して結合する
-        for ( GroupData group : getPexGroups() ) {
+        // LuckPermsから動的にグループを取得して結合する
+        for ( GroupData group : getLpGroups() ) {
             if ( group.canSend(sender) ) {
                 results.add(group);
             }
@@ -820,26 +820,26 @@ public class GroupManager {
     }
 
     /**
-     * PEXからグループを取得してGroupDataに変換して返す
-     * @return PEXからインポートされたグループ
+     * LPからグループを取得してGroupDataに変換して返す
+     * @return LPからインポートされたグループ
      */
-    private ArrayList<GroupData> getPexGroups() {
+    private ArrayList<GroupData> getLpGroups() {
 
-        PermissionsExBridge pex = UndineMailer.getInstance().getPex();
+        LuckPermsBridge lp = UndineMailer.getInstance().getLp();
         ArrayList<GroupData> results = new ArrayList<GroupData>();
 
-        if ( pex == null ) {
+        if ( lp == null ) {
             return results;
         }
 
-        pexGroupsCache = new HashMap<String, GroupData>();
-        for ( String group : pex.getGroupNamesByBooleanOption(PEX_OPTION_FLAGS) ) {
+        lpGroupsCache = new HashMap<String, GroupData>();
+        for ( String group : lp.getGroupNamesByBooleanOption(LP_OPTION_FLAGS) ) {
             GroupPermissionMode sendmode = GroupPermissionMode.getFromString(
-                    pex.getGroupOptionAsString(group, PEX_OPTION_SENDMODE),
-                    UndineMailer.getInstance().getUndineConfig().getSpecialGroupPexSendMode());
-            GroupData gd = new SpecialGroupPex(group, sendmode);
+                    lp.getGroupOptionAsString(group, LP_OPTION_SENDMODE),
+                    UndineMailer.getInstance().getUndineConfig().getSpecialGroupLpSendMode());
+            GroupData gd = new SpecialGroupLp(group, sendmode);
             results.add(gd);
-            pexGroupsCache.put(gd.getName().toLowerCase(), gd);
+            lpGroupsCache.put(gd.getName().toLowerCase(), gd);
         }
 
         return results;

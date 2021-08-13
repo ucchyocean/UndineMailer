@@ -102,8 +102,8 @@ public class UndineConfig {
     /** 特殊グループ All への送信権限 */
     private GroupPermissionMode specialGroupAllSendMode;
 
-    /** 特殊グループ PEX への送信権限 */
-    private GroupPermissionMode specialGroupPexSendMode;
+    /** 特殊グループ LP への送信権限 */
+    private GroupPermissionMode specialGroupLpSendMode;
 
     /** 特殊グループ AllConnected への送信権限 */
     private GroupPermissionMode specialGroupAllConnectedSendMode;
@@ -211,8 +211,8 @@ public class UndineConfig {
         specialGroupAllSendMode = GroupPermissionMode.getFromString(
                 conf.getString("specialGroupAllSendMode"),
                 GroupPermissionMode.OP);
-        specialGroupPexSendMode = GroupPermissionMode.getFromString(
-                conf.getString("specialGroupPexSendMode"),
+        specialGroupLpSendMode = GroupPermissionMode.getFromString(
+                conf.getString("specialGroupLpSendMode"),
                 GroupPermissionMode.OP);
         specialGroupAllConnectedSendMode = GroupPermissionMode.getFromString(
                 conf.getString("specialGroupAllConnectedSendMode"),
@@ -486,10 +486,10 @@ public class UndineConfig {
     }
 
     /**
-     * @return specialGroupPexSendMode
+     * @return specialGroupLpSendMode
      */
-    public GroupPermissionMode getSpecialGroupPexSendMode() {
-        return specialGroupPexSendMode;
+    public GroupPermissionMode getSpecialGroupLpSendMode() {
+        return specialGroupLpSendMode;
     }
 
     /**
